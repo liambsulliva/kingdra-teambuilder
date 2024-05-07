@@ -19,6 +19,7 @@ interface PokemonTypes {
 //TODO: Implement Tera Captains w/ Relevant Clauses
 export default function PokeCard({ pokemon }: PokeCardProps) {
   const pokemonTypes: PokemonTypes = require("./pokemon-types.json");
+  const bannedTera: string[] = require("./banned-tera.json");
   const [isTera, setIsTera] = React.useState<boolean>(false);
   const [enableDropdown, setEnableDropdown] = React.useState<boolean>(false);
   const [selectedType, setSelectedType] = React.useState<string>("Type 1");
@@ -50,11 +51,16 @@ export default function PokeCard({ pokemon }: PokeCardProps) {
         gradientDuoTone={"purpleToBlue"}
         className="transition duration-200 active:scale-95"
         onClick={() => {
-          setIsTera(!isTera)
-          setSelectedType("Type 1");
-          setSelectedType2("Type 2");
-          setSelectedType3("Type 3");
-          setEnableDropdown(!enableDropdown);
+          if (!bannedTera.includes(pokemon.name)) {
+            setIsTera(!isTera)
+            setSelectedType("Type 1");
+            setSelectedType2("Type 2");
+            setSelectedType3("Type 3");
+            setEnableDropdown(!enableDropdown);
+          } else {
+            alert("This Pokemon is Banned from being a Tera Captain!");
+          }
+          console.log(pokemon.name);
         }}
       >
         Tera Captain
