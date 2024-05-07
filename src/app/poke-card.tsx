@@ -2,13 +2,13 @@ import React from 'react';
 import { Card, DropdownItem } from "flowbite-react";
 import { Button } from "flowbite-react";
 import { Dropdown } from "flowbite-react";
+import { Alert } from "flowbite-react";
 
 interface PokeCardProps {
   pokemon: {
     name: string;
     type: string[];
     sprite: string;
-    isTera: boolean;
   };
 }
 
@@ -22,6 +22,7 @@ export default function PokeCard({ pokemon }: PokeCardProps) {
   const bannedTera: string[] = require("./banned-tera.json");
   const [isTera, setIsTera] = React.useState<boolean>(false);
   const [enableDropdown, setEnableDropdown] = React.useState<boolean>(false);
+  const [alert, setAlert] = React.useState<string | null>(null);
   const [selectedType, setSelectedType] = React.useState<string>("Type 1");
   const [selectedType2, setSelectedType2] = React.useState<string>("Type 2");
   const [selectedType3, setSelectedType3] = React.useState<string>("Type 3");
@@ -57,14 +58,20 @@ export default function PokeCard({ pokemon }: PokeCardProps) {
             setSelectedType2("Type 2");
             setSelectedType3("Type 3");
             setEnableDropdown(!enableDropdown);
+          } else if (alert === null) {
+            setAlert("This Pokemon is Banned from being a Tera Captain!");
           } else {
-            alert("This Pokemon is Banned from being a Tera Captain!");
+            setAlert(null);
           }
-          console.log(pokemon.name);
         }}
       >
         Tera Captain
       </Button>
+      {alert && (
+        <Alert className="absolute top-0 left-0 right-0 m-auto" color="failure" onDismiss={() => setAlert(null)} >
+          <span>{alert}</span>
+        </Alert>
+      )}
       {enableDropdown && (
         <>
           <Dropdown outline gradientDuoTone={"purpleToBlue"} label={selectedType} dismissOnClick={true}>
