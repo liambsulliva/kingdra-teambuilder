@@ -1,7 +1,6 @@
 "use client";
 import React, { use, useEffect, useState } from "react";
 import Header from "./header";
-import GenPicker from "./gen-picker";
 import PokePicker from "./poke-picker";
 import PokeCard from "./poke-card";
 
@@ -13,16 +12,17 @@ export default function Home() {
   useEffect(() => {
     console.log(pokemonName);
     const fetchPokemon = async (pokemon: string) => {
-      const lowerCasePokemon = pokemon.toLowerCase();
+      const formattedPokemon = pokemon.toLowerCase().replace(/\s/g, "-");
       let sprite: string = "https://archives.bulbagarden.net/media/upload/8/8e/Spr_3r_000.png";
       try {
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${lowerCasePokemon}/`);
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${formattedPokemon}/`);
         const data = await response.json();
         
         const response2 = await fetch(data.sprites.front_default);
         const data2 = await response2.blob();
 
         sprite = URL.createObjectURL(data2);
+        
         
         setPokemonData(prevData => [...prevData, { name: pokemon, type: data.types.map((type: any) => type.type.name), sprite }]);
       } catch (error) {
@@ -41,7 +41,6 @@ export default function Home() {
       <Header points={points} />
       <div className="flex flex-row flex-grow h-5/6">
         <div className="flex flex-col m-4 ml-8 w-1/3">
-          <GenPicker />
           <PokePicker
             pokemonName={pokemonName}
             setPokemonName={setPokemonName}
