@@ -3,14 +3,38 @@ import React, { use, useEffect, useState } from "react";
 import Header from "./header";
 import PokePicker from "./poke-picker";
 import PokeCard from "./poke-card";
+import { Button } from "flowbite-react";
 
 export default function Home() {
-  const [pokemonName, setPokemonName] = useState<string[]>([]);
-  const [pokemonData, setPokemonData] = useState<any[]>([]);
-  const [points, setPoints] = useState<number>(120);
+  const [points, setPoints] = useState<number>(() => {
+    const storedPoints = localStorage.getItem("points");
+    return storedPoints ? parseInt(storedPoints) : 120;
+  });
+
+  const [pokemonName, setPokemonName] = useState<string[]>(() => {
+    const storedPokemonName = localStorage.getItem("pokemonName");
+    return storedPokemonName ? JSON.parse(storedPokemonName) : [];
+  });
+
+  const [pokemonData, setPokemonData] = useState<any[]>(() => {
+    const storedPokemonData = localStorage.getItem("pokemonData");
+    return storedPokemonData ? JSON.parse(storedPokemonData) : [];
+  });
 
   useEffect(() => {
-    console.log(pokemonName);
+    localStorage.setItem("points", points.toString());
+  }, [points]);
+
+  useEffect(() => {
+    localStorage.setItem("pokemonName", JSON.stringify(pokemonName));
+  }, [pokemonName]);
+
+  useEffect(() => {
+    localStorage.setItem("pokemonData", JSON.stringify(pokemonData));
+  }, [pokemonData]);
+
+  useEffect(() => {
+    //console.log(pokemonName);
     const fetchPokemon = async (pokemon: string) => {
       const formattedPokemon = pokemon.toLowerCase().replace(/\s/g, "-");
       let sprite: string = "https://archives.bulbagarden.net/media/upload/8/8e/Spr_3r_000.png";
@@ -40,7 +64,7 @@ export default function Home() {
     <div className="flex flex-col h-screen">
       <Header points={points} />
       <div className="flex flex-row flex-grow h-5/6">
-        <div className="flex flex-col m-4 ml-8 w-1/3">
+        <div className="flex flex-col m-4 ml-8 w-1/3 gap-2">
           <PokePicker
             pokemonName={pokemonName}
             setPokemonName={setPokemonName}
@@ -48,7 +72,14 @@ export default function Home() {
             setPokemonData={setPokemonData}
             points={points}
             setPoints={setPoints}
-            />
+          />
+          <Button onClick={() => {
+            setPokemonData([]);
+            setPokemonName([]);
+            setPoints(120);
+          }} className="m-4 transition duration-200 active:scale-95">
+            Clear All
+          </Button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4 m-4 flex-grow overflow-auto">
           {pokemonData.map((pokemon, index) => (
