@@ -58,10 +58,11 @@ export default function PokeCard({ pokemon }: PokeCardProps) {
             setSelectedType2("Type 2");
             setSelectedType3("Type 3");
             setEnableDropdown(!enableDropdown);
-          } else if (alert === null) {
-            setAlert("This Pokemon is Banned from being a Tera Captain!");
           } else {
-            setAlert(null);
+            setAlert("This Pokemon is Banned from being a Tera Captain!");
+            setTimeout(() => {
+              setAlert(null);
+            }, 3000);
           }
         }}
       >
