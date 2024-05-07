@@ -1,11 +1,12 @@
 import React from 'react';
 import { Card } from "flowbite-react";
 import { Button } from "flowbite-react";
+import pokemontypes from "./pokemon-types.json";
 
 interface PokeCardProps {
   pokemon: {
     name: string;
-    type: any;
+    type: string[];
     sprite: string;
     isTera: boolean;
   };
@@ -19,10 +20,24 @@ export default function PokeCard({ pokemon }: PokeCardProps) {
       <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
         {pokemon.name}
       </h5>
-      <p className="font-normal text-gray-700 dark:text-gray-400">
-        {/*`${type[0]} ${type[1]}`*/}
-      </p>
-      <Button outline gradientDuoTone={"purpleToBlue"} className="transition duration-200 active:scale-95" onClick={() => pokemon.isTera = true}>Tera Captain</Button>
+      <div className="flex flex-row gap-2">
+        {pokemon.type.map((type, index) => (
+          <img
+            key={index}
+            src={pokemontypes[type]}
+            alt={type}
+            className="w-8 h-8"
+          />
+        ))}
+      </div>
+      <Button
+        outline
+        gradientDuoTone={"purpleToBlue"}
+        className="transition duration-200 active:scale-95"
+        onClick={() => (pokemon.isTera = true)}
+      >
+        Tera Captain
+      </Button>
     </Card>
   );
 }

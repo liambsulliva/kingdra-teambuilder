@@ -6,28 +6,30 @@ import PokeCard from "./poke-card";
 import { Button } from "flowbite-react";
 
 export default function Home() {
-  const [points, setPoints] = useState<any | undefined>(undefined);
+  const [points, setPoints] = useState<any | undefined>(120);
 
   useEffect(() => {
     const storedPoints = localStorage.getItem("points");
     setPoints(storedPoints ? parseInt(storedPoints) : 120);
   }, []);
   
-  const [pokemonName, setPokemonName] = useState<string[]>(() => {
+  const [pokemonName, setPokemonName] = useState<string[]>([]);
+
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedPokemonName = localStorage.getItem("pokemonName");
-      return storedPokemonName ? JSON.parse(storedPokemonName) : [];
+      setPokemonName(storedPokemonName ? JSON.parse(storedPokemonName) : []);
     }
-    return [];
-  });
+  }, []);
   
-  const [pokemonData, setPokemonData] = useState<any[]>(() => {
+  const [pokemonData, setPokemonData] = useState<any[]>([]);
+
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedPokemonData = localStorage.getItem("pokemonData");
-      return storedPokemonData ? JSON.parse(storedPokemonData) : [];
+      setPokemonData(storedPokemonData ? JSON.parse(storedPokemonData) : []);
     }
-    return [];
-  });
+  }, []);
 
   useEffect(() => {
     if (points !== undefined) {
@@ -36,11 +38,15 @@ export default function Home() {
   }, [points]);
 
   useEffect(() => {
-    localStorage.setItem("pokemonName", JSON.stringify(pokemonName));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("pokemonName", JSON.stringify(pokemonName));
+    }
   }, [pokemonName]);
 
   useEffect(() => {
-    localStorage.setItem("pokemonData", JSON.stringify(pokemonData));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("pokemonData", JSON.stringify(pokemonData));
+    }
   }, [pokemonData]);
 
   useEffect(() => {
@@ -51,6 +57,7 @@ export default function Home() {
       try {
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${formattedPokemon}/`);
         const data = await response.json();
+        console.log(data);
         
         const response2 = await fetch(data.sprites.front_default);
         const data2 = await response2.blob();
