@@ -6,30 +6,28 @@ import PokeCard from "./poke-card";
 import { Button } from "flowbite-react";
 
 export default function Home() {
-  const [points, setPoints] = useState<any | undefined>(120);
+  const [points, setPoints] = useState<any | undefined>(undefined);
 
   useEffect(() => {
     const storedPoints = localStorage.getItem("points");
     setPoints(storedPoints ? parseInt(storedPoints) : 120);
   }, []);
   
-  const [pokemonName, setPokemonName] = useState<string[]>([]);
-
-  useEffect(() => {
+  const [pokemonName, setPokemonName] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
       const storedPokemonName = localStorage.getItem("pokemonName");
-      setPokemonName(storedPokemonName ? JSON.parse(storedPokemonName) : []);
+      return storedPokemonName ? JSON.parse(storedPokemonName) : [];
     }
-  }, []);
+    return [];
+  });
   
-  const [pokemonData, setPokemonData] = useState<any[]>([]);
-
-  useEffect(() => {
+  const [pokemonData, setPokemonData] = useState<any[]>(() => {
     if (typeof window !== 'undefined') {
       const storedPokemonData = localStorage.getItem("pokemonData");
-      setPokemonData(storedPokemonData ? JSON.parse(storedPokemonData) : []);
+      return storedPokemonData ? JSON.parse(storedPokemonData) : [];
     }
-  }, []);
+    return [];
+  });
 
   useEffect(() => {
     if (points !== undefined) {
@@ -38,15 +36,11 @@ export default function Home() {
   }, [points]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem("pokemonName", JSON.stringify(pokemonName));
-    }
+    localStorage.setItem("pokemonName", JSON.stringify(pokemonName));
   }, [pokemonName]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem("pokemonData", JSON.stringify(pokemonData));
-    }
+    localStorage.setItem("pokemonData", JSON.stringify(pokemonData));
   }, [pokemonData]);
 
   useEffect(() => {
