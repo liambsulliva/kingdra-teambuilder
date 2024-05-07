@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card } from "flowbite-react";
 import { Button } from "flowbite-react";
-import pokemontypes from "./pokemon-types.json";
 
 interface PokeCardProps {
   pokemon: {

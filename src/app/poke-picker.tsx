@@ -6,10 +6,14 @@ import pokemondata from "./pokemon-data.json";
 
 export default function PokePicker({ pokemonName, setPokemonName, pokemonData, setPokemonData, points, setPoints }: { pokemonName: string[], setPokemonName: React.Dispatch<React.SetStateAction<string[]>>, pokemonData: any[], setPokemonData: React.Dispatch<React.SetStateAction<any[]>>, points: number, setPoints: React.Dispatch<React.SetStateAction<number>>}) {
     const addPokemon = (pokemon: string, negPoints: number) => {
-        if (pokemonName.length < 12 && points >= negPoints) {
+        if (pokemonName.length >= 12) {
+            alert("Team is Full!");
+            //console.log("Pokemon added");
+        } else if (points < negPoints) {
+            alert("Not Enough Points!");
+        } else {
             setPokemonName([...pokemonName, pokemon]);
             setPoints(points - negPoints);
-            //console.log("Pokemon added");
         }
     };
     const removePokemon = (pokemon: string, posPoints: number) => {
