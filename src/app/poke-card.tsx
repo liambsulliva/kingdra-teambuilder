@@ -2,7 +2,6 @@ import React from 'react';
 import { Card, DropdownItem } from "flowbite-react";
 import { Button } from "flowbite-react";
 import { Dropdown } from "flowbite-react";
-import { set } from '@cloudinary/url-gen/actions/variable';
 
 interface PokeCardProps {
   pokemon: {
