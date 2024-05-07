@@ -1,11 +1,13 @@
 import React from 'react';
 import { Card } from "flowbite-react";
+import { Button } from "flowbite-react";
 
 interface PokeCardProps {
   pokemon: {
     name: string;
     type: any;
     sprite: string;
+    isTera: boolean;
   };
 }
 
@@ -20,6 +22,7 @@ export default function PokeCard({ pokemon }: PokeCardProps) {
       <p className="font-normal text-gray-700 dark:text-gray-400">
         {/*`${type[0]} ${type[1]}`*/}
       </p>
+      <Button outline gradientDuoTone={"purpleToBlue"} className="transition duration-200 active:scale-95" onClick={() => pokemon.isTera = true}>Tera Captain</Button>
     </Card>
   );
 }

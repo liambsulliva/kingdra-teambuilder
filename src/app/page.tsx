@@ -6,23 +6,33 @@ import PokeCard from "./poke-card";
 import { Button } from "flowbite-react";
 
 export default function Home() {
-  const [points, setPoints] = useState<number>(() => {
+  const [points, setPoints] = useState<any | undefined>(undefined);
+
+  useEffect(() => {
     const storedPoints = localStorage.getItem("points");
-    return storedPoints ? parseInt(storedPoints) : 120;
-  });
-
+    setPoints(storedPoints ? parseInt(storedPoints) : 120);
+  }, []);
+  
   const [pokemonName, setPokemonName] = useState<string[]>(() => {
-    const storedPokemonName = localStorage.getItem("pokemonName");
-    return storedPokemonName ? JSON.parse(storedPokemonName) : [];
+    if (typeof window !== 'undefined') {
+      const storedPokemonName = localStorage.getItem("pokemonName");
+      return storedPokemonName ? JSON.parse(storedPokemonName) : [];
+    }
+    return [];
   });
-
+  
   const [pokemonData, setPokemonData] = useState<any[]>(() => {
-    const storedPokemonData = localStorage.getItem("pokemonData");
-    return storedPokemonData ? JSON.parse(storedPokemonData) : [];
+    if (typeof window !== 'undefined') {
+      const storedPokemonData = localStorage.getItem("pokemonData");
+      return storedPokemonData ? JSON.parse(storedPokemonData) : [];
+    }
+    return [];
   });
 
   useEffect(() => {
-    localStorage.setItem("points", points.toString());
+    if (points !== undefined) {
+      localStorage.setItem("points", points.toString());
+    }
   }, [points]);
 
   useEffect(() => {
@@ -48,10 +58,11 @@ export default function Home() {
         sprite = URL.createObjectURL(data2);
         
         
-        setPokemonData(prevData => [...prevData, { name: pokemon, type: data.types.map((type: any) => type.type.name), sprite }]);
+        setPokemonData(prevData => [...prevData, { name: pokemon, type: data.types.map((type: any) => type.type.name), sprite, tera: false }]);
       } catch (error) {
-        setPokemonData(prevData => [...prevData, { name: pokemon, type: [], sprite }]);
+        setPokemonData(prevData => [...prevData, { name: pokemon, type: [], sprite, tera: false }]);
       }
+      console.log(pokemonData);
     }
     pokemonName.forEach(pokemon => {
       if (!pokemonData.some(p => p.name === pokemon)) {
@@ -88,7 +99,8 @@ export default function Home() {
               pokemon={{
                 name: pokemon.name,
                 type: pokemon.type,
-                sprite: pokemon.sprite
+                sprite: pokemon.sprite,
+                isTera: pokemon.tera,
               }}
             />
           ))}
