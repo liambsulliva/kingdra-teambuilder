@@ -18,7 +18,7 @@ export default function Home() {
       try {
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${formattedPokemon}/`);
         const data = await response.json();
-        console.log(data);
+        //console.log(data);
 
         const response2 = await fetch(data.sprites.front_default);
         const data2 = await response2.blob();
@@ -29,7 +29,7 @@ export default function Home() {
       } catch (error) {
         setPokemonData(prevData => [...prevData, { name: pokemon, type: [], sprite, tera: false }]);
       }
-      console.log(pokemonData);
+      //console.log(pokemonData);
     }
     pokemonName.forEach(pokemon => {
       if (!pokemonData.some(p => p.name === pokemon)) {
