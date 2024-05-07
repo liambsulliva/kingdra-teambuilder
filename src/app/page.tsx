@@ -41,6 +41,26 @@ export default function Home() {
 
   useEffect(() => {
     localStorage.setItem("pokemonData", JSON.stringify(pokemonData));
+    // Refresh images after retrieval from localStorage
+    //! This is a workaround for the images not loading after a page refresh
+    pokemonData.forEach(async (pokemon) => {
+      const formattedPokemon = pokemon.name.toLowerCase().replace(/\s/g, "-");
+      try {
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${formattedPokemon}/`);
+        const data = await response.json();
+        const response2 = await fetch(data.sprites.front_default);
+        const data2 = await response2.blob();
+        const sprite = URL.createObjectURL(data2);
+        setPokemonData(prevData => prevData.map(p => {
+          if (p.name === pokemon.name) {
+            return { ...p, sprite };
+          }
+          return p;
+        }));
+      } catch (error) {
+        console.error(error);
+      }
+    });
   }, [pokemonData]);
 
   useEffect(() => {
