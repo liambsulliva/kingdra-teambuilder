@@ -6,55 +6,9 @@ import PokeCard from "./poke-card";
 import { Button } from "flowbite-react";
 
 export default function Home() {
-  const [points, setPoints] = useState<any | undefined>(() => {
-    const storedPoints = localStorage.getItem("points");
-    return storedPoints ? parseInt(storedPoints) : 120;
-  });
-
-  const [pokemonName, setPokemonName] = useState<string[]>(() => {
-    const storedPokemonName = localStorage.getItem("pokemonName");
-    return storedPokemonName ? JSON.parse(storedPokemonName) : [];
-  });
-
-  const [pokemonData, setPokemonData] = useState<any[]>(() => {
-    const storedPokemonData = localStorage.getItem("pokemonData");
-    return storedPokemonData ? JSON.parse(storedPokemonData) : [];
-  });
-
-  useEffect(() => {
-    if (points !== undefined) {
-      localStorage.setItem("points", points.toString());
-    }
-  }, [points]);
-
-  useEffect(() => {
-    localStorage.setItem("pokemonName", JSON.stringify(pokemonName));
-  }, [pokemonName]);
-
-  useEffect(() => {
-    localStorage.setItem("pokemonData", JSON.stringify(pokemonData));
-    if (pokemonData.length > 0) {
-      const fetchPokemonData = async (pokemon: any) => {
-        const formattedPokemon = pokemon.name.toLowerCase().replace(/\s/g, "-");
-        try {
-          const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${formattedPokemon}/`);
-          const data = await response.json();
-          const response2 = await fetch(data.sprites.front_default);
-          const data2 = await response2.blob();
-          const sprite = URL.createObjectURL(data2);
-          setPokemonData(prevData => prevData.map(p => {
-            if (p.name === pokemon.name) {
-              return { ...p, sprite };
-            }
-            return p;
-          }));
-        } catch (error) {
-          console.error(error);
-        }
-      };
-      pokemonData.forEach(fetchPokemonData);
-    }
-  }, [pokemonData]);
+  const [points, setPoints] = useState<number>(120);
+  const [pokemonName, setPokemonName] = useState<string[]>([]);
+  const [pokemonData, setPokemonData] = useState<any[]>([]);
 
   useEffect(() => {
     //console.log(pokemonName);
@@ -70,7 +24,6 @@ export default function Home() {
         const data2 = await response2.blob();
 
         sprite = URL.createObjectURL(data2);
-
 
         setPokemonData(prevData => [...prevData, { name: pokemon, type: data.types.map((type: any) => type.type.name), sprite, tera: false }]);
       } catch (error) {
