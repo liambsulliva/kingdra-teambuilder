@@ -28,7 +28,7 @@ export default function PokePicker({ pokemonName, setPokemonName, pokemonData, s
                         <Accordion.Content>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                 {item.Pokemon.map((pokemon) => (
-                                    <Button key={pokemon} color="gray" onClick={() => {
+                                    <Button key={pokemon} color="gray" className="transition duration-200 active:scale-95" onClick={() => {
                                         if (pokemonName.includes(pokemon)) {
                                             removePokemon(pokemon, item.Points);
                                         } else {
