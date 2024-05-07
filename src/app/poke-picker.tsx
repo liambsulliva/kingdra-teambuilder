@@ -37,7 +37,7 @@ export default function PokePicker({ pokemonName, setPokemonName, pokemonData, s
                 <Alert className="absolute top-0 left-0 right-0 m-auto" color="warning" onDismiss={() => setAlert(null)} >
                 <span>{alert}</span>
                 </Alert>
-            )};
+            )}
             <Accordion className="whitespace-nowrap">
                 {pokemondata.map((item) => (
                     <Accordion.Panel key={item.Points}>
