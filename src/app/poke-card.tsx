@@ -1,6 +1,7 @@
 import React from 'react';
-import { Card } from "flowbite-react";
+import { Card, DropdownItem } from "flowbite-react";
 import { Button } from "flowbite-react";
+import { Dropdown } from "flowbite-react";
 
 interface PokeCardProps {
   pokemon: {
@@ -19,6 +20,8 @@ interface PokemonTypes {
 export default function PokeCard({ pokemon }: PokeCardProps) {
   const pokemonTypes: PokemonTypes = require("./pokemon-types.json");
   const [isTera, setIsTera] = React.useState<boolean>(false);
+  const [enableDropdown, setEnableDropdown] = React.useState<boolean>(false);
+  const [selectedType, setSelectedType] = React.useState<string>("Tera Type");
   return (
     <Card>
       <img src={pokemon.sprite} alt={pokemon.name} />
@@ -39,10 +42,20 @@ export default function PokeCard({ pokemon }: PokeCardProps) {
         outline={!isTera}
         gradientDuoTone={"purpleToBlue"}
         className="transition duration-200 active:scale-95"
-        onClick={() => setIsTera(!isTera)}
+        onClick={() => {
+          setIsTera(!isTera)
+          setEnableDropdown(!enableDropdown);
+        }}
       >
         Tera Captain
       </Button>
+      {enableDropdown && (
+        <Dropdown outline gradientDuoTone={"purpleToBlue"} label={selectedType} dismissOnClick={true}>
+          {Object.keys(pokemonTypes).map((type, index) => (
+            <DropdownItem key={index} onClick={() => setSelectedType(type.charAt(0).toUpperCase() + type.slice(1))}>{type.charAt(0).toUpperCase() + type.slice(1)}</DropdownItem>
+          ))}
+        </Dropdown>
+      )}
     </Card>
   );
 }
