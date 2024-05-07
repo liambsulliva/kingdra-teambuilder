@@ -19,7 +19,7 @@ interface PokemonTypes {
 //TODO: Implement Tera Captains w/ Relevant Clauses
 export default function PokeCard({ pokemon }: PokeCardProps) {
   const pokemonTypes: PokemonTypes = require("./pokemon-types.json");
-
+  const [isTera, setIsTera] = React.useState<boolean>(false);
   return (
     <Card>
       <img src={pokemon.sprite} alt={pokemon.name} />
@@ -37,10 +37,10 @@ export default function PokeCard({ pokemon }: PokeCardProps) {
         ))}
       </div>
       <Button
-        outline
+        outline={!isTera}
         gradientDuoTone={"purpleToBlue"}
         className="transition duration-200 active:scale-95"
-        onClick={() => (pokemon.isTera = true)}
+        onClick={() => setIsTera(!isTera)}
       >
         Tera Captain
       </Button>
