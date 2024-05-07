@@ -12,8 +12,14 @@ interface PokeCardProps {
   };
 }
 
+interface PokemonTypes {
+  [key: string]: string;
+}
+
 //TODO: Implement Tera Captains w/ Relevant Clauses
 export default function PokeCard({ pokemon }: PokeCardProps) {
+  const pokemonTypes: PokemonTypes = require("./pokemon-types.json");
+
   return (
     <Card>
       <img src={pokemon.sprite} alt={pokemon.name} />
@@ -24,7 +30,7 @@ export default function PokeCard({ pokemon }: PokeCardProps) {
         {pokemon.type.map((type, index) => (
           <img
             key={index}
-            src={pokemontypes[type]}
+            src={pokemonTypes[type]}
             alt={type}
             className="w-8 h-8"
           />
