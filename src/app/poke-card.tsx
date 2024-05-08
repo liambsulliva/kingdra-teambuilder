@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Card, DropdownItem, Button, Dropdown, Alert } from "flowbite-react";
+import Image from "next/image";
 
 interface PokeCardProps {
   pokemon: {
@@ -45,7 +46,7 @@ export default function PokeCard({ pokemon }: PokeCardProps) {
 
   return (
     <Card>
-      <img src={pokemon.sprite} alt={pokemon.name} />
+      <Image src={pokemon.sprite} width="96" height="96" alt={pokemon.name} />
       <div>
         <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
           {pokemon.name}
@@ -57,10 +58,12 @@ export default function PokeCard({ pokemon }: PokeCardProps) {
       
       <div className="flex flex-row gap-2">
         {pokemon.type.map((type, index) => (
-          <img
+          <Image
             key={index}
             src={pokemonTypes[type]}
             alt={type}
+            width="64"
+            height="64"
             className="w-8 h-8"
           />
         ))}
