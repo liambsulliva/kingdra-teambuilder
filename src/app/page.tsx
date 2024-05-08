@@ -9,13 +9,14 @@ import { Alert } from "flowbite-react";
 export default function Home() {
   const [points, setPoints] = useState<number>(120);
   const [pokemonName, setPokemonName] = useState<string[]>([]);
+  const [pokemonPoints, setPokemonPoints] = useState<number[]>([]);
   const [pokemonData, setPokemonData] = useState<any[]>([]);
   const [exportAlert, setExportAlert] = React.useState<string | null>(null);
 
   const updatePokemonData = async () => {
     const updatedPokemonData = [];
-    for (const pokemon of pokemonName) {
-      const formattedPokemon = pokemon.toLowerCase().replace(/\s/g, "-");
+    for (let i = 0; i < pokemonName.length; i++) {
+      const formattedPokemon = pokemonName[i].toLowerCase().replace(/\s/g, "-");
       let sprite = "https://archives.bulbagarden.net/media/upload/8/8e/Spr_3r_000.png";
       try {
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${formattedPokemon}/`);
@@ -23,9 +24,9 @@ export default function Home() {
         const response2 = await fetch(data.sprites.front_default);
         const data2 = await response2.blob();
         sprite = URL.createObjectURL(data2);
-        updatedPokemonData.push({ name: pokemon, type: data.types.map((type: any) => type.type.name), sprite, tera: false });
+        updatedPokemonData.push({ name: pokemonName[i], points: pokemonPoints[i], type: data.types.map((type: any) => type.type.name), sprite, tera: false });
       } catch (error) {
-        updatedPokemonData.push({ name: pokemon, type: [], sprite, tera: false });
+        updatedPokemonData.push({ name: pokemonName[i], points: pokemonPoints[i], type: [], sprite, tera: false });
       }
     }
     setPokemonData(updatedPokemonData);
@@ -47,13 +48,20 @@ export default function Home() {
             setPokemonData={setPokemonData}
             points={points}
             setPoints={setPoints}
+            pokemonPoints={pokemonPoints}
+            setPokemonPoints={setPokemonPoints}
           />
           <Button.Group className="m-auto my-2">
             <Button onClick={() => {
               const inputData = prompt("Enter your data (No Tera Captains): ");
                 if (inputData) {
                   try {
-                    setPokemonName(JSON.parse(inputData));
+                    const { pokemonName, pokemonPoints } = JSON.parse(inputData);
+                    setPokemonName(pokemonName);
+                    setPokemonPoints(pokemonPoints);
+                    for (let i = 0; i < pokemonName.length; i++) {
+                      setPoints((prevPoints) => prevPoints - pokemonPoints[i]);
+                    }
                     updatePokemonData();
                   } catch (error) {
                     alert("Invalid Input. Please try again.");
@@ -65,12 +73,13 @@ export default function Home() {
             <Button onClick={() => {
               setPokemonData([]);
               setPokemonName([]);
+              setPokemonPoints([]);
               setPoints(120);
             }}>
               Clear All
             </Button>
             <Button onClick={() => {
-                const data = JSON.stringify(pokemonName);
+                const data = JSON.stringify({pokemonName, pokemonPoints});
                 navigator.clipboard.writeText(data);
                 setExportAlert("Data Copied to Clipboard! (Tera Captains not included)");
                 setTimeout(() => {
@@ -93,6 +102,7 @@ export default function Home() {
               key={index}
               pokemon={{
                 name: pokemon.name,
+                points: pokemon.points,
                 type: pokemon.type,
                 sprite: pokemon.sprite,
               }}

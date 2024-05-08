@@ -5,7 +5,7 @@ import { Button } from "flowbite-react";
 import { Alert } from "flowbite-react";
 import pokemondata from "./pokemon-data.json";
 
-export default function PokePicker({ pokemonName, setPokemonName, pokemonData, setPokemonData, points, setPoints }: { pokemonName: string[], setPokemonName: React.Dispatch<React.SetStateAction<string[]>>, pokemonData: any[], setPokemonData: React.Dispatch<React.SetStateAction<any[]>>, points: number, setPoints: React.Dispatch<React.SetStateAction<number>>}) {
+export default function PokePicker({ pokemonName, setPokemonName, pokemonData, setPokemonData, points, setPoints, pokemonPoints, setPokemonPoints }: { pokemonName: string[], setPokemonName: React.Dispatch<React.SetStateAction<string[]>>, pokemonData: any[], setPokemonData: React.Dispatch<React.SetStateAction<any[]>>, points: number, setPoints: React.Dispatch<React.SetStateAction<number>>, pokemonPoints: number[], setPokemonPoints: React.Dispatch<React.SetStateAction<number[]>>}) {
     const [alert, setAlert] = React.useState<string | null>(null);
     const addPokemon = (pokemon: string, negPoints: number) => {
         if (pokemonName.length >= 12) {
@@ -22,6 +22,7 @@ export default function PokePicker({ pokemonName, setPokemonName, pokemonData, s
         } else {
             setPokemonName([...pokemonName, pokemon]);
             setPoints(points - negPoints);
+            setPokemonPoints([...pokemonPoints, negPoints]);
         }
     };
     const removePokemon = (pokemon: string, posPoints: number) => {

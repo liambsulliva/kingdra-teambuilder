@@ -7,6 +7,7 @@ import { Alert } from "flowbite-react";
 interface PokeCardProps {
   pokemon: {
     name: string;
+    points: number;
     type: string[];
     sprite: string;
   };
@@ -34,9 +35,15 @@ export default function PokeCard({ pokemon }: PokeCardProps) {
   return (
     <Card>
       <img src={pokemon.sprite} alt={pokemon.name} />
-      <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-        {pokemon.name}
-      </h5>
+      <div>
+        <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+          {pokemon.name}
+        </h5>
+        <p>
+          {`${pokemon.points} Points`}
+        </p>
+      </div>
+      
       <div className="flex flex-row gap-2">
         {pokemon.type.map((type, index) => (
           <img
