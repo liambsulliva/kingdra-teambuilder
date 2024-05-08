@@ -1,17 +1,16 @@
-"use client";
-import React, { use, useEffect, useState } from "react";
+"use client"
+import React, { useEffect, useState } from "react";
 import Header from "./header";
 import PokePicker from "./poke-picker";
 import PokeCard from "./poke-card";
-import { Button } from "flowbite-react";
-import { Alert } from "flowbite-react";
+import { Button, Alert } from "flowbite-react";
 
 export default function Home() {
   const [points, setPoints] = useState<number>(120);
   const [pokemonName, setPokemonName] = useState<string[]>([]);
   const [pokemonPoints, setPokemonPoints] = useState<number[]>([]);
   const [pokemonData, setPokemonData] = useState<any[]>([]);
-  const [exportAlert, setExportAlert] = React.useState<string | null>(null);
+  const [exportAlert, setExportAlert] = useState<string | null>(null);
 
   const updatePokemonData = async () => {
     const updatedPokemonData = [];
@@ -30,6 +29,39 @@ export default function Home() {
       }
     }
     setPokemonData(updatedPokemonData);
+  };
+
+  const handleImport = () => {
+    const inputData = prompt("Enter your data (No Tera Captains): ");
+    if (inputData) {
+      try {
+        const { pokemonName, pokemonPoints } = JSON.parse(inputData);
+        setPokemonName(pokemonName);
+        setPokemonPoints(pokemonPoints);
+        for (let i = 0; i < pokemonName.length; i++) {
+          setPoints((prevPoints) => prevPoints - pokemonPoints[i]);
+        }
+        updatePokemonData();
+      } catch (error) {
+        alert("Invalid Input. Please try again.");
+      }
+    }
+  };
+
+  const handleClearAll = () => {
+    setPokemonData([]);
+    setPokemonName([]);
+    setPokemonPoints([]);
+    setPoints(120);
+  };
+
+  const handleExport = () => {
+    const data = JSON.stringify({ pokemonName, pokemonPoints });
+    navigator.clipboard.writeText(data);
+    setExportAlert("Data Copied to Clipboard! (Tera Captains not included)");
+    setTimeout(() => {
+      setExportAlert(null);
+    }, 3000);
   };
 
   useEffect(() => {
@@ -52,46 +84,12 @@ export default function Home() {
             setPokemonPoints={setPokemonPoints}
           />
           <Button.Group className="m-auto my-2">
-            <Button onClick={() => {
-              const inputData = prompt("Enter your data (No Tera Captains): ");
-                if (inputData) {
-                  try {
-                    const { pokemonName, pokemonPoints } = JSON.parse(inputData);
-                    setPokemonName(pokemonName);
-                    setPokemonPoints(pokemonPoints);
-                    for (let i = 0; i < pokemonName.length; i++) {
-                      setPoints((prevPoints) => prevPoints - pokemonPoints[i]);
-                    }
-                    updatePokemonData();
-                  } catch (error) {
-                    alert("Invalid Input. Please try again.");
-                  }
-                }
-            }}>
-              Import
-            </Button>
-            <Button onClick={() => {
-              setPokemonData([]);
-              setPokemonName([]);
-              setPokemonPoints([]);
-              setPoints(120);
-            }}>
-              Clear All
-            </Button>
-            <Button onClick={() => {
-                const data = JSON.stringify({pokemonName, pokemonPoints});
-                navigator.clipboard.writeText(data);
-                setExportAlert("Data Copied to Clipboard! (Tera Captains not included)");
-                setTimeout(() => {
-                  setExportAlert(null);
-                }, 3000);
-              }
-            }>
-              Export
-            </Button>
+            <Button onClick={handleImport}>Import</Button>
+            <Button onClick={handleClearAll}>Clear All</Button>
+            <Button onClick={handleExport}>Export</Button>
           </Button.Group>
           {exportAlert && (
-            <Alert className="absolute top-0 left-0 right-0 m-auto" color="success" onDismiss={() => setExportAlert(null)} >
+            <Alert className="absolute top-0 left-0 right-0 m-auto" color="success" onDismiss={() => setExportAlert(null)}>
               <span>{exportAlert}</span>
             </Alert>
           )}

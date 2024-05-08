@@ -1,8 +1,5 @@
-import React from 'react';
-import { Card, DropdownItem } from "flowbite-react";
-import { Button } from "flowbite-react";
-import { Dropdown } from "flowbite-react";
-import { Alert } from "flowbite-react";
+import React, { useState } from 'react';
+import { Card, DropdownItem, Button, Dropdown, Alert } from "flowbite-react";
 
 interface PokeCardProps {
   pokemon: {
@@ -17,19 +14,33 @@ interface PokemonTypes {
   [key: string]: string;
 }
 
-//TODO: Implement Tera Captains w/ Relevant Clauses
 export default function PokeCard({ pokemon }: PokeCardProps) {
   const pokemonTypes: PokemonTypes = require("./pokemon-types.json");
   const bannedTera: string[] = require("./banned-tera.json");
-  const [isTera, setIsTera] = React.useState<boolean>(false);
-  const [enableDropdown, setEnableDropdown] = React.useState<boolean>(false);
-  const [alert, setAlert] = React.useState<string | null>(null);
-  const [selectedType, setSelectedType] = React.useState<string>("Type 1");
-  const [selectedType2, setSelectedType2] = React.useState<string>("Type 2");
-  const [selectedType3, setSelectedType3] = React.useState<string>("Type 3");
+  const [isTera, setIsTera] = useState<boolean>(false);
+  const [enableDropdown, setEnableDropdown] = useState<boolean>(false);
+  const [alert, setAlert] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<string>("Type 1");
+  const [selectedType2, setSelectedType2] = useState<string>("Type 2");
+  const [selectedType3, setSelectedType3] = useState<string>("Type 3");
 
   const uppercaseFirstLetter = (type: string) => {
     return type.charAt(0).toUpperCase() + type.slice(1);
+  }
+
+  const handleTeraCaptainClick = () => {
+    if (!bannedTera.includes(pokemon.name)) {
+      setIsTera(!isTera)
+      setSelectedType("Type 1");
+      setSelectedType2("Type 2");
+      setSelectedType3("Type 3");
+      setEnableDropdown(!enableDropdown);
+    } else {
+      setAlert("This Pokemon is Banned from being a Tera Captain!");
+      setTimeout(() => {
+        setAlert(null);
+      }, 3000);
+    }
   }
 
   return (
@@ -58,20 +69,7 @@ export default function PokeCard({ pokemon }: PokeCardProps) {
         outline={!isTera}
         gradientDuoTone={"purpleToBlue"}
         className="transition duration-200 active:scale-95"
-        onClick={() => {
-          if (!bannedTera.includes(pokemon.name)) {
-            setIsTera(!isTera)
-            setSelectedType("Type 1");
-            setSelectedType2("Type 2");
-            setSelectedType3("Type 3");
-            setEnableDropdown(!enableDropdown);
-          } else {
-            setAlert("This Pokemon is Banned from being a Tera Captain!");
-            setTimeout(() => {
-              setAlert(null);
-            }, 3000);
-          }
-        }}
+        onClick={handleTeraCaptainClick}
       >
         Tera Captain
       </Button>
