@@ -38,6 +38,7 @@ export default function Home() {
         const { pokemonName, pokemonPoints } = JSON.parse(inputData);
         setPokemonName(pokemonName);
         setPokemonPoints(pokemonPoints);
+        setPoints(120);
         for (let i = 0; i < pokemonName.length; i++) {
           setPoints((prevPoints) => prevPoints - pokemonPoints[i]);
         }
