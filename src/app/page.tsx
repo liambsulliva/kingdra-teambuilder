@@ -70,45 +70,51 @@ export default function Home() {
   }, [pokemonName]);
 
   return (
-    <div className="flex flex-col h-screen">
-      <Header points={points} />
-      <div className="flex flex-row flex-grow h-5/6">
-        <div className="flex flex-col m-4 ml-8 w-1/3 gap-2">
-          <PokePicker
-            pokemonName={pokemonName}
-            setPokemonName={setPokemonName}
-            pokemonData={pokemonData}
-            setPokemonData={setPokemonData}
-            points={points}
-            setPoints={setPoints}
-            pokemonPoints={pokemonPoints}
-            setPokemonPoints={setPokemonPoints}
-          />
-          <Button.Group className="m-auto my-2">
-            <Button onClick={handleImport}>Import</Button>
-            <Button onClick={handleClearAll}>Clear All</Button>
-            <Button onClick={handleExport}>Export</Button>
-          </Button.Group>
-          {exportAlert && (
-            <Alert className="absolute top-0 left-0 right-0 m-auto" color="success" onDismiss={() => setExportAlert(null)}>
-              <span>{exportAlert}</span>
-            </Alert>
-          )}
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4 m-4 flex-grow overflow-auto">
-          {pokemonData.map((pokemon, index) => (
-            <PokeCard
-              key={index}
-              pokemon={{
-                name: pokemon.name,
-                points: pokemon.points,
-                type: pokemon.type,
-                sprite: pokemon.sprite,
-              }}
+    <>
+      <div className="wrapper flex flex-col h-screen">
+        <Header points={points} />
+        <div className="flex flex-row flex-grow h-5/6">
+          <div className="flex flex-col m-4 ml-8 w-1/3 gap-2">
+            <PokePicker
+              pokemonName={pokemonName}
+              setPokemonName={setPokemonName}
+              pokemonData={pokemonData}
+              setPokemonData={setPokemonData}
+              points={points}
+              setPoints={setPoints}
+              pokemonPoints={pokemonPoints}
+              setPokemonPoints={setPokemonPoints}
             />
-          ))}
+            <Button.Group className="m-auto my-2">
+              <Button onClick={handleImport}>Import</Button>
+              <Button onClick={handleClearAll}>Clear All</Button>
+              <Button onClick={handleExport}>Export</Button>
+            </Button.Group>
+            {exportAlert && (
+              <Alert className="absolute top-0 left-0 right-0 m-auto" color="success" onDismiss={() => setExportAlert(null)}>
+                <span>{exportAlert}</span>
+              </Alert>
+            )}
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4 m-4 flex-grow overflow-auto">
+            {pokemonData.map((pokemon, index) => (
+              <PokeCard
+                key={index}
+                pokemon={{
+                  name: pokemon.name,
+                  points: pokemon.points,
+                  type: pokemon.type,
+                  sprite: pokemon.sprite,
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+      <div className="warning-message">
+        This website is only viewable in landscape mode.<br/>
+        Please rotate your device.
+      </div>
+    </>
   );
 }
