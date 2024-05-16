@@ -15,7 +15,7 @@ This application relies on the (PokèAPI)[https://pokeapi.co/]. Big credit to th
 ## Installation
 1. Clone the repository to your local machine:
     ```bash
-    git clone https://github.com/your-username/pokemon-teambuilder.git
+    git clone https://github.com/liambsulliva/pokemon-teambuilder.git
     ```
 
 2. Navigate to the project directory:
