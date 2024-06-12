@@ -1,47 +1,43 @@
-# Pokemon Teambuilder
+## 👋 Introduction
 
-## Dependencies
-Before running this application, make sure to install the following dependencies:
+Below is a Pokemon teambuilder I wrote for my friends in our 2024 Summer Pokemon Draft League. It is somewhat like fantasy football, where you draft pokemon in order. But you battle with them yourselves and use their strengths to your advantage. This teambuilder allows the user to preview the perfect team before actually drafting their picks.
 
-- Flowbite
-- Flowbite-React
-- Next
-- React
-- React-DOM
+## 💻 Demo
 
-## Credit
-This application relies on the (PokèAPI)[https://pokeapi.co/]. Big credit to them for indexing the type images and pokemon sprites served in this app.
+Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 
-## Installation
-1. Clone the repository to your local machine:
-    ```bash
-    git clone https://github.com/liambsulliva/pokemon-teambuilder.git
-    ```
+## 💪 Features:
+    
+- ✅ Grid System for Selected Cards
+- ✅ Clear Button
+- ✅ Point System
+- ✅ Alert System
+- ✅ Tera Captain Selection + Types
+- ✅ Import/Export JSON System
 
-2. Navigate to the project directory:
-    ```bash
-    cd pokemon-teambuilder
-    ```
+## 🛣️ Roadmap
 
-3. Install the required dependencies using npm or yarn:
-    ```bash
-    npm install
-    # or
-    yarn install
-    ```
+- ❌ Dark Mode Support
+- ❌ Update to 2024 Draft List
+- ❌ Customize UI Library
+- ❌ Async/Await Sync Bug (Edge Cases)
+- ❌ Image Optimization
 
-4. Start the application:
-    ```bash
-    npm run dev
-    # or
-    yarn run dev
-    ```
+## ⚙️ Stack
 
-## Usage
+- [**NextJS** + **Typescript**](https://nextjs.org) - NextJS is an all-in-one web framework that includes inbuilt SSR among other optimizations.
+- [**Tailwind CSS**](https://tailwindcss.com/) - Tailwind CSS is a utility-first CSS framework.
+- [**React**](https://react.dev) - A JavaScript library for building user interfaces.
+- [**Flowbite**](https://flowbite.com/) - An extensible UI library built for Tailwind.
 
-1. Open your browser and visit `http://localhost:3000` to view the application, or use the Live Preview link: `https://pokedraft.liambsullivan.com/`.
+## 🧞 Commands
 
-2. Add pokemon by clicking the button and remove by clicking the button again.
+All commands are run from the root of the project, from a terminal:
 
-3. If you can't add any more pokemon, it is because an error occured. Check the respective banner for more information.
+- `next dev`: Starts the development server and watches for changes.
+- `next build`: Builds the project for production.
+- `next start`: Previews the production build locally.
+- `next lint`: Lints the project using ESLint.
 
+Make sure to install the Next CLI by running `npm install next`.
+To create a new app with next, use `npx create-next-app@latest` instead.
