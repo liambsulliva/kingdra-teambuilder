@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Header from "./header";
+import Header from "../components/header";
 
 export default function Home() {
   return (
