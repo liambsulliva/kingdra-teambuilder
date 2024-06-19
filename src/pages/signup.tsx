@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from 'flowbite-react';
+import { Button, FloatingLabel } from 'flowbite-react';
 import '@/app/globals.css';
 
 const SignupPage: React.FC = () => {
@@ -21,19 +21,19 @@ const SignupPage: React.FC = () => {
 
     return (
         <div className="flex flex-col items-center justify-center h-screen gap-6">
-            <Button href='/'>Home</Button>
+            <a className='hover:underline' href='/'>Home</a>
             <div className="flex flex-col items-center justify-center">
-                <h1 className="text-2xl font-bold">Sign Up</h1>
+                <h1 className="text-2xl font-bold mb-6">Sign Up</h1>
                 <form onSubmit={handleSubmit} className="w-64">
                     <div className="mb-4">
-                        <label className="block mb-2">Email:</label>
-                        <input className="w-full border border-gray-300 rounded px-2 py-1" type="email" value={email} onChange={handleEmailChange} />
+                        <FloatingLabel variant="outlined" label="Email" type="email" value={email} onChange={handleEmailChange} />
                     </div>
                     <div className="mb-4">
-                        <label className="block mb-2">Password:</label>
-                        <input className="w-full border border-gray-300 rounded px-2 py-1" type="password" value={password} onChange={handlePasswordChange} />
+                        <FloatingLabel variant='outlined' label='Password' type='password' value={password} onChange={handlePasswordChange} />
                     </div>
-                    <button className="bg-blue-500 text-white px-4 py-2 rounded" type="submit">Sign Up</button>
+                    <div className="flex justify-center">
+                        <Button type='submit'>Submit</Button>
+                    </div>
                 </form>
             </div>
         </div>

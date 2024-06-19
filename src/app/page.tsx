@@ -1,13 +1,21 @@
-import React, { useEffect, useState } from "react";
 import Layout from "./layout";
-import Header from "@/components/header";
-import Footer from "@/components/footer";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import PokeParty from "@/components/PokeParty";
+import PokeInfo from "@/components/PokeInfo";
+import PokeFinder from "@/components/PokeFinder";
 
 export default function Home() {
   return (
       <Layout>
         <Header />
-          <div className="h-screen" />
+        <div className="w-full flex flex-col gap-8 p-8">
+          <div className="w-full flex flex-row">
+            <PokeParty />
+            <PokeInfo />
+          </div>
+          <PokeFinder />
+        </div>
         <Footer />
       </Layout>
   );
