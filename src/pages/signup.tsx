@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '@/components/header';
+import '@/app/globals.css';
 
 const SignupPage: React.FC = () => {
     const [email, setEmail] = useState('');

@@ -1,4 +1,5 @@
 import { Button } from 'flowbite-react';
+import "@/app/globals.css";
 
 export default function Header() {
     return (
