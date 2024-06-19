@@ -1,8 +1,6 @@
 import ModeTabber from "@/components/ModeTabber";
 import TeamSelector from "./TeamSelector";
 import PokeballLogo from "./PokeballLogo";
-import PartyIcon from "./PartyIcon";
-import ClashIcon from "./ClashIcon";
 import { Button } from 'flowbite-react';
 import "@/app/globals.css";
 
@@ -14,11 +12,12 @@ export default function Header() {
           <PokeballLogo className="md:hidden" />
           <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
         </div>
-        <div className='flex flex-row gap-4'>
+        <div className='flex flex-row gap-4 max-md:hidden'>
           <TeamSelector />
           <Button color="gray" href='/signin'>Account</Button>
           <Button color="gray" href='' disabled>Settings</Button>
         </div>
+        {/* Hamburger Menu Here on md: */}
       </div>
     );
 }
