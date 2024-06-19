@@ -11,7 +11,7 @@ export default function Header() {
         </div>
         <div className='flex flex-row gap-4'>
           <Button color="gray" href='/signin'>Account</Button>
-          <Button color="gray" href='/settings'>Settings</Button>
+          <Button color="gray" href='' disabled>Settings</Button>
         </div>
       </div>
     );
