@@ -1,11 +1,9 @@
-"use client"
+//"use client"
+//import Draggable from 'react-draggable';
 import "@/app/globals.css";
-import Draggable from 'react-draggable';
 
 export default function PokeFinderCard() {
     return (
-        <Draggable>
-            <div className="bg-[#fff] h-32 w-32 rounded shadow cursor-pointer"/>
-        </Draggable>
+        <div className="bg-[#fff] h-32 w-32 rounded shadow cursor-pointer" />
     );
 }

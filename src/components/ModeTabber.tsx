@@ -2,17 +2,22 @@ import { Button, ButtonGroup } from "flowbite-react";
 import PartyIcon from "./PartyIcon";
 import ClashIcon from "./ClashIcon";
 
-export default function Component() {
+interface TabberProps {
+  leftLabel: string;
+  rightLabel: string;
+}
+
+export default function Component({leftLabel, rightLabel}: TabberProps) {
   return (
     <div className="mx-4">
       <ButtonGroup>
         <Button color="gray">
           <PartyIcon className="mr-3" />
-          Casual
+          {leftLabel}
         </Button>
         <Button color="gray" disabled>
           <ClashIcon className="mr-3" />
-          Competitive
+          {rightLabel}
         </Button>
       </ButtonGroup>
     </div>
