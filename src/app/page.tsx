@@ -17,14 +17,15 @@ interface pokemon {
 
 export default function Home() {
   const [pokemonParty, setPokemonParty] = useState<pokemon[]>([]);
+  const [selectedPokemon, setSelectedPokemon] = useState<pokemon>({ name: "", id: 0, sprite: "" });
 
   return (
     <>
       <Header />
         <div className="flex flex-col gap-8 p-8">
           <div className="flex md:flex-row flex-col gap-4">
-            <PokeParty pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
-            <PokeInfo />
+            <PokeParty pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} setSelectedPokemon={setSelectedPokemon} />
+            <PokeInfo selectedPokemon={selectedPokemon} />
           </div>
           <div className="flex flex-col gap-4">
             <PokeSearch />

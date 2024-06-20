@@ -9,8 +9,14 @@ interface pokemon {
     name: string;
 }
 
-export default function PokeSlot({ pokemon, setPokemonParty }: { pokemon: pokemon | null, setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>> }) {
-    const handleClick = async () => {
+export default function PokeSlot({ pokemon, setPokemonParty, setSelectedPokemon }: { pokemon: pokemon | null, setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>, setSelectedPokemon: React.Dispatch<React.SetStateAction<pokemon>> }) {
+    const handleInfo = async () => {
+        if (!pokemon) {
+            return null;
+        }
+        setSelectedPokemon(pokemon);
+    };
+    const handleDelete = async () => {
         if (!pokemon) {
             return null;
         }
@@ -33,8 +39,8 @@ export default function PokeSlot({ pokemon, setPokemonParty }: { pokemon: pokemo
     return (
         <div className="relative">
             {pokemon ? (
-                <div className="flex flex-col justify-center items-center bg-[#fff] h-24 w-24 rounded shadow cursor-pointer">
-                    <div className="absolute top-0 right-0 translate-x-2 -translate-y-2" onClick={() => {handleClick()}}><CloseIcon /></div>
+                <div className="flex flex-col justify-center items-center bg-[#fff] h-24 w-24 rounded shadow cursor-pointer" onClick={() => {handleInfo()}}>
+                    <div className="absolute top-0 right-0 translate-x-2 -translate-y-2" onClick={() => {handleDelete()}}><CloseIcon /></div>
                     <img src={pokemon.sprite} alt={pokemon.name} />
                 </div>
             ) : (

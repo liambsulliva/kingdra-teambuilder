@@ -1,13 +1,15 @@
 import "@/app/globals.css";
 
-interface PokeInfoProps {
-    pokemon?: string;
+interface pokemon {
+    name: string;
+    id: number;
+    sprite: string;
 }
 
-export default function PokeInfo({ pokemon }: PokeInfoProps) {
+export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon }) {
     return (
         <div className="bg-[#f9f9f9] max-md:hidden rounded flex-grow">
-            {/* Use the 'pokemon' prop here */}
+            <img src={selectedPokemon.sprite} alt={selectedPokemon.name} />
         </div>
     );
 }
