@@ -17,7 +17,12 @@ interface pokemon {
 const PokeFinderCard: React.FC<PokeFinderCardProps> = ({ pokemon, setPokemonParty }: PokeFinderCardProps) => {
     const handleClick = async () => {
         try {
-            setPokemonParty((prevPokemonParty: pokemon[]) => [...prevPokemonParty, pokemon]);
+            setPokemonParty((prevPokemonParty: pokemon[]) => {
+                if (!prevPokemonParty.some(p => p.id === pokemon.id)) {
+                    return [...prevPokemonParty, pokemon];
+                }
+                return prevPokemonParty;
+            });
             const response = await axios.post('/api/pokemon-party', {
                 name: pokemon.name,
                 sprite: pokemon.sprite

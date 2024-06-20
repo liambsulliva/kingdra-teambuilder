@@ -22,6 +22,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             // Save the new Pokemon to the database or perform any other necessary operations
             // ...
             const newPokemon = { name, sprite };
+            
+            // Check if the Pokemon already exists in the party
+            const existingPokemon = pokemonParty.find(pokemon => pokemon.name === newPokemon.name);
+            if (existingPokemon) {
+                res.status(409).json({ message: 'Pokemon already exists in the party' });
+                return;
+            }
+            
+            // Add the new Pokemon to the party
             pokemonParty.push(newPokemon);
             // Return a success response
             res.status(201).json({ message: 'Pokemon created successfully' });
