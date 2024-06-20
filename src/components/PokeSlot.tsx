@@ -34,7 +34,7 @@ export default function PokeSlot({ pokemon, setPokemonParty }: { pokemon: pokemo
         <div className="relative">
             {pokemon ? (
                 <div className="flex flex-col justify-center items-center bg-[#fff] h-24 w-24 rounded shadow cursor-pointer">
-                    <div className="absolute top-0 right-0 translate-x-2 -translate-y-2" onClick={() => {handleClick}}><CloseIcon /></div>
+                    <div className="absolute top-0 right-0 translate-x-2 -translate-y-2" onClick={() => {handleClick()}}><CloseIcon /></div>
                     <img src={pokemon.sprite} alt={pokemon.name} />
                 </div>
             ) : (
