@@ -35,9 +35,9 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({ pokemon, setPokemonPart
     };
 
     return (
-        <div className="flex flex-col justify-center items-center bg-[#fff] h-32 w-32 rounded shadow cursor-pointer" onClick={handleClick}>
-            <img src={pokemon.sprite} alt={pokemon.name} />
-            <p>{pokemon.name}</p>
+        <div className="flex flex-col justify-center items-center bg-[#fff] md:h-32 h-44 w-32 rounded shadow cursor-pointer" onClick={handleClick}>
+            <img className="md:h-24 md:w-24" src={pokemon.sprite} alt={pokemon.name} />
+            <p className="text-center">{pokemon.name}</p>
         </div>
     );
 }
