@@ -18,7 +18,13 @@ export default function PokeFinder() {
             }
             const data = await response.json();
             console.log(data);
-            setPokemonData((prevData: any) => [...prevData, ...data.pokemonData]);
+            setPokemonData((prevData: any) => [...prevData, ...data.pokemonData.map((pokemon: any) => {
+                const formattedName = pokemon.name
+                    .split('-')
+                    .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join('-');
+                return { ...pokemon, name: formattedName };
+            })]);
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
