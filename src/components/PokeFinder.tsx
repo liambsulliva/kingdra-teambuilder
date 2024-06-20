@@ -4,7 +4,13 @@ import "@/app/globals.css";
 import { useEffect, useState, useCallback } from "react";
 import PokeFinderCard from "./PokeFinderCard";
 
-export default function PokeFinder() {
+interface pokemon {
+    name: string,
+    id: number,
+    sprite: string
+}
+
+export default function PokeFinder({ setPokemonParty }: { setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>> }) {
     const [pokemonData, setPokemonData] = useState<any>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -57,7 +63,7 @@ export default function PokeFinder() {
             ) : (
                 <>
                     {pokemonData.map((pokemon: any) => (
-                        <PokeFinderCard key={pokemon.id} pokemon={pokemon} />
+                        <PokeFinderCard key={pokemon.id} pokemon={pokemon} setPokemonParty={setPokemonParty} />
                     ))}
                 </>
             )}

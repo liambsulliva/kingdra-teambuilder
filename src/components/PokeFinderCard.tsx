@@ -3,17 +3,21 @@
 import "@/app/globals.css";
 import axios from 'axios';
 
-interface PokeFinderCard {
-    pokemon: {
-        sprite: string;
-        name: string;
-        id: string
-    };
+interface PokeFinderCardProps {
+    pokemon: pokemon;
+    setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
 }
 
-export default function PokeFinderCard({ pokemon }: PokeFinderCard) {
+interface pokemon {
+    name: string,
+    id: number,
+    sprite: string
+}
+
+const PokeFinderCard: React.FC<PokeFinderCardProps> = ({ pokemon, setPokemonParty }: PokeFinderCardProps) => {
     const handleClick = async () => {
         try {
+            setPokemonParty((prevPokemonParty: pokemon[]) => [...prevPokemonParty, pokemon]);
             const response = await axios.post('/api/pokemon-party', {
                 name: pokemon.name,
                 sprite: pokemon.sprite
@@ -37,3 +41,5 @@ export default function PokeFinderCard({ pokemon }: PokeFinderCard) {
         </div>
     );
 }
+
+export default PokeFinderCard;
