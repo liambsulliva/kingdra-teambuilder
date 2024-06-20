@@ -9,7 +9,7 @@ interface pokemon {
 let pokemonParty: pokemon[] = [];
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method === 'GET') {
+    if (req.method === 'POST') {
         const { name, sprite } = req.body;
 
         // Perform any necessary validation on the request body
