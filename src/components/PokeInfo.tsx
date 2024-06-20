@@ -28,18 +28,18 @@ export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon
     }, [selectedPokemon]);
 
     return (
-        <div className="bg-[#f9f9f9] max-md:hidden rounded flex-grow">
+        <div className="bg-[#f9f9f9] max-md:hidden rounded flex-grow p-8">
             {pokemonInfo ? (
                 <div>
-                    <h2>{pokemonInfo.name}</h2>
-                    <img src={selectedPokemon.sprite} alt={selectedPokemon.name} />
-                    <p>Base Experience: {pokemonInfo.base_experience}</p>
-                    <p>Height: {pokemonInfo.height}</p>
-                    <p>Weight: {pokemonInfo.weight}</p>
-                    <h3>Abilities:</h3>
+                    <h2 className="text-2xl font-bold mb-2">{pokemonInfo.name}</h2>
+                    <img src={pokemonInfo.sprites.versions['generation-v']['black-white'].animated.front_default} alt={pokemonInfo.name} className="w-auto h-auto mb-4" />
+                    <p className="mb-2">Base Experience: {pokemonInfo.base_experience}</p>
+                    <p className="mb-2">Height: {pokemonInfo.height}</p>
+                    <p className="mb-2">Weight: {pokemonInfo.weight}</p>
+                    <h3 className="text-lg font-bold mb-2">Abilities:</h3>
                     <ul>
                         {pokemonInfo.abilities.map((ability: any, index: number) => (
-                            <li key={index}>{ability.ability.name}</li>
+                            <li key={index} className="mb-1">{ability.ability.name}</li>
                         ))}
                     </ul>
                 </div>
