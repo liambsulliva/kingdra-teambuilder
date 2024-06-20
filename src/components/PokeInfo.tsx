@@ -12,7 +12,7 @@ interface pokemon {
 
 
 export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon }) {
-    const [pokemonInfo, setPokemonInfo] = useState(null);
+    const [pokemonInfo, setPokemonInfo] = useState<any>(null);
 
     useEffect(() => {
         const fetchPokemonInfo = async () => {
@@ -38,7 +38,7 @@ export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon
                     <p>Weight: {pokemonInfo.weight}</p>
                     <h3>Abilities:</h3>
                     <ul>
-                        {pokemonInfo.abilities.map((ability, index) => (
+                        {pokemonInfo.abilities.map((ability: any, index: number) => (
                             <li key={index}>{ability.ability.name}</li>
                         ))}
                     </ul>
