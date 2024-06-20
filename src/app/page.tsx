@@ -1,11 +1,11 @@
 "use client"
 
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import PokeParty from "../components/PokeParty";
-import PokeInfo from "../components/PokeInfo";
-import PokeFinder from "../components/PokeFinder";
-import PokeSearch from "../components/PokeSearch";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import PokeParty from "@/components/PokeParty";
+import PokeInfo from "@/components/PokeInfo";
+import PokeFinder from "@/components/PokeFinder";
+import PokeSearch from "@/components/PokeSearch";
 
 import { useState } from "react";
 
