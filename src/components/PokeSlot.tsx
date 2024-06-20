@@ -2,7 +2,6 @@ import "@/app/globals.css";
 import CloseIcon from './CloseIcon';
 import axios from 'axios';
 
-
 interface pokemon {
     sprite: string;
     id: number;
