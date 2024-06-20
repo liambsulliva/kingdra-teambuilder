@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import fetch from 'node-fetch';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const limit = 100; // Number of pokemon to fetch at once
+  const limit = 50; // Number of pokemon to fetch at once
   const page = req.query.page ? parseInt(String(req.query.page), 10) : 1; // Page number for pagination
   const offset = (page - 1) * limit; // Offset calculation based on page number
   const url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`;

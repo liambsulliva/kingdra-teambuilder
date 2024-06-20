@@ -12,7 +12,7 @@ export default function PokeFinder() {
     const fetchData = useCallback(async () => {
         try {
             setIsLoading(true);
-            const response = await fetch(`/api/all-pokemon?page=${currentPage}`);
+            const response = await fetch(`/api/pokemon?page=${currentPage}`);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
