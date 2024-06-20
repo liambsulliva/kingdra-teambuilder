@@ -29,22 +29,38 @@ export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon
 
     return (
         <div className="bg-[#f9f9f9] max-md:hidden rounded flex-grow p-8">
-            {pokemonInfo ? (
-                <div>
-                    <h2 className="text-2xl font-bold mb-2">{pokemonInfo.name}</h2>
-                    <img src={pokemonInfo.sprites.versions['generation-v']['black-white'].animated.front_default} alt={pokemonInfo.name} className="w-auto h-auto mb-4" />
-                    <p className="mb-2">Base Experience: {pokemonInfo.base_experience}</p>
-                    <p className="mb-2">Height: {pokemonInfo.height}</p>
-                    <p className="mb-2">Weight: {pokemonInfo.weight}</p>
-                    <h3 className="text-lg font-bold mb-2">Abilities:</h3>
-                    <ul>
-                        {pokemonInfo.abilities.map((ability: any, index: number) => (
-                            <li key={index} className="mb-1">{ability.ability.name}</li>
-                        ))}
-                    </ul>
-                </div>
-            ) : (
-                <p>No Pokemon Selected</p>
+            {pokemonInfo && (
+            <div className="bg-white rounded-lg shadow-md p-6 max-w-sm mx-auto">
+                <h2 className="text-3xl font-extrabold text-gray-800 mb-4 capitalize">{pokemonInfo.name}</h2>
+                {pokemonInfo.sprites.versions['generation-v']['black-white'].animated.front_default ? (
+                    <img 
+                        src={pokemonInfo.sprites.versions['generation-v']['black-white'].animated.front_default} 
+                        alt={pokemonInfo.name} 
+                        className="w-40 h-40 mx-auto mb-6 object-contain"
+                    />
+                ) : (
+                    <img 
+                        src={selectedPokemon.sprite} 
+                        alt={selectedPokemon.name} 
+                        className="w-40 h-40 mx-auto mb-6 object-contain"
+                    />
+                )}
+                <p className="flex flex-row text-lg text-gray-600 mb-4">
+                    Type:
+                    <div className="px-2">
+                        <span className="font-semibold capitalize">{pokemonInfo.types[0].type.name}</span>
+                        {pokemonInfo.types[1] && (
+                            <span className="font-semibold capitalize"> / {pokemonInfo.types[1].type.name}</span>
+                        )}
+                    </div>
+                </p>
+                <h3 className="text-xl font-bold text-gray-800 mb-3">Abilities:</h3>
+                <ul className="space-y-2">
+                {pokemonInfo.abilities.map((ability: any, index: number) => (
+                    <li key={index} className="text-gray-600 capitalize">{ability.ability.name}</li>
+                ))}
+                </ul>
+            </div>
             )}
         </div>
     );
