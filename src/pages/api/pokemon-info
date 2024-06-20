@@ -1,39 +1,21 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-
-interface pokemon {
-    name: string;
-    sprite: string;
-}
-
-// Temporary storage for the party (database allocation later)
-let pokemonParty: pokemon[] = [];
+import fetch from 'node-fetch';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method === 'POST') {
-        const { name, sprite } = req.body;
-
-        // Perform any necessary validation on the request body
-        if (!name || !sprite) {
-            res.status(400).json({ message: 'Invalid request body' });
-            return;
+    if (req.method === 'GET') {
+        if (!req.query.id) {
+            res.status(404).json({ message: 'No Pokemon Queried' });
         }
-
-        try {
-            // Save the new Pokemon to the database or perform any other necessary operations
-            // ...
-            const newPokemon = { name, sprite };
-            pokemonParty.push(newPokemon);
-            // Return a success response
-            res.status(201).json({ message: 'Pokemon created successfully' });
-        } catch (error: any) {
-            console.error('Failed to create Pokemon:', error);
-            res.status(500).json({ message: 'Failed to create Pokemon', error: error.message });
-        }
-    } else if (req.method === 'GET') {
-        // Return the party data
-        res.status(200).json({ pokemonParty });
+        fetch('https://pokeapi.co/api/v2/pokemon/' + req.query.id)
+            .then(response => response.json())
+            .then(data => {
+                res.status(200).json(data);
+            })
+            .catch(error => {
+                res.status(404).json({ message: 'Pokemon Not Found' });
+            });
     } else {
-        res.setHeader('Allow', ['GET', 'POST']);
+        res.setHeader('Allow', ['GET']);
         res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 }

@@ -6,6 +6,7 @@ interface PokeFinderCard {
     pokemon: {
         sprite: string;
         name: string;
+        id: string
     };
 }
 
