@@ -8,15 +8,15 @@ interface pokemon {
     sprite: string
 }
 
-export default function PokeParty({ pokemonParty }: { pokemonParty: pokemon[] }) {
+export default function PokeParty({ pokemonParty, setPokemonParty }: { pokemonParty: pokemon[], setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>> }) {
     return (
         <div className="flex flex-col items-center py-4">
             <div className="p-6 grid md:grid-cols-2 grid-cols-3 gap-4">
-                {pokemonParty.map((pokemon, index) => (
-                    <PokeSlot key={pokemon.id} pokemon={pokemon} />
+                {pokemonParty.map((pokemon) => (
+                    <PokeSlot key={pokemon.id} pokemon={pokemon} setPokemonParty={setPokemonParty} />
                 ))}
                 {Array(Math.max(0, 6 - pokemonParty.length)).fill(
-                    <PokeSlot />
+                    <PokeSlot pokemon={null} setPokemonParty={setPokemonParty} />
                 )}
             </div>
             <div>

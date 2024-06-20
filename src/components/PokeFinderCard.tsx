@@ -18,13 +18,16 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({ pokemon, setPokemonPart
     const handleClick = async () => {
         try {
             setPokemonParty((prevPokemonParty: pokemon[]) => {
-                if (!prevPokemonParty.some(p => p.id === pokemon.id)) {
+                if (prevPokemonParty.length >= 6) {
+                    return prevPokemonParty;
+                } else if (!prevPokemonParty.some(p => p.id === pokemon.id)) {
                     return [...prevPokemonParty, pokemon];
                 }
                 return prevPokemonParty;
             });
             const response = await axios.post('/api/pokemon-party', {
                 name: pokemon.name,
+                id: pokemon.id,
                 sprite: pokemon.sprite
             });
             // Handle the response here
