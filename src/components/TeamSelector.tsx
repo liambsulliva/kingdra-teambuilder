@@ -1,7 +1,13 @@
 "use client"
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
-const DropdownMenu = () => {
+interface TeamSelectorProps {
+  numTeams: number;
+  selectedTeam: number;
+  setSelectedTeam: (team: number) => void;
+}
+
+const DropdownMenu = ({ numTeams, selectedTeam, setSelectedTeam }: TeamSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef(null);
@@ -14,6 +20,19 @@ const DropdownMenu = () => {
     const text = item.toLowerCase();
     return text.includes(searchTerm.toLowerCase());
   };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (dropdownRef.current && !(dropdownRef.current as any).contains(event.target)) {
+      setIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="flex items-center justify-center">
@@ -48,34 +67,16 @@ const DropdownMenu = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <a
-              href="#"
-              className="block px-4 py-2 text-gray-700 hover:bg-gray-100 active:bg-blue-100 cursor-pointer rounded-md"
-              style={{ display: filterItems('uppercase') ? 'block' : 'none' }}
-            >
-              Team 1
-            </a>
-            <a
-              href="#"
-              className="block px-4 py-2 text-gray-700 hover:bg-gray-100 active:bg-blue-100 cursor-pointer rounded-md"
-              style={{ display: filterItems('lowercase') ? 'block' : 'none' }}
-            >
-              Team 2
-            </a>
-            <a
-              href="#"
-              className="block px-4 py-2 text-gray-700 hover:bg-gray-100 active:bg-blue-100 cursor-pointer rounded-md"
-              style={{ display: filterItems('camelcase') ? 'block' : 'none' }}
-            >
-              Team 3
-            </a>
-            <a
-              href="#"
-              className="block px-4 py-2 text-gray-700 hover:bg-gray-100 active:bg-blue-100 cursor-pointer rounded-md"
-              style={{ display: filterItems('kebabcase') ? 'block' : 'none' }}
-            >
-              Team 4
-            </a>
+            {Array.from({ length: numTeams }, (_, index) => (
+              <a
+                href="#"
+                className="block px-4 py-2 text-gray-700 hover:bg-gray-100 active:bg-blue-100 cursor-pointer rounded-md"
+                style={{ display: filterItems(`Team ${index + 1}`) ? 'block' : 'none' }}
+                key={index}
+              >
+                Team {index + 1}
+              </a>
+            ))}
           </div>
         )}
       </div>
