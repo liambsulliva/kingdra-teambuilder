@@ -57,7 +57,7 @@ export default function PokeFinder({ setPokemonParty }: { setPokemonParty: React
     }, [handleScroll]);
 
     return (
-        <div className="grid 2xl:grid-cols-12 xl:grid-cols-9 lg:grid-cols-6 sm:grid-cols-3 grid-cols-2 gap-6 bg-[#f9f9f9] p-6 justify-center items-center rounded">
+        <div className="grid 2xl:grid-cols-12 xl:grid-cols-9 lg:grid-cols-6 sm:grid-cols-4 grid-cols-2 gap-6 mx-auto bg-[#f9f9f9] p-6 justify-center items-center rounded">
             {isLoading && pokemonData.length === 0 ? (
                 <div>Loading...</div>
             ) : (
