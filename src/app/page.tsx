@@ -6,7 +6,7 @@ import PokeParty from "@/components/PokeParty";
 import PokeInfo from "@/components/PokeInfo";
 import PokeFinder from "@/components/PokeFinder";
 import PokeSearch from "@/components/PokeSearch";
-import { ClerkProvider } from '@clerk/nextjs'
+import { ClerkProvider } from "@clerk/nextjs";
 
 import { useState } from "react";
 
