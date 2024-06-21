@@ -25,7 +25,7 @@ export default function Home() {
   return (
     <>
       <ClerkProvider>
-        <Header />
+        <Header numTeams={numTeams} setNumTeams={setNumTeams} setSelectedTeam={setSelectedTeam} />
           <div className="flex flex-col gap-8 p-8">
             <div className="flex md:flex-row flex-col gap-4">
               <PokeParty pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} setSelectedPokemon={setSelectedPokemon} />

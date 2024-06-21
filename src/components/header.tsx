@@ -10,7 +10,18 @@ import {
   UserButton
 } from '@clerk/nextjs';
 
-export default function Header() {
+interface HeaderProps {
+  numTeams: number;
+  setNumTeams: (num: number) => void;
+  setSelectedTeam: (team: number) => void;
+}
+
+export default function Header({ numTeams, setNumTeams, setSelectedTeam }: HeaderProps) {
+    const handleNewTeam = () => {
+      setNumTeams(numTeams + 1);
+      setSelectedTeam(numTeams);
+    };
+
     return (
       <div className="p-6 pb-4 flex flex-row justify-between items-center">
         <div className='flex flex-row gap-4 items-center'>
@@ -19,7 +30,7 @@ export default function Header() {
           <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
         </div>
         <div className='flex flex-row gap-6 px-6 max-md:hidden'>
-          <Button color="gray">New Team</Button>
+          <Button color="gray" onClick={handleNewTeam}>New Team</Button>
           <TeamSelector />
           <SignedOut>
             <Button color="gray"><SignInButton /></Button>
