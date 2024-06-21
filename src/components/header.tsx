@@ -21,7 +21,7 @@ export default function Header() {
         <div className='flex flex-row gap-6 px-6 max-md:hidden'>
           <TeamSelector />
           <SignedOut>
-            <SignInButton />
+            <Button color="gray"><SignInButton /></Button>
           </SignedOut>
           <SignedIn>
             <UserButton />
