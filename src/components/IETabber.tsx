@@ -9,7 +9,7 @@ interface TabberProps {
 
 export default function Component({leftLabel, rightLabel}: TabberProps) {
   return (
-    <div className="mx-4">
+    <div className="flex flex-col items-center gap-2 mx-4">
       <ButtonGroup>
         <Button color="gray" disabled>
           <DownloadIcon className="mr-3" />
@@ -20,6 +20,7 @@ export default function Component({leftLabel, rightLabel}: TabberProps) {
           {rightLabel}
         </Button>
       </ButtonGroup>
+      <p className="text-xs text-gray-500 select-none">From Pokemon Showdown</p>
     </div>
   );
 }

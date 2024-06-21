@@ -24,7 +24,7 @@ const socials = [
 export default function Footer() {
     return (
         <div className="p-8 flex flex-row justify-between items-center">
-            <p className="font-semibold">Designed and Developed by Liam Sullivan</p>
+            <p className="font-medium">Designed and Developed by Liam Sullivan</p>
             <div className="flex flex-row gap-2">
                 {socials.map(social => (
                     <a href={social.href} aria-label={social.name} target="_blank" rel="noopener noreferrer">
