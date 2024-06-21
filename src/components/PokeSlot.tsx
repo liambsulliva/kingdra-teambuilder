@@ -1,6 +1,7 @@
 import "@/app/globals.css";
 import CloseIcon from './CloseIcon';
 import axios from 'axios';
+import { useAuth } from "@clerk/nextjs";
 
 interface pokemon {
     sprite: string;
@@ -9,6 +10,8 @@ interface pokemon {
 }
 
 export default function PokeSlot({ pokemon, setPokemonParty, setSelectedPokemon }: { pokemon: pokemon | null, setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>, setSelectedPokemon: React.Dispatch<React.SetStateAction<pokemon>> }) {
+    const { isSignedIn } = useAuth();
+
     const handleInfo = async () => {
         if (!pokemon) {
             return null;
@@ -23,12 +26,14 @@ export default function PokeSlot({ pokemon, setPokemonParty, setSelectedPokemon 
             setPokemonParty((prevPokemonParty: pokemon[]) => {
                 return prevPokemonParty.filter(p => p.id !== pokemon.id);
             });
-            const response = await axios.delete(`/api/pokemon-party/?id=${pokemon.id}`);
-            // Handle the response here
-            if (response.status === 201) {
-                console.log('DELETE Success');
-            } else {
-                console.log('DELETE Failure');
+            if (isSignedIn) {
+                const response = await axios.delete(`/api/pokemon-party/?id=${pokemon.id}`);
+                // Handle the response here
+                if (response.status === 201) {
+                    console.log('DELETE Success');
+                } else {
+                    console.log('DELETE Failure');
+                }
             }
         } catch (error) {
             // Handle the error here

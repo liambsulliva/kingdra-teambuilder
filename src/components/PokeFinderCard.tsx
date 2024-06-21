@@ -1,6 +1,7 @@
 "use client"
 //import Draggable from 'react-draggable';
 import "@/app/globals.css";
+import { useAuth } from "@clerk/nextjs";
 import axios from 'axios';
 
 interface PokeFinderCardProps {
@@ -15,6 +16,7 @@ interface pokemon {
 }
 
 const PokeFinderCard: React.FC<PokeFinderCardProps> = ({ pokemon, setPokemonParty }: PokeFinderCardProps) => {
+    const { isSignedIn } = useAuth();
     const handleClick = async () => {
         try {
             setPokemonParty((prevPokemonParty: pokemon[]) => {
@@ -25,16 +27,18 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({ pokemon, setPokemonPart
                 }
                 return prevPokemonParty;
             });
-            const response = await axios.post('/api/pokemon-party', {
-                name: pokemon.name,
-                id: pokemon.id,
-                sprite: pokemon.sprite
-            });
-            // Handle the response here
-            if (response.status === 201) {
-                console.log('POST Success');
-            } else {
-                console.log('POST Failure');
+            if (isSignedIn) {
+                const response = await axios.post('/api/pokemon-party', {
+                    name: pokemon.name,
+                    id: pokemon.id,
+                    sprite: pokemon.sprite
+                });
+                // Handle the response here
+                if (response.status === 201) {
+                    console.log('POST Success');
+                } else {
+                    console.log('POST Failure');
+                }
             }
         } catch (error) {
             // Handle the error here
