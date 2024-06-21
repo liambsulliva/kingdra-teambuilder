@@ -3,6 +3,7 @@
 import "@/app/globals.css";
 import { useEffect, useState, useCallback } from "react";
 import PokeFinderCard from "./PokeFinderCard";
+import LoadingIcon from './LoadingIcon'
 
 interface pokemon {
     name: string,
@@ -59,7 +60,7 @@ export default function PokeFinder({ setPokemonParty }: { setPokemonParty: React
     return (
         <div className="grid 2xl:grid-cols-12 xl:grid-cols-9 lg:grid-cols-6 sm:grid-cols-4 grid-cols-2 gap-6 mx-auto bg-[#f9f9f9] p-6 justify-center items-center rounded">
             {isLoading && pokemonData.length === 0 ? (
-                <div>Loading...</div>
+                <LoadingIcon />
             ) : (
                 <>
                     {pokemonData.map((pokemon: any) => (
