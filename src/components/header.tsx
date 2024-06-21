@@ -18,7 +18,7 @@ export default function Header() {
           <PokeballLogo className="md:hidden" />
           <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
         </div>
-        <div className='flex flex-row gap-4 max-md:hidden'>
+        <div className='flex flex-row gap-6 px-6 max-md:hidden'>
           <TeamSelector />
           <SignedOut>
             <SignInButton />
@@ -26,7 +26,6 @@ export default function Header() {
           <SignedIn>
             <UserButton />
           </SignedIn>
-          <Button color="gray" href='' disabled>Settings</Button>
         </div>
         {/* Hamburger Menu Here on md: */}
       </div>
