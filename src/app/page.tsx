@@ -18,7 +18,9 @@ interface pokemon {
 
 export default function Home() {
   const [pokemonParty, setPokemonParty] = useState<pokemon[]>([]);
+  const [numTeams, setNumTeams] = useState<number>(1);
   const [selectedPokemon, setSelectedPokemon] = useState<pokemon>({ name: "", id: 0, sprite: "" });
+  const [selectedTeam, setSelectedTeam] = useState<number>(1);
 
   return (
     <>

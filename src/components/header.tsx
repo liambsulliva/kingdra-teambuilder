@@ -19,6 +19,7 @@ export default function Header() {
           <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
         </div>
         <div className='flex flex-row gap-6 px-6 max-md:hidden'>
+          <Button color="gray">New Team</Button>
           <TeamSelector />
           <SignedOut>
             <Button color="gray"><SignInButton /></Button>
