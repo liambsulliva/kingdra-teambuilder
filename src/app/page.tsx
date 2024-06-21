@@ -16,7 +16,7 @@ export default function Home() {
     const updatedPokemonData = [];
     for (let i = 0; i < pokemonName.length; i++) {
       const formattedPokemon = pokemonName[i].toLowerCase().replace(/\s/g, "-");
-      let sprite = "/unknown-sprite.png";
+      let sprite = '/unknown-sprite.png';
       try {
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${formattedPokemon}/`);
         const data = await response.json();
