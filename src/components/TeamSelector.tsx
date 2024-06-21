@@ -9,8 +9,15 @@ interface TeamSelectorProps {
 
 const DropdownMenu = ({ numTeams, selectedTeam, setSelectedTeam }: TeamSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [title, setTitle] = useState('Teams');
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef(null);
+
+  const handleSelection = (index: number) => {
+    setIsOpen(false);
+    setTitle(`Team ${index + 1}`);
+    setSelectedTeam(index);
+  }
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -42,7 +49,7 @@ const DropdownMenu = ({ numTeams, selectedTeam, setSelectedTeam }: TeamSelectorP
           className="inline-flex justify-center w-full px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500 transition-transform duration-200 hover:bg-gray-100"
           onClick={toggleDropdown}
         >
-          <span className="mr-2">Teams</span>
+          <span className="mr-2">{title}</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="w-5 h-5 ml-2 -mr-1"
@@ -73,6 +80,7 @@ const DropdownMenu = ({ numTeams, selectedTeam, setSelectedTeam }: TeamSelectorP
                 className="block px-4 py-2 text-gray-700 hover:bg-gray-100 active:bg-blue-100 cursor-pointer rounded-md"
                 style={{ display: filterItems(`Team ${index + 1}`) ? 'block' : 'none' }}
                 key={index}
+                onClick={() => handleSelection(index)}
               >
                 Team {index + 1}
               </a>
