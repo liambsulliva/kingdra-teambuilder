@@ -3,6 +3,12 @@ import TeamSelector from "./TeamSelector";
 import PokeballLogo from "./PokeballLogo";
 import { Button } from 'flowbite-react';
 import "@/app/globals.css";
+import {
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton
+} from '@clerk/nextjs';
 
 export default function Header() {
     return (
@@ -14,7 +20,12 @@ export default function Header() {
         </div>
         <div className='flex flex-row gap-4 max-md:hidden'>
           <TeamSelector />
-          <Button color="gray" href='/signin'>Account</Button>
+          <SignedOut>
+            <SignInButton />
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
           <Button color="gray" href='' disabled>Settings</Button>
         </div>
         {/* Hamburger Menu Here on md: */}

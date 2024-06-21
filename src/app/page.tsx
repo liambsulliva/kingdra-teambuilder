@@ -6,6 +6,7 @@ import PokeParty from "@/components/PokeParty";
 import PokeInfo from "@/components/PokeInfo";
 import PokeFinder from "@/components/PokeFinder";
 import PokeSearch from "@/components/PokeSearch";
+import { ClerkProvider } from '@clerk/nextjs'
 
 import { useState } from "react";
 
@@ -21,18 +22,20 @@ export default function Home() {
 
   return (
     <>
-      <Header />
-        <div className="flex flex-col gap-8 p-8">
-          <div className="flex md:flex-row flex-col gap-4">
-            <PokeParty pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} setSelectedPokemon={setSelectedPokemon} />
-            <PokeInfo selectedPokemon={selectedPokemon} />
+      <ClerkProvider>
+        <Header />
+          <div className="flex flex-col gap-8 p-8">
+            <div className="flex md:flex-row flex-col gap-4">
+              <PokeParty pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} setSelectedPokemon={setSelectedPokemon} />
+              <PokeInfo selectedPokemon={selectedPokemon} />
+            </div>
+            <div className="flex flex-col gap-4">
+              <PokeSearch />
+              <PokeFinder setPokemonParty={setPokemonParty} />
+            </div>
           </div>
-          <div className="flex flex-col gap-4">
-            <PokeSearch />
-            <PokeFinder setPokemonParty={setPokemonParty} />
-          </div>
-        </div>
-      <Footer />
+        <Footer />
+      </ClerkProvider>
     </>   
   );
 }
