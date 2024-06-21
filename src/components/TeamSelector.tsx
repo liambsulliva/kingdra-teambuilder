@@ -3,11 +3,10 @@ import React, { useEffect, useState, useRef } from 'react';
 
 interface TeamSelectorProps {
   numTeams: number;
-  selectedTeam: number;
   setSelectedTeam: (team: number) => void;
 }
 
-const DropdownMenu = ({ numTeams, selectedTeam, setSelectedTeam }: TeamSelectorProps) => {
+const DropdownMenu = ({ numTeams, setSelectedTeam }: TeamSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('Teams');
   const [searchTerm, setSearchTerm] = useState('');
