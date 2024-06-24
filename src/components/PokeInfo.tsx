@@ -1,19 +1,35 @@
 "use client"
 
 import "@/app/globals.css";
+import typeColors from '../../lib/typeColors.json';
+type PokemonType = keyof typeof typeColors;
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import StatBar from "./StatBar";
 
 interface pokemon {
-    name: string;
-    id: number;
-    sprite: string;
+    name: string,
+    id: number,
+    sprite: string,
+    moves: [
+      move1: string,
+      move2: string,
+      move3: string,
+      move4: string,
+    ]
+    stats: [
+      HP: number,
+      Atk: number,
+      Def: number,
+      SpA: number,
+      SpD: number,
+      Spd: number
+    ]
 }
 
 
 export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon }) {
-    const [pokemonInfo, setPokemonInfo] = useState<any>(null);
+    const [pokemonInfo, setPokemonInfo] = useState<any>();
 
     useEffect(() => {
         const fetchPokemonInfo = async () => {
@@ -53,9 +69,19 @@ export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon
                             <p className="flex flex-row items-center text-lg text-gray-600 mb-4 gap-2.5">
                                 Type:
                                 <div className="flex flex-row px-2 gap-2">
-                                    <span className="font-semibold capitalize px-4 py-2 border rounded-xl bg-red-500 text-white">{pokemonInfo.types[0].type.name}</span>
+                                <span 
+                                    className="font-semibold capitalize px-4 py-2 border rounded-xl text-white"
+                                    style={{ backgroundColor: `#${typeColors[pokemonInfo.types[0].type.name as PokemonType]}` }}
+                                >
+                                    {pokemonInfo.types[0].type.name}
+                                </span>
                                     {pokemonInfo.types[1] && (
-                                        <span className="font-semibold capitalize px-4 py-2 border rounded-xl bg-blue-500 text-white">{pokemonInfo.types[1].type.name}</span>
+                                        <span 
+                                            className="font-semibold capitalize px-4 py-2 border rounded-xl text-white"
+                                            style={{ backgroundColor: `#${typeColors[pokemonInfo.types[1].type.name as PokemonType]}` }}
+                                        >
+                                            {pokemonInfo.types[1].type.name}
+                                        </span>
                                     )}
                                 </div>
                             </p>

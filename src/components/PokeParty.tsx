@@ -8,8 +8,22 @@ import "@/app/globals.css";
 interface pokemon {
     name: string,
     id: number,
-    sprite: string
-}
+    sprite: string,
+    moves: [
+      move1: string,
+      move2: string,
+      move3: string,
+      move4: string,
+    ]
+    stats: [
+      HP: number,
+      Atk: number,
+      Def: number,
+      SpA: number,
+      SpD: number,
+      Spd: number
+    ]
+  }
 
 export default function PokeParty({ pokemonParty, setPokemonParty, setSelectedPokemon }: { pokemonParty: pokemon[], setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>, setSelectedPokemon: React.Dispatch<React.SetStateAction<pokemon>> }) {
     const { isSignedIn } = useAuth();

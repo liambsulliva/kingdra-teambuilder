@@ -12,7 +12,21 @@ interface PokeFinderCardProps {
 interface pokemon {
     name: string,
     id: number,
-    sprite: string
+    sprite: string,
+    moves: [
+      move1: string,
+      move2: string,
+      move3: string,
+      move4: string,
+    ]
+    stats: [
+      HP: number,
+      Atk: number,
+      Def: number,
+      SpA: number,
+      SpD: number,
+      Spd: number
+    ]
 }
 
 const PokeFinderCard: React.FC<PokeFinderCardProps> = ({ pokemon, setPokemonParty }: PokeFinderCardProps) => {

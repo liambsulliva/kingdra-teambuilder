@@ -11,13 +11,33 @@ import { ClerkProvider } from "@clerk/nextjs";
 interface pokemon {
   name: string,
   id: number,
-  sprite: string
+  sprite: string,
+  moves: [
+    move1: string,
+    move2: string,
+    move3: string,
+    move4: string,
+  ]
+  stats: [
+    HP: number,
+    Atk: number,
+    Def: number,
+    SpA: number,
+    SpD: number,
+    Spd: number
+  ]
 }
 
 export default function Home() {
   const [pokemonParty, setPokemonParty] = useState<pokemon[]>([]);
   const [numTeams, setNumTeams] = useState<number>(1);
-  const [selectedPokemon, setSelectedPokemon] = useState<pokemon>({ name: "", id: 0, sprite: "" });
+  const [selectedPokemon, setSelectedPokemon] = useState<pokemon>({
+    name: "Missingno",
+    id: 0,
+    sprite: "",
+    moves: ["", "", "", ""],
+    stats: [0, 0, 0, 0, 0, 0]
+  });
   const [selectedTeam, setSelectedTeam] = useState<number>(1);
 
   return (
