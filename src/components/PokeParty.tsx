@@ -23,6 +23,8 @@ export default function PokeParty({ pokemonParty, setPokemonParty, setSelectedPo
                 .catch(error => {
                     console.error("Error fetching pokemon party:", error);
                 });
+        } else {
+            setPokemonParty([]);
         }
     }, [isSignedIn]);
 

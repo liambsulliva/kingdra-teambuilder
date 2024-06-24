@@ -8,11 +8,6 @@ import PokeFinder from "@/components/PokeFinder";
 import PokeSearch from "@/components/PokeSearch";
 import { useState } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
-import mongoose from 'mongoose';
-
-if (process.env.MONGODB_URI) {
-  mongoose.connect(process.env.MONGODB_URI);
-}
 
 interface pokemon {
   name: string,
