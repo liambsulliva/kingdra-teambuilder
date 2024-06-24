@@ -63,9 +63,12 @@ export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon
                     <li key={index} className="text-gray-600 capitalize">{ability.ability.name}</li>
                 ))}
                 </ul>
-                {Array(6).fill(0).map((_, index) => (
-                    <StatBar key={index} initialValue={50} />
-                ))}
+                <StatBar label={'HP'} initialValue={pokemonInfo.stats[0].base_stat} />
+                <StatBar label={'Atk'} initialValue={pokemonInfo.stats[1].base_stat} />
+                <StatBar label={'Def'} initialValue={pokemonInfo.stats[2].base_stat} />
+                <StatBar label={'Sp. Atk'} initialValue={pokemonInfo.stats[3].base_stat} />
+                <StatBar label={'Sp. Def'} initialValue={pokemonInfo.stats[4].base_stat} />
+                <StatBar label={'Speed'} initialValue={pokemonInfo.stats[5].base_stat} />
             </div>
             )}
         </div>

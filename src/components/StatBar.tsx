@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
 interface StatBarProps {
+    label: string;
     initialValue: number;
 }
 
-const StatBar: React.FC<StatBarProps> = ({ initialValue }) => {
+const StatBar: React.FC<StatBarProps> = ({ label, initialValue }) => {
     const [value, setValue] = useState(initialValue);
 
     useEffect(() => {
@@ -12,7 +13,8 @@ const StatBar: React.FC<StatBarProps> = ({ initialValue }) => {
     }, [initialValue]);
 
     return (
-        <div>
+        <div className='flex gap-4 items-center'>
+            <p className='text-gray-600'>{label}</p>
             <div
                 style={{
                     width: `${2 * value}px`,
