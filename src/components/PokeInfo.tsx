@@ -3,6 +3,7 @@
 import "@/app/globals.css";
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import StatBar from "./StatBar";
 
 interface pokemon {
     name: string;
@@ -62,6 +63,9 @@ export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon
                     <li key={index} className="text-gray-600 capitalize">{ability.ability.name}</li>
                 ))}
                 </ul>
+                {Array(6).fill(0).map((_, index) => (
+                    <StatBar key={index} initialValue={50} />
+                ))}
             </div>
             )}
         </div>

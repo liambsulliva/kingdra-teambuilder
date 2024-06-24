@@ -3,6 +3,7 @@
 import "@/app/globals.css";
 import { useEffect, useState, useCallback } from "react";
 import PokeFinderCard from "./PokeFinderCard";
+import PokeSearch from "./PokeSearch";
 import LoadingIcon from './LoadingIcon'
 
 interface pokemon {
@@ -58,16 +59,20 @@ export default function PokeFinder({ setPokemonParty }: { setPokemonParty: React
     }, [handleScroll]);
 
     return (
-        <div className="grid 2xl:grid-cols-12 xl:grid-cols-9 lg:grid-cols-6 sm:grid-cols-4 grid-cols-2 gap-6 mx-auto bg-[#f9f9f9] p-6 justify-center items-center rounded">
-            {isLoading && pokemonData.length === 0 ? (
-                <LoadingIcon />
-            ) : (
-                <>
-                    {pokemonData.map((pokemon: any) => (
-                        <PokeFinderCard key={pokemon.id} pokemon={pokemon} setPokemonParty={setPokemonParty} />
-                    ))}
-                </>
-            )}
+        <div className="flex flex-col gap-4">
+              <PokeSearch pokemonData={pokemonData} setPokemonData={setPokemonData} />
+              <div className="grid 2xl:grid-cols-12 xl:grid-cols-9 lg:grid-cols-6 sm:grid-cols-4 grid-cols-2 gap-6 mx-auto bg-[#f9f9f9] p-6 justify-center items-center rounded">
+                {isLoading && pokemonData.length === 0 ? (
+                    <LoadingIcon />
+                ) : (
+                    <>
+                        {pokemonData.map((pokemon: any) => (
+                            <PokeFinderCard key={pokemon.id} pokemon={pokemon} setPokemonParty={setPokemonParty} />
+                        ))}
+                    </>
+                )}
+            </div>
         </div>
+        
     );
 }

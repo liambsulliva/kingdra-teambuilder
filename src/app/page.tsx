@@ -30,10 +30,7 @@ export default function Home() {
               <PokeParty pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} setSelectedPokemon={setSelectedPokemon} />
               <PokeInfo selectedPokemon={selectedPokemon} />
             </div>
-            <div className="flex flex-col gap-4">
-              <PokeSearch />
-              <PokeFinder setPokemonParty={setPokemonParty} />
-            </div>
+            <PokeFinder setPokemonParty={setPokemonParty} />
           </div>
         <Footer />
       </ClerkProvider>
