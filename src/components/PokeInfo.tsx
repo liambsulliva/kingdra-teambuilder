@@ -2,7 +2,7 @@
 
 import "@/app/globals.css";
 import typeColors from '../../lib/typeColors.json';
-type PokemonType = keyof typeof typeColors;
+import { Button } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import StatBar from "./StatBar";
@@ -27,6 +27,7 @@ interface pokemon {
     ]
 }
 
+type PokemonType = keyof typeof typeColors;
 
 export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon }) {
     const [pokemonInfo, setPokemonInfo] = useState<any>();
@@ -85,11 +86,11 @@ export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon
                                     )}
                                 </div>
                             </p>
-                            <div className="flex gap-4">
-                                <h3 className="text-xl text-gray-600 mb-3">Abilities:</h3>
-                                <ul className="flex space-x-2">
+                            <div className="flex gap-4 items-center mb-4">
+                                <h3 className="text-xl text-gray-600">Abilities:</h3>
+                                <ul className="flex flex-wrap gap-2">
                                     {pokemonInfo.abilities.map((ability: any, index: number) => (
-                                        <li key={index} className="text-gray-600 font-bold capitalize">{ability.ability.name}</li>
+                                        <Button color='gray' key={index} className="text-gray-600 font-bold capitalize">{ability.ability.name}</Button>
                                     ))}
                                 </ul>
                             </div>
