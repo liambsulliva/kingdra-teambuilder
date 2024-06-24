@@ -11,11 +11,11 @@ export default function Component({leftLabel, rightLabel}: TabberProps) {
   return (
     <div className="mx-4">
       <ButtonGroup>
-        <Button color="gray">
+        <Button color="gray" disabled>
           <PartyIcon className="mr-3" />
           {leftLabel}
         </Button>
-        <Button color="gray" disabled>
+        <Button color="gray">
           <ClashIcon className="mr-3" />
           {rightLabel}
         </Button>

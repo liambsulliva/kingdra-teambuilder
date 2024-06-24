@@ -24,9 +24,9 @@ const StatBar: React.FC<StatBarProps> = ({ label, initialValue }) => {
             <div className='flex flex-col'>
                 <div
                     style={{
-                        width: `${1.25 * totalValue}px`,
+                        width: `${0.75 * totalValue}px`,
                         height: '5px',
-                        backgroundColor: `hsl(${totalValue / 1.25}, 100%, 50%)`,
+                        backgroundColor: `hsl(${totalValue * 0.25}, 100%, 50%)`,
                         borderRadius: '15px',
                         overflow: 'hidden',
                         margin: '1rem 0'
@@ -46,7 +46,7 @@ const StatBar: React.FC<StatBarProps> = ({ label, initialValue }) => {
                     className='w-32'
                     type="range"
                     min="0"
-                    max="100"
+                    max="255"
                     value={additionalValue}
                     onChange={handleChange}
                 />
