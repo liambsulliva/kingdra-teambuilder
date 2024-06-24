@@ -17,8 +17,10 @@ export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon
     useEffect(() => {
         const fetchPokemonInfo = async () => {
             try {
-                const response = await axios.get(`/api/pokemon-info?id=${selectedPokemon.id}`);
-                setPokemonInfo(response.data);
+                if (selectedPokemon.id !== 0) {
+                    const response = await axios.get(`/api/pokemon-info?id=${selectedPokemon.id}`);
+                    setPokemonInfo(response.data);
+                }
             } catch (error) {
                 console.error(`Server returned ${error}`);
             }
