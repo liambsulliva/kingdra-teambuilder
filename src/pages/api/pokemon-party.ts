@@ -87,7 +87,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             res.status(500).json({ message: 'Failed to remove Pokemon', error: error.message });
         }
     } else if (req.method === 'GET') {
-        res.status(200).json({ pokemonParty: Array<pokemon> });
+        try {
+            const user = await User.findOne({ clerkUserId: userId });
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            res.status(200).json({ pokemonParty: user.pokemonParty });
+        } catch (error: any) {
+            console.error('Failed to fetch Pokemon party:', error);
+            res.status(500).json({ message: 'Failed to fetch Pokemon party', error: error.message });
+        }
     } else {
         res.setHeader('Allow', ['GET', 'POST']);
         res.status(405).end(`Method ${req.method} Not Allowed`);
