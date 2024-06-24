@@ -1,6 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
 import { User } from '../../../models/User';
+import mongoose from 'mongoose';
+import db from '../../../lib/db';
 
 interface pokemon {
     name: string;
@@ -9,10 +11,25 @@ interface pokemon {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await db();
     const { userId } = getAuth(req);
 
     if (!userId) {
         return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const user = await User.findOne({ clerkUserId: userId });
+        
+    if (!user) {
+        console.log('User not found. Creating new user.');
+        const newUser = new User({ clerkUserId: userId, pokemonParty: [] });
+        await newUser.save();
+        console.log('New user created:', newUser);
+        return res.status(200).json({ pokemonParty: [] });
+    }
+
+    if (process.env.MONGODB_URI) {
+        mongoose.connect(process.env.MONGODB_URI);
     }
 
     if (req.method === 'POST') {
@@ -23,11 +40,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         try {
-            const user = await User.findOne({ clerkUserId: userId });
-            if (!user) {
-                return res.status(404).json({ message: 'User not found' });
-            }
-
             const newPokemon = { name, id, sprite };
             
             const existingPokemon = user.pokemonParty.find((pokemon: pokemon) => pokemon.id === newPokemon.id);
@@ -56,11 +68,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         try {
             const { id } = req.query;
 
-            const user = await User.findOne({ clerkUserId: userId });
-            if (!user) {
-                return res.status(404).json({ message: 'User not found' });
-            }
-
             // Check if the party is empty
             if (user.pokemonParty.length === 0) {
                 res.status(409).json({ message: 'Party is empty' });
@@ -88,10 +95,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
     } else if (req.method === 'GET') {
         try {
-            const user = await User.findOne({ clerkUserId: userId });
-            if (!user) {
-                return res.status(404).json({ message: 'User not found' });
-            }
             res.status(200).json({ pokemonParty: user.pokemonParty });
         } catch (error: any) {
             console.error('Failed to fetch Pokemon party:', error);
