@@ -85,6 +85,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const index = user.pokemonParty.findIndex((pokemon: pokemon) => pokemon.id === Number(id));
             if (index !== -1) {
                 user.pokemonParty.splice(index, 1);
+                await user.save();
             }
 
             // Return a success response
