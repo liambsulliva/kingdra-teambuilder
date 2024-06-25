@@ -7,6 +7,7 @@ import type { pokemon } from '../../lib/pokemonInterface';
 export default function PokeSlot({ pokemon, index, setPokemonParty, setSelectedPokemon }: { pokemon: pokemon | null, index: number, setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>, setSelectedPokemon: React.Dispatch<React.SetStateAction<number>> }) {
     const { isSignedIn } = useAuth();
 
+    //! BUG: Deleting pokemon while selected tries to load said pokemon's infosheet
     const handleDelete = async () => {
         if (!pokemon) {
             return null;
@@ -32,7 +33,7 @@ export default function PokeSlot({ pokemon, index, setPokemonParty, setSelectedP
     return (
         <div className="relative">
             {pokemon ? (
-                <div className="flex flex-col justify-center items-center bg-[#fff] h-24 w-24 rounded shadow cursor-pointer transition-transform duration-200 hover:bg-gray-50" onClick={() => {setSelectedPokemon(index)}}>
+                <div className="flex flex-col justify-center items-center bg-[#fff] h-24 w-24 rounded shadow cursor-pointer transition-transform duration-200 hover:bg-gray-50" onClick={() => {setSelectedPokemon(selected => selected === index ? -1 : index)}}>
                     <div className="absolute top-0 right-0 translate-x-2 -translate-y-2" onClick={() => {handleDelete()}}><CloseIcon /></div>
                     <img src={pokemon.sprite} alt={pokemon.name} />
                 </div>
