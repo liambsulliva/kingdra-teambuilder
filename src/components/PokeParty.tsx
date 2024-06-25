@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import axios from 'axios';
 import PokeSlot from "@/components/PokeSlot";
-import IETabber from "@/components/IETabber";
+import GlobalIETabber from "@/components/GlobalIETabber";
 import "@/app/globals.css";
 import type { pokemon } from '../../lib/pokemonInterface';
 
@@ -34,7 +34,7 @@ export default function PokeParty({ pokemonParty, setPokemonParty, setSelectedPo
                 )}
             </div>
             <div>
-                <IETabber leftLabel={"Import"} rightLabel={"Export"} />
+                <GlobalIETabber leftLabel={"Import"} rightLabel={"Export"} />
             </div>
         </div>
     );

@@ -1,0 +1,66 @@
+{
+    "adamant": {
+        "positive": 1,
+        "negative": 3
+    },
+    "bold": {
+        "positive": 2,
+        "negative": 1
+    },
+    "calm": {
+        "positive": 4,
+        "negative": 1
+    },
+    "careful": {
+        "positive": 4,
+        "negative": 3
+    },
+    "gentle": {
+        "positive": 4,
+        "negative": 2
+    },
+    "hasty": {
+        "positive": 5,
+        "negative": 2
+    },
+    "impish": {
+        "positive": 2,
+        "negative": 3
+    },
+    "jolly": {
+        "positive": 5,
+        "negative": 3
+    },
+    "lax": {
+        "positive": 2,
+        "negative": 4
+    },
+    "modest": {
+        "positive": 3,
+        "negative": 1
+    },
+    "naive": {
+        "positive": 5,
+        "negative": 4
+    },
+    "quiet": {
+        "positive": 3,
+        "negative": 5
+    },
+    "rash": {
+        "positive": 3,
+        "negative": 4
+    },
+    "relaxed": {
+        "positive": 2,
+        "negative": 5
+    },
+    "sassy": {
+        "positive": 4,
+        "negative": 5
+    },
+    "timid": {
+        "positive": 5,
+        "negative": 1
+    }
+}
