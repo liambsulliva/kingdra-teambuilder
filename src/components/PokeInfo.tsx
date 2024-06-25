@@ -50,7 +50,7 @@ export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon
     return (
         <div className="bg-[#f9f9f9] max-md:hidden rounded flex-grow">
             {pokemonInfo && (
-                <div className="flex flex-row justify-between bg-white rounded-lg shadow-md py-16 px-24">
+                <div className="flex flex-row bg-white rounded-lg shadow-md py-16 px-24 gap-16">
                     <div className="p-4">
                         <h2 className="text-3xl font-extrabold text-gray-800 mb-4 capitalize">{pokemonInfo.name}</h2>
                         {pokemonInfo.sprites.versions['generation-v']['black-white'].animated.front_default ? (
@@ -70,20 +70,20 @@ export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon
                             <p className="flex flex-row items-center text-lg text-gray-600 mb-4 gap-2.5">
                                 Type:
                                 <div className="flex flex-row px-2 gap-2">
-                                <span 
-                                    className="font-semibold capitalize px-4 py-2 border rounded-xl text-white"
-                                    style={{ backgroundColor: `#${typeColors[pokemonInfo.types[0].type.name as PokemonType]}` }}
-                                >
-                                    {pokemonInfo.types[0].type.name}
-                                </span>
-                                    {pokemonInfo.types[1] && (
-                                        <span 
-                                            className="font-semibold capitalize px-4 py-2 border rounded-xl text-white"
-                                            style={{ backgroundColor: `#${typeColors[pokemonInfo.types[1].type.name as PokemonType]}` }}
-                                        >
-                                            {pokemonInfo.types[1].type.name}
-                                        </span>
-                                    )}
+                                    <span 
+                                        className="font-semibold capitalize px-4 py-2 border rounded-xl text-white"
+                                        style={{ backgroundColor: `#${typeColors[pokemonInfo.types[0].type.name as PokemonType]}` }}
+                                    >
+                                        {pokemonInfo.types[0].type.name}
+                                    </span>
+                                        {pokemonInfo.types[1] && (
+                                            <span 
+                                                className="font-semibold capitalize px-4 py-2 border rounded-xl text-white"
+                                                style={{ backgroundColor: `#${typeColors[pokemonInfo.types[1].type.name as PokemonType]}` }}
+                                            >
+                                                {pokemonInfo.types[1].type.name}
+                                            </span>
+                                        )}
                                 </div>
                             </p>
                             <div className="flex gap-4 items-center mb-4">
@@ -112,7 +112,7 @@ export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon
                             </div>
                         </div>
                     </div>
-                    <div className="flex flex-col justify-evenly w-3/5 border rounded-xl px-16 py-8">
+                    <div className="flex flex-col w-full justify-evenly border rounded-xl px-16 py-8">
                         <StatBar label={'HP'} initialValue={pokemonInfo.stats[0].base_stat} />
                         <StatBar label={'Atk'} initialValue={pokemonInfo.stats[1].base_stat} />
                         <StatBar label={'Def'} initialValue={pokemonInfo.stats[2].base_stat} />
