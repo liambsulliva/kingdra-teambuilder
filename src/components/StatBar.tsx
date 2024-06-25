@@ -12,6 +12,17 @@ interface StatBarProps {
 }
 
 const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, iv, ev, selectedPokemon, setPokemonParty }) => {
+    const level = 100; // Level 100 by default
+    const nature = 1; // Temp val
+
+    const calculateStatTotal = () => {
+        if (id === 0) { //Is HP, calculate differently
+            return Math.floor((2 * baseValue + iv + Math.floor(ev/4) * level) / 100) + level + 10; // 110 = Level 100 + 10
+        } else {
+            return Math.floor((Math.floor((2 * baseValue + iv + Math.floor(ev/4) * level) / 100) + 5) * nature);
+        }
+    }
+    
     const handleIV = (event: React.ChangeEvent<HTMLInputElement>) => {
         setPokemonParty(prevParty => {
             const updatedParty = [...prevParty];
@@ -55,9 +66,9 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, iv, ev, selecte
             <div className='flex flex-col'>
                 <div
                     style={{
-                        width: `${0.35 * (baseValue + ev)}px`,
+                        width: `${0.35 * calculateStatTotal()}px`,
                         height: '5px',
-                        backgroundColor: `hsl(${(baseValue + ev) * 0.2}, 100%, 50%)`,
+                        backgroundColor: `hsl(${calculateStatTotal() * 0.2}, 100%, 50%)`,
                         borderRadius: '15px',
                         overflow: 'hidden',
                         margin: '1rem 0'
@@ -69,11 +80,12 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, iv, ev, selecte
                             width: `${baseValue + ev}%`,
                             transition: 'width 0.5s ease-out, background-color 0.5s ease-out',
                             backgroundSize: '300% 100%',
-                            backgroundPosition: `${100 - baseValue + ev}% 0`,
+                            backgroundPosition: `${100 - calculateStatTotal()}% 0`,
                         }}
                     />
                 </div>
             </div>
+            <p>{calculateStatTotal()}</p>
         </div>
         <div className='flex gap-2'>
             <p className='text-gray-500 select-none' onDoubleClick={handleIVDoubleClick}>IV</p>
@@ -93,7 +105,7 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, iv, ev, selecte
                 className='w-32'
                 type="range"
                 min="0"
-                max="255"
+                max="252"
                 value={ev}
                 onChange={handleEV}
             />
