@@ -23,6 +23,9 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                 if (pokemonParty[selectedPokemon].id !== 0) {
                     const response = await axios.get(`/api/pokemon-info?id=${pokemonParty[selectedPokemon].id}`);
                     setPokemonInfo(response.data);
+                    if (!pokemonParty[selectedPokemon].ability && response.data.abilities.length > 0) {
+                        handleAbilitySelect(response.data.abilities[0].ability.name);
+                    }
                 }
             } catch (error) {
                 console.error(`Server returned ${error}`);
@@ -39,6 +42,17 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                 ...newParty[selectedPokemon],
                 // @ts-ignore
                 moves: newParty[selectedPokemon].moves.map((move, i) => i === index ? value : move)
+            };
+            return newParty;
+        });
+    };
+
+    const handleAbilitySelect = (abilityName: string) => {
+        setPokemonParty(prevParty => {
+            const newParty = [...prevParty];
+            newParty[selectedPokemon] = {
+                ...newParty[selectedPokemon],
+                ability: abilityName
             };
             return newParty;
         });
@@ -91,7 +105,14 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                                 <h3 className="text-xl text-gray-600">Ability:</h3>
                                 <ul className="flex flex-nowrap text-nowrap gap-2">
                                     {pokemonInfo.abilities.map((ability: any, index: number) => (
-                                        <Button color='gray' key={index} className="text-gray-600 font-bold capitalize">{ability.ability.name}</Button>
+                                        <Button
+                                        key={index}
+                                        color={pokemonParty[selectedPokemon].ability === ability.ability.name ? 'blue' : 'gray'}
+                                        onClick={() => handleAbilitySelect(ability.ability.name)}
+                                        className={`text-gray-600 font-bold capitalize ${pokemonParty[selectedPokemon].ability === ability.ability.name ? 'ring-2 ring-blue-500' : ''}`}
+                                        >
+                                            {ability.ability.name}
+                                        </Button>
                                     ))}
                                 </ul>
                             </div>
