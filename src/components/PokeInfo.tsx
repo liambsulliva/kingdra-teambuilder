@@ -107,9 +107,9 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                                     {pokemonInfo.abilities.map((ability: any, index: number) => (
                                         <Button
                                         key={index}
-                                        color={pokemonParty[selectedPokemon].ability === ability.ability.name ? 'blue' : 'gray'}
+                                        color={pokemonParty[selectedPokemon].ability === ability.ability.name ? 'dark' : 'gray'}
                                         onClick={() => handleAbilitySelect(ability.ability.name)}
-                                        className={`text-gray-600 font-bold capitalize ${pokemonParty[selectedPokemon].ability === ability.ability.name ? 'ring-2 ring-blue-500' : ''}`}
+                                        className={`font-bold capitalize`}
                                         >
                                             {ability.ability.name}
                                         </Button>
