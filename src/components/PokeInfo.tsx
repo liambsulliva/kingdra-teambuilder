@@ -4,7 +4,7 @@ import "@/app/globals.css";
 import typeColors from '../../lib/typeColors.json';
 import natures from '../../lib/natures.json';
 import { Button, Dropdown } from 'flowbite-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import StatBar from "./StatBar";
 import type { pokemon } from '../../lib/pokemonInterface';
@@ -15,6 +15,8 @@ type Nature = keyof typeof natures;
 
 export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonParty }: { selectedPokemon: number, pokemonParty: pokemon[], setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>> }) {
     const [pokemonInfo, setPokemonInfo] = useState<any>();
+    const [natureSuggestions, setNatureSuggestions] = useState<Nature[]>([]);
+    const natureInputRef = useRef<HTMLDivElement>(null);
     const naturesArray = Object.keys(natures) as Nature[];
 
     useEffect(() => {
@@ -34,6 +36,36 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
         console.log(pokemonParty);
         fetchPokemonInfo();
     }, [selectedPokemon]);
+
+    const handleNatureInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setPokemonParty(prevParty => {
+            const newParty = [...prevParty];
+            newParty[selectedPokemon] = {
+                ...newParty[selectedPokemon],
+                nature: value
+            };
+            return newParty;
+        });
+    
+        // Filter nature suggestions based on input
+        const filteredSuggestions = naturesArray.filter(nature =>
+            nature.toLowerCase().includes(value.toLowerCase())
+        );
+        setNatureSuggestions(filteredSuggestions);
+    };
+
+    const handleNatureSuggestionSelect = (nature: Nature) => {
+        setPokemonParty(prevParty => {
+            const newParty = [...prevParty];
+            newParty[selectedPokemon] = {
+                ...newParty[selectedPokemon],
+                nature: nature
+            };
+            return newParty;
+        });
+        setNatureSuggestions([]);
+    };
 
     const handleMoveChange = (index: number, value: string) => {
         setPokemonParty(prevParty => {
@@ -57,6 +89,19 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
             return newParty;
         });
     };
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (natureInputRef.current && !natureInputRef.current.contains(event.target as Node)) {
+                setNatureSuggestions([]);
+            }
+        }
+    
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     return (
         <div className="bg-[#f9f9f9] max-md:hidden rounded flex-grow">
@@ -130,23 +175,31 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                                     ))}
                                 </ul>
                             </div>
-                            <div className="flex gap-4 items-center mb-4">
+                            <div className="flex gap-4 items-center mb-4 relative">
                                 <h3 className="text-xl text-gray-600">Nature:</h3>
-                                <input 
-                                    className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none" 
-                                    type="text" 
-                                    name="Nature" 
-                                    placeholder="Nature" 
-                                    value={pokemonParty[selectedPokemon].nature} 
-                                    onChange={(e) => setPokemonParty(prevParty => {
-                                        const newParty = [...prevParty];
-                                        newParty[selectedPokemon] = {
-                                            ...newParty[selectedPokemon],
-                                            nature: e.target.value
-                                        };
-                                        return newParty;
-                                    })}
-                                />
+                                <div className="relative" ref={natureInputRef}>
+                                    <input 
+                                        className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none" 
+                                        type="text" 
+                                        name="Nature" 
+                                        placeholder="Nature" 
+                                        value={pokemonParty[selectedPokemon].nature} 
+                                        onChange={handleNatureInputChange}
+                                    />
+                                    {natureSuggestions.length > 0 && (
+                                        <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg">
+                                            {natureSuggestions.map((nature, index) => (
+                                                <li 
+                                                    key={index}
+                                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                    onClick={() => handleNatureSuggestionSelect(nature)}
+                                                >
+                                                    {nature}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
                             </div>
                             <div className="flex gap-4 items-center mb-4">
                                 <h3 className="text-xl text-gray-600">Item:</h3>
