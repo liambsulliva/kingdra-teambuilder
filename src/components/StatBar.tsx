@@ -49,7 +49,7 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, ev, selectedPok
                     type="range"
                     min="0"
                     max="255"
-                    value={baseValue}
+                    value={ev}
                     onChange={handleChange}
                 />
             </div>
