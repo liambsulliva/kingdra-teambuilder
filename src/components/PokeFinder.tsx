@@ -5,26 +5,7 @@ import { useEffect, useState, useCallback } from "react";
 import PokeFinderCard from "./PokeFinderCard";
 import PokeSearch from "./PokeSearch";
 import LoadingIcon from './LoadingIcon'
-
-interface pokemon {
-    name: string,
-    id: number,
-    sprite: string,
-    moves: [
-      move1: string,
-      move2: string,
-      move3: string,
-      move4: string,
-    ]
-    stats: [
-      HP: number,
-      Atk: number,
-      Def: number,
-      SpA: number,
-      SpD: number,
-      Spd: number
-    ]
-  }
+import type { pokemon } from '../../lib/pokemonInterface';
 
 export default function PokeFinder({ setPokemonParty }: { setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>> }) {
     const [pokemonData, setPokemonData] = useState<any>([]);

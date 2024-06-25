@@ -6,26 +6,7 @@ import { Button } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import StatBar from "./StatBar";
-
-interface pokemon {
-    name: string,
-    id: number,
-    sprite: string,
-    moves: [
-      move1: string,
-      move2: string,
-      move3: string,
-      move4: string,
-    ]
-    stats: [
-      HP: number,
-      Atk: number,
-      Def: number,
-      SpA: number,
-      SpD: number,
-      Spd: number
-    ]
-}
+import type { pokemon } from '../../lib/pokemonInterface';
 
 type PokemonType = keyof typeof typeColors;
 

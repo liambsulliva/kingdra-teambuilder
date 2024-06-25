@@ -2,26 +2,7 @@ import "@/app/globals.css";
 import CloseIcon from './CloseIcon';
 import axios from 'axios';
 import { useAuth } from "@clerk/nextjs";
-
-interface pokemon {
-    name: string,
-    id: number,
-    sprite: string,
-    moves: [
-      move1: string,
-      move2: string,
-      move3: string,
-      move4: string,
-    ]
-    stats: [
-      HP: number,
-      Atk: number,
-      Def: number,
-      SpA: number,
-      SpD: number,
-      Spd: number
-    ]
-  }
+import type { pokemon } from '../../lib/pokemonInterface';
 
 export default function PokeSlot({ pokemon, setPokemonParty, setSelectedPokemon }: { pokemon: pokemon | null, setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>, setSelectedPokemon: React.Dispatch<React.SetStateAction<pokemon>> }) {
     const { isSignedIn } = useAuth();

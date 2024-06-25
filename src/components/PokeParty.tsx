@@ -4,26 +4,7 @@ import axios from 'axios';
 import PokeSlot from "@/components/PokeSlot";
 import IETabber from "@/components/IETabber";
 import "@/app/globals.css";
-
-interface pokemon {
-    name: string,
-    id: number,
-    sprite: string,
-    moves: [
-      move1: string,
-      move2: string,
-      move3: string,
-      move4: string,
-    ]
-    stats: [
-      HP: number,
-      Atk: number,
-      Def: number,
-      SpA: number,
-      SpD: number,
-      Spd: number
-    ]
-  }
+import type { pokemon } from '../../lib/pokemonInterface';
 
 export default function PokeParty({ pokemonParty, setPokemonParty, setSelectedPokemon }: { pokemonParty: pokemon[], setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>, setSelectedPokemon: React.Dispatch<React.SetStateAction<pokemon>> }) {
     const { isSignedIn } = useAuth();

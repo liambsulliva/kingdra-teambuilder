@@ -3,31 +3,14 @@
 import "@/app/globals.css";
 import { useAuth } from "@clerk/nextjs";
 import axios from 'axios';
+import type { pokemon } from '../../lib/pokemonInterface';
 
 interface PokeFinderCardProps {
     pokemon: pokemon;
     setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
 }
 
-interface pokemon {
-    name: string,
-    id: number,
-    sprite: string,
-    moves: [
-      move1: string,
-      move2: string,
-      move3: string,
-      move4: string,
-    ]
-    stats: [
-      HP: number,
-      Atk: number,
-      Def: number,
-      SpA: number,
-      SpD: number,
-      Spd: number
-    ]
-}
+
 
 const PokeFinderCard: React.FC<PokeFinderCardProps> = ({ pokemon, setPokemonParty }: PokeFinderCardProps) => {
     const { isSignedIn } = useAuth();
