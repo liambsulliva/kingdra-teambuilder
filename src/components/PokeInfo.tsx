@@ -65,8 +65,22 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                     <div className="p-4">
                         <h2 className="text-3xl font-extrabold text-gray-800 mb-2 capitalize">{pokemonInfo.name}</h2>
                         <div className="flex gap-4 items-center mb-4">
-                            <h3 className="text-xl text-gray-600">Lv:</h3>
-                            <input className="border-2 border-gray-300 bg-white h-10 rounded-lg text-sm focus:outline-none" type="text" name="Level" placeholder="Level" value="100" />
+                            <h3 className="text-xl text-gray-600">Lv.</h3>
+                            <input 
+                                className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none" 
+                                type="text" 
+                                name="Level" 
+                                placeholder="Level" 
+                                value={pokemonParty[selectedPokemon].level} 
+                                onChange={(e) => setPokemonParty(prevParty => {
+                                    const newParty = [...prevParty];
+                                    newParty[selectedPokemon] = {
+                                        ...newParty[selectedPokemon],
+                                        level: Math.min((parseInt(e.target.value) || 0), 100)
+                                    };
+                                    return newParty;
+                                })}
+                            />
                         </div>
                         {pokemonInfo.sprites.versions['generation-v']['black-white'].animated.front_default ? (
                             <img 
@@ -118,11 +132,39 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                             </div>
                             <div className="flex gap-4 items-center mb-4">
                                 <h3 className="text-xl text-gray-600">Nature:</h3>
-                                <input className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none" type="text" name="Nature" placeholder="Nature" />
+                                <input 
+                                    className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none" 
+                                    type="text" 
+                                    name="Nature" 
+                                    placeholder="Nature" 
+                                    value={pokemonParty[selectedPokemon].nature} 
+                                    onChange={(e) => setPokemonParty(prevParty => {
+                                        const newParty = [...prevParty];
+                                        newParty[selectedPokemon] = {
+                                            ...newParty[selectedPokemon],
+                                            nature: e.target.value
+                                        };
+                                        return newParty;
+                                    })}
+                                />
                             </div>
                             <div className="flex gap-4 items-center mb-4">
                                 <h3 className="text-xl text-gray-600">Item:</h3>
-                                <input className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none" type="text" name="Item" placeholder="Item" />
+                                <input 
+                                    className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none" 
+                                    type="text" 
+                                    name="Item" 
+                                    placeholder="Item" 
+                                    value={pokemonParty[selectedPokemon].item} 
+                                    onChange={(e) => setPokemonParty(prevParty => {
+                                        const newParty = [...prevParty];
+                                        newParty[selectedPokemon] = {
+                                            ...newParty[selectedPokemon],
+                                            item: e.target.value
+                                        };
+                                        return newParty;
+                                    })}
+                                />
                             </div>
                         </div>
                         <div className="flex justify-between items-center">
