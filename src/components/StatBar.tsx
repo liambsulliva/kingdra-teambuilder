@@ -17,9 +17,9 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, iv, ev, selecte
 
     const calculateStatTotal = () => {
         if (id === 0) { //Is HP, calculate differently
-            return Math.floor((2 * baseValue + iv + Math.floor(ev/4) * level) / 100) + level + 10; // 110 = Level 100 + 10
+            return Math.floor(((2 * baseValue + iv + Math.floor(ev / 4) + 100) * level) / 100) + 10; // 110 = Level 100 + 10
         } else {
-            return Math.floor((Math.floor((2 * baseValue + iv + Math.floor(ev/4) * level) / 100) + 5) * nature);
+            return Math.floor((Math.floor((2 * baseValue + iv + Math.floor(ev / 4)) * level / 100) + 5) * nature);
         }
     }
     
