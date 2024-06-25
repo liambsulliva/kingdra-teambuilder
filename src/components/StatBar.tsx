@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import type { pokemon } from '../../lib/pokemonInterface'
 
 interface StatBarProps {
@@ -11,7 +11,6 @@ interface StatBarProps {
 }
 
 const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, ev, selectedPokemon, setPokemonParty }) => {
-
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setPokemonParty(prevParty => {
             const updatedParty = [...prevParty];
@@ -20,9 +19,22 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, ev, selectedPok
         });
     };
 
+    const handleDoubleClick = () => {
+        setPokemonParty(prevParty => {
+            const updatedParty = [...prevParty];
+            updatedParty[selectedPokemon].ev[id] = 0;
+            return updatedParty;
+        });
+    };
+
     return (
         <div className='flex gap-4 items-center'>
-            <p className='text-gray-600 text-nowrap'>{label}</p>
+            <p 
+                className='text-gray-600 text-nowrap select-none' 
+                onDoubleClick={handleDoubleClick}
+            >
+                {label}
+            </p>
             <div className='flex flex-col'>
                 <div
                     style={{
