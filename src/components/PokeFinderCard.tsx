@@ -25,7 +25,10 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({ pokemon, setPokemonPart
                         name: pokemon.name || "",
                         id: pokemon.id || 0,
                         sprite: pokemon.sprite || "",
+                        level: 100,
                         ability: "",
+                        nature: "",
+                        item: "",
                         tera_type: "",
                         moves: [
                             "",

@@ -2,7 +2,10 @@ export interface pokemon {
     name: string,
     id: number,
     sprite: string,
+    level: number,
     ability: string,
+    nature: string,
+    item: string,
     tera_type: string,
     moves: [
       move1: string,
