@@ -20,7 +20,37 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({ pokemon, setPokemonPart
                 if (prevPokemonParty.length >= 6) {
                     return prevPokemonParty;
                 } else if (!prevPokemonParty.some(p => p.id === pokemon.id)) {
-                    return [...prevPokemonParty, pokemon];
+                    const updatedPokemon: pokemon = {
+                        ...pokemon,
+                        name: pokemon.name || "",
+                        id: pokemon.id || 0,
+                        sprite: pokemon.sprite || "",
+                        ability: "",
+                        tera_type: "",
+                        moves: [
+                            "",
+                            "",
+                            "",
+                            "",
+                        ],
+                        iv: [
+                            31,
+                            31,
+                            31,
+                            31,
+                            31,
+                            31,
+                        ],
+                        ev: [
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                        ],
+                    };
+                    return [...prevPokemonParty, updatedPokemon];
                 }
                 return prevPokemonParty;
             });

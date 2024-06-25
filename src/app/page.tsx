@@ -12,15 +12,7 @@ import type { pokemon } from '../../lib/pokemonInterface';
 export default function Home() {
   const [pokemonParty, setPokemonParty] = useState<pokemon[]>([]);
   const [numTeams, setNumTeams] = useState<number>(1);
-  const [selectedPokemon, setSelectedPokemon] = useState<pokemon>({
-    name: "Missingno",
-    id: 0,
-    sprite: "",
-    tera_type: "",
-    moves: ["", "", "", ""],
-    iv: [0, 0, 0, 0, 0, 0],
-    ev: [0, 0, 0, 0, 0, 0]
-  });
+  const [selectedPokemon, setSelectedPokemon] = useState<number>(-1);
   const [selectedTeam, setSelectedTeam] = useState<number>(1);
 
   return (
@@ -30,7 +22,7 @@ export default function Home() {
           <div className="flex flex-col gap-8 p-8">
             <div className="flex md:flex-row flex-col gap-4">
               <PokeParty pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} setSelectedPokemon={setSelectedPokemon} />
-              <PokeInfo selectedPokemon={selectedPokemon} />
+              <PokeInfo selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
             </div>
             <PokeFinder setPokemonParty={setPokemonParty} />
           </div>

@@ -4,15 +4,9 @@ import axios from 'axios';
 import { useAuth } from "@clerk/nextjs";
 import type { pokemon } from '../../lib/pokemonInterface';
 
-export default function PokeSlot({ pokemon, setPokemonParty, setSelectedPokemon }: { pokemon: pokemon | null, setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>, setSelectedPokemon: React.Dispatch<React.SetStateAction<pokemon>> }) {
+export default function PokeSlot({ pokemon, index, setPokemonParty, setSelectedPokemon }: { pokemon: pokemon | null, index: number, setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>, setSelectedPokemon: React.Dispatch<React.SetStateAction<number>> }) {
     const { isSignedIn } = useAuth();
 
-    const handleInfo = async () => {
-        if (!pokemon) {
-            return null;
-        }
-        setSelectedPokemon(pokemon);
-    };
     const handleDelete = async () => {
         if (!pokemon) {
             return null;
@@ -38,7 +32,7 @@ export default function PokeSlot({ pokemon, setPokemonParty, setSelectedPokemon 
     return (
         <div className="relative">
             {pokemon ? (
-                <div className="flex flex-col justify-center items-center bg-[#fff] h-24 w-24 rounded shadow cursor-pointer transition-transform duration-200 hover:bg-gray-50" onClick={() => {handleInfo()}}>
+                <div className="flex flex-col justify-center items-center bg-[#fff] h-24 w-24 rounded shadow cursor-pointer transition-transform duration-200 hover:bg-gray-50" onClick={() => {setSelectedPokemon(index)}}>
                     <div className="absolute top-0 right-0 translate-x-2 -translate-y-2" onClick={() => {handleDelete()}}><CloseIcon /></div>
                     <img src={pokemon.sprite} alt={pokemon.name} />
                 </div>

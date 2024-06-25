@@ -20,7 +20,7 @@ export default function PokeFinder({ setPokemonParty }: { setPokemonParty: React
                 throw new Error('Network response was not ok');
             }
             const data = await response.json();
-            console.log(data);
+            //console.log(data);
             setPokemonData((prevData: any) => [...prevData, ...data.pokemonData.map((pokemon: any) => {
                 const formattedName = pokemon.name
                     .split('-')

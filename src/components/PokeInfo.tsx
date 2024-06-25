@@ -10,23 +10,35 @@ import type { pokemon } from '../../lib/pokemonInterface';
 
 type PokemonType = keyof typeof typeColors;
 
-export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon }) {
+export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonParty }: { selectedPokemon: number, pokemonParty: pokemon[], setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>> }) {
     const [pokemonInfo, setPokemonInfo] = useState<any>();
 
     useEffect(() => {
         const fetchPokemonInfo = async () => {
             try {
-                if (selectedPokemon.id !== 0) {
-                    const response = await axios.get(`/api/pokemon-info?id=${selectedPokemon.id}`);
+                if (pokemonParty[selectedPokemon].id !== 0) {
+                    const response = await axios.get(`/api/pokemon-info?id=${pokemonParty[selectedPokemon].id}`);
                     setPokemonInfo(response.data);
                 }
             } catch (error) {
                 console.error(`Server returned ${error}`);
             }
         };
-
+        console.log(pokemonParty);
         fetchPokemonInfo();
     }, [selectedPokemon]);
+
+    const handleMoveChange = (index: number, value: string) => {
+        setPokemonParty(prevParty => {
+            const newParty = [...prevParty];
+            newParty[selectedPokemon] = {
+                ...newParty[selectedPokemon],
+                // @ts-ignore
+                moves: newParty[selectedPokemon].moves.map((move, i) => i === index ? value : move)
+            };
+            return newParty;
+        });
+    };
 
     return (
         <div className="bg-[#f9f9f9] max-md:hidden rounded flex-grow">
@@ -42,8 +54,8 @@ export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon
                             />
                         ) : (
                             <img 
-                                src={selectedPokemon.sprite} 
-                                alt={selectedPokemon.name} 
+                                src={pokemonParty[selectedPokemon].sprite} 
+                                alt={pokemonParty[selectedPokemon].name} 
                                 className="w-40 h-40 mx-auto mb-6 object-contain"
                             />
                         )}
@@ -78,18 +90,18 @@ export default function PokeInfo({ selectedPokemon }: { selectedPokemon: pokemon
                         </div>
                         <div className="flex justify-between items-center">
                             <div className="flex flex-col">
-                                <div className="w-full flex md:justify-end justify-center pt-2 relative text-gray-600">
-                                    <input className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none" type="text" name="move1" placeholder="Move 1" />
-                                </div>
-                                <div className="w-full flex md:justify-end justify-center pt-2 relative text-gray-600">
-                                    <input className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none" type="text" name="move2" placeholder="Move 2" />
-                                </div>
-                                <div className="w-full flex md:justify-end justify-center pt-2 relative text-gray-600">
-                                    <input className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none" type="text" name="move3" placeholder="Move 3" />
-                                </div>
-                                <div className="w-full flex md:justify-end justify-center pt-2 relative text-gray-600">
-                                    <input className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none" type="text" name="move4" placeholder="Move 4" />
-                                </div>
+                                {[0, 1, 2, 3].map((index) => (
+                                    <div key={index} className="w-full flex md:justify-end justify-center pt-2 relative text-gray-600">
+                                        <input 
+                                            className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none" 
+                                            type="text" 
+                                            name={`move${index + 1}`} 
+                                            placeholder={`Move ${index + 1}`} 
+                                            value={pokemonParty[selectedPokemon].moves[index]} 
+                                            onChange={(e) => handleMoveChange(index, e.target.value)}
+                                        />
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
