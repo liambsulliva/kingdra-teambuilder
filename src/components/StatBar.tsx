@@ -5,13 +5,22 @@ interface StatBarProps {
     label: string;
     id: number;
     baseValue: number;
+    iv: number;
     ev: number;
     selectedPokemon: number;
     setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
 }
 
-const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, ev, selectedPokemon, setPokemonParty }) => {
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, iv, ev, selectedPokemon, setPokemonParty }) => {
+    const handleIV = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setPokemonParty(prevParty => {
+            const updatedParty = [...prevParty];
+            updatedParty[selectedPokemon].iv[id] = parseInt(event.target.value);
+            return updatedParty;
+        });
+    };
+    
+    const handleEV = (event: React.ChangeEvent<HTMLInputElement>) => {
         setPokemonParty(prevParty => {
             const updatedParty = [...prevParty];
             updatedParty[selectedPokemon].ev[id] = parseInt(event.target.value);
@@ -19,7 +28,15 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, ev, selectedPok
         });
     };
 
-    const handleDoubleClick = () => {
+    const handleIVDoubleClick = () => {
+        setPokemonParty(prevParty => {
+            const updatedParty = [...prevParty];
+            updatedParty[selectedPokemon].iv[id] = 31;
+            return updatedParty;
+        });
+    };
+
+    const handleEVDoubleClick = () => {
         setPokemonParty(prevParty => {
             const updatedParty = [...prevParty];
             updatedParty[selectedPokemon].ev[id] = 0;
@@ -28,10 +45,10 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, ev, selectedPok
     };
 
     return (
-        <div className='flex gap-4 items-center'>
+        <div className='flex flex-col gap-1'>
+            <div className='flex gap-2 items-center'>
             <p 
-                className='text-gray-600 text-nowrap select-none' 
-                onDoubleClick={handleDoubleClick}
+                className='text-gray-600 text-nowrap select-none'
             >
                 {label}
             </p>
@@ -56,17 +73,33 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, ev, selectedPok
                         }}
                     />
                 </div>
-                <input
-                    className='w-32'
-                    type="range"
-                    min="0"
-                    max="255"
-                    value={ev}
-                    onChange={handleChange}
-                />
             </div>
-            <p>Total: {baseValue + ev}</p>
         </div>
+        <div className='flex gap-2'>
+            <p className='text-gray-500 select-none' onDoubleClick={handleIVDoubleClick}>IV</p>
+            <input
+                className='w-32'
+                type="range"
+                min="0"
+                max="31"
+                value={iv}
+                onChange={handleIV}
+            />
+            <p className='text-gray-600'>{iv}</p>
+        </div>
+        <div className='flex gap-2'>
+            <p className='text-gray-500 select-none' onDoubleClick={handleEVDoubleClick}>EV</p>
+            <input
+                className='w-32'
+                type="range"
+                min="0"
+                max="255"
+                value={ev}
+                onChange={handleEV}
+            />
+            <p className='text-gray-600'>{ev}</p>
+        </div>
+    </div>
     );
 };
 

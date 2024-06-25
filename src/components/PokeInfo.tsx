@@ -105,15 +105,18 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                             </div>
                         </div>
                     </div>
-                    <div className="flex flex-col w-full justify-evenly border rounded-xl px-16 py-8">
-                        <StatBar label={'HP'} id={0} baseValue={pokemonInfo.stats[0].base_stat} ev={pokemonParty[selectedPokemon].ev[0]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
-                        <StatBar label={'Atk'} id={1} baseValue={pokemonInfo.stats[1].base_stat} ev={pokemonParty[selectedPokemon].ev[1]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
-                        <StatBar label={'Def'} id={2} baseValue={pokemonInfo.stats[2].base_stat} ev={pokemonParty[selectedPokemon].ev[2]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
-                        <StatBar label={'Sp. Atk'} id={3} baseValue={pokemonInfo.stats[3].base_stat} ev={pokemonParty[selectedPokemon].ev[3]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
-                        <StatBar label={'Sp. Def'} id={4} baseValue={pokemonInfo.stats[4].base_stat} ev={pokemonParty[selectedPokemon].ev[4]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
-                        <StatBar label={'Speed'} id={5} baseValue={pokemonInfo.stats[5].base_stat} ev={pokemonParty[selectedPokemon].ev[5]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
+                    <div className="flex flex-col">
+                        <div className="grid grid-cols-2 gap-16 w-full flex-wrap justify-evenly border rounded-xl px-16 py-8">
+                            <StatBar label={'HP'} id={0} baseValue={pokemonInfo.stats[0].base_stat} iv={pokemonParty[selectedPokemon].iv[0]} ev={pokemonParty[selectedPokemon].ev[0]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
+                            <StatBar label={'Atk'} id={1} baseValue={pokemonInfo.stats[1].base_stat} iv={pokemonParty[selectedPokemon].iv[1]} ev={pokemonParty[selectedPokemon].ev[1]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
+                            <StatBar label={'Def'} id={2} baseValue={pokemonInfo.stats[2].base_stat} iv={pokemonParty[selectedPokemon].iv[2]} ev={pokemonParty[selectedPokemon].ev[2]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
+                            <StatBar label={'Sp. Atk'} id={3} baseValue={pokemonInfo.stats[3].base_stat} iv={pokemonParty[selectedPokemon].iv[3]} ev={pokemonParty[selectedPokemon].ev[3]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
+                            <StatBar label={'Sp. Def'} id={4} baseValue={pokemonInfo.stats[4].base_stat} iv={pokemonParty[selectedPokemon].iv[4]} ev={pokemonParty[selectedPokemon].ev[4]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
+                            <StatBar label={'Speed'} id={5} baseValue={pokemonInfo.stats[5].base_stat} iv={pokemonParty[selectedPokemon].iv[5]} ev={pokemonParty[selectedPokemon].ev[5]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
+                        </div>
                         <a className="text-gray-500 hover:underline pt-8" target="_blank" href={`https://www.smogon.com/dex/sv/pokemon/${pokemonInfo.name}`}>Smogon Breakdown</a>
                     </div>
+                    
                 </div>
             )}
         </div>
