@@ -106,12 +106,12 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                         </div>
                     </div>
                     <div className="flex flex-col w-full justify-evenly border rounded-xl px-16 py-8">
-                        <StatBar label={'HP'} initialValue={pokemonInfo.stats[0].base_stat} />
-                        <StatBar label={'Atk'} initialValue={pokemonInfo.stats[1].base_stat} />
-                        <StatBar label={'Def'} initialValue={pokemonInfo.stats[2].base_stat} />
-                        <StatBar label={'Sp. Atk'} initialValue={pokemonInfo.stats[3].base_stat} />
-                        <StatBar label={'Sp. Def'} initialValue={pokemonInfo.stats[4].base_stat} />
-                        <StatBar label={'Speed'} initialValue={pokemonInfo.stats[5].base_stat} />
+                        <StatBar label={'HP'} id={0} baseValue={pokemonInfo.stats[0].base_stat} ev={pokemonParty[selectedPokemon].ev[0]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
+                        <StatBar label={'Atk'} id={1} baseValue={pokemonInfo.stats[1].base_stat} ev={pokemonParty[selectedPokemon].ev[1]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
+                        <StatBar label={'Def'} id={2} baseValue={pokemonInfo.stats[2].base_stat} ev={pokemonParty[selectedPokemon].ev[2]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
+                        <StatBar label={'Sp. Atk'} id={3} baseValue={pokemonInfo.stats[3].base_stat} ev={pokemonParty[selectedPokemon].ev[3]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
+                        <StatBar label={'Sp. Def'} id={4} baseValue={pokemonInfo.stats[4].base_stat} ev={pokemonParty[selectedPokemon].ev[4]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
+                        <StatBar label={'Speed'} id={5} baseValue={pokemonInfo.stats[5].base_stat} ev={pokemonParty[selectedPokemon].ev[5]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} />
                         <a className="text-gray-500 hover:underline pt-8" target="_blank" href={`https://www.smogon.com/dex/sv/pokemon/${pokemonInfo.name}`}>Smogon Breakdown</a>
                     </div>
                 </div>

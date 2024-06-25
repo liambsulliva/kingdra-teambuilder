@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import type { pokemon } from '../../lib/pokemonInterface'
 
 interface StatBarProps {
     label: string;
-    initialValue: number;
+    id: number;
+    baseValue: number;
+    ev: number;
+    selectedPokemon: number;
+    setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
 }
 
-const StatBar: React.FC<StatBarProps> = ({ label, initialValue }) => {
-    const [additionalValue, setAdditionalValue] = useState(0);
+const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, ev, selectedPokemon, setPokemonParty }) => {
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setAdditionalValue(parseInt(event.target.value));
+        setPokemonParty(prevParty => {
+            const updatedParty = [...prevParty];
+            updatedParty[selectedPokemon].ev[id] = parseInt(event.target.value);
+            return updatedParty;
+        });
     };
-
-    useEffect(() => {
-        setAdditionalValue(0);
-    }, [initialValue]);
-
-    const totalValue = initialValue + additionalValue;
 
     return (
         <div className='flex gap-4 items-center'>
@@ -24,9 +26,9 @@ const StatBar: React.FC<StatBarProps> = ({ label, initialValue }) => {
             <div className='flex flex-col'>
                 <div
                     style={{
-                        width: `${0.75 * totalValue}px`,
+                        width: `${0.75 * baseValue + ev}px`,
                         height: '5px',
-                        backgroundColor: `hsl(${totalValue * 0.25}, 100%, 50%)`,
+                        backgroundColor: `hsl(${baseValue + ev * 0.25}, 100%, 50%)`,
                         borderRadius: '15px',
                         overflow: 'hidden',
                         margin: '1rem 0'
@@ -35,10 +37,10 @@ const StatBar: React.FC<StatBarProps> = ({ label, initialValue }) => {
                     <div
                         style={{
                             height: '100%',
-                            width: `${totalValue}%`,
+                            width: `${baseValue + ev}%`,
                             transition: 'width 0.5s ease-out, background-color 0.5s ease-out',
                             backgroundSize: '300% 100%',
-                            backgroundPosition: `${100 - totalValue}% 0`,
+                            backgroundPosition: `${100 - baseValue + ev}% 0`,
                         }}
                     />
                 </div>
@@ -47,11 +49,11 @@ const StatBar: React.FC<StatBarProps> = ({ label, initialValue }) => {
                     type="range"
                     min="0"
                     max="255"
-                    value={additionalValue}
+                    value={baseValue}
                     onChange={handleChange}
                 />
             </div>
-            <p>Total: {totalValue}</p>
+            <p>Total: {baseValue + ev}</p>
         </div>
     );
 };
