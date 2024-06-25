@@ -5,23 +5,45 @@ interface StatBarProps {
     label: string;
     id: number;
     baseValue: number;
+    level: number;
     iv: number;
     ev: number;
     selectedPokemon: number;
     setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
+    selectedNature: string;
+    natures: any;
 }
 
-const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, iv, ev, selectedPokemon, setPokemonParty }) => {
-    const level = 100; // Level 100 by default
-    const nature = 1; // Temp val
-
+const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, selectedPokemon, setPokemonParty, selectedNature, natures }) => {
     const calculateStatTotal = () => {
         if (id === 0) { //Is HP, calculate differently
-            return Math.floor(((2 * baseValue + iv + Math.floor(ev / 4) + 100) * level) / 100) + 10; // 110 = Level 100 + 10
+            return Math.floor(((2 * baseValue + iv + Math.floor(ev / 4) + 100) * level) / level) + 10; // 110 = Level 100 + 10
         } else {
-            return Math.floor((Math.floor((2 * baseValue + iv + Math.floor(ev / 4)) * level / 100) + 5) * nature);
+            return Math.floor((Math.floor((2 * baseValue + iv + Math.floor(ev / 4)) * level / 100) + 5) * getNatureMultiplier());
         }
     }
+
+    const getNatureMultiplier = () => {
+        if (!selectedNature || !natures[selectedNature]) return 1;
+        if (natures[selectedNature].positive === id) {
+            return 1.1;
+        }
+        if (natures[selectedNature].negative === id) {
+            return 0.9;
+        }
+        return 1;
+    };
+
+    const getNatureColor = () => {
+        if (!selectedNature || !natures[selectedNature]) return 'text-gray-600';
+        if (natures[selectedNature].positive === id) {
+            return 'text-red-600';
+        }
+        if (natures[selectedNature].negative === id) {
+            return 'text-blue-600';
+        }
+        return 'text-gray-600';
+    };
     
     const handleIV = (event: React.ChangeEvent<HTMLInputElement>) => {
         setPokemonParty(prevParty => {
@@ -59,7 +81,7 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, iv, ev, selecte
         <div className='flex flex-col gap-1'>
             <div className='flex gap-2 items-center'>
             <p 
-                className='text-gray-600 text-nowrap select-none'
+                className={`${getNatureColor()} text-nowrap select-none`}
             >
                 {label}
             </p>
