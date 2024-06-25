@@ -55,9 +55,9 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, iv, ev, selecte
             <div className='flex flex-col'>
                 <div
                     style={{
-                        width: `${0.75 * baseValue + ev}px`,
+                        width: `${0.35 * (baseValue + ev)}px`,
                         height: '5px',
-                        backgroundColor: `hsl(${baseValue + ev * 0.25}, 100%, 50%)`,
+                        backgroundColor: `hsl(${(baseValue + ev) * 0.2}, 100%, 50%)`,
                         borderRadius: '15px',
                         overflow: 'hidden',
                         margin: '1rem 0'
