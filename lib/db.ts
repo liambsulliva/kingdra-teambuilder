@@ -17,6 +17,45 @@ if (!cached) {
   cached = (global as any).mongoose = { conn: null, promise: null };
 }
 
+// Define the Pokemon schema
+const PokemonSchema = new mongoose.Schema({
+  name: String,
+  id: Number,
+  sprite: String,
+  level: Number,
+  ability: String,
+  nature: String,
+  item: String,
+  tera_type: String,
+  moves: [String],
+  iv: {
+    HP: Number,
+    Atk: Number,
+    Def: Number,
+    SpA: Number,
+    SpD: Number,
+    Spd: Number
+  },
+  ev: {
+    HP: Number,
+    Atk: Number,
+    Def: Number,
+    SpA: Number,
+    SpD: Number,
+    Spd: Number
+  }
+});
+
+// Define the User schema
+const UserSchema = new mongoose.Schema({
+  clerkUserId: { type: String, unique: true },
+  pokemonParty: [PokemonSchema]
+});
+
+// Define models only if they haven't been defined yet
+const Pokemon = mongoose.models.Pokemon || mongoose.model('Pokemon', PokemonSchema);
+const User = mongoose.models.User || mongoose.model('User', UserSchema);
+
 async function dbConnect(): Promise<typeof mongoose> {
   if (cached.conn) {
     return cached.conn;
@@ -45,3 +84,4 @@ async function dbConnect(): Promise<typeof mongoose> {
 }
 
 export default dbConnect;
+export { User, Pokemon };
