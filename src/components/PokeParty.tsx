@@ -1,34 +1,37 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import axios from 'axios';
 import PokeSlot from "@/components/PokeSlot";
 import GlobalIETabber from "@/components/GlobalIETabber";
+import debounce from 'lodash.debounce';
 import "@/app/globals.css";
 import type { pokemon } from '../../lib/pokemonInterface';
 
 export default function PokeParty({ pokemonParty, setPokemonParty, setSelectedPokemon }: { pokemonParty: pokemon[], setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>, setSelectedPokemon: React.Dispatch<React.SetStateAction<number>> }) {
     const { isSignedIn } = useAuth();
-    
-    useEffect(() => {
-        if (isSignedIn) {
-            axios.get("/api/pokemon-party")
-                .then(response => {
-                    setPokemonParty(response.data.pokemonParty);
-                })
-                .catch(error => {
-                    console.error("Error fetching pokemon party:", error);
-                });
-        } else {
-            setPokemonParty([]);
-        }
-    }, [isSignedIn]);
 
-    useEffect(() => {
-        if (isSignedIn) {
-            const postPokemonParty = async () => {
+    const debouncedFetchPokemonParty = useCallback(
+        debounce(async () => {
+            if (isSignedIn) {
+                try {
+                    const response = await axios.get('/api/pokemon-party');
+                    setPokemonParty(response.data.pokemonParty);
+                } catch (error) {
+                    console.error('Error fetching pokemon party:', error);
+                }
+            } else {
+                setPokemonParty([]);
+            }
+        }, 500),
+        [isSignedIn]
+    );
+
+    const debouncedPostPokemonParty = useCallback(
+        debounce(async () => {
+            if (isSignedIn) {
                 try {
                     const response = await axios.post('/api/pokemon-party', {
-                        pokemonParty
+                        pokemonParty,
                     });
                     // Handle the response here
                     if (response.status === 201) {
@@ -39,10 +42,18 @@ export default function PokeParty({ pokemonParty, setPokemonParty, setSelectedPo
                 } catch (error) {
                     console.error('Error posting pokemon party:', error);
                 }
-            };
-            postPokemonParty();
-        }
-    }, [pokemonParty]);
+            }
+        }, 500),
+        [isSignedIn, pokemonParty]
+    );
+
+    useEffect(() => {
+        debouncedFetchPokemonParty();
+    }, [isSignedIn, debouncedFetchPokemonParty]);
+
+    useEffect(() => {
+        debouncedPostPokemonParty();
+    }, [isSignedIn, pokemonParty, debouncedPostPokemonParty]);
 
     return (
         <div className="flex flex-col items-center py-4">
