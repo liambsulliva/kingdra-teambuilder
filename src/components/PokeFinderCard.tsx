@@ -1,8 +1,5 @@
 "use client"
-//import Draggable from 'react-draggable';
 import "@/app/globals.css";
-import { useAuth } from "@clerk/nextjs";
-import axios from 'axios';
 import type { pokemon } from '../../lib/pokemonInterface';
 
 interface PokeFinderCardProps {
