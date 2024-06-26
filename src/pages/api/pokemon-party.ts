@@ -29,8 +29,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         try {
             // Validate each Pokemon in the party
             for (const pokemon of pokemonParty) {
-                const { name, id, sprite, level, ability, nature, item, tera_type, moves, iv, ev } = pokemon;
-                if (!name || !id || !sprite || !level || !ability || !nature || !item || !tera_type || !moves || !iv || !ev) {
+                const { name, id, sprite, level, moves, iv, ev } = pokemon;
+                if (!name || !id || !sprite || !level || moves.length === 0 || iv.length !== 6 || ev.length !== 6) {
                     res.status(400).json({ message: 'Invalid Pokemon data in the party' });
                     return;
                 }
