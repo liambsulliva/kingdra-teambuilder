@@ -13,7 +13,6 @@ interface PokeFinderCardProps {
 
 
 const PokeFinderCard: React.FC<PokeFinderCardProps> = ({ pokemon, setPokemonParty }: PokeFinderCardProps) => {
-    const { isSignedIn } = useAuth();
     const handleClick = async () => {
         try {
             setPokemonParty((prevPokemonParty: pokemon[]) => {
@@ -57,19 +56,6 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({ pokemon, setPokemonPart
                 }
                 return prevPokemonParty;
             });
-            if (isSignedIn) {
-                const response = await axios.post('/api/pokemon-party', {
-                    name: pokemon.name,
-                    id: pokemon.id,
-                    sprite: pokemon.sprite
-                });
-                // Handle the response here
-                if (response.status === 201) {
-                    console.log('POST Success');
-                } else {
-                    console.log('POST Failure');
-                }
-            }
         } catch (error) {
             // Handle the error here
             console.log('Internal Server Error');

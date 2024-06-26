@@ -23,6 +23,27 @@ export default function PokeParty({ pokemonParty, setPokemonParty, setSelectedPo
         }
     }, [isSignedIn]);
 
+    useEffect(() => {
+        if (isSignedIn) {
+            const postPokemonParty = async () => {
+                try {
+                    const response = await axios.post('/api/pokemon-party', {
+                        pokemonParty
+                    });
+                    // Handle the response here
+                    if (response.status === 201) {
+                        console.log('POST Success');
+                    } else {
+                        console.log('POST Failure');
+                    }
+                } catch (error) {
+                    console.error('Error posting pokemon party:', error);
+                }
+            };
+            postPokemonParty();
+        }
+    }, [pokemonParty]);
+
     return (
         <div className="flex flex-col items-center py-4">
             <div className="p-6 grid md:grid-cols-2 grid-cols-3 gap-4">

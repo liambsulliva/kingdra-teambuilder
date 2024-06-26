@@ -20,30 +20,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === 'POST') {
-        const { name, id, sprite, level, ability, nature, item, tera_type, moves, iv, ev } = req.body;
-        if (!name || !id || !sprite || !level || !ability || !nature || !item || !tera_type || !moves || !iv || !ev) {
-            res.status(400).json({ message: 'Invalid request body' });
+        const { pokemonParty } = req.body;
+        if (!Array.isArray(pokemonParty)) {
+            res.status(400).json({ message: 'Invalid request body. Expected pokemonParty array.' });
             return;
         }
+
         try {
-            const newPokemon: pokemon = { name, id, sprite, level, ability, nature, item, tera_type, moves, iv, ev };
-            
-            const existingPokemon = user.pokemonParty.find((pokemon: pokemon) => pokemon.id === newPokemon.id);
-            if (existingPokemon) {
-                res.status(409).json({ message: 'Pokemon already exists in the party' });
+            // Validate each Pokemon in the party
+            for (const pokemon of pokemonParty) {
+                const { name, id, sprite, level, ability, nature, item, tera_type, moves, iv, ev } = pokemon;
+                if (!name || !id || !sprite || !level || !ability || !nature || !item || !tera_type || !moves || !iv || !ev) {
+                    res.status(400).json({ message: 'Invalid Pokemon data in the party' });
+                    return;
+                }
+            }
+
+            // Check if party size is valid
+            if (pokemonParty.length > 6) {
+                res.status(409).json({ message: 'Party size cannot exceed 6 Pokemon' });
                 return;
             }
-            if (user.pokemonParty.length >= 6) {
-                res.status(409).json({ message: 'Party is already full' });
-                return;
-            }
-            
-            user.pokemonParty.push(newPokemon);
+
+            // Update the user's Pokemon party
+            user.pokemonParty = pokemonParty;
             await user.save();
-            res.status(201).json({ message: 'Pokemon created successfully' });
+            res.status(201).json({ message: 'Pokemon party updated successfully' });
         } catch (error: any) {
-            console.error('Failed to create Pokemon:', error);
-            res.status(500).json({ message: 'Failed to create Pokemon', error: error.message });
+            console.error('Failed to update Pokemon party:', error);
+            res.status(500).json({ message: 'Failed to update Pokemon party', error: error.message });
         }
     } else if (req.method === 'DELETE') {
         try {
