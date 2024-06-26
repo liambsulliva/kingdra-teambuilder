@@ -21,7 +21,7 @@ export default function PokeParty({ pokemonParty, setPokemonParty, setSelectedPo
         } else {
             setPokemonParty([]);
         }
-    }, [isSignedIn]);
+    }, []);
 
     useEffect(() => {
         if (isSignedIn) {
