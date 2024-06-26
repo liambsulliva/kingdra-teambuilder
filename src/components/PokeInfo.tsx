@@ -15,7 +15,6 @@ type Nature = keyof typeof natures;
 
 export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonParty }: { selectedPokemon: number, pokemonParty: pokemon[], setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>> }) {
     const [pokemonInfo, setPokemonInfo] = useState<any>();
-
     const [natureSuggestions, setNatureSuggestions] = useState<Nature[]>([]);
     const natureInputRef = useRef<HTMLDivElement>(null);
     const naturesArray = Object.keys(natures) as Nature[];
@@ -144,7 +143,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                         <div className="flex flex-col">
                             <p className="flex flex-row items-center text-lg text-gray-600 mb-4 gap-2.5">
                                 Type:
-                                <div className="flex flex-row px-2 gap-2">
+                                <div className="flex flex-row items-center px-2 gap-2">
                                     <span 
                                         className="font-semibold capitalize px-4 py-2 border rounded-xl text-white"
                                         style={{ backgroundColor: `#${typeColors[pokemonInfo.types[0].type.name as PokemonType]}` }}
@@ -159,6 +158,21 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                                                 {pokemonInfo.types[1].type.name}
                                             </span>
                                         )}
+                                    <input 
+                                        className="border-2 border-gray-300 bg-white h-10 px-5 rounded-lg text-sm focus:outline-none" 
+                                        type="text" 
+                                        name="Tera Type" 
+                                        placeholder="Tera" 
+                                        value={pokemonParty[selectedPokemon].tera_type} 
+                                        onChange={(e) => setPokemonParty(prevParty => {
+                                            const newParty = [...prevParty];
+                                            newParty[selectedPokemon] = {
+                                                ...newParty[selectedPokemon],
+                                                tera_type: e.target.value
+                                            };
+                                            return newParty;
+                                        })}
+                                    />
                                 </div>
                             </p>
                             <div className="flex gap-4 items-center mb-4">
