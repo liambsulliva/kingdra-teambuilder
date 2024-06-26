@@ -44,7 +44,7 @@ export default function PokeParty({ pokemonParty, setPokemonParty, setSelectedPo
                 }
             }
         }, 500),
-        [isSignedIn, pokemonParty]
+        [pokemonParty]
     );
 
     useEffect(() => {
@@ -53,7 +53,7 @@ export default function PokeParty({ pokemonParty, setPokemonParty, setSelectedPo
 
     useEffect(() => {
         debouncedPostPokemonParty();
-    }, [isSignedIn, pokemonParty, debouncedPostPokemonParty]);
+    }, [pokemonParty, debouncedPostPokemonParty]);
 
     return (
         <div className="flex flex-col items-center py-4">
