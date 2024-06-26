@@ -28,22 +28,8 @@ const PokemonSchema = new mongoose.Schema({
   item: String,
   tera_type: String,
   moves: [String],
-  iv: {
-    HP: Number,
-    Atk: Number,
-    Def: Number,
-    SpA: Number,
-    SpD: Number,
-    Spd: Number
-  },
-  ev: {
-    HP: Number,
-    Atk: Number,
-    Def: Number,
-    SpA: Number,
-    SpD: Number,
-    Spd: Number
-  }
+  iv: [Number],
+  ev: [Number]
 });
 
 // Define the User schema
