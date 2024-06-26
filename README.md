@@ -1,6 +1,6 @@
 ## 👋 Introduction
 
-Below is a Pokemon teambuilder I wrote for my friends in our 2024 Summer Pokemon Draft League. It is somewhat like fantasy football, where you draft pokemon in order. But you battle with them yourselves and use their strengths to your advantage. This teambuilder allows the user to preview the perfect team before actually drafting their picks.
+This is a full-stack Pokemon Teambuilder I am currently building. I started this project because I was building a little teambuilder for a pokemon draft league for my friends (think fantasy football if it was pokemon). It morphed into something else entirely, when I realized that a lot of the pokemon teambuilders on the market had pretty terrible UIs and lacked the ability to actually set moves and stats, unless you are using something like Pokemon Showdown. There is also a crucial lack of a tool that does Casual and Competitive teams at the same time. I hope to build this application into a tool that can do both, and adapt to the user's preferences at any given moment.
 
 ## 💻 Demo
 
@@ -8,20 +8,29 @@ Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 
 ## 💪 Features:
     
-- ✅ Grid System for Selected Cards
-- ✅ Clear Button
-- ✅ Point System
-- ✅ Alert System
-- ✅ Tera Captain Selection + Types
-- ✅ Import/Export JSON System
+- ✅ Infinite Scroll to select pokemon
+- ✅ Stat Calculator using Pokemon's IV/EVs + Natures + Lv
+- ✅ Duplicate Pokemon Checks
+- ✅ Login System via Clerk
+- ✅ Smogon Breakdown
+- ✅ Ability Select
+
 
 ## 🛣️ Roadmap
 
 - ❌ Dark Mode Support
-- ❌ Update to 2024 Draft List
-- ❌ Customize UI Library
-- ❌ Async/Await Sync Bug (Edge Cases)
-- ❌ Image Optimization
+- ❌ Proper Responsiveness
+- ❌ Input Validation
+- ❌ Capitalized Natures
+- ❌ POST + GET bug on first pokemon addition
+- ❌ Import/Export Locally + Globally
+- ❌ Casual Mode
+- ❌ Multiple Team Support
+- ❌ Search fetches from Backend
+- ❌ Custom Sign-in Page
+- ❌ Prefetch Pokemon Info preclick
+- ❌ EV Limit
+
 
 ## ⚙️ Stack
 
@@ -29,6 +38,14 @@ Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 - [**Tailwind CSS**](https://tailwindcss.com/) - Tailwind CSS is a utility-first CSS framework.
 - [**React**](https://react.dev) - A JavaScript library for building user interfaces.
 - [**Flowbite**](https://flowbite.com/) - An extensible UI library built for Tailwind.
+- [**Flowbite-React**](https://www.npmjs.com/package/flowbite-react) - React components for the Flowbite UI library.
+- [**@clerk/nextjs**](https://www.npmjs.com/package/@clerk/nextjs) - A library for adding authentication and user management to Next.js applications.
+- [**Mongodb**](https://www.npmjs.com/package/mongodb) - A MongoDB driver for Node.js.
+- [**Mongoose**](https://www.npmjs.com/package/mongoose) - An object data modeling (ODM) library for MongoDB and Node.js.
+- [**Node-Fetch**](https://www.npmjs.com/package/node-fetch) - A light-weight module that brings window.fetch to Node.js.
+- [**Axios**](https://www.npmjs.com/package/axios) - A promise-based HTTP client for the browser and Node.js.
+- [**Debounce**](https://www.npmjs.com/package/lodash.debounce) - A utility function that limits the rate at which a function can be called.
+- [**dotenv**](https://www.npmjs.com/package/dotenv) - A zero-dependency module that loads environment variables from a .env file.
 
 ## 🧞 Commands
 
