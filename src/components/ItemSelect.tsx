@@ -103,7 +103,7 @@ export default function itemSelect({ selectedPokemon, pokemonParty, setPokemonPa
                 )}
                 {itemSuggestions.length > 0 && (
                     <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg">
-                        {itemSuggestions.map((item, index) => (
+                        {itemSuggestions.slice(0, 10).map((item, index) => (
                             <li 
                                 key={index}
                                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer"

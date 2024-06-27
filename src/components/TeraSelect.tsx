@@ -99,7 +99,7 @@ export default function TeraSelect({ selectedPokemon, pokemonParty, setPokemonPa
                 )}
                 {teraSuggestions.length > 0 && (
                     <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg">
-                        {teraSuggestions.map((type, index) => (
+                        {teraSuggestions.slice(0, 10).map((type, index) => (
                             <li 
                                 key={index}
                                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
