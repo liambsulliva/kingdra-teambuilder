@@ -15,7 +15,9 @@ type Nature = keyof typeof natures;
 
 export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonParty }: { selectedPokemon: number, pokemonParty: pokemon[], setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>> }) {
     const [pokemonInfo, setPokemonInfo] = useState<any>();
+    const [natureInput, setNatureInput] = useState<string>('');
     const [natureSuggestions, setNatureSuggestions] = useState<Nature[]>([]);
+    const [natureError, setNatureError] = useState<string>('');
     const natureInputRef = useRef<HTMLDivElement>(null);
     const naturesArray = Object.keys(natures) as Nature[];
 
@@ -37,34 +39,62 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
         fetchPokemonInfo();
     }, [selectedPokemon]);
 
+    useEffect(() => {
+        if (pokemonParty[selectedPokemon] && pokemonParty[selectedPokemon].nature) {
+            setNatureInput(pokemonParty[selectedPokemon].nature);
+        } else {
+            setNatureInput('');
+        }
+    }, [selectedPokemon, pokemonParty]);
+
     const handleNatureInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        setPokemonParty(prevParty => {
-            const newParty = [...prevParty];
-            newParty[selectedPokemon] = {
-                ...newParty[selectedPokemon],
-                nature: value
-            };
-            return newParty;
-        });
+        setNatureInput(value);
     
         // Filter nature suggestions based on input
         const filteredSuggestions = naturesArray.filter(nature =>
             nature.toLowerCase().includes(value.toLowerCase())
         );
         setNatureSuggestions(filteredSuggestions);
+    
+        // Clear error if input is empty
+        if (value === '') {
+            setNatureError('');
+        }
+    };
+
+    const handleNatureInputBlur = () => {
+        if (natureInput === '' || naturesArray.includes(natureInput as Nature)) {
+            setPokemonParty(prevParty => {
+                const newParty = [...prevParty];
+                if (newParty[selectedPokemon]) {
+                    newParty[selectedPokemon] = {
+                        ...newParty[selectedPokemon],
+                        nature: natureInput
+                    };
+                }
+                return newParty;
+            });
+            setNatureError('');
+        } else {
+            setNatureError('Please enter a valid nature');
+        }
     };
 
     const handleNatureSuggestionSelect = (nature: Nature) => {
+        setNatureInput(nature);
         setPokemonParty(prevParty => {
             const newParty = [...prevParty];
-            newParty[selectedPokemon] = {
-                ...newParty[selectedPokemon],
-                nature: nature
-            };
+            if (newParty[selectedPokemon]) {
+                newParty[selectedPokemon] = {
+                    ...newParty[selectedPokemon],
+                    nature: nature
+                };
+            }
             return newParty;
         });
         setNatureSuggestions([]);
+        setNatureError('');
     };
 
     const handleMoveChange = (index: number, value: string) => {
@@ -194,13 +224,17 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                                 <h3 className="text-xl text-gray-600">Nature:</h3>
                                 <div className="relative" ref={natureInputRef}>
                                     <input 
-                                        className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none" 
+                                        className={`border-2 ${natureError ? 'border-red-500' : 'border-gray-300'} bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none`}
                                         type="text" 
                                         name="Nature" 
                                         placeholder="Nature" 
-                                        value={pokemonParty[selectedPokemon].nature} 
+                                        value={natureInput}
                                         onChange={handleNatureInputChange}
+                                        onBlur={handleNatureInputBlur}
                                     />
+                                    {natureError && (
+                                        <p className="text-red-500 text-xs mt-1">{natureError}</p>
+                                    )}
                                     {natureSuggestions.length > 0 && (
                                         <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg">
                                             {natureSuggestions.map((nature, index) => (
