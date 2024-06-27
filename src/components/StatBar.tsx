@@ -48,22 +48,25 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
     };
     
     const handleIV = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newIV = parseInt(event.target.value);
+        const ivValue = isNaN(newIV) ? 0 : newIV;
         setPokemonParty(prevParty => {
             const updatedParty = [...prevParty];
-            updatedParty[selectedPokemon].iv[id] = parseInt(event.target.value);
+            updatedParty[selectedPokemon].iv[id] = ivValue;
             return updatedParty;
         });
     };
     
     const handleEV = (event: React.ChangeEvent<HTMLInputElement>) => {
         const newEV = parseInt(event.target.value);
+        const evValue = isNaN(newEV) ? 0 : newEV;
         const oldEV = ev;
-        const evDifference = newEV - oldEV;
+        const evDifference = evValue - oldEV;
       
         if (totalEVs + evDifference <= 510) {
           setPokemonParty(prevParty => {
             const updatedParty = [...prevParty];
-            updatedParty[selectedPokemon].ev[id] = newEV;
+            updatedParty[selectedPokemon].ev[id] = evValue;
             return updatedParty;
           });
           setTotalEVs(prevTotal => prevTotal + evDifference);
@@ -129,7 +132,7 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
                 value={iv}
                 onChange={handleIV}
             />
-            <p className='text-gray-600'>{iv}</p>
+            <input className={`border-2 border-gray-300 bg-white h-10 w-14 px-4 rounded-lg text-sm focus:outline-none`} value={iv} onChange={handleIV} />
         </div>
         <div className='flex gap-2'>
             <p className='text-gray-500 select-none' onDoubleClick={handleEVDoubleClick}>EV</p>
@@ -141,7 +144,7 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
                 value={ev}
                 onChange={handleEV}
             />
-            <p className='text-gray-600'>{ev}</p>
+            <input className={`border-2 border-gray-300 bg-white h-10 w-16 px-4 rounded-lg text-sm focus:outline-none`} value={ev} onChange={handleEV} />
         </div>
     </div>
     );
