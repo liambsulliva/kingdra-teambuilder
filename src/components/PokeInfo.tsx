@@ -112,7 +112,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                         <div className="flex gap-4 items-center mb-4">
                             <h3 className="text-xl text-gray-600">Lv.</h3>
                             <input 
-                                className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none" 
+                                className="border-2 border-gray-300 w-16 bg-white h-10 px-4 rounded-lg text-sm focus:outline-none" 
                                 type="text" 
                                 name="Level" 
                                 placeholder="Level" 
@@ -159,7 +159,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                                             </span>
                                         )}
                                     <input 
-                                        className="border-2 border-gray-300 bg-white h-10 px-5 rounded-lg text-sm focus:outline-none" 
+                                        className="border-2 border-gray-300 w-24 bg-white h-10 px-4 rounded-lg text-sm focus:outline-none" 
                                         type="text" 
                                         name="Tera Type" 
                                         placeholder="Tera" 
