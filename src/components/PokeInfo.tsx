@@ -11,6 +11,7 @@ import type { pokemon } from '../../lib/pokemonInterface';
 import LocalIETabber from "./LocalIETabber";
 import NatureSelect from "./NatureSelect";
 import ItemSelect from "./ItemSelect";
+import TeraSelect from "./TeraSelect";
 
 type PokemonType = keyof typeof typeColors;
 
@@ -96,9 +97,9 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                             />
                         )}
                         <div className="flex flex-col">
-                            <p className="flex flex-row items-center text-lg text-gray-600 mb-4 gap-2.5">
+                            <p className="flex items-center text-lg text-gray-600 mb-4 gap-2.5">
                                 Type:
-                                <div className="flex flex-row items-center px-2 gap-2">
+                                <div className="flex items-center px-2 gap-2">
                                     <span 
                                         className="font-semibold capitalize px-4 py-2 border rounded-xl text-white"
                                         style={{ backgroundColor: `#${typeColors[pokemonInfo.types[0].type.name as PokemonType]}` }}
@@ -113,21 +114,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                                                 {pokemonInfo.types[1].type.name}
                                             </span>
                                         )}
-                                    <input 
-                                        className="border-2 border-gray-300 w-24 bg-white h-10 px-4 rounded-lg text-sm focus:outline-none" 
-                                        type="text" 
-                                        name="Tera Type" 
-                                        placeholder="Tera" 
-                                        value={pokemonParty[selectedPokemon].tera_type} 
-                                        onChange={(e) => setPokemonParty(prevParty => {
-                                            const newParty = [...prevParty];
-                                            newParty[selectedPokemon] = {
-                                                ...newParty[selectedPokemon],
-                                                tera_type: e.target.value
-                                            };
-                                            return newParty;
-                                        })}
-                                    />
+                                   <TeraSelect selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
                                 </div>
                             </p>
                             <div className="flex gap-4 items-center mb-4">
