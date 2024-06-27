@@ -10,9 +10,9 @@ import StatBar from "./StatBar";
 import type { pokemon } from '../../lib/pokemonInterface';
 import LocalIETabber from "./LocalIETabber";
 import NatureSelect from "./NatureSelect";
+import ItemSelect from "./ItemSelect";
 
 type PokemonType = keyof typeof typeColors;
-type Nature = keyof typeof natures;
 
 export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonParty }: { selectedPokemon: number, pokemonParty: pokemon[], setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>> }) {
     const [pokemonInfo, setPokemonInfo] = useState<any>();
@@ -146,24 +146,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                                 </ul>
                             </div>
                             <NatureSelect selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
-                            <div className="flex gap-4 items-center mb-4">
-                                <h3 className="text-xl text-gray-600">Item:</h3>
-                                <input 
-                                    className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none" 
-                                    type="text" 
-                                    name="Item" 
-                                    placeholder="Item" 
-                                    value={pokemonParty[selectedPokemon].item} 
-                                    onChange={(e) => setPokemonParty(prevParty => {
-                                        const newParty = [...prevParty];
-                                        newParty[selectedPokemon] = {
-                                            ...newParty[selectedPokemon],
-                                            item: e.target.value
-                                        };
-                                        return newParty;
-                                    })}
-                                />
-                            </div>
+                            <ItemSelect selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
                         </div>
                         <div className="flex justify-between items-center">
                             <div className="flex flex-col">
