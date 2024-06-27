@@ -8,13 +8,15 @@ interface StatBarProps {
     level: number;
     iv: number;
     ev: number;
+    totalEVs: number;
+    setTotalEVs: React.Dispatch<React.SetStateAction<number>>;
     selectedPokemon: number;
     setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
     selectedNature: string;
     natures: any;
 }
 
-const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, selectedPokemon, setPokemonParty, selectedNature, natures }) => {
+const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, totalEVs, setTotalEVs, selectedPokemon, setPokemonParty, selectedNature, natures }) => {
     const calculateStatTotal = () => {
         if (id === 0) { //Is HP, calculate differently
             return Math.floor(((2 * baseValue + iv + Math.floor(ev / 4) + 100) * level) / level) + 10; // 110 = Level 100 + 10
@@ -54,11 +56,18 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
     };
     
     const handleEV = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setPokemonParty(prevParty => {
+        const newEV = parseInt(event.target.value);
+        const oldEV = ev;
+        const evDifference = newEV - oldEV;
+      
+        if (totalEVs + evDifference <= 510) {
+          setPokemonParty(prevParty => {
             const updatedParty = [...prevParty];
-            updatedParty[selectedPokemon].ev[id] = parseInt(event.target.value);
+            updatedParty[selectedPokemon].ev[id] = newEV;
             return updatedParty;
-        });
+          });
+          setTotalEVs(prevTotal => prevTotal + evDifference);
+        }
     };
 
     const handleIVDoubleClick = () => {
@@ -72,6 +81,7 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
     const handleEVDoubleClick = () => {
         setPokemonParty(prevParty => {
             const updatedParty = [...prevParty];
+            setTotalEVs(prevTotal => prevTotal - updatedParty[selectedPokemon].ev[id]);
             updatedParty[selectedPokemon].ev[id] = 0;
             return updatedParty;
         });

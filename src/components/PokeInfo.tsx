@@ -18,6 +18,7 @@ type PokemonType = keyof typeof typeColors;
 
 export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonParty }: { selectedPokemon: number, pokemonParty: pokemon[], setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>> }) {
     const [pokemonInfo, setPokemonInfo] = useState<any>();
+    const [totalEVs, setTotalEVs] = useState(0);
 
     useEffect(() => {
         const fetchPokemonInfo = async () => {
@@ -33,7 +34,10 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                 console.error(`Server returned ${error}`);
             }
         };
-        console.log(pokemonParty);
+        if (pokemonParty && pokemonParty[selectedPokemon] && pokemonParty[selectedPokemon].ev) {
+            const newTotalEVs = pokemonParty[selectedPokemon].ev.reduce((sum, ev) => sum + ev, 0);
+            setTotalEVs(newTotalEVs);
+        }
         fetchPokemonInfo();
     }, [selectedPokemon]);
 
@@ -137,21 +141,22 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                         </div>
                     </div>
                     <div className="flex flex-col">
+                        <div className="mb-4">
+                            <p className="text-gray-500">Remaining EV points: {510 - totalEVs}</p>
+                        </div>
                         <div className="grid grid-cols-2 gap-16 h-full flex-wrap justify-evenly border rounded-xl p-16">
-                            <StatBar label={'HP'} id={0} baseValue={pokemonInfo.stats[0].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[0]} ev={pokemonParty[selectedPokemon].ev[0]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
-                            <StatBar label={'Atk'} id={1} baseValue={pokemonInfo.stats[1].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[1]} ev={pokemonParty[selectedPokemon].ev[1]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
-                            <StatBar label={'Def'} id={2} baseValue={pokemonInfo.stats[2].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[2]} ev={pokemonParty[selectedPokemon].ev[2]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
-                            <StatBar label={'Sp. Atk'} id={3} baseValue={pokemonInfo.stats[3].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[3]} ev={pokemonParty[selectedPokemon].ev[3]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
-                            <StatBar label={'Sp. Def'} id={4} baseValue={pokemonInfo.stats[4].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[4]} ev={pokemonParty[selectedPokemon].ev[4]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
-                            <StatBar label={'Speed'} id={5} baseValue={pokemonInfo.stats[5].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[5]} ev={pokemonParty[selectedPokemon].ev[5]} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
+                            <StatBar label={'HP'} id={0} baseValue={pokemonInfo.stats[0].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[0]} ev={pokemonParty[selectedPokemon].ev[0]} totalEVs={totalEVs} setTotalEVs={setTotalEVs} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
+                            <StatBar label={'Atk'} id={1} baseValue={pokemonInfo.stats[1].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[1]} ev={pokemonParty[selectedPokemon].ev[1]} totalEVs={totalEVs} setTotalEVs={setTotalEVs} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
+                            <StatBar label={'Def'} id={2} baseValue={pokemonInfo.stats[2].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[2]} ev={pokemonParty[selectedPokemon].ev[2]} totalEVs={totalEVs} setTotalEVs={setTotalEVs} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
+                            <StatBar label={'Sp. Atk'} id={3} baseValue={pokemonInfo.stats[3].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[3]} ev={pokemonParty[selectedPokemon].ev[3]} totalEVs={totalEVs} setTotalEVs={setTotalEVs} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
+                            <StatBar label={'Sp. Def'} id={4} baseValue={pokemonInfo.stats[4].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[4]} ev={pokemonParty[selectedPokemon].ev[4]} totalEVs={totalEVs} setTotalEVs={setTotalEVs} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
+                            <StatBar label={'Speed'} id={5} baseValue={pokemonInfo.stats[5].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[5]} ev={pokemonParty[selectedPokemon].ev[5]} totalEVs={totalEVs} setTotalEVs={setTotalEVs} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
                         </div>
                         <div className="flex justify-between items-center">
                             <a className="text-gray-500 hover:underline" target="_blank" href={`https://www.smogon.com/dex/sv/pokemon/${pokemonInfo.name}`}>Smogon Breakdown</a>
                             <LocalIETabber leftLabel="Import" rightLabel="Export" />
                         </div>
-                        
                     </div>
-                    
                 </div>
             )}
         </div>
