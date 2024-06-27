@@ -19,7 +19,7 @@ export default function Home() {
     <>
       <ClerkProvider>
         <Header numTeams={numTeams} setNumTeams={setNumTeams} selectedTeam={selectedTeam} setSelectedTeam={setSelectedTeam} />
-          <div className="flex flex-col gap-8 p-8">
+          <div className="flex flex-col gap-8 p-8 mx-auto" style={{ width: '1850px', maxWidth: 'calc(100% - 1rem)' }}>
             <div className="flex md:flex-row flex-col gap-4">
               <PokeParty pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} setSelectedPokemon={setSelectedPokemon} />
               <PokeInfo selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
