@@ -9,17 +9,13 @@ import axios from 'axios';
 import StatBar from "./StatBar";
 import type { pokemon } from '../../lib/pokemonInterface';
 import LocalIETabber from "./LocalIETabber";
+import NatureSelect from "./NatureSelect";
 
 type PokemonType = keyof typeof typeColors;
 type Nature = keyof typeof natures;
 
 export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonParty }: { selectedPokemon: number, pokemonParty: pokemon[], setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>> }) {
     const [pokemonInfo, setPokemonInfo] = useState<any>();
-    const [natureInput, setNatureInput] = useState<string>('');
-    const [natureSuggestions, setNatureSuggestions] = useState<Nature[]>([]);
-    const [natureError, setNatureError] = useState<string>('');
-    const natureInputRef = useRef<HTMLDivElement>(null);
-    const naturesArray = Object.keys(natures) as Nature[];
 
     useEffect(() => {
         const fetchPokemonInfo = async () => {
@@ -38,64 +34,6 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
         console.log(pokemonParty);
         fetchPokemonInfo();
     }, [selectedPokemon]);
-
-    useEffect(() => {
-        if (pokemonParty[selectedPokemon] && pokemonParty[selectedPokemon].nature) {
-            setNatureInput(pokemonParty[selectedPokemon].nature);
-        } else {
-            setNatureInput('');
-        }
-    }, [selectedPokemon, pokemonParty]);
-
-    const handleNatureInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setNatureInput(value);
-    
-        // Filter nature suggestions based on input
-        const filteredSuggestions = naturesArray.filter(nature =>
-            nature.toLowerCase().includes(value.toLowerCase())
-        );
-        setNatureSuggestions(filteredSuggestions);
-    
-        // Clear error if input is empty
-        if (value === '') {
-            setNatureError('');
-        }
-    };
-
-    const handleNatureInputBlur = () => {
-        if (natureInput === '' || naturesArray.includes(natureInput as Nature)) {
-            setPokemonParty(prevParty => {
-                const newParty = [...prevParty];
-                if (newParty[selectedPokemon]) {
-                    newParty[selectedPokemon] = {
-                        ...newParty[selectedPokemon],
-                        nature: natureInput
-                    };
-                }
-                return newParty;
-            });
-            setNatureError('');
-        } else {
-            setNatureError('Please enter a valid nature');
-        }
-    };
-
-    const handleNatureSuggestionSelect = (nature: Nature) => {
-        setNatureInput(nature);
-        setPokemonParty(prevParty => {
-            const newParty = [...prevParty];
-            if (newParty[selectedPokemon]) {
-                newParty[selectedPokemon] = {
-                    ...newParty[selectedPokemon],
-                    nature: nature
-                };
-            }
-            return newParty;
-        });
-        setNatureSuggestions([]);
-        setNatureError('');
-    };
 
     const handleMoveChange = (index: number, value: string) => {
         setPokemonParty(prevParty => {
@@ -119,19 +57,6 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
             return newParty;
         });
     };
-
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (natureInputRef.current && !natureInputRef.current.contains(event.target as Node)) {
-                setNatureSuggestions([]);
-            }
-        }
-    
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
 
     return (
         <div className="bg-[#f9f9f9] max-md:hidden rounded flex-grow">
@@ -220,36 +145,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                                     ))}
                                 </ul>
                             </div>
-                            <div className="flex gap-4 items-center mb-4 relative">
-                                <h3 className="text-xl text-gray-600">Nature:</h3>
-                                <div className="relative" ref={natureInputRef}>
-                                    <input 
-                                        className={`border-2 ${natureError ? 'border-red-500' : 'border-gray-300'} bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none`}
-                                        type="text" 
-                                        name="Nature" 
-                                        placeholder="Nature" 
-                                        value={natureInput}
-                                        onChange={handleNatureInputChange}
-                                        onBlur={handleNatureInputBlur}
-                                    />
-                                    {natureError && (
-                                        <p className="text-red-500 text-xs mt-1">{natureError}</p>
-                                    )}
-                                    {natureSuggestions.length > 0 && (
-                                        <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg">
-                                            {natureSuggestions.map((nature, index) => (
-                                                <li 
-                                                    key={index}
-                                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                    onClick={() => handleNatureSuggestionSelect(nature)}
-                                                >
-                                                    {nature}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </div>
-                            </div>
+                            <NatureSelect selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
                             <div className="flex gap-4 items-center mb-4">
                                 <h3 className="text-xl text-gray-600">Item:</h3>
                                 <input 
