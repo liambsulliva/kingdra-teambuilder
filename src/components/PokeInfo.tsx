@@ -12,6 +12,7 @@ import LocalIETabber from "./LocalIETabber";
 import NatureSelect from "./NatureSelect";
 import ItemSelect from "./ItemSelect";
 import TeraSelect from "./TeraSelect";
+import LevelSelect from "./LevelSelect";
 
 type PokemonType = keyof typeof typeColors;
 
@@ -65,24 +66,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                 <div className="flex flex-row justify-between bg-white rounded-lg shadow-md py-12 px-16">
                     <div className="p-4">
                         <h2 className="text-3xl font-extrabold text-gray-800 mb-2 capitalize">{pokemonInfo.name}</h2>
-                        <div className="flex gap-4 items-center mb-4">
-                            <h3 className="text-xl text-gray-600">Lv.</h3>
-                            <input 
-                                className="border-2 border-gray-300 w-16 bg-white h-10 px-4 rounded-lg text-sm focus:outline-none" 
-                                type="text" 
-                                name="Level" 
-                                placeholder="Level" 
-                                value={pokemonParty[selectedPokemon].level} 
-                                onChange={(e) => setPokemonParty(prevParty => {
-                                    const newParty = [...prevParty];
-                                    newParty[selectedPokemon] = {
-                                        ...newParty[selectedPokemon],
-                                        level: Math.min((parseInt(e.target.value) || 0), 100)
-                                    };
-                                    return newParty;
-                                })}
-                            />
-                        </div>
+                        <LevelSelect selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
                         {pokemonInfo.sprites.versions['generation-v']['black-white'].animated.front_default ? (
                             <img 
                                 src={pokemonInfo.sprites.versions['generation-v']['black-white'].animated.front_default} 
