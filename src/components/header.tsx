@@ -28,10 +28,12 @@ export default function Header({ numTeams, setNumTeams, selectedTeam, setSelecte
         <div className='flex flex-row gap-4 items-center'>
           <h1 className="text-3xl font-semibold font-custom max-md:hidden select-none">Pokémon Teambuilder</h1>
           <PokeballLogo className="md:hidden" />
-          <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
+          <div className="max-md:hidden">
+            <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
+          </div>
         </div>
-        <div className='flex flex-row gap-6 px-6 max-md:hidden'>
-          <Button color="gray" /*onClick={handleNewTeam}*/ disabled>New Team</Button>
+        <div className='flex flex-row gap-6 px-6'>
+          <Button className="max-md:hidden" color="gray" /*onClick={handleNewTeam}*/ disabled>New Team</Button>
           {/*<TeamSelector numTeams={numTeams} setSelectedTeam={setSelectedTeam} />*/}
           <SignedOut>
             <Button color="gray"><SignInButton /></Button>
