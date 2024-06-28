@@ -7,7 +7,7 @@ import { pokemon } from '../../lib/pokemonInterface';
 export default function Component({ selectedPokemon, pokemonParty, setPokemonParty, setTotalEVs }: { selectedPokemon: number, pokemonParty: pokemon[], setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>, setTotalEVs: React.Dispatch<React.SetStateAction<number>> }) {
   const [showModal, setShowModal] = useState(false);
   const [importText, setImportText] = useState('');
-  
+
   const capitalizeFirstLetter = (str: string): string => {
     return str.replace(/\b\w/g, char => char.toUpperCase());
   };
@@ -77,8 +77,8 @@ export default function Component({ selectedPokemon, pokemonParty, setPokemonPar
     }
   };
 
-  const importPokemon = () => {
-    const importedPokemon = parsePokemonData(importText);
+  const importPokemon = async () => {
+    const importedPokemon = await parsePokemonData(importText);
     if (importedPokemon) {
       setPokemonParty(prevParty => {
         const newParty = [...prevParty];
@@ -100,7 +100,7 @@ export default function Component({ selectedPokemon, pokemonParty, setPokemonPar
     }
   };
 
-  const parsePokemonData = (data: string): Partial<pokemon> | null => {
+  const parsePokemonData = async (data: string): Promise<Partial<pokemon> | null> => {
     const lines = data.split('\n').map(line => line.trim());
     if (lines.length < 3) return null;
 
@@ -108,6 +108,8 @@ export default function Component({ selectedPokemon, pokemonParty, setPokemonPar
     const [name, item] = nameItem.split('@').map(s => s.trim());
     const ability = abilityLine.split(':')[1].trim();
 
+    let sprite: string = '';
+    let id: number = 0;
     let ev: [number, number, number, number, number, number] = [0, 0, 0, 0, 0, 0];
     let iv: [number, number, number, number, number, number] = [31, 31, 31, 31, 31, 31];
     let tera_type: string | undefined;
@@ -145,8 +147,24 @@ export default function Component({ selectedPokemon, pokemonParty, setPokemonPar
       }
     });
 
+    try {
+      const response = await fetch(`/api/pokemon?name=${encodeURIComponent(name.toLowerCase())}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch Pokémon data');
+      }
+      const data = await response.json();
+      //console.log('Fetched Pokémon data:', data);
+      id = data.id;
+      sprite = data.sprites.front_default;
+    } catch (error) {
+      console.error('Error fetching Pokémon data:', error);
+    }
+
     return {
       name: name.toLowerCase(),
+      id: id,
+      sprite: sprite.toLowerCase(),
+      level: 100,
       item: item.toLowerCase(),
       ability: ability.toLowerCase(),
       ev: ev,

@@ -2,10 +2,10 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import fetch from 'node-fetch';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Return a specific Pokemon if an ID is provided
-  if (req.query.id) {
-    const id = req.query.id;
-    const url = `https://pokeapi.co/api/v2/pokemon?id=${id}`;
+  // Return a specific Pokemon if a name is provided
+  if (req.query.name) {
+    const name = req.query.name;
+    const url = `https://pokeapi.co/api/v2/pokemon/${name}`;
     try {
       const response = await fetch(url);
       const data = await response.json();
