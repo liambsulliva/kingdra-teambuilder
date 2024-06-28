@@ -66,7 +66,7 @@ export default function PokeParty({ pokemonParty, setPokemonParty, setSelectedPo
                 )}
             </div>
             <div>
-                <GlobalIETabber leftLabel={"Import"} rightLabel={"Export"} />
+                <GlobalIETabber pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
             </div>
         </div>
     );
