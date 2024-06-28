@@ -14,22 +14,23 @@ Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 - ✅ Login System via Clerk
 - ✅ Smogon Breakdown
 - ✅ Ability Select
+- ✅ Input Validation
+- ✅ Capitalized Natures
+- ✅ EV Limit
+- ✅ Import/Export Locally + Globally
 
 
 ## 🛣️ Roadmap
 
 - ❌ Dark Mode Support
 - ❌ Proper Responsiveness
-- ❌ Input Validation
-- ❌ Capitalized Natures
 - ❌ POST + GET bug on first pokemon addition
-- ❌ Import/Export Locally + Globally
 - ❌ Casual Mode
 - ❌ Multiple Team Support
 - ❌ Search fetches from Backend
 - ❌ Custom Sign-in Page
 - ❌ Prefetch Pokemon Info preclick
-- ❌ EV Limit
+
 
 
 ## ⚙️ Stack
