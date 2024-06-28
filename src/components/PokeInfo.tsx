@@ -67,8 +67,8 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
     return (
         <div className="bg-[#f9f9f9] max-md:hidden rounded flex-grow">
             {(pokemonInfo && pokemonParty[selectedPokemon]) && (
-                <div className="flex flex-row justify-between gap-8 bg-white rounded-lg shadow-md py-12 px-16">
-                    <div className="p-4">
+                <div className="flex flex-row justify-between gap-10 bg-white rounded-lg shadow-md py-12 px-16">
+                    <div>
                         <h2 className="text-3xl font-extrabold text-gray-800 mb-2 capitalize">{pokemonInfo.name}</h2>
                         <LevelSelect selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
                         {pokemonInfo.sprites.versions['generation-v']['black-white'].animated.front_default ? (
@@ -144,7 +144,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                         <div className="mb-4">
                             <p className="text-gray-500">Remaining EV points: {510 - totalEVs}</p>
                         </div>
-                        <div className="grid grid-cols-2 gap-16 h-full flex-wrap justify-evenly border rounded-xl p-16">
+                        <div className="grid grid-cols-2 gap-16 h-full flex-wrap justify-evenly border rounded-xl p-12">
                             <StatBar label={'HP'} id={0} baseValue={pokemonInfo.stats[0].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[0]} ev={pokemonParty[selectedPokemon].ev[0]} totalEVs={totalEVs} setTotalEVs={setTotalEVs} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
                             <StatBar label={'Atk'} id={1} baseValue={pokemonInfo.stats[1].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[1]} ev={pokemonParty[selectedPokemon].ev[1]} totalEVs={totalEVs} setTotalEVs={setTotalEVs} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
                             <StatBar label={'Def'} id={2} baseValue={pokemonInfo.stats[2].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[2]} ev={pokemonParty[selectedPokemon].ev[2]} totalEVs={totalEVs} setTotalEVs={setTotalEVs} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />

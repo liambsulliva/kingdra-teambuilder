@@ -72,14 +72,13 @@ export default function LevelSelect({ selectedPokemon, pokemonParty, setPokemonP
             <h3 className="text-xl text-gray-600">Level:</h3>
             <div className="relative">
                 <input 
-                    className={`border-2 ${levelError ? 'border-red-500' : 'border-gray-300'} bg-white h-10 w-24 px-4 rounded-lg text-sm focus:outline-none`}
+                    className={`border-2 ${levelError ? 'border-red-500' : 'border-gray-300'} bg-white h-10 w-20 px-4 rounded-lg text-sm focus:outline-none`}
                     type="number" 
                     name="Level" 
-                    placeholder="(1-100)"
                     value={levelInput}
                     onChange={handleLevelInputChange}
                     onBlur={handleLevelInputBlur}
-                    onKeyPress={handleLevelInputKeyPress}
+                    onKeyDown={handleLevelInputKeyPress}
                     min="1"
                     max="100"
                 />

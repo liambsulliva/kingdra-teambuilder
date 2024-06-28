@@ -223,7 +223,7 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
             />
             <div className="relative">
                 <input 
-                    className={`border-2 ${ivError ? 'border-red-500' : 'border-gray-300'} bg-white h-10 w-14 px-4 rounded-lg text-sm focus:outline-none`}
+                    className={`border-2 ${ivError ? 'border-red-500' : 'border-gray-300'} bg-white h-10 w-18 px-4 rounded-lg text-sm focus:outline-none`}
                     type="number" 
                     value={ivInput}
                     onChange={handleIvInputChange}
@@ -231,11 +231,7 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
                     onKeyDown={handleIvInputKeyPress}
                     min="0"
                     max="31"
-                    placeholder='(0-31)'
                 />
-                {ivError && (
-                    <p className="text-red-500 text-xs mt-1 absolute">{ivError}</p>
-                )}
             </div>
         </div>
         <div className='flex gap-2'>
@@ -250,7 +246,7 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
             />
             <div className="relative">
                 <input 
-                    className={`border-2 ${evError ? 'border-red-500' : 'border-gray-300'} bg-white h-10 w-16 px-4 rounded-lg text-sm focus:outline-none`}
+                    className={`border-2 ${evError ? 'border-red-500' : 'border-gray-300'} bg-white h-10 w-20 px-4 rounded-lg text-sm focus:outline-none`}
                     type="number" 
                     value={evInput}
                     onChange={handleEvInputChange}
@@ -258,11 +254,7 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
                     onKeyDown={handleEvInputKeyPress}
                     min="0"
                     max="252"
-                    placeholder='(0-252)'
                 />
-                {evError && (
-                    <p className="text-red-500 text-xs mt-1 absolute">{evError}</p>
-                )}
             </div>
         </div>
     </div>
