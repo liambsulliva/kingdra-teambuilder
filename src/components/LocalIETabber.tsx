@@ -9,6 +9,25 @@ export default function Component({ selectedPokemon, pokemonParty, setPokemonPar
     return str.replace(/\b\w/g, char => char.toUpperCase());
   };
 
+  const statIndexToName = (index: number): string => {
+    switch (index) {
+      case 0:
+        return 'HP';
+      case 1:
+        return 'Atk';
+      case 2:
+        return 'Def';
+      case 3:
+        return 'SpA';
+      case 4:
+        return 'SpD';
+      case 5:
+        return 'Spe';
+      default:
+        return '';
+    }
+  };
+
   const formatPokemonData = (pokemon: pokemon): string => {
     let output = `${capitalizeFirstLetter(pokemon.name)} @ ${capitalizeFirstLetter(pokemon.item)}\n`;
     output += `Ability: ${capitalizeFirstLetter(pokemon.ability)}\n`;
@@ -16,7 +35,7 @@ export default function Component({ selectedPokemon, pokemonParty, setPokemonPar
     if (pokemon.ev) {
       const evs = Object.entries(pokemon.ev)
         .filter(([_, value]) => value > 0)
-        .map(([stat, value]) => `${value} ${stat}`)
+        .map(([stat, value]) => `${value} ${statIndexToName(parseInt(stat))}`)
         .join(' / ');
       output += `EVs: ${evs}\n`;
     }
@@ -24,7 +43,7 @@ export default function Component({ selectedPokemon, pokemonParty, setPokemonPar
     if (pokemon.iv) {
       const ivs = Object.entries(pokemon.iv)
         .filter(([_, value]) => value !== 31)
-        .map(([stat, value]) => `${value} ${stat}`)
+        .map(([stat, value]) => `${value} ${statIndexToName(parseInt(stat))}`)
         .join(' / ');
       if (ivs) output += `IVs: ${ivs}\n`;
     }
