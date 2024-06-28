@@ -9,6 +9,7 @@ Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 ## 💪 Features:
     
 - ✅ Infinite Scroll to select pokemon
+- ✅ Proper Responsiveness
 - ✅ Stat Calculator using Pokemon's IV/EVs + Natures + Lv
 - ✅ Duplicate Pokemon Checks
 - ✅ Login System via Clerk
@@ -23,7 +24,6 @@ Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 ## 🛣️ Roadmap
 
 - ❌ Dark Mode Support
-- ❌ Proper Responsiveness
 - ❌ POST + GET bug on first pokemon addition
 - ❌ Casual Mode
 - ❌ Multiple Team Support
