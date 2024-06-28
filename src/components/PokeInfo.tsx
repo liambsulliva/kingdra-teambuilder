@@ -67,7 +67,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
     return (
         <div className="bg-[#f9f9f9] max-md:hidden rounded flex-grow">
             {(pokemonInfo && pokemonParty[selectedPokemon]) && (
-                <div className="flex flex-row justify-between gap-10 bg-white rounded-lg shadow-md py-12 px-16">
+                <div className="flex flex-row justify-between gap-6 bg-white rounded-lg shadow-md py-12 pl-16 pr-8">
                     <div>
                         <h2 className="text-3xl font-extrabold text-gray-800 mb-2 capitalize">{pokemonInfo.name}</h2>
                         <LevelSelect selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
@@ -107,7 +107,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                             </p>
                             <div className="flex gap-4 items-center mb-4">
                                 <h3 className="text-xl text-gray-600">Ability:</h3>
-                                <ul className="flex flex-nowrap text-nowrap gap-2">
+                                <ul className="flex flex-wrap text-nowrap gap-2">
                                     {pokemonInfo.abilities.map((ability: any, index: number) => (
                                         <Button
                                         key={index}
