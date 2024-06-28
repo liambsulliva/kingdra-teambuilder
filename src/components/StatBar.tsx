@@ -63,7 +63,7 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
         const oldEV = ev;
         const evDifference = evValue - oldEV;
       
-        if (totalEVs + evDifference <= 510) {
+        if (totalEVs + evDifference <= 508) {
           setPokemonParty(prevParty => {
             const updatedParty = [...prevParty];
             updatedParty[selectedPokemon].ev[id] = evValue;
@@ -107,7 +107,7 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
     const validateAndSetEV = (newEV: number) => {
         if (newEV >= 0 && newEV <= 252) {
             const evDifference = newEV - ev;
-            if (totalEVs + evDifference <= 510) {
+            if (totalEVs + evDifference <= 508) {
                 setPokemonParty(prevParty => {
                     const updatedParty = [...prevParty];
                     updatedParty[selectedPokemon].ev[id] = newEV;
@@ -117,7 +117,7 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
                 setEvError('');
                 return true;
             } else {
-                setEvError('Total EVs cannot exceed 510');
+                setEvError('Total EVs cannot exceed 508');
                 return false;
             }
         } else {

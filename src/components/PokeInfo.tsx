@@ -142,7 +142,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                     </div>
                     <div className="flex flex-col">
                         <div className="mb-4">
-                            <p className="text-gray-500">Remaining EV points: {510 - totalEVs}</p>
+                            <p className="text-gray-500">Remaining EV points: {508 - totalEVs}</p>
                         </div>
                         <div className="grid grid-cols-2 gap-16 h-full flex-wrap justify-evenly border rounded-xl p-12">
                             <StatBar label={'HP'} id={0} baseValue={pokemonInfo.stats[0].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[0]} ev={pokemonParty[selectedPokemon].ev[0]} totalEVs={totalEVs} setTotalEVs={setTotalEVs} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
@@ -154,7 +154,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                         </div>
                         <div className="flex justify-between items-center">
                             <a className="text-gray-500 hover:underline" target="_blank" href={`https://www.smogon.com/dex/sv/pokemon/${pokemonInfo.name}`}>Smogon Breakdown</a>
-                            <LocalIETabber leftLabel="Import" rightLabel="Export" />
+                            <LocalIETabber selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
                         </div>
                     </div>
                 </div>
