@@ -98,7 +98,6 @@ export default function TeraSelect({ selectedPokemon, pokemonParty, setPokemonPa
                     name="Tera Type" 
                     placeholder="Tera" 
                     value={teraInput}
-                    style={{backgroundColor: `#${typeColors[teraInput.toLowerCase() as TeraType]}33`}}
                     onChange={handleTeraInputChange}
                     onBlur={handleTeraInputBlur}
                 />
