@@ -154,7 +154,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                         </div>
                         <div className="flex justify-between items-center">
                             <a className="text-gray-500 hover:underline" target="_blank" href={`https://www.smogon.com/dex/sv/pokemon/${pokemonInfo.name}`}>Smogon Breakdown</a>
-                            <LocalIETabber selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
+                            <LocalIETabber selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} setTotalEVs={setTotalEVs} />
                         </div>
                     </div>
                 </div>
