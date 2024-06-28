@@ -94,7 +94,7 @@ export default function NatureSelect({ selectedPokemon, pokemonParty, setPokemon
             <h3 className="text-xl text-gray-600">Nature:</h3>
             <div className="relative" ref={natureInputRef}>
                 <input 
-                    className={`border-2 ${natureError ? 'border-red-500' : 'border-gray-300'} bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none`}
+                    className={`border-2 ${natureError ? 'border-red-500' : 'border-gray-300'} bg-white h-10 max-md:w-40 px-5 pr-16 rounded-lg text-sm focus:outline-none`}
                     type="text" 
                     name="Nature" 
                     placeholder="Nature" 

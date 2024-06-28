@@ -65,9 +65,9 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
     };
 
     return (
-        <div className="bg-[#f9f9f9] max-md:hidden rounded flex-grow">
+        <div className="bg-[#f9f9f9] rounded flex-grow">
             {(pokemonInfo && pokemonParty[selectedPokemon]) && (
-                <div className="flex flex-row justify-between gap-6 bg-white rounded-lg shadow-md py-12 pl-16 pr-8">
+                <div className="flex flex-row max-md:flex-col justify-between gap-6 bg-white rounded-lg shadow-md py-12 pl-16 pr-8">
                     <div>
                         <h2 className="text-4xl font-extrabold text-gray-800 mb-3 capitalize">{pokemonInfo.name}</h2>
                         <LevelSelect selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
@@ -87,7 +87,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                         <div className="flex flex-col">
                             <p className="flex text-xl items-center text-lg text-gray-600 mb-4 gap-2.5">
                                 Type:
-                                <div className="flex items-center px-2 gap-2">
+                                <div className="flex max-md:flex-wrap items-center px-2 gap-2">
                                     <span 
                                         className="font-semibold capitalize px-4 py-2 border rounded-xl text-white"
                                         style={{ backgroundColor: `#${typeColors[pokemonInfo.types[0].type.name as PokemonType]}` }}
@@ -144,7 +144,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                         <div className="mb-4">
                             <p className="text-gray-500">Remaining EV points: {508 - totalEVs}</p>
                         </div>
-                        <div className="grid grid-cols-2 gap-16 h-full flex-wrap justify-evenly border rounded-xl p-12">
+                        <div className="grid grid-cols-2 max-md:grid-cols-1 gap-16 h-full flex-wrap justify-evenly md:border rounded-xl md:p-12">
                             <StatBar label={'HP'} id={0} baseValue={pokemonInfo.stats[0].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[0]} ev={pokemonParty[selectedPokemon].ev[0]} totalEVs={totalEVs} setTotalEVs={setTotalEVs} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
                             <StatBar label={'Atk'} id={1} baseValue={pokemonInfo.stats[1].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[1]} ev={pokemonParty[selectedPokemon].ev[1]} totalEVs={totalEVs} setTotalEVs={setTotalEVs} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
                             <StatBar label={'Def'} id={2} baseValue={pokemonInfo.stats[2].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[2]} ev={pokemonParty[selectedPokemon].ev[2]} totalEVs={totalEVs} setTotalEVs={setTotalEVs} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
@@ -152,8 +152,8 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                             <StatBar label={'Sp. Def'} id={4} baseValue={pokemonInfo.stats[4].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[4]} ev={pokemonParty[selectedPokemon].ev[4]} totalEVs={totalEVs} setTotalEVs={setTotalEVs} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
                             <StatBar label={'Speed'} id={5} baseValue={pokemonInfo.stats[5].base_stat} level={pokemonParty[selectedPokemon].level} iv={pokemonParty[selectedPokemon].iv[5]} ev={pokemonParty[selectedPokemon].ev[5]} totalEVs={totalEVs} setTotalEVs={setTotalEVs} selectedPokemon={selectedPokemon} setPokemonParty={setPokemonParty} selectedNature={pokemonParty[selectedPokemon].nature} natures={natures} />
                         </div>
-                        <div className="flex justify-between items-center">
-                            <a className="text-gray-500 hover:underline" target="_blank" href={`https://www.smogon.com/dex/sv/pokemon/${pokemonInfo.name}`}>Smogon Breakdown</a>
+                        <div className="flex max-md:flex-col items-center max-md:pt-8 justify-between">
+                            <a className="text-gray-500 hover:underline max-md:text-center" target="_blank" href={`https://www.smogon.com/dex/sv/pokemon/${pokemonInfo.name}`}>Smogon Breakdown</a>
                             <LocalIETabber selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} setTotalEVs={setTotalEVs} />
                         </div>
                     </div>

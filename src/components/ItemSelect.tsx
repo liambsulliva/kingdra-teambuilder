@@ -103,7 +103,7 @@ export default function itemSelect({ selectedPokemon, pokemonParty, setPokemonPa
             <h3 className="text-xl text-gray-600">Item:</h3>
             <div className="relative" ref={itemInputRef}>
                 <input 
-                    className={`border-2 ${itemError ? 'border-red-500' : 'border-gray-300'} bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none`}
+                    className={`border-2 ${itemError ? 'border-red-500' : 'border-gray-300'} bg-white h-10 max-md:w-40 px-5 pr-16 rounded-lg text-sm focus:outline-none`}
                     type="text" 
                     name="Item" 
                     placeholder="Item" 
