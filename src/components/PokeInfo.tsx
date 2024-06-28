@@ -67,7 +67,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
     return (
         <div className="bg-[#f9f9f9] max-md:hidden rounded flex-grow">
             {(pokemonInfo && pokemonParty[selectedPokemon]) && (
-                <div className="flex flex-row justify-between bg-white rounded-lg shadow-md py-12 px-16">
+                <div className="flex flex-row justify-between gap-8 bg-white rounded-lg shadow-md py-12 px-16">
                     <div className="p-4">
                         <h2 className="text-3xl font-extrabold text-gray-800 mb-2 capitalize">{pokemonInfo.name}</h2>
                         <LevelSelect selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
