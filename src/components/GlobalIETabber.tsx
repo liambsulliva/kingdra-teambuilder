@@ -158,7 +158,7 @@ export default function Component({ pokemonParty, setPokemonParty }: { pokemonPa
           <DownloadIcon className="mr-3" />
           Import
         </Button>
-        <Button color="gray" onClick={exportPokemonParty}>
+        <Button color="gray" onClick={exportPokemonParty} disabled={pokemonParty.length <= 0}>
           <UploadIcon className="mr-3" />
           Export
         </Button>
