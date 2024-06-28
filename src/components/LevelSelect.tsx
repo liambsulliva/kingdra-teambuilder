@@ -69,7 +69,7 @@ export default function LevelSelect({ selectedPokemon, pokemonParty, setPokemonP
 
     return (
         <div className="flex gap-4 items-center mb-4">
-            <h3 className="text-xl text-gray-600">Level:</h3>
+            <h3 className="text-xl text-gray-600">Lv.</h3>
             <div className="relative">
                 <input 
                     className={`border-2 ${levelError ? 'border-red-500' : 'border-gray-300'} bg-white h-10 w-20 px-4 rounded-lg text-sm focus:outline-none`}

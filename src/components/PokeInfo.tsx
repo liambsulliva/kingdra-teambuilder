@@ -69,7 +69,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
             {(pokemonInfo && pokemonParty[selectedPokemon]) && (
                 <div className="flex flex-row justify-between gap-6 bg-white rounded-lg shadow-md py-12 pl-16 pr-8">
                     <div>
-                        <h2 className="text-3xl font-extrabold text-gray-800 mb-2 capitalize">{pokemonInfo.name}</h2>
+                        <h2 className="text-4xl font-extrabold text-gray-800 mb-3 capitalize">{pokemonInfo.name}</h2>
                         <LevelSelect selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
                         {pokemonInfo.sprites.versions['generation-v']['black-white'].animated.front_default ? (
                             <img 
@@ -85,7 +85,7 @@ export default function PokeInfo({ selectedPokemon, pokemonParty, setPokemonPart
                             />
                         )}
                         <div className="flex flex-col">
-                            <p className="flex items-center text-lg text-gray-600 mb-4 gap-2.5">
+                            <p className="flex text-xl items-center text-lg text-gray-600 mb-4 gap-2.5">
                                 Type:
                                 <div className="flex items-center px-2 gap-2">
                                     <span 
