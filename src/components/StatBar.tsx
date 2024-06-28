@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { pokemon } from '../../lib/pokemonInterface'
 
 interface StatBarProps {
@@ -17,6 +17,16 @@ interface StatBarProps {
 }
 
 const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, totalEVs, setTotalEVs, selectedPokemon, setPokemonParty, selectedNature, natures }) => {
+    const [ivInput, setIvInput] = useState<string>('');
+    const [ivError, setIvError] = useState<string>('');
+    const [evInput, setEvInput] = useState<string>('');
+    const [evError, setEvError] = useState<string>('');
+
+    useEffect(() => {
+        setEvInput(ev.toString());
+        setIvInput(iv.toString());
+    }, [ev, iv]);
+    
     const calculateStatTotal = () => {
         if (id === 0) { //Is HP, calculate differently
             return Math.floor(((2 * baseValue + iv + Math.floor(ev / 4) + 100) * level) / level) + 10; // 110 = Level 100 + 10
@@ -47,16 +57,6 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
         return 'text-gray-600';
     };
     
-    const handleIV = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newIV = parseInt(event.target.value);
-        const ivValue = isNaN(newIV) ? 0 : newIV;
-        setPokemonParty(prevParty => {
-            const updatedParty = [...prevParty];
-            updatedParty[selectedPokemon].iv[id] = ivValue;
-            return updatedParty;
-        });
-    };
-    
     const handleEV = (event: React.ChangeEvent<HTMLInputElement>) => {
         const newEV = parseInt(event.target.value);
         const evValue = isNaN(newEV) ? 0 : newEV;
@@ -70,6 +70,95 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
             return updatedParty;
           });
           setTotalEVs(prevTotal => prevTotal + evDifference);
+        }
+    };
+
+    const handleIvInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        setIvInput(value);
+        if (value === '') {
+            setIvError('');
+        }
+    };
+
+    const handleEvInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        setEvInput(value);
+        if (value === '') {
+            setEvError('');
+        }
+    };
+
+    const validateAndSetIV = (newIV: number) => {
+        if (newIV >= 0 && newIV <= 31) {
+            setPokemonParty(prevParty => {
+                const updatedParty = [...prevParty];
+                updatedParty[selectedPokemon].iv[id] = newIV;
+                return updatedParty;
+            });
+            setIvError('');
+            return true;
+        } else {
+            setIvError('IV must be between 0 and 31');
+            return false;
+        }
+    };
+
+    const validateAndSetEV = (newEV: number) => {
+        if (newEV >= 0 && newEV <= 252) {
+            const evDifference = newEV - ev;
+            if (totalEVs + evDifference <= 510) {
+                setPokemonParty(prevParty => {
+                    const updatedParty = [...prevParty];
+                    updatedParty[selectedPokemon].ev[id] = newEV;
+                    return updatedParty;
+                });
+                setTotalEVs(prevTotal => prevTotal + evDifference);
+                setEvError('');
+                return true;
+            } else {
+                setEvError('Total EVs cannot exceed 510');
+                return false;
+            }
+        } else {
+            setEvError('EV must be between 0 and 252');
+            return false;
+        }
+    };
+
+    const handleIvInputBlur = () => {
+        const newIV = parseInt(ivInput, 10);
+        if (isNaN(newIV)) {
+            setIvError('Please enter a valid number');
+        } else {
+            validateAndSetIV(newIV);
+        }
+    };
+
+    const handleEvInputBlur = () => {
+        const newEV = parseInt(evInput, 10);
+        if (isNaN(newEV)) {
+            setEvError('Please enter a valid number');
+        } else {
+            validateAndSetEV(newEV);
+        }
+    };
+
+    const handleIvInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            const newIV = parseInt(ivInput, 10);
+            if (!isNaN(newIV)) {
+                validateAndSetIV(newIV);
+            }
+        }
+    };
+
+    const handleEvInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            const newEV = parseInt(evInput, 10);
+            if (!isNaN(newEV)) {
+                validateAndSetEV(newEV);
+            }
         }
     };
 
@@ -130,9 +219,24 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
                 min="0"
                 max="31"
                 value={iv}
-                onChange={handleIV}
+                onChange={(e) => validateAndSetIV(parseInt(e.target.value, 10))}
             />
-            <input className={`border-2 border-gray-300 bg-white h-10 w-14 px-4 rounded-lg text-sm focus:outline-none`} value={iv} onChange={handleIV} />
+            <div className="relative">
+                <input 
+                    className={`border-2 ${ivError ? 'border-red-500' : 'border-gray-300'} bg-white h-10 w-14 px-4 rounded-lg text-sm focus:outline-none`}
+                    type="number" 
+                    value={ivInput}
+                    onChange={handleIvInputChange}
+                    onBlur={handleIvInputBlur}
+                    onKeyDown={handleIvInputKeyPress}
+                    min="0"
+                    max="31"
+                    placeholder='(0-31)'
+                />
+                {ivError && (
+                    <p className="text-red-500 text-xs mt-1 absolute">{ivError}</p>
+                )}
+            </div>
         </div>
         <div className='flex gap-2'>
             <p className='text-gray-500 select-none' onDoubleClick={handleEVDoubleClick}>EV</p>
@@ -144,7 +248,22 @@ const StatBar: React.FC<StatBarProps> = ({ label, id, baseValue, level, iv, ev, 
                 value={ev}
                 onChange={handleEV}
             />
-            <input className={`border-2 border-gray-300 bg-white h-10 w-16 px-4 rounded-lg text-sm focus:outline-none`} value={ev} onChange={handleEV} />
+            <div className="relative">
+                <input 
+                    className={`border-2 ${evError ? 'border-red-500' : 'border-gray-300'} bg-white h-10 w-16 px-4 rounded-lg text-sm focus:outline-none`}
+                    type="number" 
+                    value={evInput}
+                    onChange={handleEvInputChange}
+                    onBlur={handleEvInputBlur}
+                    onKeyDown={handleEvInputKeyPress}
+                    min="0"
+                    max="252"
+                    placeholder='(0-252)'
+                />
+                {evError && (
+                    <p className="text-red-500 text-xs mt-1 absolute">{evError}</p>
+                )}
+            </div>
         </div>
     </div>
     );
