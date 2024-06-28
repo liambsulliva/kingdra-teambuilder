@@ -16,7 +16,7 @@ export default function itemSelect({ selectedPokemon, pokemonParty, setPokemonPa
 
     useEffect(() => {
         if (pokemonParty[selectedPokemon] && pokemonParty[selectedPokemon].item) {
-            setItemInput(pokemonParty[selectedPokemon].item);
+            setItemInput(formatItemName(pokemonParty[selectedPokemon].item));
         } else {
             setItemInput('');
         }
@@ -35,15 +35,27 @@ export default function itemSelect({ selectedPokemon, pokemonParty, setPokemonPa
         };
     }, []);
 
+    const formatItemName = (name: string) => {
+        return name
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    };
+
     const handleitemInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setItemInput(value);
     
         // Filter item suggestions based on input
         const filteredSuggestions = itemsArray.filter(item =>
-            item.name.toLowerCase().includes(value.toLowerCase())
+            formatItemName(item.name).toLowerCase().includes(value.toLowerCase())
         );
-        setItemSuggestions(filteredSuggestions);
+        const formattedSuggestions = filteredSuggestions.map(item => ({
+            name: formatItemName(item.name),
+            url: item.url
+        })) as Item[];
+    
+        setItemSuggestions(formattedSuggestions);
     
         // Clear error if input is empty
         if (value === '') {
@@ -52,13 +64,14 @@ export default function itemSelect({ selectedPokemon, pokemonParty, setPokemonPa
     };
 
     const handleitemInputBlur = () => {
-        if (itemInput === '' || itemsArray.some(item => item.name === itemInput)) {
+        const formattedInput = itemInput.toLowerCase().replace(/\s/g, '-');
+        if (itemInput === '' || itemsArray.some(item => item.name === formattedInput)) {
             setPokemonParty(prevParty => {
                 const newParty = [...prevParty];
                 if (newParty[selectedPokemon]) {
                     newParty[selectedPokemon] = {
                         ...newParty[selectedPokemon],
-                        item: itemInput
+                        item: formattedInput
                     };
                 }
                 return newParty;
@@ -76,7 +89,7 @@ export default function itemSelect({ selectedPokemon, pokemonParty, setPokemonPa
             if (newParty[selectedPokemon]) {
                 newParty[selectedPokemon] = {
                     ...newParty[selectedPokemon],
-                    item: item.name
+                    item: item.name.toLowerCase().replace(/\s/g, '-')
                 };
             }
             return newParty;

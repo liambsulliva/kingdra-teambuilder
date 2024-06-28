@@ -4,6 +4,10 @@ import typeColors from '../../lib/typeColors.json';
 
 type TeraType = keyof typeof typeColors;
 
+const formatTeraType = (type: string) => {
+    return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+};
+
 export default function TeraSelect({ selectedPokemon, pokemonParty, setPokemonParty }: { selectedPokemon: number, pokemonParty: pokemon[], setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>> }) {
     const [teraInput, setTeraInput] = useState<string>('');
     const [teraSuggestions, setTeraSuggestions] = useState<TeraType[]>([]);
@@ -13,7 +17,7 @@ export default function TeraSelect({ selectedPokemon, pokemonParty, setPokemonPa
 
     useEffect(() => {
         if (pokemonParty[selectedPokemon] && pokemonParty[selectedPokemon].tera_type) {
-            setTeraInput(pokemonParty[selectedPokemon].tera_type);
+            setTeraInput(formatTeraType(pokemonParty[selectedPokemon].tera_type));
         } else {
             setTeraInput('');
         }
@@ -40,7 +44,9 @@ export default function TeraSelect({ selectedPokemon, pokemonParty, setPokemonPa
         const filteredSuggestions = teraTypesArray.filter(type =>
             type.toLowerCase().includes(value.toLowerCase())
         );
-        setTeraSuggestions(filteredSuggestions);
+        const formattedSuggestions = filteredSuggestions.map(formatTeraType) as TeraType[];
+
+        setTeraSuggestions(formattedSuggestions);
     
         // Clear error if input is empty
         if (value === '') {
@@ -49,13 +55,14 @@ export default function TeraSelect({ selectedPokemon, pokemonParty, setPokemonPa
     };
 
     const handleTeraInputBlur = () => {
-        if (teraInput === '' || teraTypesArray.includes(teraInput as TeraType)) {
+        const lowercaseInput = teraInput.toLowerCase();
+        if (teraInput === '' || teraTypesArray.includes(lowercaseInput as TeraType)) {
             setPokemonParty(prevParty => {
                 const newParty = [...prevParty];
                 if (newParty[selectedPokemon]) {
                     newParty[selectedPokemon] = {
                         ...newParty[selectedPokemon],
-                        tera_type: teraInput as TeraType
+                        tera_type: lowercaseInput as TeraType
                     };
                 }
                 return newParty;
@@ -67,13 +74,13 @@ export default function TeraSelect({ selectedPokemon, pokemonParty, setPokemonPa
     };
 
     const handleTeraSuggestionSelect = (type: TeraType) => {
-        setTeraInput(type);
+        setTeraInput(formatTeraType(type));
         setPokemonParty(prevParty => {
             const newParty = [...prevParty];
             if (newParty[selectedPokemon]) {
                 newParty[selectedPokemon] = {
                     ...newParty[selectedPokemon],
-                    tera_type: type
+                    tera_type: type.toLowerCase() as TeraType
                 };
             }
             return newParty;
@@ -91,7 +98,7 @@ export default function TeraSelect({ selectedPokemon, pokemonParty, setPokemonPa
                     name="Tera Type" 
                     placeholder="Tera" 
                     value={teraInput}
-                    style={{backgroundColor: `#${typeColors[teraInput as TeraType]}33`}}
+                    style={{backgroundColor: `#${typeColors[teraInput.toLowerCase() as TeraType]}33`}}
                     onChange={handleTeraInputChange}
                     onBlur={handleTeraInputBlur}
                 />
@@ -105,7 +112,6 @@ export default function TeraSelect({ selectedPokemon, pokemonParty, setPokemonPa
                                 key={index}
                                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                 onClick={() => handleTeraSuggestionSelect(type)}
-                                style={{backgroundColor: `#${typeColors[type]}33`}}
                             >
                                 {type}
                             </li>

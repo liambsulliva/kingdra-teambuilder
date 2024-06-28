@@ -4,6 +4,10 @@ import { pokemon } from '../../lib/pokemonInterface'
 
 type Nature = keyof typeof natures;
 
+const formatNatureName = (name: string) => {
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+};
+
 export default function NatureSelect({ selectedPokemon, pokemonParty, setPokemonParty }: { selectedPokemon: number, pokemonParty: pokemon[], setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>> }) {
     const [natureInput, setNatureInput] = useState<string>('');
     const [natureSuggestions, setNatureSuggestions] = useState<Nature[]>([]);
@@ -13,7 +17,7 @@ export default function NatureSelect({ selectedPokemon, pokemonParty, setPokemon
 
     useEffect(() => {
         if (pokemonParty[selectedPokemon] && pokemonParty[selectedPokemon].nature) {
-            setNatureInput(pokemonParty[selectedPokemon].nature);
+            setNatureInput(formatNatureName(pokemonParty[selectedPokemon].nature));
         } else {
             setNatureInput('');
         }
@@ -40,7 +44,9 @@ export default function NatureSelect({ selectedPokemon, pokemonParty, setPokemon
         const filteredSuggestions = naturesArray.filter(nature =>
             nature.toLowerCase().includes(value.toLowerCase())
         );
-        setNatureSuggestions(filteredSuggestions);
+        const formattedSuggestions = filteredSuggestions.map(formatNatureName) as Nature[];
+
+        setNatureSuggestions(formattedSuggestions);
     
         // Clear error if input is empty
         if (value === '') {
@@ -49,13 +55,14 @@ export default function NatureSelect({ selectedPokemon, pokemonParty, setPokemon
     };
 
     const handleNatureInputBlur = () => {
-        if (natureInput === '' || naturesArray.includes(natureInput as Nature)) {
+        const lowercaseInput = natureInput.toLowerCase();
+        if (natureInput === '' || naturesArray.includes(lowercaseInput as Nature)) {
             setPokemonParty(prevParty => {
                 const newParty = [...prevParty];
                 if (newParty[selectedPokemon]) {
                     newParty[selectedPokemon] = {
                         ...newParty[selectedPokemon],
-                        nature: natureInput
+                        nature: lowercaseInput
                     };
                 }
                 return newParty;
@@ -67,13 +74,13 @@ export default function NatureSelect({ selectedPokemon, pokemonParty, setPokemon
     };
 
     const handleNatureSuggestionSelect = (nature: Nature) => {
-        setNatureInput(nature);
+        setNatureInput(formatNatureName(nature));
         setPokemonParty(prevParty => {
             const newParty = [...prevParty];
             if (newParty[selectedPokemon]) {
                 newParty[selectedPokemon] = {
                     ...newParty[selectedPokemon],
-                    nature: nature
+                    nature: nature.toLowerCase()
                 };
             }
             return newParty;
