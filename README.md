@@ -7,7 +7,7 @@ This is a full-stack Pokemon Teambuilder I am currently building. I started this
 Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 
 ## 💪 Features:
-    
+
 - ✅ Infinite Scroll to select pokemon
 - ✅ Proper Responsiveness
 - ✅ Stat Calculator using Pokemon's IV/EVs + Natures + Lv
@@ -20,7 +20,6 @@ Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 - ✅ EV Limit
 - ✅ Import/Export Locally + Globally
 
-
 ## 🛣️ Roadmap
 
 - ❌ Dark Mode Support
@@ -30,8 +29,6 @@ Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 - ❌ Search fetches from Backend
 - ❌ Custom Sign-in Page
 - ❌ Prefetch Pokemon Info preclick
-
-
 
 ## ⚙️ Stack
 

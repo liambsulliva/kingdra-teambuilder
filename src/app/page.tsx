@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -7,7 +7,7 @@ import PokeInfo from "@/components/PokeInfo";
 import PokeFinder from "@/components/PokeFinder";
 import { useState } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
-import type { pokemon } from '../../lib/pokemonInterface';
+import type { pokemon } from "../../lib/pokemonInterface";
 
 export default function Home() {
   const [pokemonParty, setPokemonParty] = useState<pokemon[]>([]);
@@ -18,16 +18,32 @@ export default function Home() {
   return (
     <>
       <ClerkProvider>
-        <Header numTeams={numTeams} setNumTeams={setNumTeams} selectedTeam={selectedTeam} setSelectedTeam={setSelectedTeam} />
-          <div className="flex flex-col gap-8 p-8 mx-auto" style={{ width: '1850px', maxWidth: 'calc(100% - 1rem)' }}>
-            <div className="flex md:flex-row flex-col gap-4">
-              <PokeParty pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} setSelectedPokemon={setSelectedPokemon} />
-              <PokeInfo selectedPokemon={selectedPokemon} pokemonParty={pokemonParty} setPokemonParty={setPokemonParty} />
-            </div>
-            <PokeFinder setPokemonParty={setPokemonParty} />
+        <Header
+          numTeams={numTeams}
+          setNumTeams={setNumTeams}
+          selectedTeam={selectedTeam}
+          setSelectedTeam={setSelectedTeam}
+        />
+        <div
+          className="flex flex-col gap-8 p-8 mx-auto"
+          style={{ width: "1850px", maxWidth: "calc(100% - 1rem)" }}
+        >
+          <div className="flex md:flex-row flex-col gap-4">
+            <PokeParty
+              pokemonParty={pokemonParty}
+              setPokemonParty={setPokemonParty}
+              setSelectedPokemon={setSelectedPokemon}
+            />
+            <PokeInfo
+              selectedPokemon={selectedPokemon}
+              pokemonParty={pokemonParty}
+              setPokemonParty={setPokemonParty}
+            />
           </div>
+          <PokeFinder setPokemonParty={setPokemonParty} />
+        </div>
         <Footer />
       </ClerkProvider>
-    </>   
+    </>
   );
 }

@@ -7,7 +7,7 @@ interface TabberProps {
   rightLabel: string;
 }
 
-export default function Component({leftLabel, rightLabel}: TabberProps) {
+export default function Component({ leftLabel, rightLabel }: TabberProps) {
   return (
     <div className="mx-4">
       <ButtonGroup>

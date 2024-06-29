@@ -1,5 +1,5 @@
-"use client"
-import React, { useEffect, useState, useRef } from 'react';
+"use client";
+import React, { useEffect, useState, useRef } from "react";
 
 interface TeamSelectorProps {
   numTeams: number;
@@ -8,15 +8,15 @@ interface TeamSelectorProps {
 
 const DropdownMenu = ({ numTeams, setSelectedTeam }: TeamSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [title, setTitle] = useState('Teams');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [title, setTitle] = useState("Teams");
+  const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef(null);
 
   const handleSelection = (index: number) => {
     setIsOpen(false);
     setTitle(`Team ${index + 1}`);
     setSelectedTeam(index);
-  }
+  };
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -28,15 +28,18 @@ const DropdownMenu = ({ numTeams, setSelectedTeam }: TeamSelectorProps) => {
   };
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (dropdownRef.current && !(dropdownRef.current as any).contains(event.target)) {
+    if (
+      dropdownRef.current &&
+      !(dropdownRef.current as any).contains(event.target)
+    ) {
       setIsOpen(false);
     }
   };
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -77,7 +80,9 @@ const DropdownMenu = ({ numTeams, setSelectedTeam }: TeamSelectorProps) => {
               <a
                 href="#"
                 className="block px-4 py-2 text-gray-700 hover:bg-gray-100 active:bg-blue-100 cursor-pointer rounded-md"
-                style={{ display: filterItems(`Team ${index + 1}`) ? 'block' : 'none' }}
+                style={{
+                  display: filterItems(`Team ${index + 1}`) ? "block" : "none",
+                }}
                 key={index}
                 onClick={() => handleSelection(index)}
               >

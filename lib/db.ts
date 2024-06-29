@@ -1,9 +1,11 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  throw new Error(
+    "Please define the MONGODB_URI environment variable inside .env.local",
+  );
 }
 
 interface Cached {
@@ -29,18 +31,19 @@ const PokemonSchema = new mongoose.Schema({
   tera_type: String,
   moves: [String],
   iv: [Number],
-  ev: [Number]
+  ev: [Number],
 });
 
 // Define the User schema
 const UserSchema = new mongoose.Schema({
   clerkUserId: { type: String, unique: true },
-  pokemonParty: [PokemonSchema]
+  pokemonParty: [PokemonSchema],
 });
 
 // Define models only if they haven't been defined yet
-const Pokemon = mongoose.models.Pokemon || mongoose.model('Pokemon', PokemonSchema);
-const User = mongoose.models.User || mongoose.model('User', UserSchema);
+const Pokemon =
+  mongoose.models.Pokemon || mongoose.model("Pokemon", PokemonSchema);
+const User = mongoose.models.User || mongoose.model("User", UserSchema);
 
 async function dbConnect(): Promise<typeof mongoose> {
   if (cached.conn) {

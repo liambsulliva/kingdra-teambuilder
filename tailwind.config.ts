@@ -20,12 +20,9 @@ const config: Config = {
       },
     },
     fontFamily: {
-      'custom': ['Helvetica', 'ui-sans-serif', 'system-ui'],
+      custom: ["Helvetica", "ui-sans-serif", "system-ui"],
     },
   },
-  plugins: [
-    require("flowbite/plugin"),
-    flowbite.plugin(),
-  ],
+  plugins: [require("flowbite/plugin"), flowbite.plugin()],
 };
 export default config;

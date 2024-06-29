@@ -1,704 +1,704 @@
 {
-    "items":[
-       {
-          "name":"master-ball",
-          "url":"https://pokeapi.co/api/v2/item/1/"
-       },
-       {
-          "name":"ultra-ball",
-          "url":"https://pokeapi.co/api/v2/item/2/"
-       },
-       {
-          "name":"great-ball",
-          "url":"https://pokeapi.co/api/v2/item/3/"
-       },
-       {
-          "name":"poke-ball",
-          "url":"https://pokeapi.co/api/v2/item/4/"
-       },
-       {
-          "name":"safari-ball",
-          "url":"https://pokeapi.co/api/v2/item/5/"
-       },
-       {
-          "name":"net-ball",
-          "url":"https://pokeapi.co/api/v2/item/6/"
-       },
-       {
-          "name":"dive-ball",
-          "url":"https://pokeapi.co/api/v2/item/7/"
-       },
-       {
-          "name":"nest-ball",
-          "url":"https://pokeapi.co/api/v2/item/8/"
-       },
-       {
-          "name":"repeat-ball",
-          "url":"https://pokeapi.co/api/v2/item/9/"
-       },
-       {
-          "name":"timer-ball",
-          "url":"https://pokeapi.co/api/v2/item/10/"
-       },
-       {
-          "name":"luxury-ball",
-          "url":"https://pokeapi.co/api/v2/item/11/"
-       },
-       {
-          "name":"premier-ball",
-          "url":"https://pokeapi.co/api/v2/item/12/"
-       },
-       {
-          "name":"dusk-ball",
-          "url":"https://pokeapi.co/api/v2/item/13/"
-       },
-       {
-          "name":"heal-ball",
-          "url":"https://pokeapi.co/api/v2/item/14/"
-       },
-       {
-          "name":"quick-ball",
-          "url":"https://pokeapi.co/api/v2/item/15/"
-       },
-       {
-          "name":"cherish-ball",
-          "url":"https://pokeapi.co/api/v2/item/16/"
-       },
-       {
-          "name":"potion",
-          "url":"https://pokeapi.co/api/v2/item/17/"
-       },
-       {
-          "name":"antidote",
-          "url":"https://pokeapi.co/api/v2/item/18/"
-       },
-       {
-          "name":"burn-heal",
-          "url":"https://pokeapi.co/api/v2/item/19/"
-       },
-       {
-          "name":"ice-heal",
-          "url":"https://pokeapi.co/api/v2/item/20/"
-       },
-       {
-          "name":"awakening",
-          "url":"https://pokeapi.co/api/v2/item/21/"
-       },
-       {
-          "name":"paralyze-heal",
-          "url":"https://pokeapi.co/api/v2/item/22/"
-       },
-       {
-          "name":"full-restore",
-          "url":"https://pokeapi.co/api/v2/item/23/"
-       },
-       {
-          "name":"max-potion",
-          "url":"https://pokeapi.co/api/v2/item/24/"
-       },
-       {
-          "name":"hyper-potion",
-          "url":"https://pokeapi.co/api/v2/item/25/"
-       },
-       {
-          "name":"super-potion",
-          "url":"https://pokeapi.co/api/v2/item/26/"
-       },
-       {
-          "name":"full-heal",
-          "url":"https://pokeapi.co/api/v2/item/27/"
-       },
-       {
-          "name":"revive",
-          "url":"https://pokeapi.co/api/v2/item/28/"
-       },
-       {
-          "name":"max-revive",
-          "url":"https://pokeapi.co/api/v2/item/29/"
-       },
-       {
-          "name":"fresh-water",
-          "url":"https://pokeapi.co/api/v2/item/30/"
-       },
-       {
-          "name":"soda-pop",
-          "url":"https://pokeapi.co/api/v2/item/31/"
-       },
-       {
-          "name":"lemonade",
-          "url":"https://pokeapi.co/api/v2/item/32/"
-       },
-       {
-          "name":"moomoo-milk",
-          "url":"https://pokeapi.co/api/v2/item/33/"
-       },
-       {
-          "name":"energy-powder",
-          "url":"https://pokeapi.co/api/v2/item/34/"
-       },
-       {
-          "name":"energy-root",
-          "url":"https://pokeapi.co/api/v2/item/35/"
-       },
-       {
-          "name":"heal-powder",
-          "url":"https://pokeapi.co/api/v2/item/36/"
-       },
-       {
-          "name":"revival-herb",
-          "url":"https://pokeapi.co/api/v2/item/37/"
-       },
-       {
-          "name":"ether",
-          "url":"https://pokeapi.co/api/v2/item/38/"
-       },
-       {
-          "name":"max-ether",
-          "url":"https://pokeapi.co/api/v2/item/39/"
-       },
-       {
-          "name":"elixir",
-          "url":"https://pokeapi.co/api/v2/item/40/"
-       },
-       {
-          "name":"max-elixir",
-          "url":"https://pokeapi.co/api/v2/item/41/"
-       },
-       {
-          "name":"lava-cookie",
-          "url":"https://pokeapi.co/api/v2/item/42/"
-       },
-       {
-          "name":"berry-juice",
-          "url":"https://pokeapi.co/api/v2/item/43/"
-       },
-       {
-          "name":"sacred-ash",
-          "url":"https://pokeapi.co/api/v2/item/44/"
-       },
-       {
-          "name":"hp-up",
-          "url":"https://pokeapi.co/api/v2/item/45/"
-       },
-       {
-          "name":"protein",
-          "url":"https://pokeapi.co/api/v2/item/46/"
-       },
-       {
-          "name":"iron",
-          "url":"https://pokeapi.co/api/v2/item/47/"
-       },
-       {
-          "name":"carbos",
-          "url":"https://pokeapi.co/api/v2/item/48/"
-       },
-       {
-          "name":"calcium",
-          "url":"https://pokeapi.co/api/v2/item/49/"
-       },
-       {
-          "name":"rare-candy",
-          "url":"https://pokeapi.co/api/v2/item/50/"
-       },
-       {
-          "name":"pp-up",
-          "url":"https://pokeapi.co/api/v2/item/51/"
-       },
-       {
-          "name":"zinc",
-          "url":"https://pokeapi.co/api/v2/item/52/"
-       },
-       {
-          "name":"pp-max",
-          "url":"https://pokeapi.co/api/v2/item/53/"
-       },
-       {
-          "name":"old-gateau",
-          "url":"https://pokeapi.co/api/v2/item/54/"
-       },
-       {
-          "name":"guard-spec",
-          "url":"https://pokeapi.co/api/v2/item/55/"
-       },
-       {
-          "name":"dire-hit",
-          "url":"https://pokeapi.co/api/v2/item/56/"
-       },
-       {
-          "name":"x-attack",
-          "url":"https://pokeapi.co/api/v2/item/57/"
-       },
-       {
-          "name":"x-defense",
-          "url":"https://pokeapi.co/api/v2/item/58/"
-       },
-       {
-          "name":"x-speed",
-          "url":"https://pokeapi.co/api/v2/item/59/"
-       },
-       {
-          "name":"x-accuracy",
-          "url":"https://pokeapi.co/api/v2/item/60/"
-       },
-       {
-          "name":"x-sp-atk",
-          "url":"https://pokeapi.co/api/v2/item/61/"
-       },
-       {
-          "name":"x-sp-def",
-          "url":"https://pokeapi.co/api/v2/item/62/"
-       },
-       {
-          "name":"poke-doll",
-          "url":"https://pokeapi.co/api/v2/item/63/"
-       },
-       {
-          "name":"fluffy-tail",
-          "url":"https://pokeapi.co/api/v2/item/64/"
-       },
-       {
-          "name":"blue-flute",
-          "url":"https://pokeapi.co/api/v2/item/65/"
-       },
-       {
-          "name":"yellow-flute",
-          "url":"https://pokeapi.co/api/v2/item/66/"
-       },
-       {
-          "name":"red-flute",
-          "url":"https://pokeapi.co/api/v2/item/67/"
-       },
-       {
-          "name":"black-flute",
-          "url":"https://pokeapi.co/api/v2/item/68/"
-       },
-       {
-          "name":"white-flute",
-          "url":"https://pokeapi.co/api/v2/item/69/"
-       },
-       {
-          "name":"adamant-orb",
-          "url":"https://pokeapi.co/api/v2/item/112/"
-       },
-       {
-          "name":"lustrous-orb",
-          "url":"https://pokeapi.co/api/v2/item/113/"
-       },
-       {
-          "name":"bright-powder",
-          "url":"https://pokeapi.co/api/v2/item/190/"
-       },
-       {
-          "name":"white-herb",
-          "url":"https://pokeapi.co/api/v2/item/191/"
-       },
-       {
-          "name":"macho-brace",
-          "url":"https://pokeapi.co/api/v2/item/192/"
-       },
-       {
-          "name":"exp-share",
-          "url":"https://pokeapi.co/api/v2/item/193/"
-       },
-       {
-          "name":"quick-claw",
-          "url":"https://pokeapi.co/api/v2/item/194/"
-       },
-       {
-          "name":"soothe-bell",
-          "url":"https://pokeapi.co/api/v2/item/195/"
-       },
-       {
-          "name":"mental-herb",
-          "url":"https://pokeapi.co/api/v2/item/196/"
-       },
-       {
-          "name":"choice-band",
-          "url":"https://pokeapi.co/api/v2/item/197/"
-       },
-       {
-          "name":"kings-rock",
-          "url":"https://pokeapi.co/api/v2/item/198/"
-       },
-       {
-          "name":"silver-powder",
-          "url":"https://pokeapi.co/api/v2/item/199/"
-       },
-       {
-          "name":"amulet-coin",
-          "url":"https://pokeapi.co/api/v2/item/200/"
-       },
-       {
-          "name":"cleanse-tag",
-          "url":"https://pokeapi.co/api/v2/item/201/"
-       },
-       {
-          "name":"soul-dew",
-          "url":"https://pokeapi.co/api/v2/item/202/"
-       },
-       {
-          "name":"deep-sea-tooth",
-          "url":"https://pokeapi.co/api/v2/item/203/"
-       },
-       {
-          "name":"deep-sea-scale",
-          "url":"https://pokeapi.co/api/v2/item/204/"
-       },
-       {
-          "name":"smoke-ball",
-          "url":"https://pokeapi.co/api/v2/item/205/"
-       },
-       {
-          "name":"everstone",
-          "url":"https://pokeapi.co/api/v2/item/206/"
-       },
-       {
-          "name":"focus-band",
-          "url":"https://pokeapi.co/api/v2/item/207/"
-       },
-       {
-          "name":"lucky-egg",
-          "url":"https://pokeapi.co/api/v2/item/208/"
-       },
-       {
-          "name":"scope-lens",
-          "url":"https://pokeapi.co/api/v2/item/209/"
-       },
-       {
-          "name":"metal-coat",
-          "url":"https://pokeapi.co/api/v2/item/210/"
-       },
-       {
-          "name":"leftovers",
-          "url":"https://pokeapi.co/api/v2/item/211/"
-       },
-       {
-          "name":"light-ball",
-          "url":"https://pokeapi.co/api/v2/item/213/"
-       },
-       {
-          "name":"soft-sand",
-          "url":"https://pokeapi.co/api/v2/item/214/"
-       },
-       {
-          "name":"hard-stone",
-          "url":"https://pokeapi.co/api/v2/item/215/"
-       },
-       {
-          "name":"miracle-seed",
-          "url":"https://pokeapi.co/api/v2/item/216/"
-       },
-       {
-          "name":"black-glasses",
-          "url":"https://pokeapi.co/api/v2/item/217/"
-       },
-       {
-          "name":"black-belt",
-          "url":"https://pokeapi.co/api/v2/item/218/"
-       },
-       {
-          "name":"magnet",
-          "url":"https://pokeapi.co/api/v2/item/219/"
-       },
-       {
-          "name":"mystic-water",
-          "url":"https://pokeapi.co/api/v2/item/220/"
-       },
-       {
-          "name":"sharp-beak",
-          "url":"https://pokeapi.co/api/v2/item/221/"
-       },
-       {
-          "name":"poison-barb",
-          "url":"https://pokeapi.co/api/v2/item/222/"
-       },
-       {
-          "name":"never-melt-ice",
-          "url":"https://pokeapi.co/api/v2/item/223/"
-       },
-       {
-          "name":"spell-tag",
-          "url":"https://pokeapi.co/api/v2/item/224/"
-       },
-       {
-          "name":"twisted-spoon",
-          "url":"https://pokeapi.co/api/v2/item/225/"
-       },
-       {
-          "name":"charcoal",
-          "url":"https://pokeapi.co/api/v2/item/226/"
-       },
-       {
-          "name":"dragon-fang",
-          "url":"https://pokeapi.co/api/v2/item/227/"
-       },
-       {
-          "name":"silk-scarf",
-          "url":"https://pokeapi.co/api/v2/item/228/"
-       },
-       {
-          "name":"shell-bell",
-          "url":"https://pokeapi.co/api/v2/item/230/"
-       },
-       {
-          "name":"sea-incense",
-          "url":"https://pokeapi.co/api/v2/item/231/"
-       },
-       {
-          "name":"lax-incense",
-          "url":"https://pokeapi.co/api/v2/item/232/"
-       },
-       {
-          "name":"lucky-punch",
-          "url":"https://pokeapi.co/api/v2/item/233/"
-       },
-       {
-          "name":"metal-powder",
-          "url":"https://pokeapi.co/api/v2/item/234/"
-       },
-       {
-          "name":"thick-club",
-          "url":"https://pokeapi.co/api/v2/item/235/"
-       },
-       {
-          "name":"stick",
-          "url":"https://pokeapi.co/api/v2/item/236/"
-       },
-       {
-          "name":"wide-lens",
-          "url":"https://pokeapi.co/api/v2/item/242/"
-       },
-       {
-          "name":"muscle-band",
-          "url":"https://pokeapi.co/api/v2/item/243/"
-       },
-       {
-          "name":"wise-glasses",
-          "url":"https://pokeapi.co/api/v2/item/244/"
-       },
-       {
-          "name":"expert-belt",
-          "url":"https://pokeapi.co/api/v2/item/245/"
-       },
-       {
-          "name":"light-clay",
-          "url":"https://pokeapi.co/api/v2/item/246/"
-       },
-       {
-          "name":"life-orb",
-          "url":"https://pokeapi.co/api/v2/item/247/"
-       },
-       {
-          "name":"power-herb",
-          "url":"https://pokeapi.co/api/v2/item/248/"
-       },
-       {
-          "name":"toxic-orb",
-          "url":"https://pokeapi.co/api/v2/item/249/"
-       },
-       {
-          "name":"flame-orb",
-          "url":"https://pokeapi.co/api/v2/item/250/"
-       },
-       {
-          "name":"quick-powder",
-          "url":"https://pokeapi.co/api/v2/item/251/"
-       },
-       {
-          "name":"focus-sash",
-          "url":"https://pokeapi.co/api/v2/item/252/"
-       },
-       {
-          "name":"zoom-lens",
-          "url":"https://pokeapi.co/api/v2/item/253/"
-       },
-       {
-          "name":"metronome",
-          "url":"https://pokeapi.co/api/v2/item/254/"
-       },
-       {
-          "name":"iron-ball",
-          "url":"https://pokeapi.co/api/v2/item/255/"
-       },
-       {
-          "name":"lagging-tail",
-          "url":"https://pokeapi.co/api/v2/item/256/"
-       },
-       {
-          "name":"destiny-knot",
-          "url":"https://pokeapi.co/api/v2/item/257/"
-       },
-       {
-          "name":"black-sludge",
-          "url":"https://pokeapi.co/api/v2/item/258/"
-       },
-       {
-          "name":"icy-rock",
-          "url":"https://pokeapi.co/api/v2/item/259/"
-       },
-       {
-          "name":"smooth-rock",
-          "url":"https://pokeapi.co/api/v2/item/260/"
-       },
-       {
-          "name":"heat-rock",
-          "url":"https://pokeapi.co/api/v2/item/261/"
-       },
-       {
-          "name":"damp-rock",
-          "url":"https://pokeapi.co/api/v2/item/262/"
-       },
-       {
-          "name":"grip-claw",
-          "url":"https://pokeapi.co/api/v2/item/263/"
-       },
-       {
-          "name":"choice-scarf",
-          "url":"https://pokeapi.co/api/v2/item/264/"
-       },
-       {
-          "name":"sticky-barb",
-          "url":"https://pokeapi.co/api/v2/item/265/"
-       },
-       {
-          "name":"power-bracer",
-          "url":"https://pokeapi.co/api/v2/item/266/"
-       },
-       {
-          "name":"power-belt",
-          "url":"https://pokeapi.co/api/v2/item/267/"
-       },
-       {
-          "name":"power-lens",
-          "url":"https://pokeapi.co/api/v2/item/268/"
-       },
-       {
-          "name":"power-band",
-          "url":"https://pokeapi.co/api/v2/item/269/"
-       },
-       {
-          "name":"power-anklet",
-          "url":"https://pokeapi.co/api/v2/item/270/"
-       },
-       {
-          "name":"power-weight",
-          "url":"https://pokeapi.co/api/v2/item/271/"
-       },
-       {
-          "name":"shed-shell",
-          "url":"https://pokeapi.co/api/v2/item/272/"
-       },
-       {
-          "name":"big-root",
-          "url":"https://pokeapi.co/api/v2/item/273/"
-       },
-       {
-          "name":"choice-specs",
-          "url":"https://pokeapi.co/api/v2/item/274/"
-       },
-       {
-          "name":"flame-plate",
-          "url":"https://pokeapi.co/api/v2/item/275/"
-       },
-       {
-          "name":"splash-plate",
-          "url":"https://pokeapi.co/api/v2/item/276/"
-       },
-       {
-          "name":"zap-plate",
-          "url":"https://pokeapi.co/api/v2/item/277/"
-       },
-       {
-          "name":"meadow-plate",
-          "url":"https://pokeapi.co/api/v2/item/278/"
-       },
-       {
-          "name":"icicle-plate",
-          "url":"https://pokeapi.co/api/v2/item/279/"
-       },
-       {
-          "name":"fist-plate",
-          "url":"https://pokeapi.co/api/v2/item/280/"
-       },
-       {
-          "name":"toxic-plate",
-          "url":"https://pokeapi.co/api/v2/item/281/"
-       },
-       {
-          "name":"earth-plate",
-          "url":"https://pokeapi.co/api/v2/item/282/"
-       },
-       {
-          "name":"sky-plate",
-          "url":"https://pokeapi.co/api/v2/item/283/"
-       },
-       {
-          "name":"mind-plate",
-          "url":"https://pokeapi.co/api/v2/item/284/"
-       },
-       {
-          "name":"insect-plate",
-          "url":"https://pokeapi.co/api/v2/item/285/"
-       },
-       {
-          "name":"stone-plate",
-          "url":"https://pokeapi.co/api/v2/item/286/"
-       },
-       {
-          "name":"spooky-plate",
-          "url":"https://pokeapi.co/api/v2/item/287/"
-       },
-       {
-          "name":"draco-plate",
-          "url":"https://pokeapi.co/api/v2/item/288/"
-       },
-       {
-          "name":"dread-plate",
-          "url":"https://pokeapi.co/api/v2/item/289/"
-       },
-       {
-          "name":"iron-plate",
-          "url":"https://pokeapi.co/api/v2/item/290/"
-       },
-       {
-          "name":"odd-incense",
-          "url":"https://pokeapi.co/api/v2/item/291/"
-       },
-       {
-          "name":"rock-incense",
-          "url":"https://pokeapi.co/api/v2/item/292/"
-       },
-       {
-          "name":"full-incense",
-          "url":"https://pokeapi.co/api/v2/item/293/"
-       },
-       {
-          "name":"wave-incense",
-          "url":"https://pokeapi.co/api/v2/item/294/"
-       },
-       {
-          "name":"rose-incense",
-          "url":"https://pokeapi.co/api/v2/item/295/"
-       },
-       {
-          "name":"luck-incense",
-          "url":"https://pokeapi.co/api/v2/item/296/"
-       },
-       {
-          "name":"pure-incense",
-          "url":"https://pokeapi.co/api/v2/item/297/"
-       },
-       {
-          "name":"razor-claw",
-          "url":"https://pokeapi.co/api/v2/item/303/"
-       },
-       {
-          "name":"razor-fang",
-          "url":"https://pokeapi.co/api/v2/item/304/"
-       },
-       {
-          "name":"linking-cord",
-          "url":"https://pokeapi.co/api/v2/item/2160/"
-       }
-    ]
- }
+  "items": [
+    {
+      "name": "master-ball",
+      "url": "https://pokeapi.co/api/v2/item/1/"
+    },
+    {
+      "name": "ultra-ball",
+      "url": "https://pokeapi.co/api/v2/item/2/"
+    },
+    {
+      "name": "great-ball",
+      "url": "https://pokeapi.co/api/v2/item/3/"
+    },
+    {
+      "name": "poke-ball",
+      "url": "https://pokeapi.co/api/v2/item/4/"
+    },
+    {
+      "name": "safari-ball",
+      "url": "https://pokeapi.co/api/v2/item/5/"
+    },
+    {
+      "name": "net-ball",
+      "url": "https://pokeapi.co/api/v2/item/6/"
+    },
+    {
+      "name": "dive-ball",
+      "url": "https://pokeapi.co/api/v2/item/7/"
+    },
+    {
+      "name": "nest-ball",
+      "url": "https://pokeapi.co/api/v2/item/8/"
+    },
+    {
+      "name": "repeat-ball",
+      "url": "https://pokeapi.co/api/v2/item/9/"
+    },
+    {
+      "name": "timer-ball",
+      "url": "https://pokeapi.co/api/v2/item/10/"
+    },
+    {
+      "name": "luxury-ball",
+      "url": "https://pokeapi.co/api/v2/item/11/"
+    },
+    {
+      "name": "premier-ball",
+      "url": "https://pokeapi.co/api/v2/item/12/"
+    },
+    {
+      "name": "dusk-ball",
+      "url": "https://pokeapi.co/api/v2/item/13/"
+    },
+    {
+      "name": "heal-ball",
+      "url": "https://pokeapi.co/api/v2/item/14/"
+    },
+    {
+      "name": "quick-ball",
+      "url": "https://pokeapi.co/api/v2/item/15/"
+    },
+    {
+      "name": "cherish-ball",
+      "url": "https://pokeapi.co/api/v2/item/16/"
+    },
+    {
+      "name": "potion",
+      "url": "https://pokeapi.co/api/v2/item/17/"
+    },
+    {
+      "name": "antidote",
+      "url": "https://pokeapi.co/api/v2/item/18/"
+    },
+    {
+      "name": "burn-heal",
+      "url": "https://pokeapi.co/api/v2/item/19/"
+    },
+    {
+      "name": "ice-heal",
+      "url": "https://pokeapi.co/api/v2/item/20/"
+    },
+    {
+      "name": "awakening",
+      "url": "https://pokeapi.co/api/v2/item/21/"
+    },
+    {
+      "name": "paralyze-heal",
+      "url": "https://pokeapi.co/api/v2/item/22/"
+    },
+    {
+      "name": "full-restore",
+      "url": "https://pokeapi.co/api/v2/item/23/"
+    },
+    {
+      "name": "max-potion",
+      "url": "https://pokeapi.co/api/v2/item/24/"
+    },
+    {
+      "name": "hyper-potion",
+      "url": "https://pokeapi.co/api/v2/item/25/"
+    },
+    {
+      "name": "super-potion",
+      "url": "https://pokeapi.co/api/v2/item/26/"
+    },
+    {
+      "name": "full-heal",
+      "url": "https://pokeapi.co/api/v2/item/27/"
+    },
+    {
+      "name": "revive",
+      "url": "https://pokeapi.co/api/v2/item/28/"
+    },
+    {
+      "name": "max-revive",
+      "url": "https://pokeapi.co/api/v2/item/29/"
+    },
+    {
+      "name": "fresh-water",
+      "url": "https://pokeapi.co/api/v2/item/30/"
+    },
+    {
+      "name": "soda-pop",
+      "url": "https://pokeapi.co/api/v2/item/31/"
+    },
+    {
+      "name": "lemonade",
+      "url": "https://pokeapi.co/api/v2/item/32/"
+    },
+    {
+      "name": "moomoo-milk",
+      "url": "https://pokeapi.co/api/v2/item/33/"
+    },
+    {
+      "name": "energy-powder",
+      "url": "https://pokeapi.co/api/v2/item/34/"
+    },
+    {
+      "name": "energy-root",
+      "url": "https://pokeapi.co/api/v2/item/35/"
+    },
+    {
+      "name": "heal-powder",
+      "url": "https://pokeapi.co/api/v2/item/36/"
+    },
+    {
+      "name": "revival-herb",
+      "url": "https://pokeapi.co/api/v2/item/37/"
+    },
+    {
+      "name": "ether",
+      "url": "https://pokeapi.co/api/v2/item/38/"
+    },
+    {
+      "name": "max-ether",
+      "url": "https://pokeapi.co/api/v2/item/39/"
+    },
+    {
+      "name": "elixir",
+      "url": "https://pokeapi.co/api/v2/item/40/"
+    },
+    {
+      "name": "max-elixir",
+      "url": "https://pokeapi.co/api/v2/item/41/"
+    },
+    {
+      "name": "lava-cookie",
+      "url": "https://pokeapi.co/api/v2/item/42/"
+    },
+    {
+      "name": "berry-juice",
+      "url": "https://pokeapi.co/api/v2/item/43/"
+    },
+    {
+      "name": "sacred-ash",
+      "url": "https://pokeapi.co/api/v2/item/44/"
+    },
+    {
+      "name": "hp-up",
+      "url": "https://pokeapi.co/api/v2/item/45/"
+    },
+    {
+      "name": "protein",
+      "url": "https://pokeapi.co/api/v2/item/46/"
+    },
+    {
+      "name": "iron",
+      "url": "https://pokeapi.co/api/v2/item/47/"
+    },
+    {
+      "name": "carbos",
+      "url": "https://pokeapi.co/api/v2/item/48/"
+    },
+    {
+      "name": "calcium",
+      "url": "https://pokeapi.co/api/v2/item/49/"
+    },
+    {
+      "name": "rare-candy",
+      "url": "https://pokeapi.co/api/v2/item/50/"
+    },
+    {
+      "name": "pp-up",
+      "url": "https://pokeapi.co/api/v2/item/51/"
+    },
+    {
+      "name": "zinc",
+      "url": "https://pokeapi.co/api/v2/item/52/"
+    },
+    {
+      "name": "pp-max",
+      "url": "https://pokeapi.co/api/v2/item/53/"
+    },
+    {
+      "name": "old-gateau",
+      "url": "https://pokeapi.co/api/v2/item/54/"
+    },
+    {
+      "name": "guard-spec",
+      "url": "https://pokeapi.co/api/v2/item/55/"
+    },
+    {
+      "name": "dire-hit",
+      "url": "https://pokeapi.co/api/v2/item/56/"
+    },
+    {
+      "name": "x-attack",
+      "url": "https://pokeapi.co/api/v2/item/57/"
+    },
+    {
+      "name": "x-defense",
+      "url": "https://pokeapi.co/api/v2/item/58/"
+    },
+    {
+      "name": "x-speed",
+      "url": "https://pokeapi.co/api/v2/item/59/"
+    },
+    {
+      "name": "x-accuracy",
+      "url": "https://pokeapi.co/api/v2/item/60/"
+    },
+    {
+      "name": "x-sp-atk",
+      "url": "https://pokeapi.co/api/v2/item/61/"
+    },
+    {
+      "name": "x-sp-def",
+      "url": "https://pokeapi.co/api/v2/item/62/"
+    },
+    {
+      "name": "poke-doll",
+      "url": "https://pokeapi.co/api/v2/item/63/"
+    },
+    {
+      "name": "fluffy-tail",
+      "url": "https://pokeapi.co/api/v2/item/64/"
+    },
+    {
+      "name": "blue-flute",
+      "url": "https://pokeapi.co/api/v2/item/65/"
+    },
+    {
+      "name": "yellow-flute",
+      "url": "https://pokeapi.co/api/v2/item/66/"
+    },
+    {
+      "name": "red-flute",
+      "url": "https://pokeapi.co/api/v2/item/67/"
+    },
+    {
+      "name": "black-flute",
+      "url": "https://pokeapi.co/api/v2/item/68/"
+    },
+    {
+      "name": "white-flute",
+      "url": "https://pokeapi.co/api/v2/item/69/"
+    },
+    {
+      "name": "adamant-orb",
+      "url": "https://pokeapi.co/api/v2/item/112/"
+    },
+    {
+      "name": "lustrous-orb",
+      "url": "https://pokeapi.co/api/v2/item/113/"
+    },
+    {
+      "name": "bright-powder",
+      "url": "https://pokeapi.co/api/v2/item/190/"
+    },
+    {
+      "name": "white-herb",
+      "url": "https://pokeapi.co/api/v2/item/191/"
+    },
+    {
+      "name": "macho-brace",
+      "url": "https://pokeapi.co/api/v2/item/192/"
+    },
+    {
+      "name": "exp-share",
+      "url": "https://pokeapi.co/api/v2/item/193/"
+    },
+    {
+      "name": "quick-claw",
+      "url": "https://pokeapi.co/api/v2/item/194/"
+    },
+    {
+      "name": "soothe-bell",
+      "url": "https://pokeapi.co/api/v2/item/195/"
+    },
+    {
+      "name": "mental-herb",
+      "url": "https://pokeapi.co/api/v2/item/196/"
+    },
+    {
+      "name": "choice-band",
+      "url": "https://pokeapi.co/api/v2/item/197/"
+    },
+    {
+      "name": "kings-rock",
+      "url": "https://pokeapi.co/api/v2/item/198/"
+    },
+    {
+      "name": "silver-powder",
+      "url": "https://pokeapi.co/api/v2/item/199/"
+    },
+    {
+      "name": "amulet-coin",
+      "url": "https://pokeapi.co/api/v2/item/200/"
+    },
+    {
+      "name": "cleanse-tag",
+      "url": "https://pokeapi.co/api/v2/item/201/"
+    },
+    {
+      "name": "soul-dew",
+      "url": "https://pokeapi.co/api/v2/item/202/"
+    },
+    {
+      "name": "deep-sea-tooth",
+      "url": "https://pokeapi.co/api/v2/item/203/"
+    },
+    {
+      "name": "deep-sea-scale",
+      "url": "https://pokeapi.co/api/v2/item/204/"
+    },
+    {
+      "name": "smoke-ball",
+      "url": "https://pokeapi.co/api/v2/item/205/"
+    },
+    {
+      "name": "everstone",
+      "url": "https://pokeapi.co/api/v2/item/206/"
+    },
+    {
+      "name": "focus-band",
+      "url": "https://pokeapi.co/api/v2/item/207/"
+    },
+    {
+      "name": "lucky-egg",
+      "url": "https://pokeapi.co/api/v2/item/208/"
+    },
+    {
+      "name": "scope-lens",
+      "url": "https://pokeapi.co/api/v2/item/209/"
+    },
+    {
+      "name": "metal-coat",
+      "url": "https://pokeapi.co/api/v2/item/210/"
+    },
+    {
+      "name": "leftovers",
+      "url": "https://pokeapi.co/api/v2/item/211/"
+    },
+    {
+      "name": "light-ball",
+      "url": "https://pokeapi.co/api/v2/item/213/"
+    },
+    {
+      "name": "soft-sand",
+      "url": "https://pokeapi.co/api/v2/item/214/"
+    },
+    {
+      "name": "hard-stone",
+      "url": "https://pokeapi.co/api/v2/item/215/"
+    },
+    {
+      "name": "miracle-seed",
+      "url": "https://pokeapi.co/api/v2/item/216/"
+    },
+    {
+      "name": "black-glasses",
+      "url": "https://pokeapi.co/api/v2/item/217/"
+    },
+    {
+      "name": "black-belt",
+      "url": "https://pokeapi.co/api/v2/item/218/"
+    },
+    {
+      "name": "magnet",
+      "url": "https://pokeapi.co/api/v2/item/219/"
+    },
+    {
+      "name": "mystic-water",
+      "url": "https://pokeapi.co/api/v2/item/220/"
+    },
+    {
+      "name": "sharp-beak",
+      "url": "https://pokeapi.co/api/v2/item/221/"
+    },
+    {
+      "name": "poison-barb",
+      "url": "https://pokeapi.co/api/v2/item/222/"
+    },
+    {
+      "name": "never-melt-ice",
+      "url": "https://pokeapi.co/api/v2/item/223/"
+    },
+    {
+      "name": "spell-tag",
+      "url": "https://pokeapi.co/api/v2/item/224/"
+    },
+    {
+      "name": "twisted-spoon",
+      "url": "https://pokeapi.co/api/v2/item/225/"
+    },
+    {
+      "name": "charcoal",
+      "url": "https://pokeapi.co/api/v2/item/226/"
+    },
+    {
+      "name": "dragon-fang",
+      "url": "https://pokeapi.co/api/v2/item/227/"
+    },
+    {
+      "name": "silk-scarf",
+      "url": "https://pokeapi.co/api/v2/item/228/"
+    },
+    {
+      "name": "shell-bell",
+      "url": "https://pokeapi.co/api/v2/item/230/"
+    },
+    {
+      "name": "sea-incense",
+      "url": "https://pokeapi.co/api/v2/item/231/"
+    },
+    {
+      "name": "lax-incense",
+      "url": "https://pokeapi.co/api/v2/item/232/"
+    },
+    {
+      "name": "lucky-punch",
+      "url": "https://pokeapi.co/api/v2/item/233/"
+    },
+    {
+      "name": "metal-powder",
+      "url": "https://pokeapi.co/api/v2/item/234/"
+    },
+    {
+      "name": "thick-club",
+      "url": "https://pokeapi.co/api/v2/item/235/"
+    },
+    {
+      "name": "stick",
+      "url": "https://pokeapi.co/api/v2/item/236/"
+    },
+    {
+      "name": "wide-lens",
+      "url": "https://pokeapi.co/api/v2/item/242/"
+    },
+    {
+      "name": "muscle-band",
+      "url": "https://pokeapi.co/api/v2/item/243/"
+    },
+    {
+      "name": "wise-glasses",
+      "url": "https://pokeapi.co/api/v2/item/244/"
+    },
+    {
+      "name": "expert-belt",
+      "url": "https://pokeapi.co/api/v2/item/245/"
+    },
+    {
+      "name": "light-clay",
+      "url": "https://pokeapi.co/api/v2/item/246/"
+    },
+    {
+      "name": "life-orb",
+      "url": "https://pokeapi.co/api/v2/item/247/"
+    },
+    {
+      "name": "power-herb",
+      "url": "https://pokeapi.co/api/v2/item/248/"
+    },
+    {
+      "name": "toxic-orb",
+      "url": "https://pokeapi.co/api/v2/item/249/"
+    },
+    {
+      "name": "flame-orb",
+      "url": "https://pokeapi.co/api/v2/item/250/"
+    },
+    {
+      "name": "quick-powder",
+      "url": "https://pokeapi.co/api/v2/item/251/"
+    },
+    {
+      "name": "focus-sash",
+      "url": "https://pokeapi.co/api/v2/item/252/"
+    },
+    {
+      "name": "zoom-lens",
+      "url": "https://pokeapi.co/api/v2/item/253/"
+    },
+    {
+      "name": "metronome",
+      "url": "https://pokeapi.co/api/v2/item/254/"
+    },
+    {
+      "name": "iron-ball",
+      "url": "https://pokeapi.co/api/v2/item/255/"
+    },
+    {
+      "name": "lagging-tail",
+      "url": "https://pokeapi.co/api/v2/item/256/"
+    },
+    {
+      "name": "destiny-knot",
+      "url": "https://pokeapi.co/api/v2/item/257/"
+    },
+    {
+      "name": "black-sludge",
+      "url": "https://pokeapi.co/api/v2/item/258/"
+    },
+    {
+      "name": "icy-rock",
+      "url": "https://pokeapi.co/api/v2/item/259/"
+    },
+    {
+      "name": "smooth-rock",
+      "url": "https://pokeapi.co/api/v2/item/260/"
+    },
+    {
+      "name": "heat-rock",
+      "url": "https://pokeapi.co/api/v2/item/261/"
+    },
+    {
+      "name": "damp-rock",
+      "url": "https://pokeapi.co/api/v2/item/262/"
+    },
+    {
+      "name": "grip-claw",
+      "url": "https://pokeapi.co/api/v2/item/263/"
+    },
+    {
+      "name": "choice-scarf",
+      "url": "https://pokeapi.co/api/v2/item/264/"
+    },
+    {
+      "name": "sticky-barb",
+      "url": "https://pokeapi.co/api/v2/item/265/"
+    },
+    {
+      "name": "power-bracer",
+      "url": "https://pokeapi.co/api/v2/item/266/"
+    },
+    {
+      "name": "power-belt",
+      "url": "https://pokeapi.co/api/v2/item/267/"
+    },
+    {
+      "name": "power-lens",
+      "url": "https://pokeapi.co/api/v2/item/268/"
+    },
+    {
+      "name": "power-band",
+      "url": "https://pokeapi.co/api/v2/item/269/"
+    },
+    {
+      "name": "power-anklet",
+      "url": "https://pokeapi.co/api/v2/item/270/"
+    },
+    {
+      "name": "power-weight",
+      "url": "https://pokeapi.co/api/v2/item/271/"
+    },
+    {
+      "name": "shed-shell",
+      "url": "https://pokeapi.co/api/v2/item/272/"
+    },
+    {
+      "name": "big-root",
+      "url": "https://pokeapi.co/api/v2/item/273/"
+    },
+    {
+      "name": "choice-specs",
+      "url": "https://pokeapi.co/api/v2/item/274/"
+    },
+    {
+      "name": "flame-plate",
+      "url": "https://pokeapi.co/api/v2/item/275/"
+    },
+    {
+      "name": "splash-plate",
+      "url": "https://pokeapi.co/api/v2/item/276/"
+    },
+    {
+      "name": "zap-plate",
+      "url": "https://pokeapi.co/api/v2/item/277/"
+    },
+    {
+      "name": "meadow-plate",
+      "url": "https://pokeapi.co/api/v2/item/278/"
+    },
+    {
+      "name": "icicle-plate",
+      "url": "https://pokeapi.co/api/v2/item/279/"
+    },
+    {
+      "name": "fist-plate",
+      "url": "https://pokeapi.co/api/v2/item/280/"
+    },
+    {
+      "name": "toxic-plate",
+      "url": "https://pokeapi.co/api/v2/item/281/"
+    },
+    {
+      "name": "earth-plate",
+      "url": "https://pokeapi.co/api/v2/item/282/"
+    },
+    {
+      "name": "sky-plate",
+      "url": "https://pokeapi.co/api/v2/item/283/"
+    },
+    {
+      "name": "mind-plate",
+      "url": "https://pokeapi.co/api/v2/item/284/"
+    },
+    {
+      "name": "insect-plate",
+      "url": "https://pokeapi.co/api/v2/item/285/"
+    },
+    {
+      "name": "stone-plate",
+      "url": "https://pokeapi.co/api/v2/item/286/"
+    },
+    {
+      "name": "spooky-plate",
+      "url": "https://pokeapi.co/api/v2/item/287/"
+    },
+    {
+      "name": "draco-plate",
+      "url": "https://pokeapi.co/api/v2/item/288/"
+    },
+    {
+      "name": "dread-plate",
+      "url": "https://pokeapi.co/api/v2/item/289/"
+    },
+    {
+      "name": "iron-plate",
+      "url": "https://pokeapi.co/api/v2/item/290/"
+    },
+    {
+      "name": "odd-incense",
+      "url": "https://pokeapi.co/api/v2/item/291/"
+    },
+    {
+      "name": "rock-incense",
+      "url": "https://pokeapi.co/api/v2/item/292/"
+    },
+    {
+      "name": "full-incense",
+      "url": "https://pokeapi.co/api/v2/item/293/"
+    },
+    {
+      "name": "wave-incense",
+      "url": "https://pokeapi.co/api/v2/item/294/"
+    },
+    {
+      "name": "rose-incense",
+      "url": "https://pokeapi.co/api/v2/item/295/"
+    },
+    {
+      "name": "luck-incense",
+      "url": "https://pokeapi.co/api/v2/item/296/"
+    },
+    {
+      "name": "pure-incense",
+      "url": "https://pokeapi.co/api/v2/item/297/"
+    },
+    {
+      "name": "razor-claw",
+      "url": "https://pokeapi.co/api/v2/item/303/"
+    },
+    {
+      "name": "razor-fang",
+      "url": "https://pokeapi.co/api/v2/item/304/"
+    },
+    {
+      "name": "linking-cord",
+      "url": "https://pokeapi.co/api/v2/item/2160/"
+    }
+  ]
+}
