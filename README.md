@@ -32,8 +32,8 @@ Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 
 ## ⚙️ Stack
 
-- [**NextJS** + **Typescript**](https://nextjs.org) - NextJS is an all-in-one web framework that includes inbuilt SSR among other optimizations.
-- [**Tailwind CSS**](https://tailwindcss.com/) - Tailwind CSS is a utility-first CSS framework that allows classes to be defined in HTML markup.
+- [**NextJS** + **Typescript**](https://nextjs.org) - An all-in-one web framework that includes inbuilt SSR among other optimizations.
+- [**Tailwind CSS**](https://tailwindcss.com/) - A utility-first CSS framework that allows classes to be defined in HTML markup.
 - [**React**](https://react.dev) - A JavaScript library for building user interfaces.
 - [**Flowbite**](https://flowbite.com/) - An extensible UI library built for Tailwind.
 - [**Flowbite-React**](https://www.npmjs.com/package/flowbite-react) - React components for the Flowbite UI library.
