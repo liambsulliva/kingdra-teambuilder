@@ -1,6 +1,6 @@
 ## 👋 Introduction
 
-This is a full-stack Pokemon Teambuilder I am currently building. I started this project because I was building a little teambuilder for a pokemon draft league for my friends (think fantasy football if it was pokemon). It morphed into something else entirely, when I realized that a lot of the pokemon teambuilders on the market had pretty terrible UIs and lacked the ability to actually set moves and stats, unless you are using something like Pokemon Showdown. There is also a crucial lack of a tool that does Casual and Competitive teams at the same time. I hope to build this application into a tool that can do both, and adapt to the user's preferences at any given moment.
+This is a full-stack Pokemon Teambuilder I am currently building. I started this project because I was building a little teambuilder for a pokemon draft league for my friends (think fantasy football if it was pokemon). It morphed into something else entirely, when I realized that a lot of the pokemon teambuilders on the market had pretty terrible UIs and lacked the ability to actually set moves and stats, unless you are using something like Pokemon Showdown. There is also a crucial lack of a tool that can create both casual and competitive teams in the same place. I hope to build this application into a tool that can do both, and adapt to the user's preferences at any given moment.
 
 ## 💻 Demo
 
@@ -33,7 +33,7 @@ Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 ## ⚙️ Stack
 
 - [**NextJS** + **Typescript**](https://nextjs.org) - NextJS is an all-in-one web framework that includes inbuilt SSR among other optimizations.
-- [**Tailwind CSS**](https://tailwindcss.com/) - Tailwind CSS is a utility-first CSS framework.
+- [**Tailwind CSS**](https://tailwindcss.com/) - Tailwind CSS is a utility-first CSS framework that allows classes to be defined in HTML markup.
 - [**React**](https://react.dev) - A JavaScript library for building user interfaces.
 - [**Flowbite**](https://flowbite.com/) - An extensible UI library built for Tailwind.
 - [**Flowbite-React**](https://www.npmjs.com/package/flowbite-react) - React components for the Flowbite UI library.

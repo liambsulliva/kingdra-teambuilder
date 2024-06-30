@@ -4,7 +4,7 @@ import "@/app/globals.css";
 import typeColors from "../../lib/typeColors.json";
 import natures from "../../lib/natures.json";
 import { Button } from "flowbite-react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import StatBar from "./StatBar";
 import type { pokemon } from "../../lib/pokemonInterface";
