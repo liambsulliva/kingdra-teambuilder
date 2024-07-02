@@ -1,0 +1,321 @@
+repo_name: liambsulliva/pokemon-teambuilder
+report_id: fede17be0b08e2bfaec6052e4ed5d0fc
+version: 0.1
+repo_type: Public
+timestamp: '2024-07-02T20:51:53+00:00'
+requested_by: liambsulliva
+provider: github
+branch: main
+detected_tools_count: 24
+tools:
+- name: CSS 3
+  description: The latest evolution of the Cascading Style Sheets language
+  website_url: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS3
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/6727/css.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder
+  detection_source: Repo Metadata
+- name: JavaScript
+  description: Lightweight, interpreted, object-oriented language with first-class
+    functions
+  website_url: https://developer.mozilla.org/en-US/docs/Web/JavaScript
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1209/javascript.jpeg
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder
+  detection_source: Repo Metadata
+- name: TypeScript
+  description: A superset of JavaScript that compiles to clean JavaScript output
+  website_url: http://www.typescriptlang.org
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1612/bynNY5dJ.jpg
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder
+  detection_source: Repo Metadata
+- name: Autoprefixer
+  description: PostCSS plugin to parse CSS and add vendor prefixes to CSS rules
+  website_url: https://github.com/postcss/autoprefixer
+  open_source: false
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: CSS Pre-processors / Extensions
+  image_url: https://img.stackshare.io/service/2202/72d087642cfce6fef6f2dabec5bf49e8_400x400.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-05-07 05:29:03.000000000 Z
+- name: Next.js
+  description: A small framework for server-rendered universal JavaScript apps
+  website_url: https://nextjs.org/
+  version: 14.2.3
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Frameworks (Full Stack)
+  image_url: https://img.stackshare.io/service/5936/nextjs.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-05-06 22:26:26.000000000 Z
+- name: Node.js
+  description: A platform built on Chrome's JavaScript runtime for easily building
+    fast, scalable network applications
+  website_url: http://nodejs.org/
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Frameworks (Full Stack)
+  image_url: https://img.stackshare.io/service/1011/n1JRsFeB_400x400.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-05-06 22:26:26.000000000 Z
+- name: PostCSS
+  description: Transform CSS with JS plugins
+  website_url: https://github.com/postcss/postcss
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: CSS Pre-processors / Extensions
+  image_url: https://img.stackshare.io/service/3339/rlFcjEdI.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-05-06 22:26:26.000000000 Z
+- name: React
+  description: A JavaScript library for building user interfaces
+  website_url: https://reactjs.org/
+  version: 18.3.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Javascript UI Libraries
+  image_url: https://img.stackshare.io/service/1020/OYIaJ1KK.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-06-21 13:03:53.000000000 Z
+- name: Tailwind CSS
+  description: A utility-first CSS framework for rapid UI development
+  website_url: https://tailwindcss.com
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Front-End Frameworks
+  image_url: https://img.stackshare.io/service/8158/default_660b7c41c3ba489cb581eec89c04655404258c19.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-06-29 19:42:12.000000000 Z
+- name: MongoDB
+  description: The database for giant ideas
+  website_url: http://www.mongodb.com/
+  version: 6.7.0
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Databases
+  image_url: https://img.stackshare.io/service/1030/leaf-360x360.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-06-19 10:14:19.000000000 Z
+- name: Mongoose
+  description: MongoDB object modeling designed to work in an asynchronous environment
+  website_url: http://mongoosejs.com/
+  version: 8.4.3
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Object Document Mapper (ODM)
+  image_url: https://img.stackshare.io/service/1231/0TXzZU7W_400x400.jpg
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-06-19 10:14:19.000000000 Z
+- name: Dotenv
+  description: Loads environment variables from .env for Nodejs projects
+  website_url: https://github.com/motdotla/dotenv
+  license: BSD-2-Clause
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Server Configuration and Automation
+  image_url: https://img.stackshare.io/service/8067/default_90dcb1286af7685c68df319c764b80704df1155b.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-06-19 10:14:19.000000000 Z
+- name: Git
+  description: Fast, scalable, distributed revision control system
+  website_url: http://git-scm.com/
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Version Control System
+  image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder
+  detection_source: Repo Metadata
+- name: Prettier
+  description: Prettier is an opinionated code formatter.
+  website_url: https://prettier.io/
+  version: 3.3.2
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Code Review
+  image_url: https://img.stackshare.io/service/7035/default_66f265943abed56bcdbfca1c866a4261b1fbb063.jpg
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-06-29 19:42:12.000000000 Z
+- name: npm
+  description: The package manager for JavaScript.
+  website_url: https://www.npmjs.com/
+  open_source: false
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Front End Package Manager
+  image_url: https://img.stackshare.io/service/1120/lejvzrnlpb308aftn31u.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-05-06 22:26:26.000000000 Z
+- name: Flowbite
+  description: Open-source library of Tailwind CSS components
+  website_url: https://flowbite.com/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: UI Components
+  image_url: https://img.stackshare.io/service/40090/default_dd2d5033d0363b16e87367cb62b402aa9da531bf.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-05-07 05:29:03.000000000 Z
+- name: axios
+  description: Promise based HTTP client for the browser and node.js
+  website_url: https://github.com/mzabriskie/axios
+  version: 1.7.2
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Javascript Utilities & Libraries
+  image_url: https://img.stackshare.io/no-img-open-source.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-06-20 22:17:05.000000000 Z
+- name: "@types/node"
+  description: TypeScript definitions for Node.js
+  package_url: https://www.npmjs.com/@types/node
+  version: 20.14.7
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15809/default_5e5e8ac63beda29f31f1844df64d4b8247570a66.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-06-26 12:40:36.000000000 Z
+- name: "@types/react"
+  description: TypeScript definitions for React
+  package_url: https://www.npmjs.com/@types/react
+  version: 18.3.3
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15894/default_1d65e37e65b7f80761374f0202776043277d505d.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-06-26 12:40:36.000000000 Z
+- name: "@types/react-dom"
+  description: TypeScript definitions for React
+  package_url: https://www.npmjs.com/@types/react-dom
+  version: 18.3.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15946/default_54b691c123fc8979741e800e4dcd3936c0f3b246.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-06-26 12:40:36.000000000 Z
+- name: lodash.debounce
+  description: The lodash method `_.debounce` exported as a module
+  package_url: https://www.npmjs.com/lodash.debounce
+  version: 4.0.8
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16481/default_73c88a18b684e01cbdbf945631a40a44aff5a777.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-06-26 12:40:36.000000000 Z
+- name: node-fetch
+  description: A light-weight module that brings window.fetch to node.js
+  package_url: https://www.npmjs.com/node-fetch
+  version: 3.3.2
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15978/default_f49d4c116f8ea0155f4d92673b084378bba02760.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-06-20 13:49:09.000000000 Z
+- name: react-dom
+  description: React package for working with the DOM
+  package_url: https://www.npmjs.com/react-dom
+  version: 18.3.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15808/default_14fd11531839d935f920b6d55bd6f3528c890ad7.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-06-21 13:03:53.000000000 Z
+- name: tailwindcss
+  description: A utility-first CSS framework for rapidly building custom user interfaces
+  package_url: https://www.npmjs.com/tailwindcss
+  version: 3.4.4
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/17398/default_2cd7ed1c123f2fca074a6f4b16c4e73d5bfe82be.png
+  detection_source_url: https://github.com/liambsulliva/pokemon-teambuilder/blob/main/package-lock.json
+  detection_source: package.json
+  last_updated_by: Liam
+  last_updated_on: 2024-06-29 19:42:12.000000000 Z
