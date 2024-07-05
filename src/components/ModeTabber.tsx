@@ -11,7 +11,7 @@ export default function Component({ leftLabel, rightLabel }: TabberProps) {
   return (
     <div className="mx-4">
       <ButtonGroup>
-        <Button color="gray" disabled>
+        <Button color="gray" title="Coming Soon!" disabled>
           <PartyIcon className="mr-3" />
           {leftLabel}
         </Button>

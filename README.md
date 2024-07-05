@@ -1,3 +1,18 @@
+<div align="center" style="padding: 20px;">
+
+![Banner](banner.png)
+
+<div style="padding: 10px;">
+
+![GitHub stars](https://img.shields.io/github/stars/liambsulliva/pokemon-teambuilder)&nbsp;&nbsp;
+![GitHub forks](https://img.shields.io/github/forks/liambsulliva/pokemon-teambuilder)&nbsp;&nbsp;
+![GitHub watchers](https://img.shields.io/github/watchers/liambsulliva/pokemon-teambuilder)&nbsp;&nbsp;
+![GitHub issues](https://img.shields.io/github/issues/liambsulliva/pokemon-teambuilder)
+
+</div>
+
+</div>
+
 ## 👋 Introduction
 
 This is a full-stack Pokemon Teambuilder I am currently building. I started this project because I was building a little teambuilder for a pokemon draft league for my friends (think fantasy football if it was pokemon). It morphed into something else entirely, when I realized that a lot of the pokemon teambuilders on the market had pretty terrible UIs and lacked the ability to actually set moves and stats, unless you are using something like Pokemon Showdown. There is also a crucial lack of a tool that can create both casual and competitive teams in the same place. I hope to build this application into a tool that can do both, and adapt to the user's preferences at any given moment.
@@ -54,5 +69,4 @@ All commands are run from the root of the project, from a terminal:
 - `next start`: Previews the production build locally.
 - `next lint`: Lints the project using ESLint.
 
-Make sure to install the Next CLI by running `npm install next`.
-To create a new app with next, use `npx create-next-app@latest` instead.
+Make sure to install the Next CLI by running `npm install next`. To create a new app with next, use `npx create-next-app@latest` instead.

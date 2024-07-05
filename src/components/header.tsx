@@ -1,6 +1,5 @@
 import ModeTabber from "@/components/ModeTabber";
 import TeamSelector from "./TeamSelector";
-import PokeballLogo from "./PokeballLogo";
 import { Button } from "flowbite-react";
 import "@/app/globals.css";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
@@ -24,21 +23,20 @@ export default function Header({
   };
 
   return (
-    <div className="p-6 pb-4 flex flex-row justify-between items-center">
-      <div className="flex flex-row gap-4 items-center">
-        <h1 className="text-3xl font-semibold font-custom max-md:hidden select-none">
-          Pokémon Teambuilder
-        </h1>
-        <PokeballLogo className="md:hidden" />
-        <div className="max-md:hidden">
+    <div className="px-4 pt-4 flex flex-row justify-between items-start">
+      <div className="flex flex-row">
+        <img src="banner.png" className="max-md:hidden select-none h-28" />
+        <img src="icon.png" className="md:hidden h-24" />
+        <div className="max-md:hidden py-5">
           <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
         </div>
       </div>
-      <div className="flex flex-row gap-6 px-6">
+      <div className="flex flex-row gap-6 px-6 py-5">
         <Button
           className="max-md:hidden"
           color="gray"
-          /*onClick={handleNewTeam}*/ disabled
+          title="Coming Soon!"
+          /*onClick={handleNewTeam}*/ disabled 
         >
           New Team
         </Button>
