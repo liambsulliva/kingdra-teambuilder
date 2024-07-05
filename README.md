@@ -1,6 +1,6 @@
 <div align="center" style="padding: 20px;">
 
-![Banner](banner.png)
+![Banner](public/banner.png)
 
 <div style="padding: 10px;">
 
