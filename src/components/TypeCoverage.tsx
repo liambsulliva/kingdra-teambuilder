@@ -1,4 +1,4 @@
-import type { pokemon } from "../../lib/pokemonInterface.ts";
+import type { pokemon } from "../../lib/pokemonInterface";
 import typeColors from "../../lib/typeColors.json";
 
 interface TypeCoverageProps {
