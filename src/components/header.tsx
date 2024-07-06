@@ -23,34 +23,23 @@ export default function Header({
   };
 
   return (
-    <div className="px-4 pt-4 flex flex-row justify-between items-start">
-      <div className="flex flex-row">
-        <img src="banner_wo_subtitle.png" className="max-md:hidden select-none h-24" />
-        <img src="icon.png" className="md:hidden h-24" />
-        <div className="max-md:hidden p-6">
+    <div className="p-8 pb-4 flex flex-row justify-between items-center">
+        <div className='flex flex-row gap-8 items-center'>
+          <h1 className="text-5xl font-black font-custom max-md:hidden select-none">Kingdra</h1>
+          <img src="icon.png" className="md:hidden h-16" />
           <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
         </div>
+        <div className='flex flex-row gap-6 px-6 max-md:hidden'>
+          <Button color="gray" /*onClick={handleNewTeam}*/ disabled>New Team</Button>
+          {/*<TeamSelector numTeams={numTeams} setSelectedTeam={setSelectedTeam} />*/}
+          <SignedOut>
+            <Button color="gray"><SignInButton /></Button>
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
+        </div>
+        {/* Hamburger Menu Here on md: */}
       </div>
-      <div className="flex flex-row gap-6 p-6">
-        <Button
-          className="max-md:hidden"
-          color="light"
-          title="Coming Soon!"
-          /*onClick={handleNewTeam}*/ disabled 
-        >
-          New Team
-        </Button>
-        {/*<TeamSelector numTeams={numTeams} setSelectedTeam={setSelectedTeam} />*/}
-        <SignedOut>
-          <Button color="light">
-            <SignInButton />
-          </Button>
-        </SignedOut>
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
-      </div>
-      {/* Hamburger Menu Here on md: */}
-    </div>
   );
 }
