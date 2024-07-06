@@ -5,6 +5,7 @@ import Footer from "@/components/footer";
 import PokeParty from "@/components/PokeParty";
 import PokeInfo from "@/components/PokeInfo";
 import PokeFinder from "@/components/PokeFinder";
+import TypeCoverage from "@/components/TypeCoverage";
 import { useState } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { pokemon } from "../../lib/pokemonInterface";
@@ -40,6 +41,7 @@ export default function Home() {
               setPokemonParty={setPokemonParty}
             />
           </div>
+          <TypeCoverage pokemonParty={pokemonParty} />
           <PokeFinder setPokemonParty={setPokemonParty} />
         </div>
         <Footer />
