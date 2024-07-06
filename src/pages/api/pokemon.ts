@@ -1,6 +1,18 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import fetch from "node-fetch";
 
+function getPokemonGeneration(id: number): number {
+  if (id <= 151) return 1;
+  if (id <= 251) return 2;
+  if (id <= 386) return 3;
+  if (id <= 493) return 4;
+  if (id <= 649) return 5;
+  if (id <= 721) return 6;
+  if (id <= 809) return 7;
+  if (id <= 905) return 8;
+  return 9; // Assuming any ID above 905 is Gen 9
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -11,8 +23,9 @@ export default async function handler(
     const url = `https://pokeapi.co/api/v2/pokemon/${name}`;
     try {
       const response = await fetch(url);
-      const data = await response.json();
-      res.status(200).json(data);
+      const data: any = await response.json();
+      const generation = getPokemonGeneration(data.id);
+      res.status(200).json({ ...data, generation });
     } catch (error: any) {
       console.error("Failed to fetch data from PokeAPI:", error);
       res
@@ -26,11 +39,33 @@ export default async function handler(
     // else, return a list of all Pokemon
   } else {
     const limit = 50; // Number of pokemon to fetch at once
-    const page = req.query.page ? parseInt(String(req.query.page), 10) : 1; // Page number for pagination
-    const offset = (page - 1) * limit; // Offset calculation based on page number
-    const url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`;
-    let data: any;
+    const page = req.query.page ? parseInt(String(req.query.page), 10) : 1;
+    const generation = req.query.generation ? parseInt(String(req.query.generation), 10) : 0;
 
+    let offset = (page - 1) * limit;
+    let url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`;
+
+    // If a specific generation is requested, adjust the offset and limit
+    if (generation > 0) {
+      const genRanges = [
+        {start: 1, end: 151},   // Gen 1
+        {start: 152, end: 251}, // Gen 2
+        {start: 252, end: 386}, // Gen 3
+        {start: 387, end: 493}, // Gen 4
+        {start: 494, end: 649}, // Gen 5
+        {start: 650, end: 721}, // Gen 6
+        {start: 722, end: 809}, // Gen 7
+        {start: 810, end: 905}, // Gen 8
+        {start: 906, end: 1010} // Gen 9 (adjust end as needed)
+      ];
+
+      const genRange = genRanges[generation - 1];
+      offset = genRange.start - 1 + ((page - 1) * limit);
+      const adjustedLimit = Math.min(limit, genRange.end - offset);
+      url = `https://pokeapi.co/api/v2/pokemon?limit=${adjustedLimit}&offset=${offset}`;
+    }
+
+    let data: any;
     try {
       const response = await fetch(url);
       data = await response.json();
@@ -67,6 +102,7 @@ export default async function handler(
             name: pokemon.name,
             id: pokemon.id,
             sprite: pokemon.sprites.front_default,
+            generation: getPokemonGeneration(pokemon.id),
           }));
 
         // Determine if there is a next page

@@ -4,17 +4,19 @@ import { useEffect, useState, useCallback } from "react";
 import PokeFinderCard from "./PokeFinderCard";
 import LoadingIcon from "./LoadingIcon";
 import type { pokemon } from "../../lib/pokemonInterface";
+import { Tabs } from "flowbite-react";
 
 export default function PokeFinder({
   setPokemonParty,
 }: {
   setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
 }) {
-  const [pokemonData, setPokemonData] = useState<any>([]);
+  const [pokemonData, setPokemonData] = useState<pokemon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchResults, setSearchResults] = useState<any>([]);
+  const [searchResults, setSearchResults] = useState<pokemon[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedGeneration, setSelectedGeneration] = useState(0);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newSearchTerm = event.target.value.toLowerCase();
@@ -22,50 +24,53 @@ export default function PokeFinder({
   };
 
   useEffect(() => {
-    if (searchTerm === "") {
-      setSearchResults(pokemonData);
-    } else {
-      const filteredPokemon = pokemonData.filter((pokemon: pokemon) =>
-        pokemon.name.toLowerCase().includes(searchTerm),
-      );
-      setSearchResults(filteredPokemon);
-    }
+    const filteredPokemon = pokemonData.filter((pokemon: pokemon) =>
+      pokemon.name.toLowerCase().includes(searchTerm)
+    );
+    setSearchResults(filteredPokemon);
   }, [searchTerm, pokemonData]);
 
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/pokemon?page=${currentPage}`);
+      const response = await fetch(`/api/pokemon?page=${currentPage}&generation=${selectedGeneration}`);
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
-      const newPokemonData = data.pokemonData.map((pokemon: any) => {
-        const formattedName = pokemon.name
+      const newPokemonData = data.pokemonData.map((pokemon: pokemon) => ({
+        ...pokemon,
+        name: pokemon.name
           .split("-")
           .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join("-");
-        return { ...pokemon, name: formattedName };
-      });
-      setPokemonData((prevData: any) => [...prevData, ...newPokemonData]);
+          .join("-")
+      }));
+      setPokemonData((prevData: pokemon[]) => 
+        currentPage === 1 ? newPokemonData : [...prevData, ...newPokemonData]
+      );
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage]);
+  }, [currentPage, selectedGeneration]);
 
   const handleScroll = useCallback(() => {
     const isAtBottom =
-      window.innerHeight + window.scrollY >= document.body.offsetHeight;
-    if (isAtBottom) {
+      window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
+    if (isAtBottom && !isLoading) {
       setCurrentPage((prevPage) => prevPage + 1);
     }
-  }, []);
+  }, [isLoading]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+    setPokemonData([]);
+  }, [selectedGeneration]);
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [fetchData, currentPage, selectedGeneration]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
@@ -75,10 +80,25 @@ export default function PokeFinder({
   }, [handleScroll]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="w-full flex md:justify-end justify-center pt-2 relative text-gray-600">
+    <div className="flex flex-col">
+      <div className="w-full px-4 flex md:flex-row flex-col md:justify-between justify-center relative text-gray-600">
+        <Tabs 
+          aria-label="Tabs with underline" 
+          onActiveTabChange={(tab: any) => setSelectedGeneration(parseInt(tab))}
+        >
+          <Tabs.Item active={selectedGeneration === 0} title="All" />
+          <Tabs.Item active={selectedGeneration === 1} title="Gen I" />
+          <Tabs.Item active={selectedGeneration === 2} title="Gen II" />
+          <Tabs.Item active={selectedGeneration === 3} title="Gen III" />
+          <Tabs.Item active={selectedGeneration === 4} title="Gen IV" />
+          <Tabs.Item active={selectedGeneration === 5} title="Gen V" />
+          <Tabs.Item active={selectedGeneration === 6} title="Gen VI" />
+          <Tabs.Item active={selectedGeneration === 7} title="Gen VII" />
+          <Tabs.Item active={selectedGeneration === 8} title="Gen VIII" />
+          <Tabs.Item active={selectedGeneration === 9} title="Gen IX" />
+        </Tabs>
         <input
-          className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none"
+          className="border-2 max-md:mb-4 border-gray-300 bg-white h-10 px-5 pr-16 mt-2 rounded-lg text-sm focus:outline-none"
           type="text"
           name="search"
           placeholder="Search"
@@ -91,7 +111,7 @@ export default function PokeFinder({
           <LoadingIcon />
         ) : (
           <>
-            {searchResults.map((pokemon: any) => (
+            {searchResults.map((pokemon: pokemon) => (
               <PokeFinderCard
                 key={pokemon.id}
                 pokemon={pokemon}
@@ -101,6 +121,7 @@ export default function PokeFinder({
           </>
         )}
       </div>
+      {isLoading && pokemonData.length > 0 && <LoadingIcon />}
     </div>
   );
 }

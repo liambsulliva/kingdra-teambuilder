@@ -1,6 +1,7 @@
 export interface pokemon {
   name: string;
   id: number;
+  generation: number;
   sprite: string;
   level: number;
   ability: string;
