@@ -89,9 +89,9 @@ export default function PokeInfo({
   return (
     <div className="bg-[#f9f9f9] rounded flex-grow">
       {pokemonInfo && pokemonParty[selectedPokemon] && (
-        <div className="flex flex-row max-md:flex-col justify-between gap-6 bg-white rounded-lg shadow-md py-12 pl-16 pr-8">
+        <div className="flex max-md:flex-col justify-between gap-8 bg-white rounded-lg shadow-md py-12 pl-14 pr-8">
           <div className="flex flex-col gap-2">
-            <div className="flex flex-row gap-3">
+            <div className="flex">
               <div className="flex justify-center items-center w-32 h-32">
                 {pokemonInfo.sprites.versions["generation-v"]["black-white"]
                   .animated.front_default ? (
