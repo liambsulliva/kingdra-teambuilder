@@ -107,21 +107,15 @@ export default function PokeFinder({
         />
       </div>
       <div className="w-full grid 2xl:grid-cols-12 xl:grid-cols-9 lg:grid-cols-6 sm:grid-cols-4 grid-cols-2 gap-6 mx-auto bg-[#f9f9f9] p-6 justify-center items-center rounded">
-        {isLoading && pokemonData.length === 0 ? (
-          <LoadingIcon />
-        ) : (
-          <>
-            {searchResults.map((pokemon: pokemon) => (
-              <PokeFinderCard
-                key={pokemon.id}
-                pokemon={pokemon}
-                setPokemonParty={setPokemonParty}
-              />
-            ))}
-          </>
-        )}
+        {searchResults.map((pokemon: pokemon) => (
+          <PokeFinderCard
+            key={pokemon.id}
+            pokemon={pokemon}
+            setPokemonParty={setPokemonParty}
+          />
+        ))}
+        {isLoading && <LoadingIcon />}
       </div>
-      {isLoading && pokemonData.length > 0 && <LoadingIcon />}
     </div>
   );
 }

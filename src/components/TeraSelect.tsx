@@ -112,7 +112,7 @@ export default function TeraSelect({
     <div className="flex gap-4 items-center relative">
       <div className="relative" ref={teraInputRef}>
         <input
-          className={`border-2 ${teraError ? "border-red-500" : "border-gray-300"} bg-white h-10 px-4 w-24 rounded-lg text-sm focus:outline-none`}
+          className={`border-2 ${teraError ? "border-red-500" : "border-gray-300"} bg-white h-10 px-4 w-46 rounded-lg text-sm focus:outline-none`}
           type="text"
           name="Tera Type"
           placeholder="Tera"
