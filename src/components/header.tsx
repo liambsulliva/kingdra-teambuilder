@@ -25,13 +25,13 @@ export default function Header({
   return (
     <div className="px-4 pt-4 flex flex-row justify-between items-start">
       <div className="flex flex-row">
-        <img src="banner_wo_subtitle.png" className="max-md:hidden select-none h-28" />
+        <img src="banner_wo_subtitle.png" className="max-md:hidden select-none h-24" />
         <img src="icon.png" className="md:hidden h-24" />
-        <div className="max-md:hidden py-5">
+        <div className="max-md:hidden py-6">
           <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
         </div>
       </div>
-      <div className="flex flex-row gap-6 px-6 py-5">
+      <div className="flex flex-row gap-6 p-6">
         <Button
           className="max-md:hidden"
           color="gray"
