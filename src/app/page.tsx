@@ -41,7 +41,7 @@ export default function Home() {
               setPokemonParty={setPokemonParty}
             />
           </div>
-          {pokemonParty.length >= 1 && false && (<TypeCoverage pokemonParty={pokemonParty} />)}
+          {pokemonParty.length >= 1 && (<TypeCoverage pokemonParty={pokemonParty} />)}
           <PokeFinder setPokemonParty={setPokemonParty} />
         </div>
         <Footer />
