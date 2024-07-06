@@ -178,12 +178,12 @@ export default function Component({
   return (
     <div className="flex flex-col items-center gap-2 m-4">
       <ButtonGroup>
-        <Button color="gray" onClick={() => setShowModal(true)}>
+        <Button color="light" onClick={() => setShowModal(true)}>
           <DownloadIcon className="mr-3" />
           Import
         </Button>
         <Button
-          color="gray"
+          color="light"
           onClick={exportPokemonParty}
           disabled={pokemonParty.length <= 0}
         >
@@ -205,7 +205,7 @@ export default function Component({
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={importPokemonParty}>Import</Button>
-          <Button color="gray" onClick={() => setShowModal(false)}>
+          <Button color="light" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
         </Modal.Footer>

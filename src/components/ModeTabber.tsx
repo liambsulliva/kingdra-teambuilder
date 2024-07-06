@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button, ButtonGroup } from "flowbite-react";
 import PartyIcon from "./PartyIcon";
 import ClashIcon from "./ClashIcon";
@@ -8,15 +9,29 @@ interface TabberProps {
 }
 
 export default function Component({ leftLabel, rightLabel }: TabberProps) {
+  const [selectedTab, setSelectedTab] = useState("right");
+
+  const handleTabClick = (tab: string) => {
+    setSelectedTab(tab);
+  };
+
   return (
     <div className="mx-4">
       <ButtonGroup>
-        <Button color="gray" title="Coming Soon!" disabled>
-          <PartyIcon className="mr-3" />
+        <Button
+          color={selectedTab === "left" ? "blue" : "light"}
+          title="Coming Soon!"
+          disabled
+          onClick={() => handleTabClick("left")}
+        >
+          <PartyIcon className="mr-3" selectedTab={selectedTab} />
           {leftLabel}
         </Button>
-        <Button color="gray">
-          <ClashIcon className="mr-3" />
+        <Button
+          color={selectedTab === "right" ? "blue" : "light"}
+          onClick={() => handleTabClick("right")}
+        >
+          <ClashIcon className="mr-3" selectedTab={selectedTab} />
           {rightLabel}
         </Button>
       </ButtonGroup>

@@ -154,8 +154,8 @@ export default function PokeInfo({
                       color={
                         pokemonParty[selectedPokemon].ability ===
                         ability.ability.name
-                          ? "dark"
-                          : "gray"
+                          ? "blue"
+                          : "light"
                       }
                       onClick={() => handleAbilitySelect(ability.ability.name)}
                       className={`font-bold capitalize`}

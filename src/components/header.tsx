@@ -27,14 +27,14 @@ export default function Header({
       <div className="flex flex-row">
         <img src="banner_wo_subtitle.png" className="max-md:hidden select-none h-24" />
         <img src="icon.png" className="md:hidden h-24" />
-        <div className="max-md:hidden py-6">
+        <div className="max-md:hidden py-6 px-4">
           <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
         </div>
       </div>
       <div className="flex flex-row gap-6 p-6">
         <Button
           className="max-md:hidden"
-          color="gray"
+          color="light"
           title="Coming Soon!"
           /*onClick={handleNewTeam}*/ disabled 
         >
@@ -42,7 +42,7 @@ export default function Header({
         </Button>
         {/*<TeamSelector numTeams={numTeams} setSelectedTeam={setSelectedTeam} />*/}
         <SignedOut>
-          <Button color="gray">
+          <Button color="light">
             <SignInButton />
           </Button>
         </SignedOut>

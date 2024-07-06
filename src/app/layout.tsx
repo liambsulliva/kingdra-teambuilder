@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Kingdra",
+  title: "Kingdra - A Pokémon Teambuilder",
   description: "Designed and Developed by Liam Sullivan",
 };
 
