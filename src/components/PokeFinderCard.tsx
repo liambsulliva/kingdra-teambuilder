@@ -51,7 +51,7 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
         src={pokemon.sprite}
         alt={pokemon.name}
       />
-      <p className="text-center">{pokemon.name}</p>
+      <p className="text-center text-sm">{pokemon.name}</p>
     </div>
   );
 };

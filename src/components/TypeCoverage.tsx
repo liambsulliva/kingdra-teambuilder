@@ -7,9 +7,9 @@ interface TypeCoverageProps {
 
 export default function TypeCoverage({ pokemonParty }: TypeCoverageProps) {
     return (
-        <div className="flex gap-4">
+        <div className="flex max-md:flex-col gap-4">
             <div className="bg-[#f9f9f9] rounded p-4">
-                <p className="text-center font-semibold">Offensive Coverage</p>
+                <p className="text-center font-semibold p-2 pb-4">Offensive Coverage</p>
                 <div className="flex flex-wrap gap-2">
                     {Object.entries(typeColors).map(([type, color]) => (
                         <div
@@ -23,7 +23,7 @@ export default function TypeCoverage({ pokemonParty }: TypeCoverageProps) {
                 </div>
             </div>
             <div className="bg-[#f9f9f9] rounded p-4">
-                <p className="text-center font-semibold">Defensive Coverage</p>
+                <p className="text-center font-semibold p-2 pb-4">Defensive Coverage</p>
                 <div className="flex flex-wrap gap-2">
                     {Object.entries(typeColors).map(([type, color]) => (
                         <div

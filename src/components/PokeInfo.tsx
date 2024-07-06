@@ -90,32 +90,38 @@ export default function PokeInfo({
     <div className="bg-[#f9f9f9] rounded flex-grow">
       {pokemonInfo && pokemonParty[selectedPokemon] && (
         <div className="flex flex-row max-md:flex-col justify-between gap-6 bg-white rounded-lg shadow-md py-12 pl-16 pr-8">
-          <div>
-            <h2 className="text-4xl font-extrabold text-black mb-3 capitalize">
-              {pokemonInfo.name}
-            </h2>
-            <LevelSelect
-              selectedPokemon={selectedPokemon}
-              pokemonParty={pokemonParty}
-              setPokemonParty={setPokemonParty}
-            />
-            {pokemonInfo.sprites.versions["generation-v"]["black-white"]
-              .animated.front_default ? (
-              <img
-                src={
-                  pokemonInfo.sprites.versions["generation-v"]["black-white"]
-                    .animated.front_default
-                }
-                alt={pokemonInfo.name}
-                className="w-40 h-40 mb-6 object-contain"
-              />
-            ) : (
-              <img
-                src={pokemonParty[selectedPokemon].sprite}
-                alt={pokemonParty[selectedPokemon].name}
-                className="w-40 h-40 mx-auto mb-6 object-contain"
-              />
-            )}
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-row gap-3">
+              <div className="flex justify-center items-center w-32 h-32">
+                {pokemonInfo.sprites.versions["generation-v"]["black-white"]
+                  .animated.front_default ? (
+                  <img
+                    src={
+                      pokemonInfo.sprites.versions["generation-v"]["black-white"]
+                        .animated.front_default
+                    }
+                    alt={pokemonInfo.name}
+                    className="object-contain"
+                  />
+                ) : (
+                  <img
+                    src={pokemonParty[selectedPokemon].sprite}
+                    alt={pokemonParty[selectedPokemon].name}
+                    className="object-contain"
+                  />
+                )}
+              </div>
+              <div className="flex flex-col justify-end">
+                <h2 className="text-4xl font-extrabold text-black mb-3 capitalize">
+                  {pokemonInfo.name}
+                </h2>
+                <LevelSelect
+                  selectedPokemon={selectedPokemon}
+                  pokemonParty={pokemonParty}
+                  setPokemonParty={setPokemonParty}
+                />
+              </div>
+            </div>
             <div className="flex flex-col">
               <p className="flex text-xl items-center text-lg text-gray-600 mb-4 gap-2.5">
                 Type:
@@ -138,6 +144,11 @@ export default function PokeInfo({
                       {pokemonInfo.types[1].type.name}
                     </span>
                   )}
+                </div>
+              </p>
+              <p className="flex text-xl items-center text-lg text-gray-600 mb-4 gap-2.5">
+                Tera Type:
+                <div className="flex max-md:flex-wrap items-center px-2 gap-2">
                   <TeraSelect
                     selectedPokemon={selectedPokemon}
                     pokemonParty={pokemonParty}
