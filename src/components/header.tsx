@@ -25,7 +25,7 @@ export default function Header({
   return (
     <div className="px-4 pt-4 flex flex-row justify-between items-start">
       <div className="flex flex-row">
-        <img src="banner.png" className="max-md:hidden select-none h-28" />
+        <img src="banner_wo_subtitle.png" className="max-md:hidden select-none h-28" />
         <img src="icon.png" className="md:hidden h-24" />
         <div className="max-md:hidden py-5">
           <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
