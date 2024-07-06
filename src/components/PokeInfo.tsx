@@ -112,7 +112,7 @@ export default function PokeInfo({
                 )}
               </div>
               <div className="flex flex-col justify-end">
-                <h2 className="text-4xl font-extrabold text-black mb-3 capitalize">
+                <h2 className="text-4xl font-bold text-black mb-3 capitalize">
                   {pokemonInfo.name}
                 </h2>
                 <LevelSelect

@@ -25,7 +25,7 @@ export default function Header({
   return (
     <div className="p-8 pb-4 flex flex-row justify-between items-center">
         <div className='flex flex-row gap-8 items-center'>
-          <h1 className="text-5xl font-black font-custom max-md:hidden select-none">Kingdra</h1>
+          <h1 className="text-5xl font-extrabold font-custom max-md:hidden select-none">Kingdra</h1>
           <img src="icon.png" className="md:hidden h-16" />
           <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
         </div>
