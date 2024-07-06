@@ -121,7 +121,7 @@ export default function PokeInfo({
                 Type:
                 <div className="flex max-md:flex-wrap items-center px-2 gap-2">
                   <span
-                    className="font-semibold capitalize px-4 py-2 border rounded-xl text-white"
+                    className="font-semibold select-none capitalize px-4 py-2 border rounded-xl text-white"
                     style={{
                       backgroundColor: `#${typeColors[pokemonInfo.types[0].type.name as PokemonType]}`,
                     }}
@@ -130,7 +130,7 @@ export default function PokeInfo({
                   </span>
                   {pokemonInfo.types[1] && (
                     <span
-                      className="font-semibold capitalize px-4 py-2 border rounded-xl text-white"
+                      className="font-semibold select-none capitalize px-4 py-2 border rounded-xl text-white"
                       style={{
                         backgroundColor: `#${typeColors[pokemonInfo.types[1].type.name as PokemonType]}`,
                       }}

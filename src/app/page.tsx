@@ -25,7 +25,7 @@ export default function Home() {
           setSelectedTeam={setSelectedTeam}
         />
         <div
-          className="flex flex-col gap-8 p-8 mx-auto"
+          className="font-serif flex flex-col gap-8 p-8 mx-auto"
           style={{ width: "1850px", maxWidth: "calc(100% - 1rem)" }}
         >
           <div className="flex md:flex-row flex-col gap-4">

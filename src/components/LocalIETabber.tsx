@@ -209,18 +209,28 @@ export default function Component({
         </Button>
       </ButtonGroup>
 
-      <Modal show={showModal} onClose={() => setShowModal(false)}>
+      <Modal show={showModal} onClose={() => setShowModal(false)} dismissible>
         <Modal.Header>Import Pokémon Data</Modal.Header>
         <Modal.Body>
           <Textarea
-            rows={10}
-            placeholder="Paste Pokémon data here..."
+            rows={12}
+            placeholder={`Expected Formatting (No Nicknames):
+
+Name @ Item
+Ability: Ability
+Tera Type: Type
+EVs: 252 SpA / 4 SpD / 252 Spe
+Timid Nature
+- Move 1
+- Move 2
+- Move 3
+- Move 4`}
             value={importText}
             onChange={(e) => setImportText(e.target.value)}
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={importPokemon}>Import</Button>
+          <Button color="blue" onClick={importPokemon}>Import</Button>
           <Button color="light" onClick={() => setShowModal(false)}>
             Cancel
           </Button>

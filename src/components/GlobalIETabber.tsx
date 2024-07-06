@@ -191,20 +191,32 @@ export default function Component({
           Export
         </Button>
       </ButtonGroup>
-      <p className="text-gray-500 text-xs">From Pokemon Showdown</p>
+      <p className="text-gray-500 text-xs">From <a className="text-gray-500 hover:underline" target="_blank" href="https://play.pokemonshowdown.com/">Pokemon Showdown</a></p>
 
-      <Modal show={showModal} onClose={() => setShowModal(false)}>
+      <Modal show={showModal} onClose={() => setShowModal(false)} dismissible>
         <Modal.Header>Import Pokémon Party Data</Modal.Header>
         <Modal.Body>
           <Textarea
-            rows={10}
-            placeholder="Paste Pokémon party data here..."
+            rows={13}
+            placeholder={`Expected Formatting (No Nicknames):
+
+Name @ Item
+Ability: Ability
+Tera Type: Type
+EVs: 252 SpA / 4 SpD / 252 Spe
+Timid Nature
+- Move 1
+- Move 2
+- Move 3
+- Move 4
+
+... More Pokémon Below`}
             value={importText}
             onChange={(e) => setImportText(e.target.value)}
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={importPokemonParty}>Import</Button>
+          <Button color="blue" onClick={importPokemonParty}>Import</Button>
           <Button color="light" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
