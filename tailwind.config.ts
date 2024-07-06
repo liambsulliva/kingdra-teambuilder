@@ -20,7 +20,7 @@ const config: Config = {
       },
     },
     fontFamily: {
-      sans: ["Roboto", "Helvetica", "Arial", "sans-serif"],
+      sans: ["Montserrat", "Helvetica", "Arial", "sans-serif"],
     },
   },
   plugins: [require("flowbite/plugin"), flowbite.plugin()],

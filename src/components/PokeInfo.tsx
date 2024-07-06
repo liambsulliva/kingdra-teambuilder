@@ -91,7 +91,7 @@ export default function PokeInfo({
       {pokemonInfo && pokemonParty[selectedPokemon] && (
         <div className="flex flex-row max-md:flex-col justify-between gap-6 bg-white rounded-lg shadow-md py-12 pl-16 pr-8">
           <div>
-            <h2 className="text-4xl font-extrabold text-gray-800 mb-3 capitalize">
+            <h2 className="text-4xl font-extrabold text-black mb-3 capitalize">
               {pokemonInfo.name}
             </h2>
             <LevelSelect
