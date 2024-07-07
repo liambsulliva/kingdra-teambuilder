@@ -75,16 +75,12 @@ export default function moveSelect({
       moveInput === "" ||
       validMoves.some((move: string) => move === formattedInput)
     ) {
-      setPokemonParty((prevParty) => {
+    setPokemonParty((prevParty) => {
         const newParty = [...prevParty];
-        if (newParty[selectedPokemon]) {
-          newParty[selectedPokemon] = {
-            ...newParty[selectedPokemon],
-            //@ts-ignore
-            moves: newParty[selectedPokemon].moves.map((move, i) => i === index ? formattedInput : move),
-          };
-        }
-        return newParty;
+          if (newParty[selectedPokemon]) {
+              newParty[selectedPokemon].moves[index] = formattedInput;
+          }
+          return newParty;
       });
       setMoveError("");
     } else {
@@ -99,7 +95,6 @@ export default function moveSelect({
       if (newParty[selectedPokemon]) {
         newParty[selectedPokemon] = {
           ...newParty[selectedPokemon],
-          //@ts-ignore
           moves: newParty[selectedPokemon].moves.map((move, i) => i === index ? move.toLowerCase().replace(/\s/g, "-") : move),
         };
       }
