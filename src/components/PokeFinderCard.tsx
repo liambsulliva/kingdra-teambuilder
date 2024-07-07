@@ -3,11 +3,13 @@ import "@/app/globals.css";
 import type { pokemon } from "../../lib/pokemonInterface";
 
 interface PokeFinderCardProps {
+  setEnableToast: React.Dispatch<React.SetStateAction<boolean>>;
   pokemon: pokemon;
   setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
 }
 
 const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
+  setEnableToast,
   pokemon,
   setPokemonParty,
 }: PokeFinderCardProps) => {
@@ -15,6 +17,7 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
     try {
       setPokemonParty((prevPokemonParty: pokemon[]) => {
         if (prevPokemonParty.length >= 6) {
+          setEnableToast(true);
           return prevPokemonParty;
         } else if (!prevPokemonParty.some((p) => p.id === pokemon.id)) {
           const updatedPokemon: pokemon = {

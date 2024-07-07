@@ -5,8 +5,9 @@ import Footer from "@/components/footer";
 import PokeParty from "@/components/PokeParty";
 import PokeInfo from "@/components/PokeInfo";
 import PokeFinder from "@/components/PokeFinder";
+import Toast from "@/components/Toast";
 import TypeCoverage from "@/components/TypeCoverage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { pokemon } from "../../lib/pokemonInterface";
 
@@ -15,6 +16,13 @@ export default function Home() {
   const [numTeams, setNumTeams] = useState<number>(1);
   const [selectedPokemon, setSelectedPokemon] = useState<number>(-1);
   const [selectedTeam, setSelectedTeam] = useState<number>(1);
+  const [enableToast, setEnableToast] = useState<boolean>(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setEnableToast(false);
+    }, 5000);
+  }, [enableToast])
 
   return (
     <>
@@ -42,8 +50,9 @@ export default function Home() {
             />
           </div>
           {pokemonParty.length >= 1 && (<TypeCoverage pokemonParty={pokemonParty} />)}
-          <PokeFinder setPokemonParty={setPokemonParty} />
+          <PokeFinder setPokemonParty={setPokemonParty} setEnableToast={setEnableToast} />
         </div>
+        {enableToast && <Toast />}
         <Footer />
       </ClerkProvider>
     </>
