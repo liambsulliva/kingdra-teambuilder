@@ -12,6 +12,7 @@ import LocalIETabber from "./LocalIETabber";
 import NatureSelect from "./NatureSelect";
 import ItemSelect from "./ItemSelect";
 import TeraSelect from "./TeraSelect";
+import MoveSelect from "./MoveSelect";
 import LevelSelect from "./LevelSelect";
 
 type PokemonType = keyof typeof typeColors;
@@ -199,27 +200,13 @@ export default function PokeInfo({
             <div className="flex justify-between items-center">
             <div className="flex flex-col">
                 {[0, 1, 2, 3].map((index) => (
-                  <div
-                    key={index}
-                    className="w-full flex md:justify-end justify-center pt-2 relative text-gray-600"
-                  >
-                    <input
-                      className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none"
-                      type="text"
-                      name={`move${index + 1}`}
-                      placeholder={`Move ${index + 1}`}
-                      value={pokemonParty[selectedPokemon].moves[index]}
-                      onChange={(e) => handleMoveChange(index, e.target.value)}
-                      list={`movesList${index}`}
-                    />
-                    <datalist id={`movesList${index}`}>
-                      {validMoves
-                        .filter(move => move.startsWith(pokemonParty[selectedPokemon].moves[index].toLowerCase()))
-                        .map((move, i) => (
-                          <option key={i} value={move} />
-                        ))}
-                    </datalist>
-                  </div>
+                  <MoveSelect
+                    index={index}
+                    validMoves={validMoves}
+                    selectedPokemon={selectedPokemon}
+                    pokemonParty={pokemonParty}
+                    setPokemonParty={setPokemonParty}
+                  />
                 ))}
               </div>
             </div>
