@@ -101,7 +101,7 @@ export default function PokeInfo({
       {pokemonInfo && pokemonParty[selectedPokemon] && (
         <div className="flex max-md:flex-col justify-between gap-8 bg-white rounded-lg shadow-md py-12 pl-14 pr-8 max-md:pl-8">
           <div className="flex flex-col gap-2">
-            <div className="flex max-md:gap-4">
+            <div className="flex max-md:gap-4 max-md:justify-center">
               <div className="flex justify-center items-center w-32 h-32">
                 {pokemonInfo.sprites.versions["generation-v"]["black-white"]
                   .animated.front_default ? (
