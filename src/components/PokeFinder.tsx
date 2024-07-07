@@ -58,9 +58,11 @@ export default function PokeFinder({
   }, [currentPage, selectedGeneration]);
 
   const handleScroll = useCallback(() => {
-    const isAtBottom =
-      window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
-    if (isAtBottom && !isLoading) {
+    const scrollPosition = window.innerHeight + window.scrollY;
+    const documentHeight = document.body.offsetHeight;
+    const scrollThreshold = documentHeight - 500;
+  
+    if (scrollPosition >= scrollThreshold && !isLoading) {
       setCurrentPage((prevPage) => prevPage + 1);
     }
   }, [isLoading]);
