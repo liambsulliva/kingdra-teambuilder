@@ -99,7 +99,7 @@ export default function PokeInfo({
   return (
     <div className="bg-[#f9f9f9] rounded flex-grow">
       {pokemonInfo && pokemonParty[selectedPokemon] && (
-        <div className="flex max-md:flex-col justify-between gap-8 bg-white rounded-lg shadow-md py-12 pl-14 pr-8 max-md:pl-8">
+        <div className="flex max-lg:flex-col justify-between gap-8 bg-white rounded-lg shadow-md py-12 pl-14 pr-8 max-md:pl-8">
           <div className="flex flex-col gap-2">
             <div className="flex max-md:gap-4 max-md:justify-center">
               <div className="flex justify-center items-center w-32 h-32">
@@ -217,7 +217,7 @@ export default function PokeInfo({
                 Remaining EV points: {508 - totalEVs}
               </p>
             </div>
-            <div className="grid grid-cols-2 max-md:grid-cols-1 gap-16 h-full flex-wrap justify-evenly max-md:mx-auto md:border rounded-xl md:p-12">
+            <div className="grid grid-cols-2 max-xl:grid-cols-1 gap-16 h-full flex-wrap justify-evenly max-md:mx-auto md:border rounded-xl md:p-12">
               <StatBar
                 label={"HP"}
                 id={0}
