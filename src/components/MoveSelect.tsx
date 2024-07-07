@@ -93,10 +93,7 @@ export default function moveSelect({
     setPokemonParty((prevParty) => {
       const newParty = [...prevParty];
       if (newParty[selectedPokemon]) {
-        newParty[selectedPokemon] = {
-          ...newParty[selectedPokemon],
-          moves: newParty[selectedPokemon].moves.map((move, i) => i === index ? move.toLowerCase().replace(/\s/g, "-") : move),
-        };
+        newParty[selectedPokemon].moves[index] = move.toLowerCase().replace(/\s/g, "-");
       }
       return newParty;
     });
