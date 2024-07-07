@@ -15,7 +15,7 @@ export default function Component({
   pokemonParty: pokemon[];
   setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
   setTotalEVs: React.Dispatch<React.SetStateAction<number>>;
-  setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, message: string }>>;
+  setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string, message: string }>>;
 }) {
   const [showModal, setShowModal] = useState(false);
   const [importText, setImportText] = useState("");
@@ -82,13 +82,13 @@ export default function Component({
       navigator.clipboard
         .writeText(formattedData)
         .then(() => {
-          alert("Selected Pokémon data copied to clipboard!");
+          setEnableToast({enabled: true, type: "success", message: `Selected Pokémon copied to clipboard!`});
         })
         .catch((err) => {
-          setEnableToast({ enabled: true, message: `Failed to copy Pokémon data to clipboard: ${err}` });
+          setEnableToast({ enabled: true, type: "error", message: `Failed to copy Pokémon data to clipboard: ${err}` });
         });
     } else {
-      setEnableToast({ enabled: true, message: `Selected pokemon is invalid.` });
+      setEnableToast({ enabled: true, type: "error", message: `Selected pokemon is invalid.` });
     }
   };
 
@@ -109,9 +109,9 @@ export default function Component({
       }
       setShowModal(false);
       setImportText("");
-      alert("Pokémon data imported successfully!");
+      setEnableToast({enabled: true, type: "success", message: `Pokémon data imported successfully!`});
     } else {
-      setEnableToast({ enabled: true, message: `Pokémon data formatting is invalid. Check your input.` });
+      setEnableToast({ enabled: true, type: "error", message: `Pokémon data formatting is invalid. Check your input.` });
     }
   };
 
@@ -180,7 +180,7 @@ export default function Component({
       id = data.id;
       sprite = data.sprites.front_default;
     } catch (error) {
-      setEnableToast({ enabled: true, message: `Failed to fetch imported Pokémon data from server: ${error}` });
+      setEnableToast({ enabled: true, type: "error", message: `Failed to fetch imported Pokémon data from server: ${error}` });
     }
 
     return {

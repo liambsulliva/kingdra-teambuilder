@@ -30,7 +30,7 @@ export default function PokeSlot({
         );
         // Handle the response here
         if (response.status === 201) {
-          console.log("DELETE Success");
+          //console.log("DELETE Success");
         } else {
           console.log("DELETE Failure");
         }

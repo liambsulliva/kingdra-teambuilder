@@ -11,7 +11,7 @@ export default function PokeFinder({
   setEnableToast
 }: {
   setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
-  setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, message: string }>>;
+  setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string, message: string }>>;
 }) {
   const [pokemonData, setPokemonData] = useState<pokemon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,7 +51,7 @@ export default function PokeFinder({
         currentPage === 1 ? newPokemonData : [...prevData, ...newPokemonData]
       );
     } catch (error) {
-      setEnableToast({enabled: true, message: `Failed to fetch basic pokemon data from server.`});
+      setEnableToast({enabled: true, type: "error", message: `Failed to fetch basic pokemon data from server.`});
     } finally {
       setIsLoading(false);
     }

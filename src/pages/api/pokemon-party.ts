@@ -15,7 +15,6 @@ export default async function handler(
   const user = await User.findOne({ clerkUserId: userId });
 
   if (!user) {
-    console.log("User not found. Creating new user.");
     const newUser = new User({ clerkUserId: userId, pokemonParty: [] });
     await newUser.save();
     console.log("New user created:", newUser);

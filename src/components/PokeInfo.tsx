@@ -26,7 +26,7 @@ export default function PokeInfo({
   selectedPokemon: number;
   pokemonParty: pokemon[];
   setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
-  setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, message: string }>>;
+  setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string,  message: string }>>;
 }) {
   const [pokemonInfo, setPokemonInfo] = useState<any>();
   const [totalEVs, setTotalEVs] = useState(0);
@@ -51,7 +51,7 @@ export default function PokeInfo({
           setValidMoves(moves);
         }
       } catch (error) {
-        setEnableToast({enabled: true, message: `Failed to fetch from server: ${error}`});
+        //setEnableToast({enabled: true, type: "error", message: `Failed to fetch from server: ${error}`});
       }
     };
     if (

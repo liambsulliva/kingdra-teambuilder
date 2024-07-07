@@ -6,7 +6,7 @@ import axios from "axios";
 
 interface TypeCoverageProps {
     pokemonParty: Array<pokemon>;
-    setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, message: string }>>;
+    setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string, message: string }>>;
 }
 
 interface PokemonInfo {
@@ -39,7 +39,7 @@ export default function TypeCoverage({ pokemonParty, setEnableToast }: TypeCover
                         const response = await axios.get(`/api/pokemon-info?id=${pokemon.id}`);
                         infoList.push(response.data);
                     } catch (error) {
-                        setEnableToast({ enabled: true, message: `Error fetching party data for type calculations: ${error}`});
+                        setEnableToast({ enabled: true, type: "error", message: `Error fetching party data for type calculations: ${error}`});
                     }
                 }
             }

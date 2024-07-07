@@ -11,7 +11,7 @@ export default function Component({
 }: {
   pokemonParty: pokemon[];
   setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
-  setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, message: string }>>;
+  setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string, message: string }>>;
 }) {
   const [showModal, setShowModal] = useState(false);
   const [importText, setImportText] = useState("");
@@ -69,10 +69,10 @@ export default function Component({
     navigator.clipboard
       .writeText(formattedData)
       .then(() => {
-        alert("Pokémon party data copied to clipboard!");
+        setEnableToast({enabled: true, type: "success", message: `Pokémon team copied to clipboard!`});
       })
       .catch((err) => {
-        setEnableToast({enabled: true, message: `Export Failed: ${err}`});
+        setEnableToast({enabled: true, type: "error", message: `Export Failed: ${err}`});
       });
   };
 
@@ -82,9 +82,9 @@ export default function Component({
       setPokemonParty(importedParty);
       setShowModal(false);
       setImportText("");
-      alert("Pokémon party data imported successfully!");
+      setEnableToast({enabled: true, type: "success", message: `Pokémon data imported successfully!`});
     } else {
-      setEnableToast({enabled: true, message: `Invalid Pokémon party data format. Please check your input.`});
+      setEnableToast({enabled: true, type: "error", message: `Invalid Pokémon party data format. Please check your input.`});
     }
   };
 
@@ -153,13 +153,13 @@ export default function Component({
         `/api/pokemon?name=${encodeURIComponent(name.toLowerCase())}`,
       );
       if (!response.ok) {
-        setEnableToast({enabled: true, message: `Failed to fetch ${name}'s data from the server.`});
+        setEnableToast({enabled: true, type: "error", message: `Failed to fetch ${name}'s data from the server.`});
       }
       const data = await response.json();
       id = data.id;
       sprite = data.sprites.front_default;
     } catch (error) {
-      setEnableToast({enabled: true, message: `There was an error fetching Pokémon data: ${error}`});
+      setEnableToast({enabled: true, type: "error", message: `There was an error fetching Pokémon data: ${error}`});
     }
 
     return {
