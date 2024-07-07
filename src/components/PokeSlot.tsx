@@ -28,7 +28,6 @@ export default function PokeSlot({
         const response = await axios.delete(
           `/api/pokemon-party/?id=${pokemon.id}`,
         );
-        // Handle the response here
         if (response.status === 201) {
           //console.log("DELETE Success");
         } else {
@@ -36,7 +35,6 @@ export default function PokeSlot({
         }
       }
     } catch (error) {
-      // Handle the error here
       console.log("Internal Server Error");
     }
   };

@@ -12,7 +12,7 @@ export default function Toast({ enabled, type, message }: { enabled: boolean, ty
       setTimeout(() => setIsVisible(true), 10);
     } else {
       setIsVisible(false);
-      setTimeout(() => setShouldRender(false), 300); // Match this to your transition duration
+      setTimeout(() => setShouldRender(false), 300);
     }
   }, [enabled]);
 

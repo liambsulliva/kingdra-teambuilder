@@ -64,8 +64,7 @@ export default function Home() {
             type={enableToast.type} 
             message={enableToast.message} 
           />
-        )}
-        
+        )}     
         <Footer />
       </ClerkProvider>
     </>

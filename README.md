@@ -23,27 +23,36 @@ Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 
 ## 💪 Features:
 
-- ✅ Infinite Scroll to select pokemon
+- ✅ Infinite Scroll + Tabbing System
 - ✅ Proper Responsiveness
 - ✅ Stat Calculator using Pokemon's IV/EVs + Natures + Lv
-- ✅ Duplicate Pokemon Checks
 - ✅ Login System via Clerk
 - ✅ Smogon Breakdown
 - ✅ Ability Select
 - ✅ Input Validation
-- ✅ Capitalized Natures
 - ✅ EV Limit
+- ✅ Type Matchup Breakdown
+- ✅ Client-Side Searching
 - ✅ Import/Export Locally + Globally
 
 ## 🛣️ Roadmap
 
 - ❌ Dark Mode Support
-- ❌ POST + GET bug on first pokemon addition
 - ❌ Casual Mode
 - ❌ Multiple Team Support
 - ❌ Search fetches from Backend
 - ❌ Custom Sign-in Page
 - ❌ Prefetch Pokemon Info preclick
+
+## 🪲 Known Bugs
+
+- ⚠️ Blissey's HP extends beyond its container
+- ⚠️ Importing from Showdown fails when nicknames or genders are specified
+- ⚠️ Importing from Showdown may fail to select ability in cases where ability is multiple words long
+- ⚠️ Exports to Showdown may be malformed in cases where EVs are not specified
+- ⚠️ Multi word items are missing, (i.e. Heavy Duty Boots)
+- ⚠️ Attacks with dashes (-) are replaced with spaces. This is an API limitation.
+- ⚠️ In certain scenarios, the API may be called more than needed after all pokemon are fetched from infinite scrolling.
 
 ## ⚙️ Stack
 

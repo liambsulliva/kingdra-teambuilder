@@ -40,7 +40,6 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
         return prevPokemonParty;
       });
     } catch (error) {
-      // Handle the error here
       setEnableToast({ enabled: true, type: "error", message: "There was an error adding your Pokémon."});
     }
   };
