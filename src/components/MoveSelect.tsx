@@ -102,8 +102,8 @@ export default function moveSelect({
   };
 
   return (
-    <div className="flex gap-4 items-center mb-4 relative">
-      <h3 className="text-xl text-gray-600">Move {index+1}:</h3>
+    <div className="flex max-md:flex-col gap-4 items-center mb-4 relative">
+      <h3 className="text-xl text-gray-600">Move {index+1}: </h3>
       <div className="relative" ref={moveInputRef}>
         <input
           className={`border-2 ${moveError ? "border-red-500" : "border-gray-300"} bg-white h-10 max-md:w-40 px-5 pr-12 rounded-lg text-sm focus:outline-none`}

@@ -99,9 +99,9 @@ export default function PokeInfo({
   return (
     <div className="bg-[#f9f9f9] rounded flex-grow">
       {pokemonInfo && pokemonParty[selectedPokemon] && (
-        <div className="flex max-md:flex-col justify-between gap-8 bg-white rounded-lg shadow-md py-12 pl-14 pr-8">
+        <div className="flex max-md:flex-col justify-between gap-8 bg-white rounded-lg shadow-md py-12 pl-14 pr-8 max-md:pl-8">
           <div className="flex flex-col gap-2">
-            <div className="flex">
+            <div className="flex max-md:gap-4">
               <div className="flex justify-center items-center w-32 h-32">
                 {pokemonInfo.sprites.versions["generation-v"]["black-white"]
                   .animated.front_default ? (
@@ -133,7 +133,7 @@ export default function PokeInfo({
               </div>
             </div>
             <div className="flex flex-col">
-              <p className="flex text-xl items-center text-lg text-gray-600 mb-4 gap-2.5">
+              <p className="flex max-md:flex-col text-xl items-center text-lg text-gray-600 mb-4 gap-2.5">
                 Type:
                 <div className="flex max-md:flex-wrap items-center px-2 gap-2">
                   <span
@@ -156,7 +156,7 @@ export default function PokeInfo({
                   )}
                 </div>
               </p>
-              <p className="flex text-xl items-center text-lg text-gray-600 mb-4 gap-2.5">
+              <p className="flex max-md:flex-col text-xl items-center text-lg text-gray-600 mb-4 gap-2.5">
                 Tera Type:
                 <div className="flex max-md:flex-wrap items-center px-2 gap-2">
                   <TeraSelect
@@ -166,7 +166,7 @@ export default function PokeInfo({
                   />
                 </div>
               </p>
-              <div className="flex gap-4 items-center mb-4">
+              <div className="flex max-md:flex-col gap-4 items-center mb-4">
                 <h3 className="text-xl text-gray-600">Ability:</h3>
                 <ul className="flex flex-wrap text-nowrap gap-2">
                   {pokemonInfo.abilities.map((ability: any, index: number) => (
@@ -198,7 +198,7 @@ export default function PokeInfo({
               />
             </div>
             <div className="flex justify-between items-center">
-            <div className="flex flex-col">
+            <div className="flex flex-col max-md:mx-auto">
                 {[0, 1, 2, 3].map((index) => (
                   <MoveSelect
                     index={index}
@@ -213,11 +213,11 @@ export default function PokeInfo({
           </div>
           <div className="flex flex-col">
             <div className="mb-4">
-              <p className="text-gray-500">
+              <p className="text-gray-500 max-md:text-center">
                 Remaining EV points: {508 - totalEVs}
               </p>
             </div>
-            <div className="grid grid-cols-2 max-md:grid-cols-1 gap-16 h-full flex-wrap justify-evenly md:border rounded-xl md:p-12">
+            <div className="grid grid-cols-2 max-md:grid-cols-1 gap-16 h-full flex-wrap justify-evenly max-md:mx-auto md:border rounded-xl md:p-12">
               <StatBar
                 label={"HP"}
                 id={0}
