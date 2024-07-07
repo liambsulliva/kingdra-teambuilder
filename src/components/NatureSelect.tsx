@@ -111,6 +111,7 @@ export default function NatureSelect({
           type="text"
           name="Nature"
           placeholder="Nature"
+          autoComplete="off"
           value={natureInput}
           onChange={handleNatureInputChange}
           onBlur={handleNatureInputBlur}

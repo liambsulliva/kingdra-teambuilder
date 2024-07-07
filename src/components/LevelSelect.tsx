@@ -81,6 +81,7 @@ export default function LevelSelect({
           className={`border-2 ${levelError ? "border-red-500" : "border-gray-300"} bg-white h-10 w-20 px-4 rounded-lg text-sm focus:outline-none`}
           type="number"
           name="Level"
+          autoComplete="off"
           value={levelInput}
           onChange={handleLevelInputChange}
           onBlur={handleLevelInputBlur}

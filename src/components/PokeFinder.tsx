@@ -103,6 +103,7 @@ export default function PokeFinder({
           className="border-2 max-md:mb-4 border-gray-300 bg-white h-10 px-5 pr-16 mt-2 rounded-lg text-sm focus:outline-none"
           type="text"
           name="search"
+          autoComplete="off"
           placeholder="Search"
           value={searchTerm}
           onChange={handleSearch}

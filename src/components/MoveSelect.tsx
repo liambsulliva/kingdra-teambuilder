@@ -109,6 +109,7 @@ export default function moveSelect({
           className={`border-2 ${moveError ? "border-red-500" : "border-gray-300"} bg-white h-10 max-md:w-40 px-5 pr-12 rounded-lg text-sm focus:outline-none`}
           type="text"
           name="Move"
+          autoComplete="off"
           placeholder="Move"
           value={moveInput}
           onChange={handleMoveInputChange}

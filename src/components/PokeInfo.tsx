@@ -3,7 +3,7 @@
 import "@/app/globals.css";
 import typeColors from "../../lib/typeColors.json";
 import natures from "../../lib/natures.json";
-import { Button } from "flowbite-react";
+import { Button, Tooltip } from "flowbite-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import StatBar from "./StatBar";
@@ -39,6 +39,7 @@ export default function PokeInfo({
           const response = await axios.get(
             `/api/pokemon-info?id=${pokemonParty[selectedPokemon].id}`,
           );
+          console.log(response.data);
           setPokemonInfo(response.data);
           if (
             !pokemonParty[selectedPokemon].ability &&
@@ -172,19 +173,21 @@ export default function PokeInfo({
                 <h3 className="text-xl text-gray-600">Ability:</h3>
                 <ul className="flex flex-wrap text-nowrap gap-2">
                   {pokemonInfo.abilities.map((ability: any, index: number) => (
-                    <Button
-                      key={index}
-                      color={
-                        pokemonParty[selectedPokemon].ability ===
-                        ability.ability.name
-                          ? "blue"
-                          : "light"
-                      }
-                      onClick={() => handleAbilitySelect(ability.ability.name)}
-                      className={`font-bold capitalize`}
-                    >
-                      {ability.ability.name}
-                    </Button>
+                    <Tooltip className="w-64 text-wrap" content={ability.effect} style="light" >
+                      <Button
+                        key={index}
+                        color={
+                          pokemonParty[selectedPokemon].ability ===
+                          ability.ability.name
+                            ? "blue"
+                            : "light"
+                        }
+                        onClick={() => handleAbilitySelect(ability.ability.name)}
+                        className={`font-bold capitalize`}
+                      >
+                        {ability.ability.name}
+                      </Button>
+                    </Tooltip>
                   ))}
                 </ul>
               </div>

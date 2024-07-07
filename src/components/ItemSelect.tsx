@@ -121,6 +121,7 @@ export default function itemSelect({
           type="text"
           name="Item"
           placeholder="Item"
+          autoComplete="off"
           value={itemInput}
           onChange={handleitemInputChange}
           onBlur={handleitemInputBlur}

@@ -116,6 +116,7 @@ export default function TeraSelect({
           type="text"
           name="Tera Type"
           placeholder="Tera"
+          autoComplete="off"
           value={teraInput}
           onChange={handleTeraInputChange}
           onBlur={handleTeraInputBlur}
