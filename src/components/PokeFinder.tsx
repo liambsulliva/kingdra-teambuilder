@@ -11,7 +11,7 @@ export default function PokeFinder({
   setEnableToast
 }: {
   setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
-  setEnableToast: React.Dispatch<React.SetStateAction<boolean>>;
+  setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, message: string }>>;
 }) {
   const [pokemonData, setPokemonData] = useState<pokemon[]>([]);
   const [isLoading, setIsLoading] = useState(true);

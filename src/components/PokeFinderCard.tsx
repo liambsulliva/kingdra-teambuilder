@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import type { pokemon } from "../../lib/pokemonInterface";
 
 interface PokeFinderCardProps {
-  setEnableToast: React.Dispatch<React.SetStateAction<boolean>>;
+  setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, message: string }>>;
   pokemon: pokemon;
   setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
 }
@@ -17,7 +17,7 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
     try {
       setPokemonParty((prevPokemonParty: pokemon[]) => {
         if (prevPokemonParty.length >= 6) {
-          setEnableToast(true);
+          setEnableToast({ enabled: true, message: "Your current team is full!"});
           return prevPokemonParty;
         } else if (!prevPokemonParty.some((p) => p.id === pokemon.id)) {
           const updatedPokemon: pokemon = {
@@ -36,11 +36,12 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
           };
           return [...prevPokemonParty, updatedPokemon];
         }
+        setEnableToast({ enabled: true, message: "This Pokémon is already on your team!"});
         return prevPokemonParty;
       });
     } catch (error) {
       // Handle the error here
-      console.log("Internal Server Error");
+      setEnableToast({ enabled: true, message: "There was an error adding your Pokémon."});
     }
   };
 

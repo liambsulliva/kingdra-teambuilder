@@ -16,11 +16,11 @@ export default function Home() {
   const [numTeams, setNumTeams] = useState<number>(1);
   const [selectedPokemon, setSelectedPokemon] = useState<number>(-1);
   const [selectedTeam, setSelectedTeam] = useState<number>(1);
-  const [enableToast, setEnableToast] = useState<boolean>(false);
+  const [enableToast, setEnableToast] = useState({ enabled: false, message: "" });
 
   useEffect(() => {
     setTimeout(() => {
-      setEnableToast(false);
+      setEnableToast({ enabled: false, message: "" });
     }, 5000);
   }, [enableToast])
 
@@ -52,7 +52,7 @@ export default function Home() {
           {pokemonParty.length >= 1 && (<TypeCoverage pokemonParty={pokemonParty} />)}
           <PokeFinder setPokemonParty={setPokemonParty} setEnableToast={setEnableToast} />
         </div>
-        {enableToast && <Toast />}
+        <Toast enabled={enableToast.enabled} message={enableToast.message} />
         <Footer />
       </ClerkProvider>
     </>
