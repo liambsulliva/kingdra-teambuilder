@@ -51,7 +51,7 @@ export default function PokeFinder({
         currentPage === 1 ? newPokemonData : [...prevData, ...newPokemonData]
       );
     } catch (error) {
-      console.error("Error fetching data:", error);
+      setEnableToast({enabled: true, message: `Failed to fetch basic pokemon data from server.`});
     } finally {
       setIsLoading(false);
     }

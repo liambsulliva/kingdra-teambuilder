@@ -6,6 +6,7 @@ import axios from "axios";
 
 interface TypeCoverageProps {
     pokemonParty: Array<pokemon>;
+    setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, message: string }>>;
 }
 
 interface PokemonInfo {
@@ -24,7 +25,7 @@ interface TypeMatchups {
 
 const typedTypeMatchups: TypeMatchups = typeMatchups as TypeMatchups;
 
-export default function TypeCoverage({ pokemonParty }: TypeCoverageProps) {
+export default function TypeCoverage({ pokemonParty, setEnableToast }: TypeCoverageProps) {
     const [defensiveCoverage, setDefensiveCoverage] = useState<Record<string, number>>({});
     const [offensiveCoverage, setOffensiveCoverage] = useState<Record<string, number>>({});
     const [pokemonInfoList, setPokemonInfoList] = useState<Array<PokemonInfo>>([]);
@@ -38,7 +39,7 @@ export default function TypeCoverage({ pokemonParty }: TypeCoverageProps) {
                         const response = await axios.get(`/api/pokemon-info?id=${pokemon.id}`);
                         infoList.push(response.data);
                     } catch (error) {
-                        //console.error(`Error fetching Pokemon ID ${pokemon.id}:`, error);
+                        setEnableToast({ enabled: true, message: `Error fetching party data for type calculations: ${error}`});
                     }
                 }
             }

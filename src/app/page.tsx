@@ -42,14 +42,16 @@ export default function Home() {
               pokemonParty={pokemonParty}
               setPokemonParty={setPokemonParty}
               setSelectedPokemon={setSelectedPokemon}
+              setEnableToast={setEnableToast}
             />
             <PokeInfo
               selectedPokemon={selectedPokemon}
               pokemonParty={pokemonParty}
               setPokemonParty={setPokemonParty}
+              setEnableToast={setEnableToast}
             />
           </div>
-          {pokemonParty.length >= 1 && (<TypeCoverage pokemonParty={pokemonParty} />)}
+          {pokemonParty.length >= 1 && (<TypeCoverage pokemonParty={pokemonParty} setEnableToast={setEnableToast} />)}
           <PokeFinder setPokemonParty={setPokemonParty} setEnableToast={setEnableToast} />
         </div>
         <Toast enabled={enableToast.enabled} message={enableToast.message} />

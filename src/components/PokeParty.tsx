@@ -11,10 +11,12 @@ export default function PokeParty({
   pokemonParty,
   setPokemonParty,
   setSelectedPokemon,
+  setEnableToast
 }: {
   pokemonParty: pokemon[];
   setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
   setSelectedPokemon: React.Dispatch<React.SetStateAction<number>>;
+  setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, message: string }>>;
 }) {
   const { isSignedIn } = useAuth();
 
@@ -25,7 +27,7 @@ export default function PokeParty({
           const response = await axios.get("/api/pokemon-party");
           setPokemonParty(response.data.pokemonParty);
         } catch (error) {
-          console.error("Error fetching pokemon party:", error);
+          setEnableToast({ enabled: true, message: `Failed to fetch Pokémon team from server: `});
         }
       } else {
         setPokemonParty([]);
@@ -48,7 +50,7 @@ export default function PokeParty({
             console.log("POST Failure");
           }
         } catch (error) {
-          console.error("Error posting pokemon party:", error);
+          setEnableToast({ enabled: true, message: `Failed to submit Pokémon team to server: ${error}`});
         }
       }
     }, 500),
@@ -88,6 +90,7 @@ export default function PokeParty({
         <GlobalIETabber
           pokemonParty={pokemonParty}
           setPokemonParty={setPokemonParty}
+          setEnableToast={setEnableToast}
         />
       </div>
     </div>

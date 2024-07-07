@@ -9,11 +9,13 @@ export default function Component({
   pokemonParty,
   setPokemonParty,
   setTotalEVs,
+  setEnableToast
 }: {
   selectedPokemon: number;
   pokemonParty: pokemon[];
   setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
   setTotalEVs: React.Dispatch<React.SetStateAction<number>>;
+  setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, message: string }>>;
 }) {
   const [showModal, setShowModal] = useState(false);
   const [importText, setImportText] = useState("");
@@ -83,10 +85,10 @@ export default function Component({
           alert("Selected Pokémon data copied to clipboard!");
         })
         .catch((err) => {
-          console.error("Failed to copy text: ", err);
+          setEnableToast({ enabled: true, message: `Failed to copy Pokémon data to clipboard: ${err}` });
         });
     } else {
-      alert("No valid Pokémon selected.");
+      setEnableToast({ enabled: true, message: `Selected pokemon is invalid.` });
     }
   };
 
@@ -109,7 +111,7 @@ export default function Component({
       setImportText("");
       alert("Pokémon data imported successfully!");
     } else {
-      alert("Invalid Pokémon data format. Please check the input.");
+      setEnableToast({ enabled: true, message: `Pokémon data formatting is invalid. Check your input.` });
     }
   };
 
@@ -178,7 +180,7 @@ export default function Component({
       id = data.id;
       sprite = data.sprites.front_default;
     } catch (error) {
-      console.error("Error fetching Pokémon data:", error);
+      setEnableToast({ enabled: true, message: `Failed to fetch imported Pokémon data from server: ${error}` });
     }
 
     return {
