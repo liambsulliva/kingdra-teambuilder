@@ -31,8 +31,8 @@ export default function Header({
           </div>
           <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
         </div>
-        <div className='flex flex-row gap-6 px-6 max-md:hidden'>
-          <Button color="light" /*onClick={handleNewTeam}*/ disabled>New Team</Button>
+        <div className='flex flex-row gap-6 px-6'>
+          <Button className="max-md:hidden" color="light" /*onClick={handleNewTeam}*/ disabled>New Team</Button>
           {/*<TeamSelector numTeams={numTeams} setSelectedTeam={setSelectedTeam} />*/}
           <SignedOut>
             <Button color="light"><SignInButton /></Button>

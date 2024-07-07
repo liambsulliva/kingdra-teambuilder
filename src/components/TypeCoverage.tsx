@@ -112,7 +112,7 @@ export default function TypeCoverage({ pokemonParty }: TypeCoverageProps) {
 
     return (
         <div className="flex max-md:flex-col gap-4">
-            <div className="bg-[#f9f9f9] rounded p-4 w-1/2">
+            <div className="bg-[#f9f9f9] rounded p-4 md:w-1/2">
                 <p className="text-center font-semibold p-2 pb-4">Offensive STAB Spread</p>
                 <div className="grid grid-cols-5">
                     {Object.entries(typeColors).map(([type, color]) => (
@@ -130,7 +130,7 @@ export default function TypeCoverage({ pokemonParty }: TypeCoverageProps) {
                     ))}
                 </div>
             </div>
-            <div className="bg-[#f9f9f9] rounded p-4 w-1/2">
+            <div className="bg-[#f9f9f9] rounded p-4 md:w-1/2">
                 <p className="text-center font-semibold p-2 pb-4">Weakness Spread</p>
                 <div className="grid grid-cols-5">
                     {Object.entries(typeColors).map(([type, color]) => (

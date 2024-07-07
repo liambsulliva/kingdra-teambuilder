@@ -16,7 +16,7 @@ export default function Component({ leftLabel, rightLabel }: TabberProps) {
   };
 
   return (
-    <div className="mx-4">
+    <div className="mx-4 max-md:hidden">
       <ButtonGroup>
         <Button
           color={selectedTab === "left" ? "blue" : "light"}
