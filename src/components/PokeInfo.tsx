@@ -27,6 +27,7 @@ export default function PokeInfo({
 }) {
   const [pokemonInfo, setPokemonInfo] = useState<any>();
   const [totalEVs, setTotalEVs] = useState(0);
+  const [validMoves, setValidMoves] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchPokemonInfo = async () => {
@@ -42,6 +43,9 @@ export default function PokeInfo({
           ) {
             handleAbilitySelect(response.data.abilities[0].ability.name);
           }
+          
+          const moves = response.data.moves.map((move: any) => move.move.name.toLowerCase());
+          setValidMoves(moves);
         }
       } catch (error) {
         console.error(`Server returned ${error}`);
@@ -62,17 +66,22 @@ export default function PokeInfo({
   }, [selectedPokemon]);
 
   const handleMoveChange = (index: number, value: string) => {
-    setPokemonParty((prevParty) => {
-      const newParty = [...prevParty];
-      newParty[selectedPokemon] = {
-        ...newParty[selectedPokemon],
-        // @ts-ignore
-        moves: newParty[selectedPokemon].moves.map((move, i) =>
-          i === index ? value : move,
-        ),
-      };
-      return newParty;
-    });
+    const lowercaseValue = value.toLowerCase();
+    const matchingMoves = validMoves.filter(move => move.startsWith(lowercaseValue));
+  
+    if (matchingMoves.length > 0 || value === '') {
+      setPokemonParty((prevParty) => {
+        const newParty = [...prevParty];
+        newParty[selectedPokemon] = {
+          ...newParty[selectedPokemon],
+          //@ts-ignore
+          moves: newParty[selectedPokemon].moves.map((move, i) =>
+            i === index ? value : move,
+          ),
+        };
+        return newParty;
+      });
+    }
   };
 
   const handleAbilitySelect = (abilityName: string) => {
@@ -188,7 +197,7 @@ export default function PokeInfo({
               />
             </div>
             <div className="flex justify-between items-center">
-              <div className="flex flex-col">
+            <div className="flex flex-col">
                 {[0, 1, 2, 3].map((index) => (
                   <div
                     key={index}
@@ -201,7 +210,15 @@ export default function PokeInfo({
                       placeholder={`Move ${index + 1}`}
                       value={pokemonParty[selectedPokemon].moves[index]}
                       onChange={(e) => handleMoveChange(index, e.target.value)}
+                      list={`movesList${index}`}
                     />
+                    <datalist id={`movesList${index}`}>
+                      {validMoves
+                        .filter(move => move.startsWith(pokemonParty[selectedPokemon].moves[index].toLowerCase()))
+                        .map((move, i) => (
+                          <option key={i} value={move} />
+                        ))}
+                    </datalist>
                   </div>
                 ))}
               </div>
