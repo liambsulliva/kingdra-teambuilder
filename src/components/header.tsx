@@ -32,7 +32,7 @@ export default function Header({
           <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
         </div>
         <div className='flex flex-row gap-6 px-6'>
-          <Button className="max-md:hidden" color="light" /*onClick={handleNewTeam}*/ disabled>New Team</Button>
+          <Button className="max-lg:hidden" color="light" title="Coming Soon!" /*onClick={handleNewTeam}*/ disabled>New Team</Button>
           {/*<TeamSelector numTeams={numTeams} setSelectedTeam={setSelectedTeam} />*/}
           <SignedOut>
             <Button color="light"><SignInButton /></Button>
