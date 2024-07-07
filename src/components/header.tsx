@@ -23,10 +23,12 @@ export default function Header({
   };
 
   return (
-    <div className="p-8 pb-4 flex flex-row justify-between items-center">
-        <div className='flex flex-row gap-8 items-center'>
-          <h1 className="text-5xl font-extrabold font-custom max-md:hidden select-none">Kingdra</h1>
-          <img src="icon.png" className="md:hidden h-16" />
+    <div className="p-6 pb-4 flex flex-row justify-between items-center">
+        <div className='flex flex-row gap-10 items-center'>
+          <div className="flex items-center gap-2">
+            <img src="icon.png" className="h-16" />
+            <h1 className="text-5xl font-extrabold font-custom max-md:hidden select-none">Kingdra</h1>
+          </div>
           <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
         </div>
         <div className='flex flex-row gap-6 px-6 max-md:hidden'>
