@@ -122,7 +122,8 @@ export default function Component({
     if (lines.length < 3) return null;
 
     const [nameItem, abilityLine, ...rest] = lines;
-    const [name, item] = nameItem.split("@").map((s) => s.trim());
+    const [nameWithGender, item] = nameItem.split("@").map((s) => s.trim());
+    const name = nameWithGender.replace(/\s*\([MF]\)\s*$/, "").trim();
     const ability = abilityLine.split(":")[1].trim();
 
     let sprite: string = "";
