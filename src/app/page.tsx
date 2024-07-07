@@ -16,13 +16,17 @@ export default function Home() {
   const [numTeams, setNumTeams] = useState<number>(1);
   const [selectedPokemon, setSelectedPokemon] = useState<number>(-1);
   const [selectedTeam, setSelectedTeam] = useState<number>(1);
-  const [enableToast, setEnableToast] = useState({ enabled: false, type: "error", message: "" });
+  const [enableToast, setEnableToast] = useState({ enabled: false, type: "", message: "" });
 
   useEffect(() => {
-    setTimeout(() => {
-      setEnableToast({ enabled: false, type: "error", message: "" });
-    }, 5000);
-  }, [enableToast])
+    let timer: any;
+    if (enableToast.enabled) {
+      timer = setTimeout(() => {
+        setEnableToast(prev => ({ ...prev, enabled: false }));
+      }, 5000);
+    }
+    return () => clearTimeout(timer);
+  }, [enableToast.enabled]);
 
   return (
     <>
@@ -54,7 +58,14 @@ export default function Home() {
           {pokemonParty.length >= 1 && (<TypeCoverage pokemonParty={pokemonParty} setEnableToast={setEnableToast} />)}
           <PokeFinder setPokemonParty={setPokemonParty} setEnableToast={setEnableToast} />
         </div>
-        <Toast enabled={enableToast.enabled} type={enableToast.type} message={enableToast.message} />
+        {enableToast && (
+          <Toast 
+            enabled={enableToast.enabled} 
+            type={enableToast.type} 
+            message={enableToast.message} 
+          />
+        )}
+        
         <Footer />
       </ClerkProvider>
     </>
