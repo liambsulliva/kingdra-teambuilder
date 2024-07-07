@@ -22,7 +22,7 @@ const socials = [
 export default function Footer() {
   return (
     <div className="p-8 flex flex-row justify-between items-center">
-      <p className="font-medium">Designed and Developed by Liam Sullivan</p>
+      <p className="font-medium">Designed and Developed by <a className="text-black hover:underline" target="_blank" href="https://liambsullivan.com/">Liam Sullivan</a></p>
       <div className="flex flex-row gap-2">
         {socials.map((social) => (
           <a
