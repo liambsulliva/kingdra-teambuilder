@@ -124,7 +124,11 @@ export default function Component({
     const [nameItem, abilityLine, ...rest] = lines;
     const [nameWithGender, item] = nameItem.split("@").map((s) => s.trim());
     const name = nameWithGender.replace(/\s*\([MF]\)\s*$/, "").trim();
-    const ability = abilityLine.split(":")[1].trim();
+
+    const abilityMatch = abilityLine.match(/Ability:\s*(.*)/);
+    const ability = abilityMatch 
+      ? abilityMatch[1].trim().toLowerCase().replace(/\s+/g, '-')
+      : "";
 
     let sprite: string = "";
     let id: number = 0;
