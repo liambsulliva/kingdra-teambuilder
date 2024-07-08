@@ -3,6 +3,7 @@
 import "@/app/globals.css";
 import typeColors from "../../lib/typeColors.json";
 import typeMatchups from "../../lib/typeMatchups.json";
+import TypeBadge from "./TypeBadge";
 import natures from "../../lib/natures.json";
 import { Button, Tooltip } from "flowbite-react";
 import { useEffect, useMemo, useState } from "react";
@@ -165,29 +166,42 @@ export default function PokeInfo({
               <div className="flex max-md:flex-wrap items-center px-2 gap-2 relative">
                 <Tooltip 
                   content={
-                    <div>
-                      <p><strong>Weaknesses:</strong> {combinedMatchups.weaknesses.join(', ') || 'None'}</p>
-                      <p><strong>Resistances:</strong> {combinedMatchups.resistances.join(', ') || 'None'}</p>
-                      <p><strong>Immunities:</strong> {combinedMatchups.immunities.join(', ') || 'None'}</p>
+                    <div className="p-2">
+                      <p className="font-bold mb-2">Weaknesses:</p>
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {combinedMatchups.weaknesses.length > 0 ? 
+                          combinedMatchups.weaknesses.map((type, index) => (
+                            <TypeBadge key={index} type={type} size={3} />
+                          )) : 
+                          <span>None</span>
+                        }
+                      </div>
+                      <p className="font-bold mb-2">Resistances:</p>
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {combinedMatchups.resistances.length > 0 ? 
+                          combinedMatchups.resistances.map((type, index) => (
+                            <TypeBadge key={index} type={type} size={3} />
+                          )) : 
+                          <span>None</span>
+                        }
+                      </div>
+                      <p className="font-bold mb-2">Immunities:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {combinedMatchups.immunities.length > 0 ? 
+                          combinedMatchups.immunities.map((type, index) => (
+                            <TypeBadge key={index} type={type} size={3} />
+                          )) : 
+                          <span>None</span>
+                        }
+                      </div>
                     </div>
                   } 
                   style="light"
                 >
                   <div className="flex gap-2">
-                    {pokemonInfo.types.map((typeInfo: any, index: number) => {
-                      const type = typeInfo.type.name;
-                      return (
-                        <span
-                          key={index}
-                          className="font-semibold select-none capitalize px-4 py-2 border rounded-xl text-white"
-                          style={{
-                            backgroundColor: `#${typeColors[type as PokemonType]}`,
-                          }}
-                        >
-                          {type}
-                        </span>
-                      );
-                    })}
+                    {pokemonInfo.types.map((typeInfo: any, index: number) => (
+                      <TypeBadge key={index} type={typeInfo.type.name} size={5} />
+                    ))}
                   </div>
                 </Tooltip>
               </div>

@@ -15,7 +15,7 @@ const TypeBadge: React.FC<TypeBadgeProps> = ({ type, size }) => {
     <div
       className="rounded-xl cursor-default flex items-center justify-center"
       style={{
-        padding: `${size/8}rem ${size/4}rem`,
+        padding: `${size/8.5}rem ${size/4.5}rem`,
         backgroundColor: `#${color}`,
       }}
     >

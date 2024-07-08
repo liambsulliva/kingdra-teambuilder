@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { pokemon } from "../../lib/pokemonInterface";
+import TypeBadge from "./TypeBadge";
 
 interface MoveSuggestion {
   name: string;
@@ -173,13 +174,18 @@ export default function moveSelect({
                 <div className="flex flex-col">
                   <div className="flex justify-between items-center">
                     <h3 className="text-lg">{move.name}</h3>
-                    <p className="text-xs capitalize text-gray-800">BP: {move.base}</p>
+                    <p className="text-xs capitalize text-gray-800">BP: <strong className="font-medium">{move.base || "N/A"}</strong></p>
                   </div>
                   <div className="flex justify-between items-center">
-                    <p className="text-xs capitalize text-gray-800">{move.type} ({move.moveClass})</p>
-                    <p className="text-xs text-gray-800">ACC: {move.acc}%</p>
+                    <div className="flex items-center gap-2">
+                      <TypeBadge type={move.type} size={2} />
+                      {move.moveClass === "physical" && <img src="physical.png" />}
+                      {move.moveClass === "special" && <img src="special.png" />}
+                      {move.moveClass === "status" && <img src="status.png" />}
+                    </div>
+                    <p className="text-xs text-gray-800">ACC: <strong className="font-medium">{move.acc}%</strong></p>
                   </div>
-                  <p className="text-xs text-gray-500 pt-1">{move.effect}</p>
+                  {move.effect !== "Inflicts regular damage with no additional effect." && move.effect !== "Inflicts regular damage." && (<p className="text-xs text-gray-500 pt-1">{move.effect}</p>)}
                 </div>
               </li>
             ))}
