@@ -29,7 +29,7 @@ export default function Home() {
   }, [enableToast.enabled]);
 
   return (
-    <>
+    <html className="mx-auto" style={{ width: "1850px", maxWidth: "calc(100% - 1rem)" }}>
       <ClerkProvider>
         <Header
           numTeams={numTeams}
@@ -39,7 +39,6 @@ export default function Home() {
         />
         <div
           className="font-serif flex flex-col gap-8 p-8 mx-auto"
-          style={{ width: "1850px", maxWidth: "calc(100% - 1rem)" }}
         >
           <div className="flex md:flex-row flex-col gap-4">
             <PokeParty
@@ -67,6 +66,6 @@ export default function Home() {
         )}     
         <Footer />
       </ClerkProvider>
-    </>
+    </html>
   );
 }
