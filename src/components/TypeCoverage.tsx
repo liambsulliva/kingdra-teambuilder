@@ -1,4 +1,5 @@
 import type { pokemon } from "../../lib/pokemonInterface";
+import InfoTooltip from "@/components/InfoTooltip";
 import typeColors from "../../lib/typeColors.json";
 import typeMatchups from "../../lib/typeMatchups.json";
 import { useState, useEffect } from "react";
@@ -113,8 +114,11 @@ export default function TypeCoverage({ pokemonParty, setEnableToast }: TypeCover
 
     return (
         <div className="flex max-md:flex-col gap-4">
-            <div className="bg-[#f9f9f9] rounded p-4 md:w-1/2">
+            <div className="bg-[#f9f9f9] rounded p-4 md:w-1/2 relative">
                 <p className="text-center font-semibold p-2 pb-4">Offensive STAB Spread</p>
+                <div className="absolute top-4 right-4">
+                    <InfoTooltip content={`This component calculates the types that each Pokémon would cover assuming each has a STAB move for each of its type(s) and adds 1 for each. For example, Venusaur is Grass/Poison, so its STAB Spread would be: Grass->Water, Grass->Ground, Grass->Rock, Poison->Grass, Poison->Fairy.`}/>
+                </div>
                 <div className="grid xl:grid-cols-5 lg:grid-cols-4 sm:grid-cols-3 grid-cols-2">
                     {Object.entries(typeColors).map(([type, color]) => (
                         <div className="flex flex-col gap-2 p-2 items-center" key={type}>
@@ -131,8 +135,11 @@ export default function TypeCoverage({ pokemonParty, setEnableToast }: TypeCover
                     ))}
                 </div>
             </div>
-            <div className="bg-[#f9f9f9] rounded p-4 md:w-1/2">
+            <div className="bg-[#f9f9f9] rounded p-4 md:w-1/2 relative">
                 <p className="text-center font-semibold p-2 pb-4">Weakness Spread</p>
+                <div className="absolute top-4 right-4">
+                    <InfoTooltip content={`This component calculates every weakness for a given pokemon and adds 1 to every type it is weak to. For example, Venusaur is Grass/Poison, so its weakness spread would be Fire->Grass, Ice->Grass, Flying->Grass, Psychic->Poison.`}/>
+                </div>
                 <div className="grid xl:grid-cols-5 lg:grid-cols-4 sm:grid-cols-3 grid-cols-2">
                     {Object.entries(typeColors).map(([type, color]) => (
                         <div className="flex flex-col gap-2 p-2 items-center" key={type}>
