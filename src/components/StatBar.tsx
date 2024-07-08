@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Tooltip } from "flowbite-react";
 import type { pokemon } from "../../lib/pokemonInterface";
 
 interface StatBarProps {
@@ -203,6 +204,22 @@ const StatBar: React.FC<StatBarProps> = ({
     });
   };
 
+  const speedCalcs = (
+    <div>
+        <ul className="p-2 gap-1">
+            <li className="flex items-center gap-2">
+                <p>+1 Stage / Scarfed: {calculateStatTotal() * 1.5}</p>
+            </li>
+            <li className="flex items-center gap-2">
+                <p>+2 Stages: {calculateStatTotal() * 2}</p>
+            </li>
+            <li className="flex items-center gap-2">
+                <p>+3 Stages: {calculateStatTotal() * 2.5}</p>
+            </li>
+        </ul>
+    </div>
+  );
+
   return (
     <div className="flex flex-col gap-1">
       <div className="flex gap-2 items-center">
@@ -231,6 +248,13 @@ const StatBar: React.FC<StatBarProps> = ({
           </div>
         </div>
         <p>{calculateStatTotal()}</p>
+        {label === "Speed" && (
+          <Tooltip content={speedCalcs} style="light" className="w-64">
+              <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24">
+                  <path fill="black" d="M12 17q.425 0 .713-.288T13 16v-4q0-.425-.288-.712T12 11t-.712.288T11 12v4q0 .425.288.713T12 17m0-8q.425 0 .713-.288T13 8t-.288-.712T12 7t-.712.288T11 8t.288.713T12 9m0 13q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22" />
+              </svg>
+          </Tooltip>
+        )}
       </div>
       <div className="flex gap-2">
         <p
