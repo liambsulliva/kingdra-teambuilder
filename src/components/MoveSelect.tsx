@@ -9,7 +9,7 @@ export default function moveSelect({
   setPokemonParty,
 }: {
   index: number;
-  validMoves: string[]
+  validMoves: { name: string, url: string }[];
   selectedPokemon: number;
   pokemonParty: pokemon[];
   setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
@@ -55,11 +55,11 @@ export default function moveSelect({
     setMoveInput(value);
 
     // Filter move suggestions based on input
-    const filteredSuggestions = validMoves.filter((move: string) =>
-      formatMoveName(move).toLowerCase().includes(value.toLowerCase()),
+    const filteredSuggestions = validMoves.filter((move: { name: string, url: string }) =>
+      formatMoveName(move.name).toLowerCase().includes(value.toLowerCase()),
     );
     
-    const formattedSuggestions = filteredSuggestions.map((move: string) => formatMoveName(move)) as string[];
+    const formattedSuggestions = filteredSuggestions.map(({ name }) => formatMoveName(name)) as string[];
 
     setMoveSuggestions(formattedSuggestions);
 
@@ -73,7 +73,7 @@ export default function moveSelect({
     const formattedInput = moveInput.toLowerCase().replace(/\s/g, "-");
     if (
       moveInput === "" ||
-      validMoves.some((move: string) => move === formattedInput)
+      validMoves.some((move) => move.name === formattedInput)
     ) {
     setPokemonParty((prevParty) => {
         const newParty = [...prevParty];

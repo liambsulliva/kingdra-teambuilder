@@ -31,7 +31,7 @@ export default function PokeInfo({
 }) {
   const [pokemonInfo, setPokemonInfo] = useState<any>();
   const [totalEVs, setTotalEVs] = useState(0);
-  const [validMoves, setValidMoves] = useState<string[]>([]);
+  const [validMoves, setValidMoves] = useState<{ name: string, url: string }[]>([]);
 
   useEffect(() => {
     const fetchPokemonInfo = async () => {
@@ -49,8 +49,13 @@ export default function PokeInfo({
             handleAbilitySelect(response.data.abilities[0].ability.name);
           }
           
-          const moves = response.data.moves.map((move: any) => move.move.name.toLowerCase());
-          setValidMoves(moves);
+            const moves = response.data.moves.map((move: any) => {
+            return {
+              name: move.move.name,
+              url: move.move.url
+            };
+            });
+            setValidMoves(moves);
         }
       } catch (error) {
         //setEnableToast({enabled: true, type: "error", message: `Failed to fetch from server: ${error}`});
