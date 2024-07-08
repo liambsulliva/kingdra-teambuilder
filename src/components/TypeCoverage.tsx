@@ -1,5 +1,5 @@
 import type { pokemon } from "../../lib/pokemonInterface";
-import InfoTooltip from "@/components/InfoTooltip";
+import { Tooltip } from "flowbite-react";
 import typeColors from "../../lib/typeColors.json";
 import typeMatchups from "../../lib/typeMatchups.json";
 import TypeBadge from "./TypeBadge";
@@ -24,6 +24,44 @@ interface TypeMatchup {
 interface TypeMatchups {
   [key: string]: TypeMatchup;
 }
+
+const renderTypeBadge = (type: string, size: number = 2) => (
+    <TypeBadge type={type} size={size} />
+);
+
+const offensiveTooltipContent = (
+    <div>
+        <p>This component calculates the types that each Pokémon would cover assuming each has a STAB move for each of its type(s) and adds 1 for each. For example, Venusaur is Grass/Poison, so its STAB Spread would be...</p>
+        <ul className="p-2">
+            <li className="flex items-center gap-2">
+                {renderTypeBadge("grass")} → {renderTypeBadge("water")}{renderTypeBadge("ground")}{renderTypeBadge("rock")} + 1
+            </li>
+            <li className="flex items-center gap-2 mt-1">
+                {renderTypeBadge("poison")} → {renderTypeBadge("grass")}{renderTypeBadge("fairy")} + 1
+            </li>
+        </ul>
+    </div>
+);
+
+const defensiveTooltipContent = (
+    <div>
+        <p>This component calculates every weakness for a given pokemon and adds 1 to every type it is weak to. For example, Venusaur is Grass/Poison, so its weakness spread would be...</p>
+        <ul className="p-2">
+            <li className="flex items-center gap-2">
+                {renderTypeBadge("fire")} + 1 → {renderTypeBadge("grass")}
+            </li>
+            <li className="flex items-center gap-2 mt-1">
+                {renderTypeBadge("ice")} + 1 → {renderTypeBadge("grass")}
+            </li>
+            <li className="flex items-center gap-2 mt-1">
+                {renderTypeBadge("flying")} + 1 → {renderTypeBadge("grass")}
+            </li>
+            <li className="flex items-center gap-2 mt-1">
+                {renderTypeBadge("psychic")} + 1 → {renderTypeBadge("poison")}
+            </li>
+        </ul>
+    </div>
+);
 
 const typedTypeMatchups: TypeMatchups = typeMatchups as TypeMatchups;
 
@@ -118,7 +156,11 @@ export default function TypeCoverage({ pokemonParty, setEnableToast }: TypeCover
             <div className="bg-[#f9f9f9] rounded p-4 md:w-1/2 relative">
                 <p className="text-center font-semibold p-2 pb-4">Offensive STAB Spread</p>
                 <div className="absolute top-5 right-5">
-                    <InfoTooltip content={`This component calculates the types that each Pokémon would cover assuming each has a STAB move for each of its type(s) and adds 1 for each. For example, Venusaur is Grass/Poison, so its STAB Spread would be: Grass->(Water + 1), Grass->(Ground + 1), Grass->(Rock + 1), Poison->(Grass + 1), Poison->(Fairy + 1).`}/>
+                    <Tooltip content={offensiveTooltipContent} style="light" className="w-96">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24">
+                            <path fill="black" d="M12 17q.425 0 .713-.288T13 16v-4q0-.425-.288-.712T12 11t-.712.288T11 12v4q0 .425.288.713T12 17m0-8q.425 0 .713-.288T13 8t-.288-.712T12 7t-.712.288T11 8t.288.713T12 9m0 13q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22" />
+                        </svg>
+                    </Tooltip>
                 </div>
                 <div className="grid xl:grid-cols-5 lg:grid-cols-4 sm:grid-cols-3 grid-cols-2">
                     {Object.keys(typeColors).map((type) => (
@@ -134,7 +176,11 @@ export default function TypeCoverage({ pokemonParty, setEnableToast }: TypeCover
             <div className="bg-[#f9f9f9] rounded p-4 md:w-1/2 relative">
                 <p className="text-center font-semibold p-2 pb-4">Weakness Spread</p>
                 <div className="absolute top-5 right-5">
-                    <InfoTooltip content={`This component calculates every weakness for a given pokemon and adds 1 to every type it is weak to. For example, Venusaur is Grass/Poison, so its weakness spread would be (Fire + 1)->Grass, (Ice + 1)->Grass, (Flying + 1)->Grass, (Psychic + 1)->Poison.`}/>
+                    <Tooltip content={defensiveTooltipContent} style="light" className="w-96">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24">
+                            <path fill="black" d="M12 17q.425 0 .713-.288T13 16v-4q0-.425-.288-.712T12 11t-.712.288T11 12v4q0 .425.288.713T12 17m0-8q.425 0 .713-.288T13 8t-.288-.712T12 7t-.712.288T11 8t.288.713T12 9m0 13q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22" />
+                        </svg>
+                    </Tooltip>
                 </div>
                 <div className="grid xl:grid-cols-5 lg:grid-cols-4 sm:grid-cols-3 grid-cols-2">
                     {Object.keys(typeColors).map((type) => (
