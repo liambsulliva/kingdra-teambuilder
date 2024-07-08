@@ -16,6 +16,7 @@ export default function moveSelect({
 }) {
   const [moveInput, setMoveInput] = useState<string>("");
   const [moveSuggestions, setMoveSuggestions] = useState<string[]>([]);
+  const [moveEffects, setMoveEffects] = useState<{ [key: string]: string }>({});
   const [moveError, setMoveError] = useState<string>("");
   const moveInputRef = useRef<HTMLDivElement>(null);
 
@@ -50,19 +51,38 @@ export default function moveSelect({
       .join(" ");
   };
 
-  const handleMoveInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const fetchMoveEffect = async (url: string) => {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      const effect = data.effect_entries.find((entry: any) => entry.language.name === "en")?.short_effect || "";
+      return effect;
+    } catch (error) {
+      console.error("Error fetching move effect:", error);
+      return "";
+    }
+  };
+
+  const handleMoveInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setMoveInput(value);
-
+  
     // Filter move suggestions based on input
     const filteredSuggestions = validMoves.filter((move: { name: string, url: string }) =>
       formatMoveName(move.name).toLowerCase().includes(value.toLowerCase()),
     );
-    
+  
     const formattedSuggestions = filteredSuggestions.map(({ name }) => formatMoveName(name)) as string[];
-
+  
     setMoveSuggestions(formattedSuggestions);
-
+  
+    // Fetch effects for filtered moves
+    const effects: { [key: string]: string } = {};
+    for (const move of filteredSuggestions) {
+      effects[formatMoveName(move.name)] = await fetchMoveEffect(move.url);
+    }
+    setMoveEffects(effects);
+  
     // Clear error if input is empty
     if (value === "") {
       setMoveError("");
@@ -124,7 +144,8 @@ export default function moveSelect({
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                 onClick={() => handleMoveSuggestionSelect(move)}
               >
-                {move}
+                <div>{move}</div>
+                <div className="text-xs text-gray-500">{moveEffects[move] || ""}</div>
               </li>
             ))}
           </ul>
