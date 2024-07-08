@@ -108,11 +108,25 @@ export default function TeraSelect({
     setTeraError("");
   };
 
+  const isExactMatch = teraTypesArray.includes(teraInput.toLowerCase() as TeraType);
+  const backgroundColor = isExactMatch ? `#${typeColors[teraInput.toLowerCase() as TeraType]}` : 'white';
+  const fontWeight = isExactMatch ? 600 : 400;
+  const fontSize = isExactMatch ? `1.25rem` : '1rem';
+  const textAlign = isExactMatch ? `center` : 'left';
+  const textColor = isExactMatch ? 'white' : 'black';
+
   return (
     <div className="flex gap-4 items-center relative">
       <div className="relative" ref={teraInputRef}>
         <input
-          className={`border-2 ${teraError ? "border-red-500" : "border-gray-300"} bg-white h-10 px-4 w-46 rounded-lg text-sm focus:outline-none`}
+          className={`border-2 ${teraError ? "border-red-500" : "border-gray-300"} h-12 w-32 px-4 rounded-xl text-xl/8 focus:outline-none`}
+          style={{
+            backgroundColor,
+            color: textColor,
+            fontSize: fontSize,
+            fontWeight: fontWeight,
+            textAlign: textAlign,
+          }}
           type="text"
           name="Tera Type"
           placeholder="Tera"
