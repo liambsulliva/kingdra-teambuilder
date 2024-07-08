@@ -1,6 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { pokemon } from "../../lib/pokemonInterface";
 
+interface MoveSuggestion {
+  name: string;
+  effect: string;
+}
+
 export default function moveSelect({
   index,
   selectedPokemon,
@@ -15,8 +20,7 @@ export default function moveSelect({
   setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
 }) {
   const [moveInput, setMoveInput] = useState<string>("");
-  const [moveSuggestions, setMoveSuggestions] = useState<string[]>([]);
-  const [moveEffects, setMoveEffects] = useState<{ [key: string]: string }>({});
+  const [moveSuggestions, setMoveSuggestions] = useState<MoveSuggestion[]>([]);
   const [moveError, setMoveError] = useState<string>("");
   const moveInputRef = useRef<HTMLDivElement>(null);
 
@@ -67,26 +71,29 @@ export default function moveSelect({
     const value = e.target.value;
     setMoveInput(value);
   
+    if (value === "") {
+      setMoveSuggestions([]);
+      setMoveError("");
+      return;
+    }
+  
     // Filter move suggestions based on input
-    const filteredSuggestions = validMoves.filter((move: { name: string, url: string }) =>
-      formatMoveName(move.name).toLowerCase().includes(value.toLowerCase()),
+    const filteredMoves = validMoves.filter((move: { name: string, url: string }) =>
+      formatMoveName(move.name).toLowerCase().includes(value.toLowerCase())
     );
   
-    const formattedSuggestions = filteredSuggestions.map(({ name }) => formatMoveName(name)) as string[];
+    // Fetch effects and create combined suggestions
+    const suggestions: MoveSuggestion[] = await Promise.all(
+      filteredMoves.map(async (move) => {
+        const effect = await fetchMoveEffect(move.url);
+        return {
+          name: formatMoveName(move.name),
+          effect: effect
+        };
+      })
+    );
   
-    setMoveSuggestions(formattedSuggestions);
-  
-    // Fetch effects for filtered moves
-    const effects: { [key: string]: string } = {};
-    for (const move of filteredSuggestions) {
-      effects[formatMoveName(move.name)] = await fetchMoveEffect(move.url);
-    }
-    setMoveEffects(effects);
-  
-    // Clear error if input is empty
-    if (value === "") {
-      setMoveError("");
-    }
+    setMoveSuggestions(suggestions);
   };
 
   const handleMoveInputBlur = () => {
@@ -108,12 +115,12 @@ export default function moveSelect({
     }
   };
 
-  const handleMoveSuggestionSelect = (move: string) => {
-    setMoveInput(move);
+  const handleMoveSuggestionSelect = (moveName: string) => {
+    setMoveInput(moveName);
     setPokemonParty((prevParty) => {
       const newParty = [...prevParty];
       if (newParty[selectedPokemon]) {
-        newParty[selectedPokemon].moves[index] = move.toLowerCase().replace(/\s/g, "-");
+        newParty[selectedPokemon].moves[index] = moveName.toLowerCase().replace(/\s/g, "-");
       }
       return newParty;
     });
@@ -142,10 +149,10 @@ export default function moveSelect({
               <li
                 key={index}
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleMoveSuggestionSelect(move)}
+                onClick={() => handleMoveSuggestionSelect(move.name)}
               >
-                <div>{move}</div>
-                <div className="text-xs text-gray-500">{moveEffects[move] || ""}</div>
+                <div>{move.name}</div>
+                <div className="text-xs text-gray-500">{move.effect}</div>
               </li>
             ))}
           </ul>
