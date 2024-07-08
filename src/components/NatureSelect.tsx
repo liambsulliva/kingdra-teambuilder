@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, KeyboardEvent } from "react";
 import natures from "../../lib/natures.json";
 import { pokemon } from "../../lib/pokemonInterface";
 
@@ -39,6 +39,7 @@ export default function NatureSelect({
   const [natureInput, setNatureInput] = useState<string>("");
   const [natureSuggestions, setNatureSuggestions] = useState<Nature[]>([]);
   const [natureError, setNatureError] = useState<string>("");
+  const [focusedSuggestionIndex, setFocusedSuggestionIndex] = useState<number>(-1);
   const natureInputRef = useRef<HTMLDivElement>(null);
   const naturesArray = Object.keys(natures) as Nature[];
 
@@ -57,6 +58,7 @@ export default function NatureSelect({
         !natureInputRef.current.contains(event.target as Node)
       ) {
         setNatureSuggestions([]);
+        setFocusedSuggestionIndex(-1);
       }
     }
 
@@ -79,6 +81,7 @@ export default function NatureSelect({
     ) as Nature[];
 
     setNatureSuggestions(formattedSuggestions);
+    setFocusedSuggestionIndex(-1);
 
     // Clear error if input is empty
     if (value === "") {
@@ -87,22 +90,27 @@ export default function NatureSelect({
   };
 
   const handleNatureInputBlur = () => {
-    const lowercaseInput = natureInput.toLowerCase();
-    if (natureInput === "" || naturesArray.includes(lowercaseInput as Nature)) {
-      setPokemonParty((prevParty) => {
-        const newParty = [...prevParty];
-        if (newParty[selectedPokemon]) {
-          newParty[selectedPokemon] = {
-            ...newParty[selectedPokemon],
-            nature: lowercaseInput,
-          };
-        }
-        return newParty;
-      });
-      setNatureError("");
-    } else {
-      setNatureError("Please enter a valid nature");
-    }
+    // Delay the blur effect to allow time for suggestion selection
+    setTimeout(() => {
+      const lowercaseInput = natureInput.toLowerCase();
+      if (natureInput === "" || naturesArray.includes(lowercaseInput as Nature)) {
+        setPokemonParty((prevParty) => {
+          const newParty = [...prevParty];
+          if (newParty[selectedPokemon]) {
+            newParty[selectedPokemon] = {
+              ...newParty[selectedPokemon],
+              nature: lowercaseInput,
+            };
+          }
+          return newParty;
+        });
+        setNatureError("");
+      } else {
+        setNatureError("Please enter a valid nature");
+      }
+      setNatureSuggestions([]);
+      setFocusedSuggestionIndex(-1);
+    }, 100);
   };
 
   const handleNatureSuggestionSelect = (nature: Nature) => {
@@ -118,7 +126,38 @@ export default function NatureSelect({
       return newParty;
     });
     setNatureSuggestions([]);
+    setFocusedSuggestionIndex(-1);
     setNatureError("");
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (natureSuggestions.length === 0) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setFocusedSuggestionIndex((prevIndex) =>
+          prevIndex < natureSuggestions.length - 1 ? prevIndex + 1 : -1
+        );
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setFocusedSuggestionIndex((prevIndex) =>
+          prevIndex > -1 ? prevIndex - 1 : natureSuggestions.length - 1
+        );
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (focusedSuggestionIndex !== -1) {
+          handleNatureSuggestionSelect(natureSuggestions[focusedSuggestionIndex]);
+        }
+        break;
+      case "Escape":
+        e.preventDefault();
+        setNatureSuggestions([]);
+        setFocusedSuggestionIndex(-1);
+        break;
+    }
   };
 
   return (
@@ -134,6 +173,7 @@ export default function NatureSelect({
           value={natureInput}
           onChange={handleNatureInputChange}
           onBlur={handleNatureInputBlur}
+          onKeyDown={handleKeyDown}
         />
         {natureError && (
           <p className="text-red-500 text-xs mt-1">{natureError}</p>
@@ -143,7 +183,9 @@ export default function NatureSelect({
             {natureSuggestions.slice(0, 10).map((nature, index) => (
               <li
                 key={index}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
+                  index === focusedSuggestionIndex ? "bg-gray-200" : ""
+                }`}
                 onClick={() => handleNatureSuggestionSelect(nature)}
               >
                 <div>{nature}</div>

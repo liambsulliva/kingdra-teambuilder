@@ -166,7 +166,7 @@ export default function PokeInfo({
               <div className="flex max-md:flex-wrap items-center px-2 gap-2 relative">
                 <Tooltip 
                   content={
-                    <div className="p-2">
+                    <div className="w-64 p-2">
                       <p className="font-bold mb-2">Weaknesses:</p>
                       <div className="flex flex-wrap gap-1 mb-2">
                         {combinedMatchups.weaknesses.length > 0 ? 
