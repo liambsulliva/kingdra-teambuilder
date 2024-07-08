@@ -2,9 +2,10 @@
 
 import "@/app/globals.css";
 import typeColors from "../../lib/typeColors.json";
+import typeMatchups from "../../lib/typeMatchups.json";
 import natures from "../../lib/natures.json";
 import { Button, Tooltip } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import StatBar from "./StatBar";
 import type { pokemon } from "../../lib/pokemonInterface";
@@ -69,24 +70,42 @@ export default function PokeInfo({
     fetchPokemonInfo();
   }, [selectedPokemon]);
 
-  const handleMoveChange = (index: number, value: string) => {
-    const lowercaseValue = value.toLowerCase();
-    const matchingMoves = validMoves.filter(move => move.startsWith(lowercaseValue));
+  const calculateCombinedMatchups = (types: string[]) => {
+    const effectiveness: { [key: string]: number } = {};
   
-    if (matchingMoves.length > 0 || value === '') {
-      setPokemonParty((prevParty) => {
-        const newParty = [...prevParty];
-        newParty[selectedPokemon] = {
-          ...newParty[selectedPokemon],
-          //@ts-ignore
-          moves: newParty[selectedPokemon].moves.map((move, i) =>
-            i === index ? value : move,
-          ),
-        };
-        return newParty;
+    types.forEach(type => {
+      const matchups = typeMatchups[type as keyof typeof typeMatchups];
+      
+      matchups.weaknesses.forEach(w => {
+        effectiveness[w] = (effectiveness[w] || 1) * 2;
       });
-    }
+      matchups.resistances.forEach(r => {
+        effectiveness[r] = (effectiveness[r] || 1) * 0.5;
+      });
+      matchups.immunities.forEach(i => {
+        effectiveness[i] = 0;
+      });
+    });
+  
+    const weaknesses: string[] = [];
+    const resistances: string[] = [];
+    const immunities: string[] = [];
+  
+    Object.entries(effectiveness).forEach(([type, value]) => {
+      if (value > 1) weaknesses.push(type);
+      else if (value < 1 && value > 0) resistances.push(type);
+      else if (value === 0) immunities.push(type);
+    });
+  
+    return { weaknesses, resistances, immunities };
   };
+
+  const combinedMatchups = useMemo(() => {
+    if (pokemonInfo && pokemonInfo.types) {
+      return calculateCombinedMatchups(pokemonInfo.types.map((t: any) => t.type.name));
+    }
+    return { weaknesses: [], resistances: [], immunities: [] };
+  }, [pokemonInfo?.types]);
 
   const handleAbilitySelect = (abilityName: string) => {
     setPokemonParty((prevParty) => {
@@ -136,29 +155,38 @@ export default function PokeInfo({
               </div>
             </div>
             <div className="flex flex-col">
-              <p className="flex max-md:flex-col text-xl items-center text-lg text-gray-600 mb-4 gap-2.5">
-                Type:
-                <div className="flex max-md:flex-wrap items-center px-2 gap-2">
-                  <span
-                    className="font-semibold select-none capitalize px-4 py-2 border rounded-xl text-white"
-                    style={{
-                      backgroundColor: `#${typeColors[pokemonInfo.types[0].type.name as PokemonType]}`,
-                    }}
-                  >
-                    {pokemonInfo.types[0].type.name}
-                  </span>
-                  {pokemonInfo.types[1] && (
-                    <span
-                      className="font-semibold select-none capitalize px-4 py-2 border rounded-xl text-white"
-                      style={{
-                        backgroundColor: `#${typeColors[pokemonInfo.types[1].type.name as PokemonType]}`,
-                      }}
-                    >
-                      {pokemonInfo.types[1].type.name}
-                    </span>
-                  )}
-                </div>
-              </p>
+            <p className="flex max-md:flex-col text-xl items-center text-lg text-gray-600 mb-4 gap-2.5">
+              Type:
+              <div className="flex max-md:flex-wrap items-center px-2 gap-2 relative">
+                <Tooltip 
+                  content={
+                    <div>
+                      <p><strong>Weaknesses:</strong> {combinedMatchups.weaknesses.join(', ') || 'None'}</p>
+                      <p><strong>Resistances:</strong> {combinedMatchups.resistances.join(', ') || 'None'}</p>
+                      <p><strong>Immunities:</strong> {combinedMatchups.immunities.join(', ') || 'None'}</p>
+                    </div>
+                  } 
+                  style="light"
+                >
+                  <div className="flex gap-2">
+                    {pokemonInfo.types.map((typeInfo: any, index: number) => {
+                      const type = typeInfo.type.name;
+                      return (
+                        <span
+                          key={index}
+                          className="font-semibold select-none capitalize px-4 py-2 border rounded-xl text-white"
+                          style={{
+                            backgroundColor: `#${typeColors[type as PokemonType]}`,
+                          }}
+                        >
+                          {type}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </Tooltip>
+              </div>
+            </p>
               <p className="flex max-md:flex-col text-xl items-center text-lg text-gray-600 mb-4 gap-2.5">
                 Tera Type:
                 <div className="flex max-md:flex-wrap items-center px-2 gap-2">
