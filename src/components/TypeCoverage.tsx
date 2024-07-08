@@ -116,7 +116,7 @@ export default function TypeCoverage({ pokemonParty, setEnableToast }: TypeCover
         <div className="flex max-md:flex-col gap-4">
             <div className="bg-[#f9f9f9] rounded p-4 md:w-1/2 relative">
                 <p className="text-center font-semibold p-2 pb-4">Offensive STAB Spread</p>
-                <div className="absolute top-4 right-4">
+                <div className="absolute top-5 right-5">
                     <InfoTooltip content={`This component calculates the types that each Pokémon would cover assuming each has a STAB move for each of its type(s) and adds 1 for each. For example, Venusaur is Grass/Poison, so its STAB Spread would be: Grass->(Water + 1), Grass->(Ground + 1), Grass->(Rock + 1), Poison->(Grass + 1), Poison->(Fairy + 1).`}/>
                 </div>
                 <div className="grid xl:grid-cols-5 lg:grid-cols-4 sm:grid-cols-3 grid-cols-2">
@@ -137,7 +137,7 @@ export default function TypeCoverage({ pokemonParty, setEnableToast }: TypeCover
             </div>
             <div className="bg-[#f9f9f9] rounded p-4 md:w-1/2 relative">
                 <p className="text-center font-semibold p-2 pb-4">Weakness Spread</p>
-                <div className="absolute top-4 right-4">
+                <div className="absolute top-5 right-5">
                     <InfoTooltip content={`This component calculates every weakness for a given pokemon and adds 1 to every type it is weak to. For example, Venusaur is Grass/Poison, so its weakness spread would be (Fire + 1)->Grass, (Ice + 1)->Grass, (Flying + 1)->Grass, (Psychic + 1)->Poison.`}/>
                 </div>
                 <div className="grid xl:grid-cols-5 lg:grid-cols-4 sm:grid-cols-3 grid-cols-2">

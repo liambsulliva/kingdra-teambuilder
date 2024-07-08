@@ -3,7 +3,12 @@ import { pokemon } from "../../lib/pokemonInterface";
 
 interface MoveSuggestion {
   name: string;
+  base: number;
+  acc: number;
+  pp: number;
+  type: string;
   effect: string;
+  moveClass: string
 }
 
 export default function moveSelect({
@@ -57,15 +62,24 @@ export default function moveSelect({
       .join(" ");
   };
 
-  const fetchMoveEffect = async (url: string) => {
+  const fetchMoveData = async (url: string): Promise<MoveSuggestion> => {
     try {
       const response = await fetch(url);
       const data = await response.json();
+      
+      const name = data.names.find((entry: any) => entry.language.name === "en")?.name || "";
+      const base = data.power;
+      const type = data.type.name;
+      const pp = data.pp;
+      const acc = data.accuracy;
       const effect = data.effect_entries.find((entry: any) => entry.language.name === "en")?.short_effect || "";
-      return effect;
+      const moveClass = data.damage_class.name || "";
+  
+      return { name, base, type, acc, pp, effect, moveClass };
+  
     } catch (error) {
-      setEnableToast({enabled: true, type: "error", message: `Error fetching moves: ${error}`});
-      return "";
+      setEnableToast({enabled: true, type: "error", message: `Error fetching move: ${error}`});
+      return { name: "", base: 0, acc: 0, pp: 0, type: "", effect: "", moveClass: "" };
     }
   };
 
@@ -87,10 +101,15 @@ export default function moveSelect({
     // Fetch effects and create combined suggestions
     const suggestions: MoveSuggestion[] = await Promise.all(
       filteredMoves.map(async (move) => {
-        const effect = await fetchMoveEffect(move.url);
+        const { name, base, acc, type, pp, effect, moveClass }: MoveSuggestion = await fetchMoveData(move.url);
         return {
-          name: formatMoveName(move.name),
-          effect: effect
+          name: name,
+          base: base,
+          acc: acc,
+          pp: pp,
+          type: type,
+          effect: effect,
+          moveClass: moveClass
         };
       })
     );
@@ -153,8 +172,17 @@ export default function moveSelect({
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                 onClick={() => handleMoveSuggestionSelect(move.name)}
               >
-                <div>{move.name}</div>
-                <div className="text-xs text-gray-500">{move.effect}</div>
+                <div className="flex flex-col">
+                  <div className="flex justify-between items-center">
+                    <h3>{move.name}</h3>
+                    <p className="text-xs capitalize text-gray-500">BP: {move.base}</p>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs capitalize text-gray-500">{move.type} ({move.moveClass})</p>
+                    <p className="text-xs text-gray-500">ACC: {move.acc}%</p>
+                  </div>
+                  <p className="text-xs text-gray-500 pt-1">{move.effect}</p>
+                </div>
               </li>
             ))}
           </ul>
