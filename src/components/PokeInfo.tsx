@@ -171,7 +171,7 @@ export default function PokeInfo({
               </p>
               <div className="flex max-md:flex-col gap-4 items-center mb-4">
                 <h3 className="text-xl text-gray-600">Ability:</h3>
-                <ul className="flex flex-wrap text-nowrap gap-2">
+                <ul className="flex flex-wrap text-nowrap gap-2 relative">
                   {pokemonInfo.abilities.map((ability: any, index: number) => (
                     <Tooltip className="w-64 text-wrap" content={ability.effect} style="light" >
                       <Button
