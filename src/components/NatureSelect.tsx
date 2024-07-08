@@ -8,6 +8,25 @@ const formatNatureName = (name: string) => {
   return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
 };
 
+const natureDescriptions = {
+  adamant: <><span style={{color: 'red'}}>Atk ↑</span> / <span style={{color: 'blue'}}>SpA ↓</span></>,
+  bold: <><span style={{color: 'red'}}>Def ↑</span> / <span style={{color: 'blue'}}>Atk ↓</span></>,
+  calm: <><span style={{color: 'red'}}>SpD ↑</span> / <span style={{color: 'blue'}}>Atk ↓</span></>,
+  careful: <><span style={{color: 'red'}}>SpD ↑</span> / <span style={{color: 'blue'}}>SpA ↓</span></>,
+  gentle: <><span style={{color: 'red'}}>SpD ↑</span> / <span style={{color: 'blue'}}>Def ↓</span></>,
+  hasty: <><span style={{color: 'red'}}>Spe ↑</span> / <span style={{color: 'blue'}}>Def ↓</span></>,
+  impish: <><span style={{color: 'red'}}>Def ↑</span> / <span style={{color: 'blue'}}>SpA ↓</span></>,
+  jolly: <><span style={{color: 'red'}}>Spe ↑</span> / <span style={{color: 'blue'}}>SpA ↓</span></>,
+  lax: <><span style={{color: 'red'}}>Def ↑</span> / <span style={{color: 'blue'}}>SpD ↓</span></>,
+  modest: <><span style={{color: 'red'}}>SpA ↑</span> / <span style={{color: 'blue'}}>Atk ↓</span></>,
+  naive: <><span style={{color: 'red'}}>Spe ↑</span> / <span style={{color: 'blue'}}>SpD ↓</span></>,
+  quiet: <><span style={{color: 'red'}}>SpA ↑</span> / <span style={{color: 'blue'}}>Spe ↓</span></>,
+  rash: <><span style={{color: 'red'}}>SpA ↑</span> / <span style={{color: 'blue'}}>SpD ↓</span></>,
+  relaxed: <><span style={{color: 'red'}}>Def ↑</span> / <span style={{color: 'blue'}}>Spe ↓</span></>,
+  sassy: <><span style={{color: 'red'}}>SpD ↑</span> / <span style={{color: 'blue'}}>Spe ↓</span></>,
+  timid: <><span style={{color: 'red'}}>Spe ↑</span> / <span style={{color: 'blue'}}>Atk ↓</span></>,
+};
+
 export default function NatureSelect({
   selectedPokemon,
   pokemonParty,
@@ -127,12 +146,18 @@ export default function NatureSelect({
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                 onClick={() => handleNatureSuggestionSelect(nature)}
               >
-                {nature}
+                <div>{nature}</div>
+                <div className="text-xs">{natureDescriptions[nature.toLowerCase() as Nature]}</div>
               </li>
             ))}
           </ul>
         )}
       </div>
+      {pokemonParty[selectedPokemon]?.nature && Object.keys(natureDescriptions).some((key) => key.toLowerCase() === natureInput.toLowerCase()) && (
+        <div className="absolute right-3 cursor-default text-sm">
+          {natureDescriptions[pokemonParty[selectedPokemon].nature as Nature]}
+        </div>
+      )}
     </div>
   );
 }
