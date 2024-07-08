@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, KeyboardEvent } from "react";
 import { pokemon } from "../../lib/pokemonInterface";
 import typeColors from "../../lib/typeColors.json";
 
@@ -20,6 +20,7 @@ export default function TeraSelect({
   const [teraInput, setTeraInput] = useState<string>("");
   const [teraSuggestions, setTeraSuggestions] = useState<TeraType[]>([]);
   const [teraError, setTeraError] = useState<string>("");
+  const [focusedSuggestionIndex, setFocusedSuggestionIndex] = useState<number>(-1);
   const teraInputRef = useRef<HTMLDivElement>(null);
   const teraTypesArray = Object.keys(typeColors) as TeraType[];
 
@@ -41,6 +42,7 @@ export default function TeraSelect({
         !teraInputRef.current.contains(event.target as Node)
       ) {
         setTeraSuggestions([]);
+        setFocusedSuggestionIndex(-1);
       }
     }
 
@@ -63,6 +65,7 @@ export default function TeraSelect({
     ) as TeraType[];
 
     setTeraSuggestions(formattedSuggestions);
+    setFocusedSuggestionIndex(-1);
 
     // Clear error if input is empty
     if (value === "") {
@@ -71,25 +74,29 @@ export default function TeraSelect({
   };
 
   const handleTeraInputBlur = () => {
-    const lowercaseInput = teraInput.toLowerCase();
-    if (
-      teraInput === "" ||
-      teraTypesArray.includes(lowercaseInput as TeraType)
-    ) {
-      setPokemonParty((prevParty) => {
-        const newParty = [...prevParty];
-        if (newParty[selectedPokemon]) {
-          newParty[selectedPokemon] = {
-            ...newParty[selectedPokemon],
-            tera_type: lowercaseInput as TeraType,
-          };
-        }
-        return newParty;
-      });
-      setTeraError("");
-    } else {
-      setTeraError("Please enter a valid Tera Type");
-    }
+    setTimeout(() => {
+      const lowercaseInput = teraInput.toLowerCase();
+      if (
+        teraInput === "" ||
+        teraTypesArray.includes(lowercaseInput as TeraType)
+      ) {
+        setPokemonParty((prevParty) => {
+          const newParty = [...prevParty];
+          if (newParty[selectedPokemon]) {
+            newParty[selectedPokemon] = {
+              ...newParty[selectedPokemon],
+              tera_type: lowercaseInput as TeraType,
+            };
+          }
+          return newParty;
+        });
+        setTeraError("");
+      } else {
+        setTeraError("Please enter a valid Tera Type");
+      }
+      setTeraSuggestions([]);
+      setFocusedSuggestionIndex(-1);
+    }, 100);
   };
 
   const handleTeraSuggestionSelect = (type: TeraType) => {
@@ -105,7 +112,37 @@ export default function TeraSelect({
       return newParty;
     });
     setTeraSuggestions([]);
+    setFocusedSuggestionIndex(-1);
     setTeraError("");
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (teraSuggestions.length === 0) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setFocusedSuggestionIndex((prevIndex) =>
+          prevIndex < teraSuggestions.length - 1 ? prevIndex + 1 : 0
+        );
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setFocusedSuggestionIndex((prevIndex) =>
+          prevIndex > 0 ? prevIndex - 1 : teraSuggestions.length - 1
+        );
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (focusedSuggestionIndex !== -1) {
+          handleTeraSuggestionSelect(teraSuggestions[focusedSuggestionIndex]);
+        }
+        break;
+      case "Escape":
+        setTeraSuggestions([]);
+        setFocusedSuggestionIndex(-1);
+        break;
+    }
   };
 
   const isExactMatch = teraTypesArray.includes(teraInput.toLowerCase() as TeraType);
@@ -134,6 +171,7 @@ export default function TeraSelect({
           value={teraInput}
           onChange={handleTeraInputChange}
           onBlur={handleTeraInputBlur}
+          onKeyDown={handleKeyDown}
         />
         {teraError && <p className="text-red-500 text-xs mt-1">{teraError}</p>}
         {teraSuggestions.length > 0 && teraInput !== "" && (
@@ -141,7 +179,9 @@ export default function TeraSelect({
             {teraSuggestions.slice(0, 10).map((type, index) => (
               <li
                 key={index}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
+                  index === focusedSuggestionIndex ? "bg-gray-200" : ""
+                }`}
                 onClick={() => handleTeraSuggestionSelect(type)}
               >
                 {type}
