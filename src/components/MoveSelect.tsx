@@ -172,12 +172,12 @@ export default function moveSelect({
               >
                 <div className="flex flex-col">
                   <div className="flex justify-between items-center">
-                    <h3>{move.name}</h3>
-                    <p className="text-xs capitalize text-gray-500">BP: {move.base}</p>
+                    <h3 className="text-lg">{move.name}</h3>
+                    <p className="text-xs capitalize text-gray-800">BP: {move.base}</p>
                   </div>
                   <div className="flex justify-between items-center">
-                    <p className="text-xs capitalize text-gray-500">{move.type} ({move.moveClass})</p>
-                    <p className="text-xs text-gray-500">ACC: {move.acc}%</p>
+                    <p className="text-xs capitalize text-gray-800">{move.type} ({move.moveClass})</p>
+                    <p className="text-xs text-gray-800">ACC: {move.acc}%</p>
                   </div>
                   <p className="text-xs text-gray-500 pt-1">{move.effect}</p>
                 </div>
