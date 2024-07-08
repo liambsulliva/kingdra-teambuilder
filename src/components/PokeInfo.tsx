@@ -244,6 +244,7 @@ export default function PokeInfo({
                     selectedPokemon={selectedPokemon}
                     pokemonParty={pokemonParty}
                     setPokemonParty={setPokemonParty}
+                    setEnableToast={setEnableToast}
                   />
                 ))}
               </div>

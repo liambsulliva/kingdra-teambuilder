@@ -12,12 +12,14 @@ export default function moveSelect({
   validMoves,
   pokemonParty,
   setPokemonParty,
+  setEnableToast
 }: {
   index: number;
   validMoves: { name: string, url: string }[];
   selectedPokemon: number;
   pokemonParty: pokemon[];
   setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
+  setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string,  message: string }>>;
 }) {
   const [moveInput, setMoveInput] = useState<string>("");
   const [moveSuggestions, setMoveSuggestions] = useState<MoveSuggestion[]>([]);
@@ -62,7 +64,7 @@ export default function moveSelect({
       const effect = data.effect_entries.find((entry: any) => entry.language.name === "en")?.short_effect || "";
       return effect;
     } catch (error) {
-      console.error("Error fetching move effect:", error);
+      setEnableToast({enabled: true, type: "error", message: `Error fetching moves: ${error}`});
       return "";
     }
   };
