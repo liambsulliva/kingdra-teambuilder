@@ -5,7 +5,6 @@ interface MoveSuggestion {
   name: string;
   base: number;
   acc: number;
-  pp: number;
   type: string;
   effect: string;
   moveClass: string
@@ -75,11 +74,11 @@ export default function moveSelect({
       const effect = data.effect_entries.find((entry: any) => entry.language.name === "en")?.short_effect || "";
       const moveClass = data.damage_class.name || "";
   
-      return { name, base, type, acc, pp, effect, moveClass };
+      return { name, base, type, acc, effect, moveClass };
   
     } catch (error) {
       setEnableToast({enabled: true, type: "error", message: `Error fetching move: ${error}`});
-      return { name: "", base: 0, acc: 0, pp: 0, type: "", effect: "", moveClass: "" };
+      return { name: "", base: 0, acc: 0, type: "", effect: "", moveClass: "" };
     }
   };
 
@@ -101,12 +100,11 @@ export default function moveSelect({
     // Fetch effects and create combined suggestions
     const suggestions: MoveSuggestion[] = await Promise.all(
       filteredMoves.map(async (move) => {
-        const { name, base, acc, type, pp, effect, moveClass }: MoveSuggestion = await fetchMoveData(move.url);
+        const { name, base, acc, type, effect, moveClass }: MoveSuggestion = await fetchMoveData(move.url);
         return {
           name: name,
           base: base,
           acc: acc,
-          pp: pp,
           type: type,
           effect: effect,
           moveClass: moveClass
