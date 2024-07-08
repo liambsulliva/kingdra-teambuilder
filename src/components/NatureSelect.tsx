@@ -138,7 +138,7 @@ export default function NatureSelect({
         {natureError && (
           <p className="text-red-500 text-xs mt-1">{natureError}</p>
         )}
-        {natureSuggestions.length > 0 && (
+        {natureSuggestions.length > 0 && natureInput !== "" && (
           <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg">
             {natureSuggestions.slice(0, 10).map((nature, index) => (
               <li

@@ -127,7 +127,7 @@ export default function itemSelect({
           onBlur={handleitemInputBlur}
         />
         {itemError && <p className="text-red-500 text-xs mt-1">{itemError}</p>}
-        {itemSuggestions.length > 0 && (
+        {itemSuggestions.length > 0 && itemInput !== "" && (
           <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg">
             {itemSuggestions.slice(0, 10).map((item, index) => (
               <li
