@@ -208,13 +208,13 @@ const StatBar: React.FC<StatBarProps> = ({
     <div>
         <ul className="p-2 gap-1">
             <li className="flex items-center gap-2">
-                <p>+1 Stage / Scarfed: {calculateStatTotal() * 1.5}</p>
+                <p className="text-gray-600">+1 Stage / Scarfed: <strong>{calculateStatTotal() * 1.5}</strong></p>
             </li>
             <li className="flex items-center gap-2">
-                <p>+2 Stages: {calculateStatTotal() * 2}</p>
+                <p className="text-gray-600">+2 Stages: <strong>{calculateStatTotal() * 2}</strong></p>
             </li>
             <li className="flex items-center gap-2">
-                <p>+3 Stages: {calculateStatTotal() * 2.5}</p>
+                <p className="text-gray-600">+3 Stages: <strong>{calculateStatTotal() * 2.5}</strong></p>
             </li>
         </ul>
     </div>
