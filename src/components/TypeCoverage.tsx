@@ -48,16 +48,10 @@ const defensiveTooltipContent = (
         <p>This component calculates every weakness for a given pokemon and adds 1 to every type it is weak to. For example, Venusaur is Grass/Poison, so its weakness spread would be...</p>
         <ul className="p-2">
             <li className="flex items-center gap-2">
-                {renderTypeBadge("fire")} + 1 → {renderTypeBadge("grass")}
+                {renderTypeBadge("fire")} + 1 → {renderTypeBadge("grass")} | {renderTypeBadge("flying")} + 1 → {renderTypeBadge("grass")}
             </li>
             <li className="flex items-center gap-2 mt-1">
-                {renderTypeBadge("ice")} + 1 → {renderTypeBadge("grass")}
-            </li>
-            <li className="flex items-center gap-2 mt-1">
-                {renderTypeBadge("flying")} + 1 → {renderTypeBadge("grass")}
-            </li>
-            <li className="flex items-center gap-2 mt-1">
-                {renderTypeBadge("psychic")} + 1 → {renderTypeBadge("poison")}
+                {renderTypeBadge("ice")} + 1 → {renderTypeBadge("grass")} | {renderTypeBadge("psychic")} + 1 → {renderTypeBadge("poison")}
             </li>
         </ul>
     </div>
