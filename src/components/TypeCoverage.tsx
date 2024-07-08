@@ -2,6 +2,7 @@ import type { pokemon } from "../../lib/pokemonInterface";
 import InfoTooltip from "@/components/InfoTooltip";
 import typeColors from "../../lib/typeColors.json";
 import typeMatchups from "../../lib/typeMatchups.json";
+import TypeBadge from "./TypeBadge";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -120,14 +121,9 @@ export default function TypeCoverage({ pokemonParty, setEnableToast }: TypeCover
                     <InfoTooltip content={`This component calculates the types that each Pokémon would cover assuming each has a STAB move for each of its type(s) and adds 1 for each. For example, Venusaur is Grass/Poison, so its STAB Spread would be: Grass->(Water + 1), Grass->(Ground + 1), Grass->(Rock + 1), Poison->(Grass + 1), Poison->(Fairy + 1).`}/>
                 </div>
                 <div className="grid xl:grid-cols-5 lg:grid-cols-4 sm:grid-cols-3 grid-cols-2">
-                    {Object.entries(typeColors).map(([type, color]) => (
+                    {Object.keys(typeColors).map((type) => (
                         <div className="flex flex-col gap-2 p-2 items-center" key={type}>
-                            <div
-                                className="rounded-xl px-4 py-2"
-                                style={{ backgroundColor: `#${color}` }}
-                            >
-                                <p className="text-center capitalize text-white font-semibold">{type}</p>
-                            </div>
+                            <TypeBadge type={type} size={4} />
                             <p className={offensiveCoverage[type] >= 3 ? "text-green-500" : ""}>
                                 {offensiveCoverage[type] || 0}
                             </p>
@@ -141,14 +137,9 @@ export default function TypeCoverage({ pokemonParty, setEnableToast }: TypeCover
                     <InfoTooltip content={`This component calculates every weakness for a given pokemon and adds 1 to every type it is weak to. For example, Venusaur is Grass/Poison, so its weakness spread would be (Fire + 1)->Grass, (Ice + 1)->Grass, (Flying + 1)->Grass, (Psychic + 1)->Poison.`}/>
                 </div>
                 <div className="grid xl:grid-cols-5 lg:grid-cols-4 sm:grid-cols-3 grid-cols-2">
-                    {Object.entries(typeColors).map(([type, color]) => (
+                    {Object.keys(typeColors).map((type) => (
                         <div className="flex flex-col gap-2 p-2 items-center" key={type}>
-                            <div
-                                className="rounded-xl px-4 py-2"
-                                style={{ backgroundColor: `#${color}` }}
-                            >
-                                <p className="text-center capitalize text-white font-semibold">{type}</p>
-                            </div>
+                            <TypeBadge type={type} size={4} />
                             <p className={defensiveCoverage[type] >= 3 ? "text-red-500" : ""}>
                                 {defensiveCoverage[type] || 0}
                             </p>
