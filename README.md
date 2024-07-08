@@ -42,14 +42,15 @@ Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 - ❌ Multiple Team Support
 - ❌ Search fetches from Backend
 - ❌ Custom Sign-in Page
-- ❌ Prefetch Pokemon Info preclick
+- ❌ Prefetch Pokemon Info Preclick (current implementation has performance issues)
 
 ## 🪲 Known Bugs
 
-- ⚠️ Blissey's HP extends beyond its container
-- ⚠️ Importing from Showdown fails when nicknames are specified
-- ⚠️ Exports to Showdown may be malformed in cases where EVs are not specified
-- ⚠️ Attacks with dashes (-) are replaced with spaces. This is an API limitation.
+- ⚠️ Blissey's HP extends beyond its container.
+- ⚠️ Pokémon of any level can learn any moves in its learnset.
+- ⚠️ Importing from Showdown fails when nicknames are specified.
+- ⚠️ Exports to Showdown may be malformed in cases where EVs are not specified.
+- ⚠️ Attacks with dashes (-) are indistinguishable from ones with spaces. This is an API limitation.
 - ⚠️ In certain scenarios, the API may be called more than needed after all pokemon are fetched from infinite scrolling.
 
 ## ⚙️ Stack
