@@ -2,12 +2,12 @@ import { useEffect, useState, useRef } from "react";
 import items from "../../lib/items.json";
 import { pokemon } from "../../lib/pokemonInterface";
 
-type Item = {
+interface ItemSuggestion {
   name: string;
-  url: string;
-};
+  effect: string;
+}
 
-export default function itemSelect({
+export default function ItemSelect({
   selectedPokemon,
   pokemonParty,
   setPokemonParty,
@@ -17,10 +17,10 @@ export default function itemSelect({
   setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
 }) {
   const [itemInput, setItemInput] = useState<string>("");
-  const [itemSuggestions, setItemSuggestions] = useState<Item[]>([]);
+  const [itemSuggestions, setItemSuggestions] = useState<ItemSuggestion[]>([]);
   const [itemError, setItemError] = useState<string>("");
   const itemInputRef = useRef<HTMLDivElement>(null);
-  const itemsArray = items.items as Item[];
+  const itemsArray = items.items as { name: string; url: string }[];
 
   useEffect(() => {
     if (pokemonParty[selectedPokemon] && pokemonParty[selectedPokemon].item) {
@@ -53,28 +53,48 @@ export default function itemSelect({
       .join(" ");
   };
 
-  const handleitemInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setItemInput(value);
-
-    // Filter item suggestions based on input
-    const filteredSuggestions = itemsArray.filter((item) =>
-      formatItemName(item.name).toLowerCase().includes(value.toLowerCase()),
-    );
-    const formattedSuggestions = filteredSuggestions.map((item) => ({
-      name: formatItemName(item.name),
-      url: item.url,
-    })) as Item[];
-
-    setItemSuggestions(formattedSuggestions);
-
-    // Clear error if input is empty
-    if (value === "") {
-      setItemError("");
+  const fetchItemEffect = async (itemName: string): Promise<string> => {
+    try {
+      const response = await fetch(`https://pokeapi.co/api/v2/item/${itemName.toLowerCase()}/`);
+      const data = await response.json();
+      const effect = data.effect_entries.find((entry: any) => entry.language.name === "en")?.short_effect || "";
+      return effect;
+    } catch (error) {
+      console.error("Error fetching item effect:", error);
+      return "";
     }
   };
 
-  const handleitemInputBlur = () => {
+  const handleItemInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setItemInput(value);
+
+    if (value === "") {
+      setItemSuggestions([]);
+      setItemError("");
+      return;
+    }
+
+    // Filter item suggestions based on input
+    const filteredItems = itemsArray.filter((item) =>
+      formatItemName(item.name).toLowerCase().includes(value.toLowerCase())
+    );
+
+    // Fetch effects for filtered items
+    const suggestions: ItemSuggestion[] = await Promise.all(
+      filteredItems.slice(0, 10).map(async (item) => {
+        const effect = await fetchItemEffect(item.name);
+        return {
+          name: formatItemName(item.name),
+          effect: effect
+        };
+      })
+    );
+
+    setItemSuggestions(suggestions);
+  };
+
+  const handleItemInputBlur = () => {
     const formattedInput = itemInput.toLowerCase().replace(/\s/g, "-");
     if (
       itemInput === "" ||
@@ -96,14 +116,14 @@ export default function itemSelect({
     }
   };
 
-  const handleItemSuggestionSelect = (item: Item) => {
-    setItemInput(item.name);
+  const handleItemSuggestionSelect = (itemName: string) => {
+    setItemInput(itemName);
     setPokemonParty((prevParty) => {
       const newParty = [...prevParty];
       if (newParty[selectedPokemon]) {
         newParty[selectedPokemon] = {
           ...newParty[selectedPokemon],
-          item: item.name.toLowerCase().replace(/\s/g, "-"),
+          item: itemName.toLowerCase().replace(/\s/g, "-"),
         };
       }
       return newParty;
@@ -123,19 +143,20 @@ export default function itemSelect({
           placeholder="Item"
           autoComplete="off"
           value={itemInput}
-          onChange={handleitemInputChange}
-          onBlur={handleitemInputBlur}
+          onChange={handleItemInputChange}
+          onBlur={handleItemInputBlur}
         />
         {itemError && <p className="text-red-500 text-xs mt-1">{itemError}</p>}
         {itemSuggestions.length > 0 && itemInput !== "" && (
           <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg">
-            {itemSuggestions.slice(0, 10).map((item, index) => (
+            {itemSuggestions.map((item, index) => (
               <li
                 key={index}
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleItemSuggestionSelect(item)}
+                onClick={() => handleItemSuggestionSelect(item.name)}
               >
-                {item.name}
+                <div>{item.name}</div>
+                <div className="text-xs text-gray-500">{item.effect}</div>
               </li>
             ))}
           </ul>
