@@ -28,7 +28,7 @@ Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 - ✅ Stat Calculator using Pokemon's IV/EVs + Natures + Lv
 - ✅ Login System via Clerk
 - ✅ Smogon Breakdown
-- ✅ Ability Select
+- ✅ Ability/Nature/Item/Move Select w/ included metadata
 - ✅ Input Validation
 - ✅ EV Limit
 - ✅ Type Matchup Breakdown
@@ -47,10 +47,8 @@ Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 ## 🪲 Known Bugs
 
 - ⚠️ Blissey's HP extends beyond its container
-- ⚠️ Importing from Showdown fails when nicknames or genders are specified
-- ⚠️ Importing from Showdown may fail to select ability in cases where ability is multiple words long
+- ⚠️ Importing from Showdown fails when nicknames are specified
 - ⚠️ Exports to Showdown may be malformed in cases where EVs are not specified
-- ⚠️ Multi word items are missing, (i.e. Heavy Duty Boots)
 - ⚠️ Attacks with dashes (-) are replaced with spaces. This is an API limitation.
 - ⚠️ In certain scenarios, the API may be called more than needed after all pokemon are fetched from infinite scrolling.
 
