@@ -153,11 +153,6 @@ export default function NatureSelect({
           </ul>
         )}
       </div>
-      {pokemonParty[selectedPokemon]?.nature && Object.keys(natureDescriptions).some((key) => key.toLowerCase() === natureInput.toLowerCase()) && (
-        <div className="absolute right-3 cursor-default text-sm">
-          {natureDescriptions[pokemonParty[selectedPokemon].nature as Nature]}
-        </div>
-      )}
     </div>
   );
 }
