@@ -219,21 +219,26 @@ export default function PokeInfo({
               <div className="flex max-md:flex-col gap-4 items-center mb-4">
                 <h3 className="text-xl text-gray-600">Ability:</h3>
                 <ul className="flex flex-wrap text-nowrap gap-2 relative">
-                  {Array.from(new Set<string>(pokemonInfo.abilities.map((ability: any) => ability.ability.name))).map((abilityName: string, index: number) => (
-                    <Tooltip key={index} className="w-64 text-wrap" content={pokemonInfo.abilities.find((a: any) => a.ability.name === abilityName)?.effect} style="light" >
-                      <Button
-                        color={
-                          pokemonParty[selectedPokemon].ability === abilityName
-                            ? "blue"
-                            : "light"
-                        }
-                        onClick={() => handleAbilitySelect(abilityName)}
-                        className={`font-bold capitalize`}
-                      >
-                        {abilityName}
-                      </Button>
-                    </Tooltip>
-                  ))}
+                  {Array.from(new Set<string>(pokemonInfo.abilities.map((ability: any) => ability.ability.name))).map((abilityName: string, index: number) => {
+                    let effectText = pokemonInfo.abilities.find((a: any) => a.ability.name === abilityName)?.effect || '';
+                    effectText = effectText.split('Overworld:')[0].trim();
+                    
+                    return (
+                      <Tooltip key={index} className="w-64 text-wrap" content={effectText} style="light" >
+                        <Button
+                          color={
+                            pokemonParty[selectedPokemon].ability === abilityName
+                              ? "blue"
+                              : "light"
+                          }
+                          onClick={() => handleAbilitySelect(abilityName)}
+                          className={`font-bold capitalize`}
+                        >
+                          {abilityName}
+                        </Button>
+                      </Tooltip>
+                    );
+                  })}
                 </ul>
               </div>
               <NatureSelect
