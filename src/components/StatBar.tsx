@@ -228,6 +228,7 @@ const StatBar: React.FC<StatBarProps> = ({
           <div
             style={{
               width: `${0.35 * calculateStatTotal()}px`,
+              maxWidth: '10rem',
               height: "5px",
               backgroundColor: `hsl(${calculateStatTotal() * 0.2}, 100%, 50%)`,
               borderRadius: "15px",
