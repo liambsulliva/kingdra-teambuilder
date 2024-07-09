@@ -219,20 +219,18 @@ export default function PokeInfo({
               <div className="flex max-md:flex-col gap-4 items-center mb-4">
                 <h3 className="text-xl text-gray-600">Ability:</h3>
                 <ul className="flex flex-wrap text-nowrap gap-2 relative">
-                  {pokemonInfo.abilities.map((ability: any, index: number) => (
-                    <Tooltip className="w-64 text-wrap" content={ability.effect} style="light" >
+                  {Array.from(new Set<string>(pokemonInfo.abilities.map((ability: any) => ability.ability.name))).map((abilityName: string, index: number) => (
+                    <Tooltip key={index} className="w-64 text-wrap" content={pokemonInfo.abilities.find((a: any) => a.ability.name === abilityName)?.effect} style="light" >
                       <Button
-                        key={index}
                         color={
-                          pokemonParty[selectedPokemon].ability ===
-                          ability.ability.name
+                          pokemonParty[selectedPokemon].ability === abilityName
                             ? "blue"
                             : "light"
                         }
-                        onClick={() => handleAbilitySelect(ability.ability.name)}
+                        onClick={() => handleAbilitySelect(abilityName)}
                         className={`font-bold capitalize`}
                       >
-                        {ability.ability.name}
+                        {abilityName}
                       </Button>
                     </Tooltip>
                   ))}
