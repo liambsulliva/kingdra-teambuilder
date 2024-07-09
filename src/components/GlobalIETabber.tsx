@@ -110,9 +110,14 @@ export default function Component({
     const lines = data.split("\n").map((line) => line.trim());
     if (lines.length < 3) return null;
 
+    const capitalizeWords = (str: string): string => {
+      return str.split(/[-\s]/).map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+    };
+
     const [nameItem, abilityLine, ...rest] = lines;
-    const [nameWithGender, item] = nameItem.split("@").map((s) => s.trim());
+    const [nameWithGender, rawItem] = nameItem.split("@").map((s) => s.trim());
     const name = nameWithGender.replace(/\s*\([MF]\)\s*$/, "").trim();
+    const item = rawItem ? capitalizeWords(rawItem) : "";
 
     const abilityMatch = abilityLine.match(/Ability:\s*(.*)/);
     const ability = abilityMatch 
@@ -172,7 +177,7 @@ export default function Component({
       id: id,
       sprite: sprite.toLowerCase(),
       level: 100,
-      item: item.toLowerCase(),
+      item: item,
       ability: ability.toLowerCase(),
       ev: ev,
       iv: iv,
