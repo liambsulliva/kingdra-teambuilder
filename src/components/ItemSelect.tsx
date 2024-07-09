@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, KeyboardEvent } from "react";
 import items from "../../lib/items.json";
 import { pokemon } from "../../lib/pokemonInterface";
 
@@ -19,6 +19,7 @@ export default function ItemSelect({
   const [itemInput, setItemInput] = useState<string>("");
   const [itemSuggestions, setItemSuggestions] = useState<ItemSuggestion[]>([]);
   const [itemError, setItemError] = useState<string>("");
+  const [focusedSuggestionIndex, setFocusedSuggestionIndex] = useState<number>(-1);
   const itemInputRef = useRef<HTMLDivElement>(null);
   const itemsArray = items.items as { name: string; url: string }[];
 
@@ -37,6 +38,7 @@ export default function ItemSelect({
         !itemInputRef.current.contains(event.target as Node)
       ) {
         setItemSuggestions([]);
+        setFocusedSuggestionIndex(-1);
       }
     }
 
@@ -72,6 +74,7 @@ export default function ItemSelect({
     if (value === "") {
       setItemSuggestions([]);
       setItemError("");
+      setFocusedSuggestionIndex(-1);
       return;
     }
 
@@ -92,28 +95,33 @@ export default function ItemSelect({
     );
 
     setItemSuggestions(suggestions);
+    setFocusedSuggestionIndex(-1);
   };
 
   const handleItemInputBlur = () => {
-    const formattedInput = itemInput.toLowerCase().replace(/\s/g, "-");
-    if (
-      itemInput === "" ||
-      itemsArray.some((item) => item.name === formattedInput)
-    ) {
-      setPokemonParty((prevParty) => {
-        const newParty = [...prevParty];
-        if (newParty[selectedPokemon]) {
-          newParty[selectedPokemon] = {
-            ...newParty[selectedPokemon],
-            item: formattedInput,
-          };
-        }
-        return newParty;
-      });
-      setItemError("");
-    } else {
-      setItemError("Please enter a valid item");
-    }
+    setTimeout(() => {
+      const formattedInput = itemInput.toLowerCase().replace(/\s/g, "-");
+      if (
+        itemInput === "" ||
+        itemsArray.some((item) => item.name === formattedInput)
+      ) {
+        setPokemonParty((prevParty) => {
+          const newParty = [...prevParty];
+          if (newParty[selectedPokemon]) {
+            newParty[selectedPokemon] = {
+              ...newParty[selectedPokemon],
+              item: formattedInput,
+            };
+          }
+          return newParty;
+        });
+        setItemError("");
+      } else {
+        setItemError("Please enter a valid item");
+      }
+      setItemSuggestions([]);
+      setFocusedSuggestionIndex(-1);
+    }, 100);
   };
 
   const handleItemSuggestionSelect = (itemName: string) => {
@@ -129,7 +137,38 @@ export default function ItemSelect({
       return newParty;
     });
     setItemSuggestions([]);
+    setFocusedSuggestionIndex(-1);
     setItemError("");
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (itemSuggestions.length === 0) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setFocusedSuggestionIndex((prevIndex) =>
+          prevIndex < itemSuggestions.length - 1 ? prevIndex + 1 : -1
+        );
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setFocusedSuggestionIndex((prevIndex) =>
+          prevIndex > -1 ? prevIndex - 1 : itemSuggestions.length - 1
+        );
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (focusedSuggestionIndex !== -1) {
+          handleItemSuggestionSelect(itemSuggestions[focusedSuggestionIndex].name);
+        }
+        break;
+      case "Escape":
+        e.preventDefault();
+        setItemSuggestions([]);
+        setFocusedSuggestionIndex(-1);
+        break;
+    }
   };
 
   return (
@@ -145,6 +184,7 @@ export default function ItemSelect({
           value={itemInput}
           onChange={handleItemInputChange}
           onBlur={handleItemInputBlur}
+          onKeyDown={handleKeyDown}
         />
         {itemError && <p className="text-red-500 text-xs mt-1">{itemError}</p>}
         {itemSuggestions.length > 0 && itemInput !== "" && (
@@ -152,7 +192,9 @@ export default function ItemSelect({
             {itemSuggestions.map((item, index) => (
               <li
                 key={index}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
+                  index === focusedSuggestionIndex ? "bg-gray-200" : ""
+                }`}
                 onClick={() => handleItemSuggestionSelect(item.name)}
               >
                 <div>{item.name}</div>
