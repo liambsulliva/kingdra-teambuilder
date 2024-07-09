@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, KeyboardEvent } from "react";
 import { pokemon } from "../../lib/pokemonInterface";
 import TypeBadge from "./TypeBadge";
 
@@ -29,7 +29,8 @@ export default function moveSelect({
   const [moveInput, setMoveInput] = useState<string>("");
   const [moveSuggestions, setMoveSuggestions] = useState<MoveSuggestion[]>([]);
   const [moveError, setMoveError] = useState<string>("");
-  const moveInputRef = useRef<HTMLDivElement>(null);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState<number>(-1);
+  const moveInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (pokemonParty[selectedPokemon] && pokemonParty[selectedPokemon].moves[index]) {
@@ -86,6 +87,7 @@ export default function moveSelect({
   const handleMoveInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setMoveInput(value);
+    setSelectedSuggestionIndex(-1);
   
     if (value === "") {
       setMoveSuggestions([]);
@@ -93,12 +95,10 @@ export default function moveSelect({
       return;
     }
   
-    // Filter move suggestions based on input
     const filteredMoves = validMoves.filter((move: { name: string, url: string }) =>
       formatMoveName(move.name).toLowerCase().includes(value.toLowerCase())
     );
   
-    // Fetch effects and create combined suggestions
     const suggestions: MoveSuggestion[] = await Promise.all(
       filteredMoves.map(async (move) => {
         const { name, base, acc, type, effect, moveClass }: MoveSuggestion = await fetchMoveData(move.url);
@@ -114,6 +114,31 @@ export default function moveSelect({
     );
   
     setMoveSuggestions(suggestions);
+  };
+
+  const handleMoveInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (moveSuggestions.length === 0) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setSelectedSuggestionIndex((prevIndex) =>
+          prevIndex < moveSuggestions.length - 1 ? prevIndex + 1 : 0
+        );
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setSelectedSuggestionIndex((prevIndex) =>
+          prevIndex > 0 ? prevIndex - 1 : moveSuggestions.length - 1
+        );
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (selectedSuggestionIndex >= 0) {
+          handleMoveSuggestionSelect(moveSuggestions[selectedSuggestionIndex].name);
+        }
+        break;
+    }
   };
 
   const handleMoveInputBlur = () => {
@@ -161,6 +186,8 @@ export default function moveSelect({
           value={moveInput}
           onChange={handleMoveInputChange}
           onBlur={handleMoveInputBlur}
+          onKeyDown={handleMoveInputKeyDown}
+          ref={moveInputRef}
         />
         {moveError && <p className="text-red-500 text-xs mt-1">{moveError}</p>}
         {moveSuggestions.length > 0 && moveInput !== "" && (
@@ -168,7 +195,9 @@ export default function moveSelect({
             {moveSuggestions.slice(0, 10).map((move, index) => (
               <li
                 key={index}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
+                  index === selectedSuggestionIndex ? "bg-gray-100" : ""
+                }`}
                 onClick={() => handleMoveSuggestionSelect(move.name)}
               >
                 <div className="flex flex-col">
