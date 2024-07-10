@@ -19,7 +19,7 @@ export default function Home() {
   const [enableToast, setEnableToast] = useState({ enabled: false, type: "", message: "" });
 
   useEffect(() => {
-    let timer: any;
+    let timer: NodeJS.Timeout;
     if (enableToast.enabled) {
       timer = setTimeout(() => {
         setEnableToast(prev => ({ ...prev, enabled: false }));

@@ -11,7 +11,7 @@ export default function notFound() {
         <a href="/" className="text-black hover:underline mb-8">
           Home
         </a>
-        <h1 className="text-5xl font-bold">You're lost aren't you...</h1>
+        <h1 className="text-5xl font-bold">You&apos;re lost aren&apos;t you...</h1>
         <h2 className="text-2xl font-light">404: Page Not Found.</h2>
         <div className="w-full absolute bottom-0">
           <Footer />
