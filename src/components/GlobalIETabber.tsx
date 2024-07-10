@@ -7,11 +7,13 @@ import { pokemon } from "../../lib/pokemonInterface";
 export default function Component({
   pokemonParty,
   setPokemonParty,
-  setEnableToast
+  setEnableToast,
+  selectedTeam
 }: {
-  pokemonParty: pokemon[];
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
+  pokemonParty: pokemon[][];
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
   setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string, message: string }>>;
+  selectedTeam: number;
 }) {
   const [showModal, setShowModal] = useState(false);
   const [importText, setImportText] = useState("");
@@ -65,7 +67,7 @@ export default function Component({
   };
 
   const exportPokemonParty = () => {
-    const formattedData = pokemonParty.map(formatPokemonData).join("");
+    const formattedData = pokemonParty[selectedTeam].map((pokemon, i) => formatPokemonData(pokemonParty[selectedTeam][i])).join("");
     navigator.clipboard
       .writeText(formattedData)
       .then(() => {
@@ -79,7 +81,11 @@ export default function Component({
   const importPokemonParty = async () => {
     const importedParty = await parsePokemonParty(importText);
     if (importedParty) {
-      setPokemonParty(importedParty);
+      setPokemonParty((prevParty) => {
+        const updatedParty = [...prevParty];
+        updatedParty[selectedTeam] = importedParty;
+        return updatedParty;
+      });
       setShowModal(false);
       setImportText("");
       setEnableToast({enabled: true, type: "success", message: `Pokémon data imported successfully!`});

@@ -17,14 +17,16 @@ export default function moveSelect({
   validMoves,
   pokemonParty,
   setPokemonParty,
-  setEnableToast
+  setEnableToast,
+  selectedTeam
 }: {
   index: number;
   validMoves: { name: string, url: string }[];
   selectedPokemon: number;
-  pokemonParty: pokemon[];
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
+  pokemonParty: pokemon[][];
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
   setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string,  message: string }>>;
+  selectedTeam: number;
 }) {
   const [moveInput, setMoveInput] = useState<string>("");
   const [moveSuggestions, setMoveSuggestions] = useState<MoveSuggestion[]>([]);
@@ -33,8 +35,8 @@ export default function moveSelect({
   const moveInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (pokemonParty[selectedPokemon] && pokemonParty[selectedPokemon].moves[index]) {
-      setMoveInput(formatMoveName(pokemonParty[selectedPokemon].moves[index]));
+    if (pokemonParty[selectedTeam][selectedPokemon] && pokemonParty[selectedTeam][selectedPokemon].moves[index]) {
+      setMoveInput(formatMoveName(pokemonParty[selectedTeam][selectedPokemon].moves[index]));
     } else {
       setMoveInput("");
     }
@@ -149,8 +151,8 @@ export default function moveSelect({
     ) {
     setPokemonParty((prevParty) => {
         const newParty = [...prevParty];
-          if (newParty[selectedPokemon]) {
-              newParty[selectedPokemon].moves[index] = formattedInput;
+          if (newParty[selectedTeam][selectedPokemon]) {
+              newParty[selectedTeam][selectedPokemon].moves[index] = formattedInput;
           }
           return newParty;
       });
@@ -164,8 +166,8 @@ export default function moveSelect({
     setMoveInput(moveName);
     setPokemonParty((prevParty) => {
       const newParty = [...prevParty];
-      if (newParty[selectedPokemon]) {
-        newParty[selectedPokemon].moves[index] = moveName.toLowerCase().replace(/\s/g, "-");
+      if (newParty[selectedTeam][selectedPokemon]) {
+        newParty[selectedTeam][selectedPokemon].moves[index] = moveName.toLowerCase().replace(/\s/g, "-");
       }
       return newParty;
     });

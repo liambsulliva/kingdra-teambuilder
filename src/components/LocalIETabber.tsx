@@ -9,13 +9,15 @@ export default function Component({
   pokemonParty,
   setPokemonParty,
   setTotalEVs,
-  setEnableToast
+  setEnableToast,
+  selectedTeam
 }: {
   selectedPokemon: number;
-  pokemonParty: pokemon[];
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
+  pokemonParty: pokemon[][];
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
   setTotalEVs: React.Dispatch<React.SetStateAction<number>>;
   setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string, message: string }>>;
+  selectedTeam: number;
 }) {
   const [showModal, setShowModal] = useState(false);
   const [importText, setImportText] = useState("");
@@ -78,7 +80,7 @@ export default function Component({
 
   const exportSelectedPokemon = () => {
     if (selectedPokemon >= 0 && selectedPokemon < pokemonParty.length) {
-      const formattedData = formatPokemonData(pokemonParty[selectedPokemon]);
+      const formattedData = formatPokemonData(pokemonParty[selectedTeam][selectedPokemon]);
       navigator.clipboard
         .writeText(formattedData)
         .then(() => {
@@ -97,8 +99,8 @@ export default function Component({
     if (importedPokemon) {
       setPokemonParty((prevParty) => {
         const newParty = [...prevParty];
-        newParty[selectedPokemon] = {
-          ...newParty[selectedPokemon],
+        newParty[selectedTeam][selectedPokemon] = {
+          ...newParty[selectedTeam][selectedPokemon],
           ...importedPokemon,
         };
         return newParty;

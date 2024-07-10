@@ -5,21 +5,35 @@ import type { pokemon } from "../../lib/pokemonInterface";
 interface PokeFinderCardProps {
   setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string, message: string }>>;
   pokemon: pokemon;
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
+  selectedTeam: number;
 }
 
 const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
   setEnableToast,
   pokemon,
   setPokemonParty,
+  selectedTeam,
 }: PokeFinderCardProps) => {
   const handleClick = async () => {
     try {
-      setPokemonParty((prevPokemonParty: pokemon[]) => {
-        if (prevPokemonParty.length >= 6) {
-          setEnableToast({ enabled: true, type: "error", message: "Your current team is full!"});
+      setPokemonParty((prevPokemonParty: pokemon[][]) => {
+        // Ensure prevPokemonParty is an array and selectedTeam is valid
+        if (!Array.isArray(prevPokemonParty) || selectedTeam < 0 || selectedTeam >= prevPokemonParty.length) {
+          setEnableToast({ enabled: true, type: "error", message: `Invalid team selection: ${prevPokemonParty}` });
           return prevPokemonParty;
-        } else if (!prevPokemonParty.some((p) => p.id === pokemon.id)) {
+        }
+  
+        // Ensure the selected team exists, if not, create it
+        const newPokemonParty = [...prevPokemonParty];
+        if (!Array.isArray(newPokemonParty[selectedTeam])) {
+          newPokemonParty[selectedTeam] = [];
+        }
+  
+        if (newPokemonParty[selectedTeam].length >= 6) {
+          setEnableToast({ enabled: true, type: "error", message: "Your current team is full!" });
+          return newPokemonParty;
+        } else if (!newPokemonParty[selectedTeam].some((p) => p.id === pokemon.id)) {
           const updatedPokemon: pokemon = {
             ...pokemon,
             name: pokemon.name || "",
@@ -34,13 +48,14 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
             iv: [31, 31, 31, 31, 31, 31],
             ev: [0, 0, 0, 0, 0, 0],
           };
-          return [...prevPokemonParty, updatedPokemon];
+          newPokemonParty[selectedTeam].push(updatedPokemon);
+          return newPokemonParty;
         }
-        setEnableToast({ enabled: true, type: "error", message: "This Pokémon is already on your team!"});
-        return prevPokemonParty;
+        setEnableToast({ enabled: true, type: "error", message: "This Pokémon is already on your team!" });
+        return newPokemonParty;
       });
     } catch (error) {
-      setEnableToast({ enabled: true, type: "error", message: "There was an error adding your Pokémon."});
+      setEnableToast({ enabled: true, type: "error", message: "There was an error adding your Pokémon." });
     }
   };
 

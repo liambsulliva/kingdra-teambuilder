@@ -7,7 +7,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 interface TypeCoverageProps {
-    pokemonParty: Array<pokemon>;
+    pokemonParty: Array<Array<pokemon>>;
+    selectedTeam: number,
     setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string, message: string }>>;
 }
 
@@ -59,7 +60,7 @@ const defensiveTooltipContent = (
 
 const typedTypeMatchups: TypeMatchups = typeMatchups as TypeMatchups;
 
-export default function TypeCoverage({ pokemonParty, setEnableToast }: TypeCoverageProps) {
+export default function TypeCoverage({ pokemonParty, selectedTeam, setEnableToast }: TypeCoverageProps) {
     const [defensiveCoverage, setDefensiveCoverage] = useState<Record<string, number>>({});
     const [offensiveCoverage, setOffensiveCoverage] = useState<Record<string, number>>({});
     const [pokemonInfoList, setPokemonInfoList] = useState<Array<PokemonInfo>>([]);
@@ -67,7 +68,7 @@ export default function TypeCoverage({ pokemonParty, setEnableToast }: TypeCover
     useEffect(() => {
         const fetchPokemonInfo = async () => {
             const infoList: Array<PokemonInfo> = [];
-            for (const pokemon of pokemonParty) {
+            for (const pokemon of pokemonParty[selectedTeam]) {
                 if (pokemon.id !== 0) {
                     try {
                         const response = await axios.get(`/api/pokemon-info?id=${pokemon.id}`);

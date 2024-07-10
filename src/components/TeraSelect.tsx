@@ -12,10 +12,12 @@ export default function TeraSelect({
   selectedPokemon,
   pokemonParty,
   setPokemonParty,
+  selectedTeam
 }: {
   selectedPokemon: number;
-  pokemonParty: pokemon[];
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
+  pokemonParty: pokemon[][];
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
+  selectedTeam: number;
 }) {
   const [teraInput, setTeraInput] = useState<string>("");
   const [teraSuggestions, setTeraSuggestions] = useState<TeraType[]>([]);
@@ -26,10 +28,10 @@ export default function TeraSelect({
 
   useEffect(() => {
     if (
-      pokemonParty[selectedPokemon] &&
-      pokemonParty[selectedPokemon].tera_type
+      pokemonParty[selectedTeam][selectedPokemon] &&
+      pokemonParty[selectedTeam][selectedPokemon].tera_type
     ) {
-      setTeraInput(formatTeraType(pokemonParty[selectedPokemon].tera_type));
+      setTeraInput(formatTeraType(pokemonParty[selectedTeam][selectedPokemon].tera_type));
     } else {
       setTeraInput("");
     }
@@ -82,9 +84,9 @@ export default function TeraSelect({
       ) {
         setPokemonParty((prevParty) => {
           const newParty = [...prevParty];
-          if (newParty[selectedPokemon]) {
-            newParty[selectedPokemon] = {
-              ...newParty[selectedPokemon],
+          if (newParty[selectedTeam][selectedPokemon]) {
+            newParty[selectedTeam][selectedPokemon] = {
+              ...newParty[selectedTeam][selectedPokemon],
               tera_type: lowercaseInput as TeraType,
             };
           }
@@ -103,9 +105,9 @@ export default function TeraSelect({
     setTeraInput(formatTeraType(type));
     setPokemonParty((prevParty) => {
       const newParty = [...prevParty];
-      if (newParty[selectedPokemon]) {
-        newParty[selectedPokemon] = {
-          ...newParty[selectedPokemon],
+      if (newParty[selectedTeam][selectedPokemon]) {
+        newParty[selectedTeam][selectedPokemon] = {
+          ...newParty[selectedTeam][selectedPokemon],
           tera_type: type.toLowerCase() as TeraType,
         };
       }

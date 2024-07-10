@@ -12,9 +12,10 @@ interface StatBarProps {
   totalEVs: number;
   setTotalEVs: React.Dispatch<React.SetStateAction<number>>;
   selectedPokemon: number;
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
   selectedNature: string;
   natures: any;
+  selectedTeam: number;
 }
 
 const StatBar: React.FC<StatBarProps> = ({
@@ -30,6 +31,7 @@ const StatBar: React.FC<StatBarProps> = ({
   setPokemonParty,
   selectedNature,
   natures,
+  selectedTeam
 }) => {
   const [ivInput, setIvInput] = useState<string>("");
   const [ivError, setIvError] = useState<string>("");
@@ -89,7 +91,7 @@ const StatBar: React.FC<StatBarProps> = ({
     if (totalEVs + evDifference <= 508) {
       setPokemonParty((prevParty) => {
         const updatedParty = [...prevParty];
-        updatedParty[selectedPokemon].ev[id] = evValue;
+        updatedParty[selectedTeam][selectedPokemon].ev[id] = evValue;
         return updatedParty;
       });
       setTotalEVs((prevTotal) => prevTotal + evDifference);
@@ -116,7 +118,7 @@ const StatBar: React.FC<StatBarProps> = ({
     if (newIV >= 0 && newIV <= 31) {
       setPokemonParty((prevParty) => {
         const updatedParty = [...prevParty];
-        updatedParty[selectedPokemon].iv[id] = newIV;
+        updatedParty[selectedTeam][selectedPokemon].iv[id] = newIV;
         return updatedParty;
       });
       setIvError("");
@@ -133,7 +135,7 @@ const StatBar: React.FC<StatBarProps> = ({
       if (totalEVs + evDifference <= 508) {
         setPokemonParty((prevParty) => {
           const updatedParty = [...prevParty];
-          updatedParty[selectedPokemon].ev[id] = newEV;
+          updatedParty[selectedTeam][selectedPokemon].ev[id] = newEV;
           return updatedParty;
         });
         setTotalEVs((prevTotal) => prevTotal + evDifference);
@@ -188,7 +190,7 @@ const StatBar: React.FC<StatBarProps> = ({
   const handleIVDoubleClick = () => {
     setPokemonParty((prevParty) => {
       const updatedParty = [...prevParty];
-      updatedParty[selectedPokemon].iv[id] = 31;
+      updatedParty[selectedTeam][selectedPokemon].iv[id] = 31;
       return updatedParty;
     });
   };
@@ -197,9 +199,9 @@ const StatBar: React.FC<StatBarProps> = ({
     setPokemonParty((prevParty) => {
       const updatedParty = [...prevParty];
       setTotalEVs(
-        (prevTotal) => prevTotal - updatedParty[selectedPokemon].ev[id],
+        (prevTotal) => prevTotal - updatedParty[selectedTeam][selectedPokemon].ev[id],
       );
-      updatedParty[selectedPokemon].ev[id] = 0;
+      updatedParty[selectedTeam][selectedPokemon].ev[id] = 0;
       return updatedParty;
     });
   };

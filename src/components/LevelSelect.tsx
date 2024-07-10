@@ -3,21 +3,23 @@ import { pokemon } from "../../lib/pokemonInterface";
 
 interface LevelSelectProps {
   selectedPokemon: number;
-  pokemonParty: pokemon[];
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
+  pokemonParty: pokemon[][];
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
+  selectedTeam: number;
 }
 
 export default function LevelSelect({
   selectedPokemon,
   pokemonParty,
   setPokemonParty,
+  selectedTeam
 }: LevelSelectProps) {
   const [levelInput, setLevelInput] = useState<string>("");
   const [levelError, setLevelError] = useState<string>("");
 
   useEffect(() => {
-    if (pokemonParty[selectedPokemon] && pokemonParty[selectedPokemon].level) {
-      setLevelInput(pokemonParty[selectedPokemon].level.toString());
+    if (pokemonParty[selectedTeam][selectedPokemon] && pokemonParty[selectedTeam][selectedPokemon].level) {
+      setLevelInput(pokemonParty[selectedTeam][selectedPokemon].level.toString());
     } else {
       setLevelInput("");
     }
@@ -37,9 +39,9 @@ export default function LevelSelect({
     if (level >= 1 && level <= 100) {
       setPokemonParty((prevParty) => {
         const newParty = [...prevParty];
-        if (newParty[selectedPokemon]) {
-          newParty[selectedPokemon] = {
-            ...newParty[selectedPokemon],
+        if (newParty[selectedTeam][selectedPokemon]) {
+          newParty[selectedTeam][selectedPokemon] = {
+            ...newParty[selectedTeam][selectedPokemon],
             level: level,
           };
         }

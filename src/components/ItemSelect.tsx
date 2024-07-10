@@ -11,10 +11,12 @@ export default function ItemSelect({
   selectedPokemon,
   pokemonParty,
   setPokemonParty,
+  selectedTeam
 }: {
   selectedPokemon: number;
-  pokemonParty: pokemon[];
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
+  pokemonParty: pokemon[][];
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
+  selectedTeam: number
 }) {
   const [itemInput, setItemInput] = useState<string>("");
   const [itemSuggestions, setItemSuggestions] = useState<ItemSuggestion[]>([]);
@@ -24,8 +26,8 @@ export default function ItemSelect({
   const itemsArray = items.items as { name: string; url: string }[];
 
   useEffect(() => {
-    if (pokemonParty[selectedPokemon] && pokemonParty[selectedPokemon].item) {
-      setItemInput(formatItemName(pokemonParty[selectedPokemon].item));
+    if (pokemonParty[selectedTeam][selectedPokemon] && pokemonParty[selectedTeam][selectedPokemon].item) {
+      setItemInput(formatItemName(pokemonParty[selectedTeam][selectedPokemon].item));
     } else {
       setItemInput("");
     }
@@ -107,9 +109,9 @@ export default function ItemSelect({
       ) {
         setPokemonParty((prevParty) => {
           const newParty = [...prevParty];
-          if (newParty[selectedPokemon]) {
-            newParty[selectedPokemon] = {
-              ...newParty[selectedPokemon],
+          if (newParty[selectedTeam][selectedPokemon]) {
+            newParty[selectedTeam][selectedPokemon] = {
+              ...newParty[selectedTeam][selectedPokemon],
               item: formattedInput,
             };
           }
@@ -128,9 +130,9 @@ export default function ItemSelect({
     setItemInput(itemName);
     setPokemonParty((prevParty) => {
       const newParty = [...prevParty];
-      if (newParty[selectedPokemon]) {
-        newParty[selectedPokemon] = {
-          ...newParty[selectedPokemon],
+      if (newParty[selectedTeam][selectedPokemon]) {
+        newParty[selectedTeam][selectedPokemon] = {
+          ...newParty[selectedTeam][selectedPokemon],
           item: itemName.toLowerCase().replace(/\s/g, "-"),
         };
       }

@@ -12,10 +12,10 @@ import { ClerkProvider } from "@clerk/nextjs";
 import type { pokemon } from "../../lib/pokemonInterface";
 
 export default function Home() {
-  const [pokemonParty, setPokemonParty] = useState<pokemon[]>([]);
+  const [pokemonParty, setPokemonParty] = useState<pokemon[][]>([[]]);
   const [numTeams, setNumTeams] = useState<number>(1);
   const [selectedPokemon, setSelectedPokemon] = useState<number>(-1);
-  const [selectedTeam, setSelectedTeam] = useState<number>(1);
+  const [selectedTeam, setSelectedTeam] = useState<number>(0);
   const [enableToast, setEnableToast] = useState({ enabled: false, type: "", message: "" });
 
   useEffect(() => {
@@ -27,6 +27,16 @@ export default function Home() {
     }
     return () => clearTimeout(timer);
   }, [enableToast.enabled]);
+
+  useEffect(() => {
+    setPokemonParty(prevParty => {
+      const newParty = [...prevParty];
+      while (newParty.length < numTeams) {
+        newParty.push([]);
+      }
+      return newParty.slice(0, numTeams);
+    });
+  }, [numTeams]);
 
   return (
     <body className="mx-auto" style={{ width: "1850px", maxWidth: "calc(100% - 1rem)" }}>
@@ -45,17 +55,25 @@ export default function Home() {
               pokemonParty={pokemonParty}
               setPokemonParty={setPokemonParty}
               setSelectedPokemon={setSelectedPokemon}
+              selectedTeam={selectedTeam}
               setEnableToast={setEnableToast}
             />
             <PokeInfo
               selectedPokemon={selectedPokemon}
               pokemonParty={pokemonParty}
               setPokemonParty={setPokemonParty}
+              selectedTeam={selectedTeam}
               setEnableToast={setEnableToast}
             />
           </div>
-          {pokemonParty.length >= 1 && (<TypeCoverage pokemonParty={pokemonParty} setEnableToast={setEnableToast} />)}
-          <PokeFinder setPokemonParty={setPokemonParty} setEnableToast={setEnableToast} />
+          {pokemonParty[selectedTeam]?.length > 0 && (
+            <TypeCoverage 
+              pokemonParty={pokemonParty} 
+              selectedTeam={selectedTeam} 
+              setEnableToast={setEnableToast} 
+            />
+          )}
+          <PokeFinder setPokemonParty={setPokemonParty} selectedTeam={selectedTeam} setEnableToast={setEnableToast} />
         </div>
         {enableToast && (
           <Toast 

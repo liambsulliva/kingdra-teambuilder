@@ -9,11 +9,13 @@ export default function PokeSlot({
   index,
   setPokemonParty,
   setSelectedPokemon,
+  selectedTeam
 }: {
   pokemon: pokemon | null;
   index: number;
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
   setSelectedPokemon: React.Dispatch<React.SetStateAction<number>>;
+  selectedTeam: number;
 }) {
   const { isSignedIn } = useAuth();
   const handleDelete = async () => {
@@ -21,8 +23,13 @@ export default function PokeSlot({
       return null;
     }
     try {
-      setPokemonParty((prevPokemonParty: pokemon[]) => {
-        return prevPokemonParty.filter((p) => p.id !== pokemon.id);
+      setPokemonParty((prevPokemonParty: pokemon[][]) => {
+        return prevPokemonParty.map((team, teamIndex) => {
+          if (teamIndex === selectedTeam) {
+        return team.filter((p) => p.id !== pokemon.id);
+          }
+          return team;
+        });
       });
       if (isSignedIn) {
         const response = await axios.delete(

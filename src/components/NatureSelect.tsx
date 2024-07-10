@@ -31,10 +31,12 @@ export default function NatureSelect({
   selectedPokemon,
   pokemonParty,
   setPokemonParty,
+  selectedTeam
 }: {
   selectedPokemon: number;
-  pokemonParty: pokemon[];
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
+  pokemonParty: pokemon[][];
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
+  selectedTeam: number;
 }) {
   const [natureInput, setNatureInput] = useState<string>("");
   const [natureSuggestions, setNatureSuggestions] = useState<Nature[]>([]);
@@ -44,8 +46,8 @@ export default function NatureSelect({
   const naturesArray = Object.keys(natures) as Nature[];
 
   useEffect(() => {
-    if (pokemonParty[selectedPokemon] && pokemonParty[selectedPokemon].nature) {
-      setNatureInput(formatNatureName(pokemonParty[selectedPokemon].nature));
+    if (pokemonParty[selectedTeam][selectedPokemon] && pokemonParty[selectedTeam][selectedPokemon].nature) {
+      setNatureInput(formatNatureName(pokemonParty[selectedTeam][selectedPokemon].nature));
     } else {
       setNatureInput("");
     }
@@ -96,9 +98,9 @@ export default function NatureSelect({
       if (natureInput === "" || naturesArray.includes(lowercaseInput as Nature)) {
         setPokemonParty((prevParty) => {
           const newParty = [...prevParty];
-          if (newParty[selectedPokemon]) {
-            newParty[selectedPokemon] = {
-              ...newParty[selectedPokemon],
+          if (newParty[selectedTeam][selectedPokemon]) {
+            newParty[selectedTeam][selectedPokemon] = {
+              ...newParty[selectedTeam][selectedPokemon],
               nature: lowercaseInput,
             };
           }
@@ -117,9 +119,9 @@ export default function NatureSelect({
     setNatureInput(formatNatureName(nature));
     setPokemonParty((prevParty) => {
       const newParty = [...prevParty];
-      if (newParty[selectedPokemon]) {
-        newParty[selectedPokemon] = {
-          ...newParty[selectedPokemon],
+      if (newParty[selectedTeam][selectedPokemon]) {
+        newParty[selectedTeam][selectedPokemon] = {
+          ...newParty[selectedTeam][selectedPokemon],
           nature: nature.toLowerCase(),
         };
       }

@@ -23,12 +23,14 @@ export default function PokeInfo({
   selectedPokemon,
   pokemonParty,
   setPokemonParty,
-  setEnableToast
+  setEnableToast,
+  selectedTeam
 }: {
   selectedPokemon: number;
-  pokemonParty: pokemon[];
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
+  pokemonParty: pokemon[][];
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
   setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string,  message: string }>>;
+  selectedTeam: number;
 }) {
   const [pokemonInfo, setPokemonInfo] = useState<any>();
   const [totalEVs, setTotalEVs] = useState(0);
@@ -37,14 +39,14 @@ export default function PokeInfo({
   useEffect(() => {
     const fetchPokemonInfo = async () => {
       try {
-        if (pokemonParty[selectedPokemon].id !== 0) {
+        if (pokemonParty[selectedTeam][selectedPokemon].id !== 0) {
           const response = await axios.get(
-            `/api/pokemon-info?id=${pokemonParty[selectedPokemon].id}`,
+            `/api/pokemon-info?id=${pokemonParty[selectedTeam][selectedPokemon].id}`,
           );
           console.log(response.data);
           setPokemonInfo(response.data);
           if (
-            !pokemonParty[selectedPokemon].ability &&
+            !pokemonParty[selectedTeam][selectedPokemon].ability &&
             response.data.abilities.length > 0
           ) {
             handleAbilitySelect(response.data.abilities[0].ability.name);
@@ -64,10 +66,11 @@ export default function PokeInfo({
     };
     if (
       pokemonParty &&
-      pokemonParty[selectedPokemon] &&
-      pokemonParty[selectedPokemon].ev
+      selectedPokemon !== -1 &&
+      pokemonParty[selectedTeam][selectedPokemon] &&
+      pokemonParty[selectedTeam][selectedPokemon].ev
     ) {
-      const newTotalEVs = pokemonParty[selectedPokemon].ev.reduce(
+      const newTotalEVs = pokemonParty[selectedTeam][selectedPokemon].ev.reduce(
         (sum, ev) => sum + ev,
         0,
       );
@@ -116,8 +119,8 @@ export default function PokeInfo({
   const handleAbilitySelect = (abilityName: string) => {
     setPokemonParty((prevParty) => {
       const newParty = [...prevParty];
-      newParty[selectedPokemon] = {
-        ...newParty[selectedPokemon],
+      newParty[selectedTeam][selectedPokemon] = {
+        ...newParty[selectedTeam][selectedPokemon],
         ability: abilityName,
       };
       return newParty;
@@ -143,8 +146,8 @@ export default function PokeInfo({
                   />
                 ) : (
                   <img
-                    src={pokemonParty[selectedPokemon].sprite}
-                    alt={pokemonParty[selectedPokemon].name}
+                    src={pokemonParty[selectedTeam][selectedPokemon].sprite}
+                    alt={pokemonParty[selectedTeam][selectedPokemon].name}
                     className="object-contain"
                   />
                 )}
@@ -157,6 +160,7 @@ export default function PokeInfo({
                   selectedPokemon={selectedPokemon}
                   pokemonParty={pokemonParty}
                   setPokemonParty={setPokemonParty}
+                  selectedTeam={selectedTeam}
                 />
               </div>
             </div>
@@ -213,6 +217,7 @@ export default function PokeInfo({
                     selectedPokemon={selectedPokemon}
                     pokemonParty={pokemonParty}
                     setPokemonParty={setPokemonParty}
+                    selectedTeam={selectedTeam}
                   />
                 </div>
               </p>
@@ -227,7 +232,7 @@ export default function PokeInfo({
                       <Tooltip key={index} className="w-64 text-wrap" content={effectText} style="light" >
                         <Button
                           color={
-                            pokemonParty[selectedPokemon].ability === abilityName
+                            pokemonParty[selectedTeam][selectedPokemon].ability === abilityName
                               ? "blue"
                               : "light"
                           }
@@ -245,11 +250,13 @@ export default function PokeInfo({
                 selectedPokemon={selectedPokemon}
                 pokemonParty={pokemonParty}
                 setPokemonParty={setPokemonParty}
+                selectedTeam={selectedTeam}
               />
               <ItemSelect
                 selectedPokemon={selectedPokemon}
                 pokemonParty={pokemonParty}
                 setPokemonParty={setPokemonParty}
+                selectedTeam={selectedTeam}
               />
             </div>
             <div className="flex justify-between items-center">
@@ -262,6 +269,7 @@ export default function PokeInfo({
                     pokemonParty={pokemonParty}
                     setPokemonParty={setPokemonParty}
                     setEnableToast={setEnableToast}
+                    selectedTeam={selectedTeam}
                   />
                 ))}
               </div>
@@ -278,85 +286,91 @@ export default function PokeInfo({
                 label={"HP"}
                 id={0}
                 baseValue={pokemonInfo.stats[0].base_stat}
-                level={pokemonParty[selectedPokemon].level}
-                iv={pokemonParty[selectedPokemon].iv[0]}
-                ev={pokemonParty[selectedPokemon].ev[0]}
+                level={pokemonParty[selectedTeam][selectedPokemon].level}
+                iv={pokemonParty[selectedTeam][selectedPokemon].iv[0]}
+                ev={pokemonParty[selectedTeam][selectedPokemon].ev[0]}
                 totalEVs={totalEVs}
                 setTotalEVs={setTotalEVs}
                 selectedPokemon={selectedPokemon}
                 setPokemonParty={setPokemonParty}
-                selectedNature={pokemonParty[selectedPokemon].nature}
+                selectedNature={pokemonParty[selectedTeam][selectedPokemon].nature}
                 natures={natures}
+                selectedTeam={selectedTeam}
               />
               <StatBar
                 label={"Atk"}
                 id={1}
                 baseValue={pokemonInfo.stats[1].base_stat}
-                level={pokemonParty[selectedPokemon].level}
-                iv={pokemonParty[selectedPokemon].iv[1]}
-                ev={pokemonParty[selectedPokemon].ev[1]}
+                level={pokemonParty[selectedTeam][selectedPokemon].level}
+                iv={pokemonParty[selectedTeam][selectedPokemon].iv[1]}
+                ev={pokemonParty[selectedTeam][selectedPokemon].ev[1]}
                 totalEVs={totalEVs}
                 setTotalEVs={setTotalEVs}
                 selectedPokemon={selectedPokemon}
                 setPokemonParty={setPokemonParty}
-                selectedNature={pokemonParty[selectedPokemon].nature}
+                selectedNature={pokemonParty[selectedTeam][selectedPokemon].nature}
                 natures={natures}
+                selectedTeam={selectedTeam}
               />
               <StatBar
                 label={"Def"}
                 id={2}
                 baseValue={pokemonInfo.stats[2].base_stat}
-                level={pokemonParty[selectedPokemon].level}
-                iv={pokemonParty[selectedPokemon].iv[2]}
-                ev={pokemonParty[selectedPokemon].ev[2]}
+                level={pokemonParty[selectedTeam][selectedPokemon].level}
+                iv={pokemonParty[selectedTeam][selectedPokemon].iv[2]}
+                ev={pokemonParty[selectedTeam][selectedPokemon].ev[2]}
                 totalEVs={totalEVs}
                 setTotalEVs={setTotalEVs}
                 selectedPokemon={selectedPokemon}
                 setPokemonParty={setPokemonParty}
-                selectedNature={pokemonParty[selectedPokemon].nature}
+                selectedNature={pokemonParty[selectedTeam][selectedPokemon].nature}
                 natures={natures}
+                selectedTeam={selectedTeam}
               />
               <StatBar
                 label={"Sp. Atk"}
                 id={3}
                 baseValue={pokemonInfo.stats[3].base_stat}
-                level={pokemonParty[selectedPokemon].level}
-                iv={pokemonParty[selectedPokemon].iv[3]}
-                ev={pokemonParty[selectedPokemon].ev[3]}
+                level={pokemonParty[selectedTeam][selectedPokemon].level}
+                iv={pokemonParty[selectedTeam][selectedPokemon].iv[3]}
+                ev={pokemonParty[selectedTeam][selectedPokemon].ev[3]}
                 totalEVs={totalEVs}
                 setTotalEVs={setTotalEVs}
                 selectedPokemon={selectedPokemon}
                 setPokemonParty={setPokemonParty}
-                selectedNature={pokemonParty[selectedPokemon].nature}
+                selectedNature={pokemonParty[selectedTeam][selectedPokemon].nature}
                 natures={natures}
+                selectedTeam={selectedTeam}
               />
               <StatBar
                 label={"Sp. Def"}
                 id={4}
                 baseValue={pokemonInfo.stats[4].base_stat}
-                level={pokemonParty[selectedPokemon].level}
-                iv={pokemonParty[selectedPokemon].iv[4]}
-                ev={pokemonParty[selectedPokemon].ev[4]}
+                level={pokemonParty[selectedTeam][selectedPokemon].level}
+                iv={pokemonParty[selectedTeam][selectedPokemon].iv[4]}
+                ev={pokemonParty[selectedTeam][selectedPokemon].ev[4]}
                 totalEVs={totalEVs}
                 setTotalEVs={setTotalEVs}
                 selectedPokemon={selectedPokemon}
                 setPokemonParty={setPokemonParty}
-                selectedNature={pokemonParty[selectedPokemon].nature}
+                selectedNature={pokemonParty[selectedTeam][selectedPokemon].nature}
                 natures={natures}
+                selectedTeam={selectedTeam}
               />
               <StatBar
                 label={"Speed"}
                 id={5}
                 baseValue={pokemonInfo.stats[5].base_stat}
-                level={pokemonParty[selectedPokemon].level}
-                iv={pokemonParty[selectedPokemon].iv[5]}
-                ev={pokemonParty[selectedPokemon].ev[5]}
+                level={pokemonParty[selectedTeam][selectedPokemon].level}
+                iv={pokemonParty[selectedTeam][selectedPokemon].iv[5]}
+                ev={pokemonParty[selectedTeam][selectedPokemon].ev[5]}
                 totalEVs={totalEVs}
                 setTotalEVs={setTotalEVs}
                 selectedPokemon={selectedPokemon}
                 setPokemonParty={setPokemonParty}
-                selectedNature={pokemonParty[selectedPokemon].nature}
+                selectedNature={pokemonParty[selectedTeam][selectedPokemon].nature}
                 natures={natures}
+                selectedTeam={selectedTeam}
               />
             </div>
             <div className="flex max-md:flex-col items-center max-md:pt-8 justify-between">
@@ -373,6 +387,7 @@ export default function PokeInfo({
                 setPokemonParty={setPokemonParty}
                 setTotalEVs={setTotalEVs}
                 setEnableToast={setEnableToast}
+                selectedTeam={selectedTeam}
               />
             </div>
           </div>

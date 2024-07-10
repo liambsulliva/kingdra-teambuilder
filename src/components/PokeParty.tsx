@@ -11,12 +11,14 @@ export default function PokeParty({
   pokemonParty,
   setPokemonParty,
   setSelectedPokemon,
-  setEnableToast
+  setEnableToast,
+  selectedTeam
 }: {
-  pokemonParty: pokemon[];
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
+  pokemonParty: pokemon[][];
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
   setSelectedPokemon: React.Dispatch<React.SetStateAction<number>>;
   setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string, message: string }>>;
+  selectedTeam: number;
 }) {
   const { isSignedIn } = useAuth();
 
@@ -68,21 +70,23 @@ export default function PokeParty({
   return (
     <div className="flex flex-col items-center py-4">
       <div className="p-6 grid md:grid-cols-2 grid-cols-3 gap-4">
-        {pokemonParty.map((pokemon, index) => (
+        {pokemonParty[selectedTeam]?.map((pokemon, index) => (
           <PokeSlot
             key={pokemon.id}
             pokemon={pokemon}
             index={index}
             setPokemonParty={setPokemonParty}
             setSelectedPokemon={setSelectedPokemon}
+            selectedTeam={selectedTeam}
           />
         ))}
-        {Array(Math.max(0, 6 - pokemonParty.length)).fill(
+        {Array(Math.max(0, 6 - (pokemonParty[selectedTeam]?.length || 0))).fill(
           <PokeSlot
             pokemon={null}
             index={-1}
             setPokemonParty={setPokemonParty}
             setSelectedPokemon={setSelectedPokemon}
+            selectedTeam={selectedTeam}
           />,
         )}
       </div>
@@ -91,6 +95,7 @@ export default function PokeParty({
           pokemonParty={pokemonParty}
           setPokemonParty={setPokemonParty}
           setEnableToast={setEnableToast}
+          selectedTeam={selectedTeam}
         />
       </div>
     </div>

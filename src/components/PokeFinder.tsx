@@ -8,10 +8,12 @@ import { Tabs } from "flowbite-react";
 
 export default function PokeFinder({
   setPokemonParty,
-  setEnableToast
+  setEnableToast,
+  selectedTeam
 }: {
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[]>>;
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
   setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string, message: string }>>;
+  selectedTeam: number;
 }) {
   const [pokemonData, setPokemonData] = useState<pokemon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -118,6 +120,7 @@ export default function PokeFinder({
             setEnableToast={setEnableToast}
             pokemon={pokemon}
             setPokemonParty={setPokemonParty}
+            selectedTeam={selectedTeam}
           />
         ))}
         {isLoading && <LoadingIcon />}
