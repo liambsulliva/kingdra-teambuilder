@@ -77,7 +77,7 @@ export default function PokeInfo({
       setTotalEVs(newTotalEVs);
     }
     fetchPokemonInfo();
-  }, [selectedPokemon]);
+  }, [selectedTeam, selectedPokemon]);
 
   const calculateCombinedMatchups = (types: string[]) => {
     const effectiveness: { [key: string]: number } = {};
