@@ -28,11 +28,37 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [enableToast.enabled]);
 
+  useEffect(() => {
+    console.log("Pokemon Party:");
+    console.log(pokemonParty);
+    console.log(`NumTeams: ${numTeams}`);
+  }, [pokemonParty, numTeams]);
+
   const handleNewTeam = () => {
     setNumTeams((prevNumTeams) => {
       const newNumTeams = prevNumTeams + 1;
       setPokemonParty((prevParty) => [...prevParty, []]);
       setSelectedTeam(newNumTeams - 1);
+      return newNumTeams;
+    });
+  };
+
+  const handleDeleteTeam = (index: number) => {
+    setNumTeams((prevNumTeams) => {
+      const newNumTeams = prevNumTeams - 1;
+      setPokemonParty((prevParty) => {
+        const newParty = [...prevParty];
+        newParty.splice(index, 1);
+        return newParty;
+      });
+      setSelectedTeam((prevSelected) => {
+        if (prevSelected === index) {
+          return Math.max(0, index - 1);
+        } else if (prevSelected > index) {
+          return prevSelected - 1;
+        }
+        return prevSelected;
+      });
       return newNumTeams;
     });
   };
@@ -46,10 +72,9 @@ export default function Home() {
           selectedTeam={selectedTeam}
           setSelectedTeam={setSelectedTeam}
           onNewTeam={handleNewTeam}
+          onDeleteTeam={handleDeleteTeam}
         />
-        <div
-          className="font-serif flex flex-col gap-8 p-8 mx-auto"
-        >
+        <div className="font-serif flex flex-col gap-8 p-8 mx-auto">
           <div className="flex md:flex-row flex-col gap-4">
             <PokeParty
               pokemonParty={pokemonParty}
