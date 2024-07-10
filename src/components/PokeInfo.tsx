@@ -129,7 +129,7 @@ export default function PokeInfo({
 
   return (
     <div className="bg-[#f9f9f9] rounded flex-grow">
-      {pokemonInfo && pokemonParty[selectedPokemon] && (
+      {pokemonInfo && pokemonParty[selectedTeam][selectedPokemon] && (
         <div className="flex max-lg:flex-col justify-evenly gap-24 bg-white rounded-lg shadow-md py-12 pl-14 pr-8 max-md:pl-8">
           <div className="flex flex-col gap-2">
             <div className="flex max-md:gap-4 max-md:justify-center">
