@@ -51,7 +51,7 @@ export default function NatureSelect({
     } else {
       setNatureInput("");
     }
-  }, [selectedPokemon, pokemonParty]);
+  }, [selectedPokemon, selectedTeam, pokemonParty]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

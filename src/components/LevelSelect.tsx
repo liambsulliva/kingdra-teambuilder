@@ -23,7 +23,7 @@ export default function LevelSelect({
     } else {
       setLevelInput("");
     }
-  }, [selectedPokemon, pokemonParty]);
+  }, [selectedPokemon, selectedTeam, pokemonParty]);
 
   const handleLevelInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

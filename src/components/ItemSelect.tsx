@@ -31,7 +31,7 @@ export default function ItemSelect({
     } else {
       setItemInput("");
     }
-  }, [selectedPokemon, pokemonParty]);
+  }, [selectedPokemon, selectedTeam, pokemonParty]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

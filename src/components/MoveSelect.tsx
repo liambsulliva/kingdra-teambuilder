@@ -40,7 +40,7 @@ export default function moveSelect({
     } else {
       setMoveInput("");
     }
-  }, [selectedPokemon, pokemonParty]);
+  }, [selectedPokemon, selectedTeam, pokemonParty]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
