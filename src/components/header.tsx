@@ -9,6 +9,7 @@ interface HeaderProps {
   setNumTeams: (num: number) => void;
   selectedTeam: number;
   setSelectedTeam: (team: number) => void;
+  onNewTeam: () => void;
 }
 
 export default function Header({
@@ -16,6 +17,7 @@ export default function Header({
   setNumTeams,
   selectedTeam,
   setSelectedTeam,
+  onNewTeam
 }: HeaderProps) {
   const handleNewTeam = () => {
     setNumTeams(numTeams + 1);
@@ -32,8 +34,8 @@ export default function Header({
           <ModeTabber leftLabel={"Casual"} rightLabel={"Competitive"} />
         </div>
         <div className='flex flex-row gap-6 px-6'>
-          <Button className="max-lg:hidden" color="light" title="Coming Soon!" /*onClick={handleNewTeam}*/ disabled>New Team</Button>
-          {/*<TeamSelector numTeams={numTeams} setSelectedTeam={setSelectedTeam} />*/}
+          <Button className="max-lg:hidden" color="light" onClick={onNewTeam}>New Team</Button>
+          <TeamSelector numTeams={numTeams} setSelectedTeam={setSelectedTeam} />
           <SignedOut>
             <Button color="light"><SignInButton /></Button>
           </SignedOut>

@@ -28,10 +28,14 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [enableToast.enabled]);
 
-  useEffect(() => {
-    console.log("Current pokemonParty:", pokemonParty);
-    console.log("Current selectedTeam:", selectedTeam);
-  }, [pokemonParty, selectedTeam]);
+  const handleNewTeam = () => {
+    setNumTeams((prevNumTeams) => {
+      const newNumTeams = prevNumTeams + 1;
+      setPokemonParty((prevParty) => [...prevParty, []]);
+      setSelectedTeam(newNumTeams - 1);
+      return newNumTeams;
+    });
+  };
 
   return (
     <body className="mx-auto" style={{ width: "1850px", maxWidth: "calc(100% - 1rem)" }}>
@@ -41,6 +45,7 @@ export default function Home() {
           setNumTeams={setNumTeams}
           selectedTeam={selectedTeam}
           setSelectedTeam={setSelectedTeam}
+          onNewTeam={handleNewTeam}
         />
         <div
           className="font-serif flex flex-col gap-8 p-8 mx-auto"
