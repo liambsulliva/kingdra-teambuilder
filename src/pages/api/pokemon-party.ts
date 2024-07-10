@@ -1,3 +1,6 @@
+// Impossible not to use "any" for error handling :D
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { getAuth } from "@clerk/nextjs/server";
 import dbConnect, { User } from "../../../lib/db";
@@ -59,7 +62,6 @@ export default async function handler(
       await user.save();
       res.status(201).json({ message: "Pokemon party updated successfully" });
     } catch (error: any) {
-      console.error("Failed to update Pokemon party:", error);
       res.status(500).json({
         message: "Failed to update Pokemon party",
         error: error.message,

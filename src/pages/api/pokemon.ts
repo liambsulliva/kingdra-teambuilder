@@ -13,6 +13,19 @@ function getPokemonGeneration(id: number): number {
   return 9; // Assuming any ID above 905 is Gen 9
 }
 
+interface PokemonData {
+  id: number;
+  sprites: {
+    front_default: string | null;
+  };
+  name: string;
+}
+
+interface PokemonListResponse {
+  count: number;
+  results: Array<{ url: string }>;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -23,16 +36,16 @@ export default async function handler(
     const url = `https://pokeapi.co/api/v2/pokemon/${name}`;
     try {
       const response = await fetch(url);
-      const data: any = await response.json();
+      const data = await response.json() as PokemonData;
       const generation = getPokemonGeneration(data.id);
       res.status(200).json({ ...data, generation });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to fetch data from PokeAPI:", error);
       res
         .status(500)
         .json({
           message: "Failed to fetch data from PokeAPI",
-          error: error.message,
+          error: error instanceof Error ? error.message : String(error),
         });
       return;
     }
@@ -65,40 +78,39 @@ export default async function handler(
       url = `https://pokeapi.co/api/v2/pokemon?limit=${adjustedLimit}&offset=${offset}`;
     }
 
-    let data: any;
+    let data: PokemonListResponse;
     try {
       const response = await fetch(url);
-      data = await response.json();
-    } catch (error: any) {
+      data = await response.json() as PokemonListResponse;
+    } catch (error: unknown) {
       console.error("Failed to fetch data from PokeAPI:", error);
       res
         .status(500)
         .json({
           message: "Failed to fetch data from PokeAPI",
-          error: error.message,
+          error: error instanceof Error ? error.message : String(error),
         });
       return;
     }
 
     if (data && data.results) {
       try {
-        const pokemonUrls = data.results.map((pokemon: any) => pokemon.url);
-        const pokemonData = await Promise.all(
+        const pokemonUrls = data.results.map((pokemon) => pokemon.url);
+        const pokemonData: PokemonData[] = await Promise.all(
           pokemonUrls.map((url: string) =>
-            fetch(url).then((response) => response.json()),
+            fetch(url).then((response) => response.json() as unknown as PokemonData),
           ),
         );
 
-        // Extract only the name and sprite from the pokemon data
         const modifiedPokemonData = pokemonData
           .filter(
-            (pokemon: any) =>
+            (pokemon) =>
               pokemon.sprites.front_default !== null &&
               !pokemon.name.includes("-gmax") &&
               !pokemon.name.includes("-mega") &&
               !pokemon.name.includes("-totem"),
           )
-          .map((pokemon: any) => ({
+          .map((pokemon) => ({
             name: pokemon.name,
             id: pokemon.id,
             sprite: pokemon.sprites.front_default,
@@ -114,13 +126,13 @@ export default async function handler(
           nextPage: hasNextPage ? page + 1 : null, // Provide the next page number or null if no more data
           hasNextPage,
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Failed to fetch data for individual Pokemon:", error);
         res
           .status(500)
           .json({
             message: "Failed to fetch data for individual Pokemon",
-            error: error.message,
+            error: error instanceof Error ? error.message : String(error),
           });
       }
     } else {

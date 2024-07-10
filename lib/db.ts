@@ -13,13 +13,16 @@ interface Cached {
   promise: Promise<typeof mongoose> | null;
 }
 
-let cached: Cached = (global as any).mongoose;
-
-if (!cached) {
-  cached = (global as any).mongoose = { conn: null, promise: null };
+interface GlobalWithMongoose extends Global {
+  mongoose?: Cached;
 }
 
-// Define the Pokemon schema
+let cached: Cached = (global as GlobalWithMongoose).mongoose || { conn: null, promise: null };
+
+if (!cached) {
+  cached = (global as GlobalWithMongoose).mongoose = { conn: null, promise: null };
+}
+
 const PokemonSchema = new mongoose.Schema({
   name: String,
   id: Number,
@@ -34,13 +37,11 @@ const PokemonSchema = new mongoose.Schema({
   ev: [Number],
 });
 
-// Define the User schema
 const UserSchema = new mongoose.Schema({
   clerkUserId: { type: String, unique: true },
   pokemonParty: [[PokemonSchema]],
 });
 
-// Define models only if they haven't been defined yet
 const Pokemon =
   mongoose.models.Pokemon || mongoose.model("Pokemon", PokemonSchema);
 const User = mongoose.models.User || mongoose.model("User", UserSchema);

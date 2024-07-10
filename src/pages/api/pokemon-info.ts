@@ -1,6 +1,23 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import fetch from "node-fetch";
 
+interface PokemonData {
+  abilities: Array<{
+    ability: {
+      url: string;
+    };
+  }>;
+}
+
+interface AbilityData {
+  effect_entries: Array<{
+    language: {
+      name: string;
+    };
+    effect: string;
+  }>;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -19,13 +36,13 @@ export default async function handler(
         res.status(404).json({ message: "Failed to fetch Pokemon data" });
         return;
       }
-      const data: any = await response.json();
+      const data = await response.json() as PokemonData;
 
       // Fetch ability details
       const abilitiesWithEffects = await Promise.all(
         data.abilities.map(async (ability: { ability: { url: string } }) => {
           const abilityResponse = await fetch(ability.ability.url);
-          const abilityData: any = await abilityResponse.json();
+          const abilityData = await abilityResponse.json() as AbilityData;
           const effect = abilityData.effect_entries.find(
             (entry: { language: { name: string } }) => entry.language.name === 'en'
           )?.effect || 'No English description available';
