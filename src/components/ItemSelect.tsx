@@ -61,7 +61,7 @@ export default function ItemSelect({
     try {
       const response = await fetch(`https://pokeapi.co/api/v2/item/${itemName.toLowerCase()}/`);
       const data = await response.json();
-      const effect = data.effect_entries.find((entry: any) => entry.language.name === "en")?.short_effect || "";
+      const effect = data.effect_entries.find((entry: { language: { name: string } }) => entry.language.name === "en")?.short_effect || "";
       return effect;
     } catch (error) {
       console.error("Error fetching item effect:", error);

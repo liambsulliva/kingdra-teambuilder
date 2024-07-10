@@ -15,8 +15,6 @@ interface HeaderProps {
 
 export default function Header({
   numTeams,
-  setNumTeams,
-  selectedTeam,
   setSelectedTeam,
   onNewTeam,
   onDeleteTeam

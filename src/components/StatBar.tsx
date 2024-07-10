@@ -14,7 +14,7 @@ interface StatBarProps {
   selectedPokemon: number;
   setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
   selectedNature: string;
-  natures: any;
+  natures: Record<string, { positive: number; negative: number }>;
   selectedTeam: number;
 }
 

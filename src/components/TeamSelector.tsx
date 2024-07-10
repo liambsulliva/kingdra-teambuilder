@@ -11,7 +11,7 @@ const DropdownMenu = ({ numTeams, setSelectedTeam, onDeleteTeam }: TeamSelectorP
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState("Teams");
   const [searchTerm, setSearchTerm] = useState("");
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const handleSelection = (index: number) => {
     setIsOpen(false);
@@ -31,11 +31,11 @@ const DropdownMenu = ({ numTeams, setSelectedTeam, onDeleteTeam }: TeamSelectorP
   const handleClickOutside = (event: MouseEvent) => {
     if (
       dropdownRef.current &&
-      !(dropdownRef.current as any).contains(event.target)
+      !dropdownRef.current.contains(event.target as Node)
     ) {
       setIsOpen(false);
     }
-  };
+  }
 
   const handleDeleteTeam = (event: React.MouseEvent, index: number) => {
     event.stopPropagation();

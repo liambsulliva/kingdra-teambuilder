@@ -70,12 +70,11 @@ export default function moveSelect({
       const response = await fetch(url);
       const data = await response.json();
       
-      const name = data.names.find((entry: any) => entry.language.name === "en")?.name || "";
+      const name = data.names.find((entry: { language: { name: string } }) => entry.language.name === "en")?.name || "";
       const base = data.power;
       const type = data.type.name;
-      const pp = data.pp;
       const acc = data.accuracy;
-      const effect = data.effect_entries.find((entry: any) => entry.language.name === "en")?.short_effect || "";
+      const effect = data.effect_entries.find((entry: { language: { name: string } }) => entry.language.name === "en")?.short_effect || "";
       const moveClass = data.damage_class.name || "";
   
       return { name, base, type, acc, effect, moveClass };

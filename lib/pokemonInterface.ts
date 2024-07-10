@@ -26,3 +26,39 @@ export interface pokemon {
     Spd: number,
   ];
 }
+
+export interface pokemonInfo {
+  name: string;
+  id: number;
+  types: {
+    type: {
+      name: string;
+    };
+  }[];
+  abilities: {
+    ability: {
+      name: string;
+    };
+    effect?: string;
+  }[];
+  sprites: {
+    versions: {
+      "generation-v": {
+        "black-white": {
+          animated: {
+            front_default: string | null;
+          };
+        };
+      };
+    };
+  };
+  stats: {
+    base_stat: number;
+  }[];
+  moves: {
+    move: {
+      name: string;
+      url: string;
+    };
+  }[];
+}

@@ -90,7 +90,7 @@ export default function PokeFinder({
       <div className="w-full px-4 flex md:flex-row flex-col md:justify-between justify-center relative text-gray-600">
         <Tabs 
           aria-label="Tabs with underline" 
-          onActiveTabChange={(tab: any) => setSelectedGeneration(parseInt(tab))}
+          onActiveTabChange={(tab: number) => setSelectedGeneration(tab)}
         >
           <Tabs.Item active={selectedGeneration === 0} title="All" />
           <Tabs.Item active={selectedGeneration === 1} title="Gen I" />

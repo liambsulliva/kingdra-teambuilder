@@ -51,7 +51,7 @@ export default function Component({
 
     if (pokemon.ev) {
       const evs = Object.entries(pokemon.ev)
-        .filter(([_, value]) => value > 0)
+        .filter(([value]) => parseInt(value) > 0)
         .map(([stat, value]) => `${value} ${statIndexToName(parseInt(stat))}`)
         .join(" / ");
       output += `EVs: ${evs}\n`;
@@ -132,15 +132,15 @@ export default function Component({
 
     let sprite: string = "";
     let id: number = 0;
-    let ev: [number, number, number, number, number, number] = [
+    const ev: [number, number, number, number, number, number] = [
       0, 0, 0, 0, 0, 0,
     ];
-    let iv: [number, number, number, number, number, number] = [
+    const iv: [number, number, number, number, number, number] = [
       31, 31, 31, 31, 31, 31,
     ];
     let tera_type: string = "";
     let nature: string = "";
-    let moves: [string, string, string, string] = ["", "", "", ""];
+    const moves: [string, string, string, string] = ["", "", "", ""];
 
     rest.forEach((line) => {
       if (line.startsWith("EVs:")) {
@@ -209,7 +209,7 @@ export default function Component({
           Export
         </Button>
       </ButtonGroup>
-      <p className="text-gray-500 text-xs">From <a className="text-gray-500 hover:underline" target="_blank" href="https://play.pokemonshowdown.com/">Pokemon Showdown</a></p>
+      <p className="text-gray-500 text-xs">From <a className="text-gray-500 hover:underline" target="_blank" rel="noreferrer" href="https://play.pokemonshowdown.com/">Pokemon Showdown</a></p>
 
       <Modal show={showModal} onClose={() => setShowModal(false)} dismissible>
         <Modal.Header>Import Pokémon Party Data</Modal.Header>

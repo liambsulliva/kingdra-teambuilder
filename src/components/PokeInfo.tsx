@@ -1,7 +1,6 @@
 "use client";
 
 import "@/app/globals.css";
-import typeColors from "../../lib/typeColors.json";
 import typeMatchups from "../../lib/typeMatchups.json";
 import TypeBadge from "./TypeBadge";
 import natures from "../../lib/natures.json";
@@ -16,8 +15,7 @@ import ItemSelect from "./ItemSelect";
 import TeraSelect from "./TeraSelect";
 import MoveSelect from "./MoveSelect";
 import LevelSelect from "./LevelSelect";
-
-type PokemonType = keyof typeof typeColors;
+import type { pokemonInfo } from "../../lib/pokemonInterface";
 
 export default function PokeInfo({
   selectedPokemon,
@@ -32,7 +30,7 @@ export default function PokeInfo({
   setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string,  message: string }>>;
   selectedTeam: number;
 }) {
-  const [pokemonInfo, setPokemonInfo] = useState<any>();
+  const [pokemonInfo, setPokemonInfo] = useState<pokemonInfo | undefined>();
   const [totalEVs, setTotalEVs] = useState(0);
   const [validMoves, setValidMoves] = useState<{ name: string, url: string }[]>([]);
 
@@ -52,7 +50,7 @@ export default function PokeInfo({
             handleAbilitySelect(response.data.abilities[0].ability.name);
           }
           
-            const moves = response.data.moves.map((move: any) => {
+            const moves = response.data.moves.map((move: { move: { name: string, url: string }}) => {
             return {
               name: move.move.name,
               url: move.move.url
@@ -111,7 +109,7 @@ export default function PokeInfo({
 
   const combinedMatchups = useMemo(() => {
     if (pokemonInfo && pokemonInfo.types) {
-      return calculateCombinedMatchups(pokemonInfo.types.map((t: any) => t.type.name));
+      return calculateCombinedMatchups(pokemonInfo.types.map((t: { type: { name: string }}) => t.type.name));
     }
     return { weaknesses: [], resistances: [], immunities: [] };
   }, [pokemonInfo?.types]);
@@ -203,7 +201,7 @@ export default function PokeInfo({
                   style="light"
                 >
                   <div className="flex gap-2">
-                    {pokemonInfo.types.map((typeInfo: any, index: number) => (
+                    {pokemonInfo.types.map((typeInfo: { type: { name: string }}, index: number) => (
                       <TypeBadge key={index} type={typeInfo.type.name} size={5} />
                     ))}
                   </div>
@@ -224,8 +222,8 @@ export default function PokeInfo({
               <div className="flex max-md:flex-col gap-4 items-center mb-4">
                 <h3 className="text-xl text-gray-600">Ability:</h3>
                 <ul className="flex flex-wrap text-nowrap gap-2 relative">
-                  {Array.from(new Set<string>(pokemonInfo.abilities.map((ability: any) => ability.ability.name))).map((abilityName: string, index: number) => {
-                    let effectText = pokemonInfo.abilities.find((a: any) => a.ability.name === abilityName)?.effect || '';
+                  {Array.from(new Set<string>(pokemonInfo.abilities.map((ability: { ability: { name: string}}) => ability.ability.name))).map((abilityName: string, index: number) => {
+                    let effectText = pokemonInfo.abilities.find((a: { ability: { name: string }}) => a.ability.name === abilityName)?.effect || '';
                     effectText = effectText.split('Overworld:')[0].trim();
                     
                     return (
@@ -263,6 +261,7 @@ export default function PokeInfo({
             <div className="flex flex-col max-md:mx-auto">
                 {[0, 1, 2, 3].map((index) => (
                   <MoveSelect
+                    key={index}
                     index={index}
                     validMoves={validMoves}
                     selectedPokemon={selectedPokemon}
@@ -377,6 +376,7 @@ export default function PokeInfo({
               <a
                 className="text-gray-500 hover:underline max-md:text-center"
                 target="_blank"
+                rel="noreferrer"
                 href={`https://www.smogon.com/dex/sv/pokemon/${pokemonInfo.name}`}
               >
                 Smogon Breakdown

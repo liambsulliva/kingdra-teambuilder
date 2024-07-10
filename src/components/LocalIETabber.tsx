@@ -51,7 +51,7 @@ export default function Component({
 
     if (pokemon.ev) {
       const evs = Object.entries(pokemon.ev)
-        .filter(([_, value]) => value > 0)
+        .filter(([value]) => parseInt(value) > 0)
         .map(([stat, value]) => `${value} ${statIndexToName(parseInt(stat))}`)
         .join(" / ");
       output += `EVs: ${evs}\n`;
@@ -59,7 +59,7 @@ export default function Component({
 
     if (pokemon.iv) {
       const ivs = Object.entries(pokemon.iv)
-        .filter(([_, value]) => value !== 31)
+        .filter(([value]) => parseInt(value) !== 31)
         .map(([stat, value]) => `${value} ${statIndexToName(parseInt(stat))}`)
         .join(" / ");
       if (ivs) output += `IVs: ${ivs}\n`;
@@ -139,15 +139,15 @@ export default function Component({
 
     let sprite: string = "";
     let id: number = 0;
-    let ev: [number, number, number, number, number, number] = [
+    const ev: [number, number, number, number, number, number] = [
       0, 0, 0, 0, 0, 0,
     ];
-    let iv: [number, number, number, number, number, number] = [
+    const iv: [number, number, number, number, number, number] = [
       31, 31, 31, 31, 31, 31,
     ];
     let tera_type: string | undefined;
     let nature: string = "";
-    let moves: [string, string, string, string] = ["", "", "", ""];
+    const moves: [string, string, string, string] = ["", "", "", ""];
 
     rest.forEach((line) => {
       if (line.startsWith("EVs:")) {
