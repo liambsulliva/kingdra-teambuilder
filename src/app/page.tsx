@@ -29,37 +29,39 @@ export default function Home() {
   }, [enableToast.enabled]);
 
   useEffect(() => {
+    if (selectedTeam >= numTeams) {
+      setSelectedTeam(Math.max(0, numTeams - 1));
+    }
+  }, [numTeams, selectedTeam]);
+
+  useEffect(() => {
     console.log("Pokemon Party:");
     console.log(pokemonParty);
     console.log(`NumTeams: ${numTeams}`);
   }, [pokemonParty, numTeams]);
 
   const handleNewTeam = () => {
-    setNumTeams((prevNumTeams) => {
-      const newNumTeams = prevNumTeams + 1;
-      setPokemonParty((prevParty) => [...prevParty, []]);
-      setSelectedTeam(newNumTeams - 1);
-      return newNumTeams;
-    });
+    setNumTeams((prevNumTeams) => prevNumTeams + 1);
+    setPokemonParty((prevParty) => [...prevParty, []]);
+    setSelectedTeam((prevSelectedTeam) => prevSelectedTeam + 1);
   };
 
   const handleDeleteTeam = (index: number) => {
-    setNumTeams((prevNumTeams) => {
-      const newNumTeams = prevNumTeams - 1;
-      setPokemonParty((prevParty) => {
-        const newParty = [...prevParty];
-        newParty.splice(index, 1);
-        return newParty;
-      });
-      setSelectedTeam((prevSelected) => {
-        if (prevSelected === index) {
-          return Math.max(0, index - 1);
-        } else if (prevSelected > index) {
-          return prevSelected - 1;
-        }
-        return prevSelected;
-      });
-      return newNumTeams;
+    if (numTeams <= 1) {
+      setEnableToast({ enabled: true, type: "error", message: "Cannot delete the last team" });
+      return;
+    }
+  
+    setNumTeams((prevNumTeams) => prevNumTeams - 1);
+    setPokemonParty((prevParty) => {
+      const newParty = prevParty.filter((_, i) => i !== index);
+      return newParty;
+    });
+    setSelectedTeam((prevSelected) => {
+      if (prevSelected >= index) {
+        return Math.max(0, prevSelected - 1);
+      }
+      return prevSelected;
     });
   };
 
