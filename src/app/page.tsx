@@ -29,14 +29,9 @@ export default function Home() {
   }, [enableToast.enabled]);
 
   useEffect(() => {
-    setPokemonParty(prevParty => {
-      const newParty = [...prevParty];
-      while (newParty.length < numTeams) {
-        newParty.push([]);
-      }
-      return newParty.slice(0, numTeams);
-    });
-  }, [numTeams]);
+    console.log("Current pokemonParty:", pokemonParty);
+    console.log("Current selectedTeam:", selectedTeam);
+  }, [pokemonParty, selectedTeam]);
 
   return (
     <body className="mx-auto" style={{ width: "1850px", maxWidth: "calc(100% - 1rem)" }}>

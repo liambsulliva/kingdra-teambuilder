@@ -32,7 +32,7 @@ export default function PokeParty({
           setEnableToast({ enabled: true, type: "error", message: `Failed to fetch Pokémon team from server: `});
         }
       } else {
-        setPokemonParty([]);
+        setPokemonParty([[]]);
       }
     }, 500),
     [isSignedIn],

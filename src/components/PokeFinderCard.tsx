@@ -18,22 +18,36 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
   const handleClick = async () => {
     try {
       setPokemonParty((prevPokemonParty: pokemon[][]) => {
-        // Ensure prevPokemonParty is an array and selectedTeam is valid
-        if (!Array.isArray(prevPokemonParty) || selectedTeam < 0 || selectedTeam >= prevPokemonParty.length) {
-          setEnableToast({ enabled: true, type: "error", message: `Invalid team selection: ${prevPokemonParty}` });
+        console.log("Previous Pokemon Party:", prevPokemonParty);
+        console.log("Selected Team:", selectedTeam);
+
+        // Check if prevPokemonParty is an array
+        if (!Array.isArray(prevPokemonParty)) {
+          console.error("prevPokemonParty is not an array");
+          setEnableToast({ enabled: true, type: "error", message: "Invalid party structure." });
           return prevPokemonParty;
         }
-  
-        // Ensure the selected team exists, if not, create it
-        const newPokemonParty = [...prevPokemonParty];
-        if (!Array.isArray(newPokemonParty[selectedTeam])) {
-          newPokemonParty[selectedTeam] = [];
+
+        // Check if selectedTeam is valid
+        if (selectedTeam < 0 || selectedTeam >= prevPokemonParty.length) {
+          console.error("Invalid selectedTeam index:", selectedTeam);
+          setEnableToast({ enabled: true, type: "error", message: "Invalid team selection." });
+          return prevPokemonParty;
         }
-  
-        if (newPokemonParty[selectedTeam].length >= 6) {
-          setEnableToast({ enabled: true, type: "error", message: "Your current team is full!" });
+
+        // Ensure the selected team exists
+        if (!Array.isArray(prevPokemonParty[selectedTeam])) {
+          console.error("Selected team is not an array:", prevPokemonParty[selectedTeam]);
+          const newPokemonParty = [...prevPokemonParty];
+          newPokemonParty[selectedTeam] = [];
           return newPokemonParty;
-        } else if (!newPokemonParty[selectedTeam].some((p) => p.id === pokemon.id)) {
+        }
+
+        // Rest of your logic...
+        if (prevPokemonParty[selectedTeam].length >= 6) {
+          setEnableToast({ enabled: true, type: "error", message: "Your current team is full!"});
+          return prevPokemonParty;
+        } else if (!prevPokemonParty[selectedTeam].some((p) => p.id === pokemon.id)) {
           const updatedPokemon: pokemon = {
             ...pokemon,
             name: pokemon.name || "",
@@ -48,14 +62,16 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
             iv: [31, 31, 31, 31, 31, 31],
             ev: [0, 0, 0, 0, 0, 0],
           };
-          newPokemonParty[selectedTeam].push(updatedPokemon);
+          const newPokemonParty = [...prevPokemonParty];
+          newPokemonParty[selectedTeam] = [...newPokemonParty[selectedTeam], updatedPokemon];
           return newPokemonParty;
         }
-        setEnableToast({ enabled: true, type: "error", message: "This Pokémon is already on your team!" });
-        return newPokemonParty;
+        setEnableToast({ enabled: true, type: "error", message: "This Pokémon is already on your team!"});
+        return prevPokemonParty;
       });
     } catch (error) {
-      setEnableToast({ enabled: true, type: "error", message: "There was an error adding your Pokémon." });
+      console.error("Error in handleClick:", error);
+      setEnableToast({ enabled: true, type: "error", message: "There was an error adding your Pokémon."});
     }
   };
 
