@@ -19,10 +19,6 @@ export default function Header({
   setSelectedTeam,
   onNewTeam
 }: HeaderProps) {
-  const handleNewTeam = () => {
-    setNumTeams(numTeams + 1);
-    setSelectedTeam(numTeams);
-  };
 
   return (
     <div className="p-6 pb-4 flex flex-row justify-between items-center">

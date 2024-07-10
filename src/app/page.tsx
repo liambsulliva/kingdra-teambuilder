@@ -57,6 +57,7 @@ export default function Home() {
               setSelectedPokemon={setSelectedPokemon}
               selectedTeam={selectedTeam}
               setEnableToast={setEnableToast}
+              setNumTeams={setNumTeams}
             />
             <PokeInfo
               selectedPokemon={selectedPokemon}
