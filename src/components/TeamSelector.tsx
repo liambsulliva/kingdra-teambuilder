@@ -37,6 +37,12 @@ const DropdownMenu = ({ numTeams, setSelectedTeam }: TeamSelectorProps) => {
   };
 
   useEffect(() => {
+    if (numTeams > 0) {
+      handleSelection(numTeams - 1);
+    }
+  }, [numTeams]);
+
+  useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
