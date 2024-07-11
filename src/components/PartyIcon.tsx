@@ -1,14 +1,14 @@
-import type { SVGProps } from "react";
+import type { SVGProps } from 'react'
 
 interface PartyIconProps extends SVGProps<SVGSVGElement> {
-  selectedTab?: string;
+  selectedTab?: string
 }
 
 export default function MingcuteCelebrateFill({
   selectedTab,
   ...props
 }: PartyIconProps) {
-  const fill = selectedTab === "left" ? "white" : "black";
+  const fill = selectedTab === 'left' ? 'white' : 'black'
 
   return (
     <svg
@@ -26,5 +26,5 @@ export default function MingcuteCelebrateFill({
         ></path>
       </g>
     </svg>
-  );
+  )
 }

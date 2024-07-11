@@ -1,11 +1,11 @@
-import { useEffect, useCallback } from "react";
-import { useAuth } from "@clerk/nextjs";
-import axios from "axios";
-import PokeSlot from "@/components/PokeSlot";
-import GlobalIETabber from "@/components/GlobalIETabber";
-import debounce from "lodash.debounce";
-import "@/app/globals.css";
-import type { pokemon } from "../../lib/pokemonInterface";
+import { useEffect, useCallback } from 'react'
+import { useAuth } from '@clerk/nextjs'
+import axios from 'axios'
+import PokeSlot from '@/components/PokeSlot'
+import GlobalIETabber from '@/components/GlobalIETabber'
+import debounce from 'lodash.debounce'
+import '@/app/globals.css'
+import type { pokemon } from '../../lib/pokemonInterface'
 
 export default function PokeParty({
   pokemonParty,
@@ -13,66 +13,76 @@ export default function PokeParty({
   setSelectedPokemon,
   setEnableToast,
   selectedTeam,
-  setNumTeams
+  setNumTeams,
 }: {
-  pokemonParty: pokemon[][];
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
-  setSelectedPokemon: React.Dispatch<React.SetStateAction<number>>;
-  setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string, message: string }>>;
-  selectedTeam: number;
-  setNumTeams: React.Dispatch<React.SetStateAction<number>>;
+  pokemonParty: pokemon[][]
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>
+  setSelectedPokemon: React.Dispatch<React.SetStateAction<number>>
+  setEnableToast: React.Dispatch<
+    React.SetStateAction<{ enabled: boolean; type: string; message: string }>
+  >
+  selectedTeam: number
+  setNumTeams: React.Dispatch<React.SetStateAction<number>>
 }) {
-  const { isSignedIn } = useAuth();
+  const { isSignedIn } = useAuth()
 
   const debouncedFetchPokemonParty = useCallback(
     debounce(async () => {
       if (isSignedIn) {
         try {
-          const response = await axios.get("/api/pokemon-party");
-          setPokemonParty(response.data.pokemonParty);
-          setNumTeams(response.data.pokemonParty.length);
+          const response = await axios.get('/api/pokemon-party')
+          setPokemonParty(response.data.pokemonParty)
+          setNumTeams(response.data.pokemonParty.length)
         } catch (error) {
-          setEnableToast({ enabled: true, type: "error", message: `Failed to fetch Pokémon team from server: `});
+          setEnableToast({
+            enabled: true,
+            type: 'error',
+            message: `Failed to fetch Pokémon team from server: `,
+          })
         }
       } else {
-        setPokemonParty([[]]);
+        setPokemonParty([[]])
       }
     }, 500),
-    [isSignedIn],
-  );
+    [isSignedIn]
+  )
 
   const debouncedPostPokemonParty = useCallback(
     debounce(async () => {
       if (isSignedIn) {
         try {
-          const response = await axios.post("/api/pokemon-party", {
+          const response = await axios.post('/api/pokemon-party', {
             pokemonParty,
-          });
+          })
           // Handle the response here
           if (response.status === 201) {
             //console.log("POST Success");
           } else {
-            console.log("POST Failure");
+            console.log('POST Failure')
           }
         } catch (error) {
-          setEnableToast({ enabled: true, type: "error", message: `Failed to submit Pokémon team to server: ${error}`});
+          setEnableToast({
+            enabled: true,
+            type: 'error',
+            message: `Failed to submit Pokémon team to server: ${error}`,
+          })
         }
       }
     }, 500),
-    [pokemonParty],
-  );
+    [pokemonParty]
+  )
 
   useEffect(() => {
-    debouncedFetchPokemonParty();
-  }, [isSignedIn, debouncedFetchPokemonParty]);
+    debouncedFetchPokemonParty()
+  }, [isSignedIn, debouncedFetchPokemonParty])
 
   useEffect(() => {
-    debouncedPostPokemonParty();
-  }, [pokemonParty, debouncedPostPokemonParty]);
+    debouncedPostPokemonParty()
+  }, [pokemonParty, debouncedPostPokemonParty])
 
   return (
     <div className="flex flex-col items-center py-4">
-      <div className="p-6 grid md:grid-cols-2 grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4 p-6 md:grid-cols-2">
         {pokemonParty[selectedTeam]?.map((pokemon, index) => (
           <PokeSlot
             key={pokemon.id}
@@ -90,7 +100,7 @@ export default function PokeParty({
             setPokemonParty={setPokemonParty}
             setSelectedPokemon={setSelectedPokemon}
             selectedTeam={selectedTeam}
-          />,
+          />
         )}
       </div>
       <div>
@@ -102,5 +112,5 @@ export default function PokeParty({
         />
       </div>
     </div>
-  );
+  )
 }

@@ -1,15 +1,15 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import type { Metadata } from 'next'
+import './globals.css'
 
 export const metadata: Metadata = {
-  title: "Kingdra - A Pokémon Teambuilder",
-  description: "Designed and Developed by Liam Sullivan",
-};
+  title: 'Kingdra - A Pokémon Teambuilder',
+  description: 'Designed and Developed by Liam Sullivan',
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en">
@@ -18,5 +18,5 @@ export default function RootLayout({
       </head>
       <body>{children}</body>
     </html>
-  );
+  )
 }

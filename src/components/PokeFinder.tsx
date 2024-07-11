@@ -1,95 +1,103 @@
-"use client";
-import "@/app/globals.css";
-import { useEffect, useState, useCallback } from "react";
-import PokeFinderCard from "./PokeFinderCard";
-import LoadingIcon from "./LoadingIcon";
-import type { pokemon } from "../../lib/pokemonInterface";
-import { Tabs } from "flowbite-react";
+'use client'
+import '@/app/globals.css'
+import { useEffect, useState, useCallback } from 'react'
+import PokeFinderCard from './PokeFinderCard'
+import LoadingIcon from './LoadingIcon'
+import type { pokemon } from '../../lib/pokemonInterface'
+import { Tabs } from 'flowbite-react'
 
 export default function PokeFinder({
   setPokemonParty,
   setEnableToast,
-  selectedTeam
+  selectedTeam,
 }: {
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
-  setEnableToast: React.Dispatch<React.SetStateAction<{ enabled: boolean, type: string, message: string }>>;
-  selectedTeam: number;
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>
+  setEnableToast: React.Dispatch<
+    React.SetStateAction<{ enabled: boolean; type: string; message: string }>
+  >
+  selectedTeam: number
 }) {
-  const [pokemonData, setPokemonData] = useState<pokemon[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchResults, setSearchResults] = useState<pokemon[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedGeneration, setSelectedGeneration] = useState(0);
+  const [pokemonData, setPokemonData] = useState<pokemon[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [searchResults, setSearchResults] = useState<pokemon[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedGeneration, setSelectedGeneration] = useState(0)
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newSearchTerm = event.target.value.toLowerCase();
-    setSearchTerm(newSearchTerm);
-  };
+    const newSearchTerm = event.target.value.toLowerCase()
+    setSearchTerm(newSearchTerm)
+  }
 
   useEffect(() => {
     const filteredPokemon = pokemonData.filter((pokemon: pokemon) =>
       pokemon.name.toLowerCase().includes(searchTerm)
-    );
-    setSearchResults(filteredPokemon);
-  }, [searchTerm, pokemonData]);
+    )
+    setSearchResults(filteredPokemon)
+  }, [searchTerm, pokemonData])
 
   const fetchData = useCallback(async () => {
     try {
-      setIsLoading(true);
-      const response = await fetch(`/api/pokemon?page=${currentPage}&generation=${selectedGeneration}`);
+      setIsLoading(true)
+      const response = await fetch(
+        `/api/pokemon?page=${currentPage}&generation=${selectedGeneration}`
+      )
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error('Network response was not ok')
       }
-      const data = await response.json();
+      const data = await response.json()
       const newPokemonData = data.pokemonData.map((pokemon: pokemon) => ({
         ...pokemon,
         name: pokemon.name
-          .split("-")
+          .split('-')
           .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join("-")
-      }));
-      setPokemonData((prevData: pokemon[]) => 
+          .join('-'),
+      }))
+      setPokemonData((prevData: pokemon[]) =>
         currentPage === 1 ? newPokemonData : [...prevData, ...newPokemonData]
-      );
+      )
     } catch (error) {
-      setEnableToast({enabled: true, type: "error", message: `Failed to fetch basic pokemon data from server.`});
+      setEnableToast({
+        enabled: true,
+        type: 'error',
+        message: `Failed to fetch basic pokemon data from server.`,
+      })
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, [currentPage, selectedGeneration]);
+  }, [currentPage, selectedGeneration])
 
   const handleScroll = useCallback(() => {
-    const scrollPosition = window.innerHeight + window.scrollY;
-    const documentHeight = document.body.offsetHeight;
-    const scrollThreshold = documentHeight - 500;
-  
+    const scrollPosition = window.innerHeight + window.scrollY
+    const documentHeight = document.body.offsetHeight
+    const scrollThreshold = documentHeight - 500
+
     if (scrollPosition >= scrollThreshold && !isLoading) {
-      setCurrentPage((prevPage) => prevPage + 1);
+      setCurrentPage((prevPage) => prevPage + 1)
     }
-  }, [isLoading]);
+  }, [isLoading])
 
   useEffect(() => {
-    setCurrentPage(1);
-    setPokemonData([]);
-  }, [selectedGeneration]);
+    setCurrentPage(1)
+    setPokemonData([])
+  }, [selectedGeneration])
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData, currentPage, selectedGeneration]);
+    fetchData()
+  }, [fetchData, currentPage, selectedGeneration])
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll)
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [handleScroll]);
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [handleScroll])
 
   return (
     <div className="flex flex-col">
-      <div className="w-full px-4 flex md:flex-row flex-col md:justify-between justify-center relative text-gray-600">
-        <Tabs 
-          aria-label="Tabs with underline" 
+      <div className="relative flex w-full flex-col justify-center px-4 text-gray-600 md:flex-row md:justify-between">
+        <Tabs
+          aria-label="Tabs with underline"
           onActiveTabChange={(tab: number) => setSelectedGeneration(tab)}
         >
           <Tabs.Item active={selectedGeneration === 0} title="All" />
@@ -104,7 +112,7 @@ export default function PokeFinder({
           <Tabs.Item active={selectedGeneration === 9} title="Gen IX" />
         </Tabs>
         <input
-          className="border-2 max-md:mb-4 border-gray-300 bg-white h-10 px-5 pr-16 mt-2 rounded-lg text-sm focus:outline-none"
+          className="mt-2 h-10 rounded-lg border-2 border-gray-300 bg-white px-5 pr-16 text-sm focus:outline-none max-md:mb-4"
           type="text"
           name="search"
           autoComplete="off"
@@ -113,7 +121,7 @@ export default function PokeFinder({
           onChange={handleSearch}
         />
       </div>
-      <div className="w-full grid 2xl:grid-cols-12 xl:grid-cols-9 lg:grid-cols-6 sm:grid-cols-4 grid-cols-2 gap-6 mx-auto bg-[#f9f9f9] p-6 justify-center items-center rounded">
+      <div className="mx-auto grid w-full grid-cols-2 items-center justify-center gap-6 rounded bg-[#f9f9f9] p-6 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-9 2xl:grid-cols-12">
         {searchResults.map((pokemon: pokemon) => (
           <PokeFinderCard
             key={pokemon.id}
@@ -126,5 +134,5 @@ export default function PokeFinder({
         {isLoading && <LoadingIcon />}
       </div>
     </div>
-  );
+  )
 }

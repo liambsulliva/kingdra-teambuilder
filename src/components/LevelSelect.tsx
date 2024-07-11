@@ -1,86 +1,91 @@
-import React, { useEffect, useState } from "react";
-import { pokemon } from "../../lib/pokemonInterface";
+import React, { useEffect, useState } from 'react'
+import { pokemon } from '../../lib/pokemonInterface'
 
 interface LevelSelectProps {
-  selectedPokemon: number;
-  pokemonParty: pokemon[][];
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
-  selectedTeam: number;
+  selectedPokemon: number
+  pokemonParty: pokemon[][]
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>
+  selectedTeam: number
 }
 
 export default function LevelSelect({
   selectedPokemon,
   pokemonParty,
   setPokemonParty,
-  selectedTeam
+  selectedTeam,
 }: LevelSelectProps) {
-  const [levelInput, setLevelInput] = useState<string>("");
-  const [levelError, setLevelError] = useState<string>("");
+  const [levelInput, setLevelInput] = useState<string>('')
+  const [levelError, setLevelError] = useState<string>('')
 
   useEffect(() => {
-    if (pokemonParty[selectedTeam][selectedPokemon] && pokemonParty[selectedTeam][selectedPokemon].level) {
-      setLevelInput(pokemonParty[selectedTeam][selectedPokemon].level.toString());
+    if (
+      pokemonParty[selectedTeam][selectedPokemon] &&
+      pokemonParty[selectedTeam][selectedPokemon].level
+    ) {
+      setLevelInput(
+        pokemonParty[selectedTeam][selectedPokemon].level.toString()
+      )
     } else {
-      setLevelInput("");
+      setLevelInput('')
     }
-  }, [selectedPokemon, selectedTeam, pokemonParty]);
+  }, [selectedPokemon, selectedTeam, pokemonParty])
 
   const handleLevelInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setLevelInput(value);
+    const value = e.target.value
+    setLevelInput(value)
 
     // Clear error if input is empty
-    if (value === "") {
-      setLevelError("");
+    if (value === '') {
+      setLevelError('')
     }
-  };
+  }
 
   const validateAndSetLevel = (level: number) => {
     if (level >= 1 && level <= 100) {
       setPokemonParty((prevParty) => {
-        const newParty = [...prevParty];
+        const newParty = [...prevParty]
         if (newParty[selectedTeam][selectedPokemon]) {
           newParty[selectedTeam][selectedPokemon] = {
             ...newParty[selectedTeam][selectedPokemon],
             level: level,
-          };
+          }
         }
-        return newParty;
-      });
-      setLevelError("");
-      return true;
+        return newParty
+      })
+      setLevelError('')
+      return true
     } else {
-      setLevelError("Level must be between 1 and 100");
-      return false;
+      setLevelError('Level must be between 1 and 100')
+      return false
     }
-  };
+  }
 
   const handleLevelInputBlur = () => {
-    const level = parseInt(levelInput, 10);
+    const level = parseInt(levelInput, 10)
     if (isNaN(level)) {
-      setLevelError("Please enter a valid number");
+      setLevelError('Please enter a valid number')
     } else {
-      validateAndSetLevel(level);
+      validateAndSetLevel(level)
     }
-  };
+  }
 
   const handleLevelInputKeyPress = (
-    e: React.KeyboardEvent<HTMLInputElement>,
+    e: React.KeyboardEvent<HTMLInputElement>
   ) => {
-    if (e.key === "Enter") {
-      const level = parseInt(levelInput, 10);
+    if (e.key === 'Enter') {
+      const level = parseInt(levelInput, 10)
       if (!isNaN(level)) {
-        validateAndSetLevel(level);
+        validateAndSetLevel(level)
       }
     }
-  };
+  }
 
   return (
-    <div className="flex gap-4 items-center mb-4">
+    <div className="mb-4 flex items-center gap-4">
       <h3 className="text-xl text-gray-600">Lv.</h3>
       <div className="relative">
         <input
-          className={`border-2 ${levelError ? "border-red-500" : "border-gray-300"} bg-white h-10 w-20 px-4 rounded-lg text-sm focus:outline-none`}
+          className={`border-2 ${levelError ? 'border-red-500' : 'border-gray-300'} h-10 w-20 rounded-lg bg-white px-4 text-sm focus:outline-none`}
           type="number"
           name="Level"
           autoComplete="off"
@@ -92,9 +97,9 @@ export default function LevelSelect({
           max="100"
         />
         {levelError && (
-          <p className="text-red-500 text-xs mt-1">{levelError}</p>
+          <p className="mt-1 text-xs text-red-500">{levelError}</p>
         )}
       </div>
     </div>
-  );
+  )
 }

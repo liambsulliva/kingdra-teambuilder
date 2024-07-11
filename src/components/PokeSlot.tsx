@@ -1,63 +1,63 @@
-import "@/app/globals.css";
-import CloseIcon from "./CloseIcon";
-import axios from "axios";
-import { useAuth } from "@clerk/nextjs";
-import type { pokemon } from "../../lib/pokemonInterface";
+import '@/app/globals.css'
+import CloseIcon from './CloseIcon'
+import axios from 'axios'
+import { useAuth } from '@clerk/nextjs'
+import type { pokemon } from '../../lib/pokemonInterface'
 
 export default function PokeSlot({
   pokemon,
   index,
   setPokemonParty,
   setSelectedPokemon,
-  selectedTeam
+  selectedTeam,
 }: {
-  pokemon: pokemon | null;
-  index: number;
-  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
-  setSelectedPokemon: React.Dispatch<React.SetStateAction<number>>;
-  selectedTeam: number;
+  pokemon: pokemon | null
+  index: number
+  setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>
+  setSelectedPokemon: React.Dispatch<React.SetStateAction<number>>
+  selectedTeam: number
 }) {
-  const { isSignedIn } = useAuth();
+  const { isSignedIn } = useAuth()
   const handleDelete = async () => {
     if (!pokemon) {
-      return null;
+      return null
     }
     try {
       setPokemonParty((prevPokemonParty: pokemon[][]) => {
         return prevPokemonParty.map((team, teamIndex) => {
           if (teamIndex === selectedTeam) {
-        return team.filter((p) => p.id !== pokemon.id);
+            return team.filter((p) => p.id !== pokemon.id)
           }
-          return team;
-        });
-      });
+          return team
+        })
+      })
       if (isSignedIn) {
         const response = await axios.delete(
-          `/api/pokemon-party/?id=${pokemon.id}`,
-        );
+          `/api/pokemon-party/?id=${pokemon.id}`
+        )
         if (response.status === 201) {
           //console.log("DELETE Success");
         } else {
-          console.log("DELETE Failure");
+          console.log('DELETE Failure')
         }
       }
     } catch (error) {
-      console.log("Internal Server Error");
+      console.log('Internal Server Error')
     }
-  };
+  }
   return (
     <div className="relative">
       {pokemon ? (
         <div
-          className="flex flex-col justify-center items-center bg-[#fff] h-24 w-24 rounded shadow cursor-pointer transition-transform duration-200 hover:bg-gray-50"
+          className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded bg-[#fff] shadow transition-transform duration-200 hover:bg-gray-50"
           onClick={() => {
-            setSelectedPokemon((selected) => (selected === index ? -1 : index));
+            setSelectedPokemon((selected) => (selected === index ? -1 : index))
           }}
         >
           <div
-            className="absolute top-0 right-0 translate-x-2 -translate-y-2"
+            className="absolute right-0 top-0 -translate-y-2 translate-x-2"
             onClick={() => {
-              handleDelete();
+              handleDelete()
             }}
           >
             <CloseIcon />
@@ -65,8 +65,8 @@ export default function PokeSlot({
           <img src={pokemon.sprite} alt={pokemon.name} />
         </div>
       ) : (
-        <div className="bg-[#f9f9f9] h-24 w-24 rounded" />
+        <div className="h-24 w-24 rounded bg-[#f9f9f9]" />
       )}
     </div>
-  );
+  )
 }
