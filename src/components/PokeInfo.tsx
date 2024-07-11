@@ -15,6 +15,7 @@ import ItemSelect from './ItemSelect';
 import TeraSelect from './TeraSelect';
 import MoveSelect from './MoveSelect';
 import LevelSelect from './LevelSelect';
+import LocationAreaEncounters from './LocationAreaEncounters';
 import type { pokemonInfo } from '../../lib/pokemonInterface';
 
 export default function PokeInfo({
@@ -485,6 +486,16 @@ export default function PokeInfo({
 									selectedTeam={selectedTeam}
 								/>
 							</div>
+						</div>
+					)}
+					{gameMode === 'casual' && (
+						<div className='flex flex-col'>
+							<h3 className='mb-4 text-xl font-bold'>
+								Location Area Encounters:
+							</h3>
+							<LocationAreaEncounters
+								url={pokemonInfo.location_area_encounters}
+							/>
 						</div>
 					)}
 				</div>
