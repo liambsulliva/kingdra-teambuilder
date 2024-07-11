@@ -161,7 +161,32 @@ export default function PokeInfo({
 							</div>
 							<div className='flex flex-col justify-end'>
 								<h2 className='mb-3 text-4xl font-bold capitalize text-black'>
-									{pokemonInfo.name}
+									{(() => {
+										const nameParts = pokemonInfo.name.split('-');
+										if (nameParts.length > 1) {
+											const form: string | undefined = nameParts.pop();
+											if (form && ['galar', 'hisui', 'alola'].includes(form)) {
+												const regionName =
+													form === 'galar'
+														? 'Galarian'
+														: form === 'hisui'
+															? 'Hisuian'
+															: 'Alolan';
+												return `${regionName} ${nameParts
+													.map(
+														(part) =>
+															part.charAt(0).toUpperCase() + part.slice(1)
+													)
+													.join(' ')}`;
+											}
+										}
+										return pokemonInfo.name
+											.split('-')
+											.map(
+												(part) => part.charAt(0).toUpperCase() + part.slice(1)
+											)
+											.join(' ');
+									})()}
 								</h2>
 								<LevelSelect
 									selectedPokemon={selectedPokemon}

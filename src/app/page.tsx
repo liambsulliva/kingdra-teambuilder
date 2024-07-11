@@ -55,7 +55,7 @@ export default function Home() {
 			setEnableToast({
 				enabled: true,
 				type: 'error',
-				message: 'Cannot delete the last team',
+				message: "You can't delete the last team!",
 			});
 			return;
 		}
