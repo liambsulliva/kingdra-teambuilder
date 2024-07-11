@@ -27,14 +27,15 @@ const LocationAreaEncounters = ({ url }: { url: string }) => {
 	if (error) return <p>{error}</p>;
 
 	return (
-		<div className='max-h-96 overflow-y-auto'>
+		<div className='grid grid-cols-2 gap-4'>
 			{encounters.length > 0 ? (
 				encounters.map(
 					(
 						encounter: {
 							location_area: { name: string };
 							version_details: {
-								version: { name: string; max_chance: number };
+								version: { name: string };
+								max_chance: number;
 							}[];
 						},
 						index
@@ -46,8 +47,8 @@ const LocationAreaEncounters = ({ url }: { url: string }) => {
 							<ul>
 								{encounter.version_details.map((versionDetail, index) => (
 									<li key={index}>
-										{versionDetail.version.name}:{' '}
-										{versionDetail.version.max_chance}% chance
+										{versionDetail.version.name}: {versionDetail.max_chance}%
+										chance
 									</li>
 								))}
 							</ul>
