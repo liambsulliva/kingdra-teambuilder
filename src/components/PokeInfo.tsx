@@ -258,6 +258,14 @@ export default function PokeInfo({
 											)?.effect || '';
 										effectText = effectText.split('Overworld:')[0].trim();
 
+										// Convert ability name to "This Case" format
+										const displayName = abilityName
+											.split('-')
+											.map(
+												(word) => word.charAt(0).toUpperCase() + word.slice(1)
+											)
+											.join(' ');
+
 										return (
 											<Tooltip
 												key={index}
@@ -275,7 +283,7 @@ export default function PokeInfo({
 													onClick={() => handleAbilitySelect(abilityName)}
 													className={`font-bold capitalize`}
 												>
-													{abilityName}
+													{displayName}
 												</Button>
 											</Tooltip>
 										);
