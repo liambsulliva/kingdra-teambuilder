@@ -15,6 +15,7 @@ const LocationAreaEncounters = ({ url }: { url: string }) => {
 				setLoading(false);
 			} catch (err) {
 				setError('Failed to fetch encounter data');
+				console.error(err);
 				setLoading(false);
 			}
 		};
@@ -34,7 +35,7 @@ const LocationAreaEncounters = ({ url }: { url: string }) => {
 							location_area: { name: string };
 							version_details: {
 								version: { name: string; max_chance: number };
-							};
+							}[];
 						},
 						index
 					) => (
@@ -43,10 +44,12 @@ const LocationAreaEncounters = ({ url }: { url: string }) => {
 								{encounter.location_area.name.replace(/-/g, ' ')}
 							</h4>
 							<ul>
-								<li key={index}>
-									{encounter.version_details.version.name}:{' '}
-									{encounter.version_details.version.max_chance}% chance
-								</li>
+								{encounter.version_details.map((versionDetail, index) => (
+									<li key={index}>
+										{versionDetail.version.name}:{' '}
+										{versionDetail.version.max_chance}% chance
+									</li>
+								))}
 							</ul>
 						</div>
 					)
