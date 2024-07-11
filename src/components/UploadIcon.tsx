@@ -1,6 +1,6 @@
 import type { SVGProps } from 'react';
 
-export default function MaterialSymbolsUpload(props: SVGProps<SVGSVGElement>) {
+const MaterialSymbolsUpload = (props: SVGProps<SVGSVGElement>) => {
 	return (
 		<svg
 			xmlns='http://www.w3.org/2000/svg'
@@ -15,4 +15,6 @@ export default function MaterialSymbolsUpload(props: SVGProps<SVGSVGElement>) {
 			></path>
 		</svg>
 	);
-}
+};
+
+export default MaterialSymbolsUpload;

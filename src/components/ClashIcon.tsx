@@ -4,10 +4,7 @@ interface ClashIconProps extends SVGProps<SVGSVGElement> {
 	selectedTab?: string;
 }
 
-export default function MaterialSymbolsSwords({
-	selectedTab,
-	...props
-}: ClashIconProps) {
+const MaterialSymbolsSwords = ({ selectedTab, ...props }: ClashIconProps) => {
 	const fill = selectedTab === 'right' ? 'white' : 'black';
 
 	return (
@@ -24,4 +21,6 @@ export default function MaterialSymbolsSwords({
 			></path>
 		</svg>
 	);
-}
+};
+
+export default MaterialSymbolsSwords;

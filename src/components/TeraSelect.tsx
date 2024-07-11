@@ -8,7 +8,7 @@ const formatTeraType = (type: string) => {
 	return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
 };
 
-export default function TeraSelect({
+const TeraSelect = ({
 	selectedPokemon,
 	pokemonParty,
 	setPokemonParty,
@@ -18,7 +18,7 @@ export default function TeraSelect({
 	pokemonParty: pokemon[][];
 	setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
 	selectedTeam: number;
-}) {
+}) => {
 	const [teraInput, setTeraInput] = useState<string>('');
 	const [teraSuggestions, setTeraSuggestions] = useState<TeraType[]>([]);
 	const [teraError, setTeraError] = useState<string>('');
@@ -41,7 +41,7 @@ export default function TeraSelect({
 	}, [selectedPokemon, selectedTeam, pokemonParty]);
 
 	useEffect(() => {
-		function handleClickOutside(event: MouseEvent) {
+		const handleClickOutside = (event: MouseEvent) => {
 			if (
 				teraInputRef.current &&
 				!teraInputRef.current.contains(event.target as Node)
@@ -49,7 +49,7 @@ export default function TeraSelect({
 				setTeraSuggestions([]);
 				setFocusedSuggestionIndex(-1);
 			}
-		}
+		};
 
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
@@ -201,4 +201,6 @@ export default function TeraSelect({
 			</div>
 		</div>
 	);
-}
+};
+
+export default TeraSelect;

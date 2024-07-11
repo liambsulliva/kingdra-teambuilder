@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useAuth } from '@clerk/nextjs';
 import type { pokemon } from '../../lib/pokemonInterface';
 
-export default function PokeSlot({
+const PokeSlot = ({
 	pokemon,
 	index,
 	setPokemonParty,
@@ -16,7 +16,7 @@ export default function PokeSlot({
 	setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
 	setSelectedPokemon: React.Dispatch<React.SetStateAction<number>>;
 	selectedTeam: number;
-}) {
+}) => {
 	const { isSignedIn } = useAuth();
 	const handleDelete = async () => {
 		if (!pokemon) {
@@ -69,4 +69,6 @@ export default function PokeSlot({
 			)}
 		</div>
 	);
-}
+};
+
+export default PokeSlot;

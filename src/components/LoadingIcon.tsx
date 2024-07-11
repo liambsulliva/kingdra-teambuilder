@@ -1,8 +1,6 @@
 import type { SVGProps } from 'react';
 
-export default function EosIconsThreeDotsLoading(
-	props: SVGProps<SVGSVGElement>
-) {
+const EosIconsThreeDotsLoading = (props: SVGProps<SVGSVGElement>) => {
 	return (
 		<svg
 			xmlns='http://www.w3.org/2000/svg'
@@ -46,4 +44,6 @@ export default function EosIconsThreeDotsLoading(
 			</circle>
 		</svg>
 	);
-}
+};
+
+export default EosIconsThreeDotsLoading;

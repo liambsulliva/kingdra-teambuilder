@@ -26,6 +26,15 @@ module.exports = {
 		ecmaVersion: 'latest',
 		sourceType: 'module',
 	},
-	plugins: ['@typescript-eslint', 'react'],
-	rules: {},
+	plugins: ['@typescript-eslint', 'react', 'prefer-arrow'],
+	rules: {
+		'prefer-arrow/prefer-arrow-functions': [
+			'warn',
+			{
+				disallowPrototype: true,
+				singleReturnOnly: false,
+				classPropertiesAllowed: false,
+			},
+		],
+	},
 };

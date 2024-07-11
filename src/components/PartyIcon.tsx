@@ -4,12 +4,8 @@ interface PartyIconProps extends SVGProps<SVGSVGElement> {
 	selectedTab?: string;
 }
 
-export default function MingcuteCelebrateFill({
-	selectedTab,
-	...props
-}: PartyIconProps) {
+const MingcuteCelebrateFill = ({ selectedTab, ...props }: PartyIconProps) => {
 	const fill = selectedTab === 'left' ? 'white' : 'black';
-
 	return (
 		<svg
 			xmlns='http://www.w3.org/2000/svg'
@@ -27,4 +23,6 @@ export default function MingcuteCelebrateFill({
 			</g>
 		</svg>
 	);
-}
+};
+
+export default MingcuteCelebrateFill;

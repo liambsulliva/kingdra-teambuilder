@@ -2,7 +2,7 @@ import { Toast as FlowbiteToast } from 'flowbite-react';
 import { HiCheck, HiX } from 'react-icons/hi';
 import { useState, useEffect } from 'react';
 
-export default function Toast({
+const Toast = ({
 	enabled,
 	type,
 	message,
@@ -10,7 +10,7 @@ export default function Toast({
 	enabled: boolean;
 	type: string;
 	message: string;
-}) {
+}) => {
 	const [isVisible, setIsVisible] = useState(false);
 	const [shouldRender, setShouldRender] = useState(false);
 
@@ -46,4 +46,6 @@ export default function Toast({
 			</FlowbiteToast>
 		</div>
 	);
-}
+};
+
+export default Toast;

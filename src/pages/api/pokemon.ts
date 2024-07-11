@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import fetch from 'node-fetch';
 
-function getPokemonGeneration(id: number): number {
+const getPokemonGeneration = (id: number): number => {
 	if (id <= 151) return 1;
 	if (id <= 251) return 2;
 	if (id <= 386) return 3;
@@ -11,7 +11,7 @@ function getPokemonGeneration(id: number): number {
 	if (id <= 809) return 7;
 	if (id <= 905) return 8;
 	return 9; // Assuming any ID above 905 is Gen 9
-}
+};
 
 interface PokemonData {
 	id: number;
@@ -26,10 +26,7 @@ interface PokemonListResponse {
 	results: Array<{ url: string }>;
 }
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	// Return a specific Pokemon if a name is provided
 	if (req.query.name) {
 		const name = req.query.name;
@@ -138,4 +135,6 @@ export default async function handler(
 			res.status(404).json({ message: 'No more Pokemon found' });
 		}
 	}
-}
+};
+
+export default handler;

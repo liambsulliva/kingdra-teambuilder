@@ -8,12 +8,12 @@ interface LevelSelectProps {
 	selectedTeam: number;
 }
 
-export default function LevelSelect({
+const LevelSelect = ({
 	selectedPokemon,
 	pokemonParty,
 	setPokemonParty,
 	selectedTeam,
-}: LevelSelectProps) {
+}: LevelSelectProps) => {
 	const [levelInput, setLevelInput] = useState<string>('');
 	const [levelError, setLevelError] = useState<string>('');
 
@@ -102,4 +102,6 @@ export default function LevelSelect({
 			</div>
 		</div>
 	);
-}
+};
+
+export default LevelSelect;

@@ -6,10 +6,7 @@ import { getAuth } from '@clerk/nextjs/server';
 import dbConnect, { User } from '../../../lib/db';
 import { pokemon } from '../../../lib/pokemonInterface';
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	await dbConnect();
 	const { userId } = getAuth(req);
 	if (!userId) {
@@ -123,4 +120,6 @@ export default async function handler(
 		res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
 		res.status(405).end(`Method ${req.method} Not Allowed`);
 	}
-}
+};
+
+export default handler;

@@ -1,8 +1,6 @@
 import type { SVGProps } from 'react';
 
-export default function MaterialSymbolsArrowBackIosRounded(
-	props: SVGProps<SVGSVGElement>
-) {
+const MaterialSymbolsArrowBackIosRounded = (props: SVGProps<SVGSVGElement>) => {
 	return (
 		<svg
 			xmlns='http://www.w3.org/2000/svg'
@@ -17,4 +15,6 @@ export default function MaterialSymbolsArrowBackIosRounded(
 			></path>
 		</svg>
 	);
-}
+};
+
+export default MaterialSymbolsArrowBackIosRounded;

@@ -1,7 +1,7 @@
 import './globals.css';
 import Footer from '@/components/footer';
 
-export default function notFound() {
+const notFound = () => {
 	return (
 		<html lang='en'>
 			<head>
@@ -21,4 +21,6 @@ export default function notFound() {
 			</body>
 		</html>
 	);
-}
+};
+
+export default notFound;

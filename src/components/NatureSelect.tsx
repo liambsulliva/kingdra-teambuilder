@@ -107,7 +107,7 @@ const natureDescriptions = {
 	),
 };
 
-export default function NatureSelect({
+const NatureSelect = ({
 	selectedPokemon,
 	pokemonParty,
 	setPokemonParty,
@@ -117,7 +117,7 @@ export default function NatureSelect({
 	pokemonParty: pokemon[][];
 	setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
 	selectedTeam: number;
-}) {
+}) => {
 	const [natureInput, setNatureInput] = useState<string>('');
 	const [natureSuggestions, setNatureSuggestions] = useState<Nature[]>([]);
 	const [natureError, setNatureError] = useState<string>('');
@@ -140,7 +140,7 @@ export default function NatureSelect({
 	}, [selectedPokemon, selectedTeam, pokemonParty]);
 
 	useEffect(() => {
-		function handleClickOutside(event: MouseEvent) {
+		const handleClickOutside = (event: MouseEvent) => {
 			if (
 				natureInputRef.current &&
 				!natureInputRef.current.contains(event.target as Node)
@@ -148,7 +148,7 @@ export default function NatureSelect({
 				setNatureSuggestions([]);
 				setFocusedSuggestionIndex(-1);
 			}
-		}
+		};
 
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
@@ -292,4 +292,6 @@ export default function NatureSelect({
 			</div>
 		</div>
 	);
-}
+};
+
+export default NatureSelect;

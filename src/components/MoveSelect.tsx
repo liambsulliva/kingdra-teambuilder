@@ -11,7 +11,7 @@ interface MoveSuggestion {
 	moveClass: string;
 }
 
-export default function moveSelect({
+const moveSelect = ({
 	index,
 	selectedPokemon,
 	validMoves,
@@ -29,7 +29,7 @@ export default function moveSelect({
 		React.SetStateAction<{ enabled: boolean; type: string; message: string }>
 	>;
 	selectedTeam: number;
-}) {
+}) => {
 	const [moveInput, setMoveInput] = useState<string>('');
 	const [moveSuggestions, setMoveSuggestions] = useState<MoveSuggestion[]>([]);
 	const [moveError, setMoveError] = useState<string>('');
@@ -51,14 +51,14 @@ export default function moveSelect({
 	}, [selectedPokemon, selectedTeam, pokemonParty]);
 
 	useEffect(() => {
-		function handleClickOutside(event: MouseEvent) {
+		const handleClickOutside = (event: MouseEvent) => {
 			if (
 				moveInputRef.current &&
 				!moveInputRef.current.contains(event.target as Node)
 			) {
 				setMoveSuggestions([]);
 			}
-		}
+		};
 
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
@@ -268,4 +268,6 @@ export default function moveSelect({
 			</div>
 		</div>
 	);
-}
+};
+
+export default moveSelect;

@@ -13,12 +13,12 @@ interface HeaderProps {
 	onDeleteTeam: (index: number) => void;
 }
 
-export default function Header({
+const Header = ({
 	numTeams,
 	setSelectedTeam,
 	onNewTeam,
 	onDeleteTeam,
-}: HeaderProps) {
+}: HeaderProps) => {
 	return (
 		<div className='flex flex-row items-center justify-between p-6 pb-4'>
 			<div className='flex flex-row items-center gap-10'>
@@ -51,4 +51,6 @@ export default function Header({
 			{/* Hamburger Menu Here on md: */}
 		</div>
 	);
-}
+};
+
+export default Header;

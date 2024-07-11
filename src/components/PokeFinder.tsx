@@ -6,7 +6,7 @@ import LoadingIcon from './LoadingIcon';
 import type { pokemon } from '../../lib/pokemonInterface';
 import { Tabs } from 'flowbite-react';
 
-export default function PokeFinder({
+const PokeFinder = ({
 	setPokemonParty,
 	setEnableToast,
 	selectedTeam,
@@ -16,7 +16,7 @@ export default function PokeFinder({
 		React.SetStateAction<{ enabled: boolean; type: string; message: string }>
 	>;
 	selectedTeam: number;
-}) {
+}) => {
 	const [pokemonData, setPokemonData] = useState<pokemon[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [currentPage, setCurrentPage] = useState(1);
@@ -135,4 +135,6 @@ export default function PokeFinder({
 			</div>
 		</div>
 	);
-}
+};
+
+export default PokeFinder;

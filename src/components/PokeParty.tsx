@@ -7,7 +7,7 @@ import debounce from 'lodash.debounce';
 import '@/app/globals.css';
 import type { pokemon } from '../../lib/pokemonInterface';
 
-export default function PokeParty({
+const PokeParty = ({
 	pokemonParty,
 	setPokemonParty,
 	setSelectedPokemon,
@@ -23,7 +23,7 @@ export default function PokeParty({
 	>;
 	selectedTeam: number;
 	setNumTeams: React.Dispatch<React.SetStateAction<number>>;
-}) {
+}) => {
 	const { isSignedIn } = useAuth();
 
 	const debouncedFetchPokemonParty = useCallback(
@@ -113,4 +113,6 @@ export default function PokeParty({
 			</div>
 		</div>
 	);
-}
+};
+
+export default PokeParty;
