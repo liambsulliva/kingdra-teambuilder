@@ -157,8 +157,18 @@ export default function Component({
 		};
 
 		const [nameItem, abilityLine, ...rest] = lines;
-		const [nameWithGender, rawItem] = nameItem.split('@').map((s) => s.trim());
-		const name = nameWithGender.replace(/\s*\([MF]\)\s*$/, '').trim();
+		const [nameWithNicknameAndGender, rawItem] = nameItem
+			.split('@')
+			.map((s) => s.trim());
+
+		const nameMatch = nameWithNicknameAndGender.match(
+			/(?:\(([^()]+)\))?(?:\s*\([MF]\))?$/
+		);
+		const name = nameMatch
+			? nameMatch[1] ||
+				nameWithNicknameAndGender.replace(/\s*\([MF]\)\s*$/, '').trim()
+			: nameWithNicknameAndGender.replace(/\s*\([MF]\)\s*$/, '').trim();
+
 		const item = rawItem ? capitalizeWords(rawItem) : '';
 
 		const abilityMatch = abilityLine.match(/Ability:\s*(.*)/);
