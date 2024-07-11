@@ -5,7 +5,7 @@ import typeMatchups from '../../lib/typeMatchups.json';
 import TypeBadge from './TypeBadge';
 import natures from '../../lib/natures.json';
 import { Button, Tooltip } from 'flowbite-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useCallback, useState } from 'react';
 import axios from 'axios';
 import StatBar from './StatBar';
 import type { pokemon } from '../../lib/pokemonInterface';
@@ -45,7 +45,6 @@ export default function PokeInfo({
 					const response = await axios.get(
 						`/api/pokemon-info?id=${pokemonParty[selectedTeam][selectedPokemon].id}`
 					);
-					console.log(response.data);
 					setPokemonInfo(response.data);
 					if (
 						!pokemonParty[selectedTeam][selectedPokemon].ability &&
@@ -55,19 +54,18 @@ export default function PokeInfo({
 					}
 
 					const moves = response.data.moves.map(
-						(move: { move: { name: string; url: string } }) => {
-							return {
-								name: move.move.name,
-								url: move.move.url,
-							};
-						}
+						(move: { move: { name: string; url: string } }) => ({
+							name: move.move.name,
+							url: move.move.url,
+						})
 					);
 					setValidMoves(moves);
 				}
 			} catch (error) {
-				//setEnableToast({enabled: true, type: "error", message: `Failed to fetch from server: ${error}`});
+				console.error('Failed to fetch Pokemon info:', error);
 			}
 		};
+
 		if (
 			pokemonParty &&
 			selectedPokemon !== -1 &&
@@ -81,9 +79,9 @@ export default function PokeInfo({
 			setTotalEVs(newTotalEVs);
 		}
 		fetchPokemonInfo();
-	}, [selectedTeam, selectedPokemon]);
+	}, [selectedTeam, selectedPokemon, pokemonParty]);
 
-	const calculateCombinedMatchups = (types: string[]) => {
+	const calculateCombinedMatchups = useCallback((types: string[]) => {
 		const effectiveness: { [key: string]: number } = {};
 
 		types.forEach((type) => {
@@ -111,7 +109,7 @@ export default function PokeInfo({
 		});
 
 		return { weaknesses, resistances, immunities };
-	};
+	}, []);
 
 	const combinedMatchups = useMemo(() => {
 		if (pokemonInfo && pokemonInfo.types) {
@@ -120,18 +118,25 @@ export default function PokeInfo({
 			);
 		}
 		return { weaknesses: [], resistances: [], immunities: [] };
-	}, [pokemonInfo?.types]);
+	}, [pokemonInfo?.types, calculateCombinedMatchups]);
 
-	const handleAbilitySelect = (abilityName: string) => {
-		setPokemonParty((prevParty) => {
-			const newParty = [...prevParty];
-			newParty[selectedTeam][selectedPokemon] = {
-				...newParty[selectedTeam][selectedPokemon],
-				ability: abilityName,
-			};
-			return newParty;
-		});
-	};
+	const handleAbilitySelect = useCallback(
+		(abilityName: string) => {
+			setPokemonParty((prevParty) => {
+				const newParty = [...prevParty];
+				newParty[selectedTeam][selectedPokemon] = {
+					...newParty[selectedTeam][selectedPokemon],
+					ability: abilityName,
+				};
+				return newParty;
+			});
+		},
+		[selectedTeam, selectedPokemon, setPokemonParty]
+	);
+
+	if (!pokemonInfo || !pokemonParty[selectedTeam][selectedPokemon]) {
+		return null;
+	}
 
 	return (
 		<div className='flex-grow rounded bg-[#f9f9f9]'>
