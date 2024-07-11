@@ -190,8 +190,10 @@ export default function Component({
 		});
 
 		try {
+			// Convert name to kebab-case for the API request
+			const kebabName = name.toLowerCase().replace(/\s+/g, '-');
 			const response = await fetch(
-				`/api/pokemon?name=${encodeURIComponent(name.toLowerCase())}`
+				`/api/pokemon?name=${encodeURIComponent(kebabName)}`
 			);
 			if (!response.ok) {
 				setEnableToast({
