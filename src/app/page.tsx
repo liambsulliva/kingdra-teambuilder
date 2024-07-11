@@ -100,6 +100,7 @@ export default function Home() {
 							setNumTeams={setNumTeams}
 						/>
 						<PokeInfo
+							gameMode={gameMode}
 							selectedPokemon={selectedPokemon}
 							pokemonParty={pokemonParty}
 							setPokemonParty={setPokemonParty}

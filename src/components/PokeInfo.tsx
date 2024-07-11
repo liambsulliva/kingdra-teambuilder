@@ -18,12 +18,14 @@ import LevelSelect from './LevelSelect';
 import type { pokemonInfo } from '../../lib/pokemonInterface';
 
 export default function PokeInfo({
+	gameMode,
 	selectedPokemon,
 	pokemonParty,
 	setPokemonParty,
 	setEnableToast,
 	selectedTeam,
 }: {
+	gameMode: string;
 	selectedPokemon: number;
 	pokemonParty: pokemon[][];
 	setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
@@ -164,7 +166,9 @@ export default function PokeInfo({
 									/>
 								)}
 							</div>
-							<div className='flex flex-col justify-end'>
+							<div
+								className={`flex flex-col ${gameMode === 'competitive' ? 'justify-end' : 'justify-center'}`}
+							>
 								<h2 className='mb-3 text-4xl font-bold capitalize text-black'>
 									{(() => {
 										const nameParts = pokemonInfo.name.split('-');
@@ -193,12 +197,14 @@ export default function PokeInfo({
 											.join(' ');
 									})()}
 								</h2>
-								<LevelSelect
-									selectedPokemon={selectedPokemon}
-									pokemonParty={pokemonParty}
-									setPokemonParty={setPokemonParty}
-									selectedTeam={selectedTeam}
-								/>
+								{gameMode === 'competitive' && (
+									<LevelSelect
+										selectedPokemon={selectedPokemon}
+										pokemonParty={pokemonParty}
+										setPokemonParty={setPokemonParty}
+										selectedTeam={selectedTeam}
+									/>
+								)}
 							</div>
 						</div>
 						<div className='flex flex-col'>
@@ -350,135 +356,137 @@ export default function PokeInfo({
 							</div>
 						</div>
 					</div>
-					<div className='flex flex-col'>
-						<div className='mb-4'>
-							<p className='text-gray-500 max-md:text-center'>
-								Remaining EV points: {508 - totalEVs}
-							</p>
+					{gameMode === 'competitive' && (
+						<div className='flex flex-col'>
+							<div className='mb-4'>
+								<p className='text-gray-500 max-md:text-center'>
+									Remaining EV points: {508 - totalEVs}
+								</p>
+							</div>
+							<div className='grid h-full grid-cols-2 flex-wrap justify-evenly gap-16 rounded-xl max-xl:grid-cols-1 max-md:mx-auto md:border md:p-12'>
+								<StatBar
+									label={'HP'}
+									id={0}
+									baseValue={pokemonInfo.stats[0].base_stat}
+									level={pokemonParty[selectedTeam][selectedPokemon].level}
+									iv={pokemonParty[selectedTeam][selectedPokemon].iv[0]}
+									ev={pokemonParty[selectedTeam][selectedPokemon].ev[0]}
+									totalEVs={totalEVs}
+									setTotalEVs={setTotalEVs}
+									selectedPokemon={selectedPokemon}
+									setPokemonParty={setPokemonParty}
+									selectedNature={
+										pokemonParty[selectedTeam][selectedPokemon].nature
+									}
+									natures={natures}
+									selectedTeam={selectedTeam}
+								/>
+								<StatBar
+									label={'Atk'}
+									id={1}
+									baseValue={pokemonInfo.stats[1].base_stat}
+									level={pokemonParty[selectedTeam][selectedPokemon].level}
+									iv={pokemonParty[selectedTeam][selectedPokemon].iv[1]}
+									ev={pokemonParty[selectedTeam][selectedPokemon].ev[1]}
+									totalEVs={totalEVs}
+									setTotalEVs={setTotalEVs}
+									selectedPokemon={selectedPokemon}
+									setPokemonParty={setPokemonParty}
+									selectedNature={
+										pokemonParty[selectedTeam][selectedPokemon].nature
+									}
+									natures={natures}
+									selectedTeam={selectedTeam}
+								/>
+								<StatBar
+									label={'Def'}
+									id={2}
+									baseValue={pokemonInfo.stats[2].base_stat}
+									level={pokemonParty[selectedTeam][selectedPokemon].level}
+									iv={pokemonParty[selectedTeam][selectedPokemon].iv[2]}
+									ev={pokemonParty[selectedTeam][selectedPokemon].ev[2]}
+									totalEVs={totalEVs}
+									setTotalEVs={setTotalEVs}
+									selectedPokemon={selectedPokemon}
+									setPokemonParty={setPokemonParty}
+									selectedNature={
+										pokemonParty[selectedTeam][selectedPokemon].nature
+									}
+									natures={natures}
+									selectedTeam={selectedTeam}
+								/>
+								<StatBar
+									label={'Sp. Atk'}
+									id={3}
+									baseValue={pokemonInfo.stats[3].base_stat}
+									level={pokemonParty[selectedTeam][selectedPokemon].level}
+									iv={pokemonParty[selectedTeam][selectedPokemon].iv[3]}
+									ev={pokemonParty[selectedTeam][selectedPokemon].ev[3]}
+									totalEVs={totalEVs}
+									setTotalEVs={setTotalEVs}
+									selectedPokemon={selectedPokemon}
+									setPokemonParty={setPokemonParty}
+									selectedNature={
+										pokemonParty[selectedTeam][selectedPokemon].nature
+									}
+									natures={natures}
+									selectedTeam={selectedTeam}
+								/>
+								<StatBar
+									label={'Sp. Def'}
+									id={4}
+									baseValue={pokemonInfo.stats[4].base_stat}
+									level={pokemonParty[selectedTeam][selectedPokemon].level}
+									iv={pokemonParty[selectedTeam][selectedPokemon].iv[4]}
+									ev={pokemonParty[selectedTeam][selectedPokemon].ev[4]}
+									totalEVs={totalEVs}
+									setTotalEVs={setTotalEVs}
+									selectedPokemon={selectedPokemon}
+									setPokemonParty={setPokemonParty}
+									selectedNature={
+										pokemonParty[selectedTeam][selectedPokemon].nature
+									}
+									natures={natures}
+									selectedTeam={selectedTeam}
+								/>
+								<StatBar
+									label={'Speed'}
+									id={5}
+									baseValue={pokemonInfo.stats[5].base_stat}
+									level={pokemonParty[selectedTeam][selectedPokemon].level}
+									iv={pokemonParty[selectedTeam][selectedPokemon].iv[5]}
+									ev={pokemonParty[selectedTeam][selectedPokemon].ev[5]}
+									totalEVs={totalEVs}
+									setTotalEVs={setTotalEVs}
+									selectedPokemon={selectedPokemon}
+									setPokemonParty={setPokemonParty}
+									selectedNature={
+										pokemonParty[selectedTeam][selectedPokemon].nature
+									}
+									natures={natures}
+									selectedTeam={selectedTeam}
+								/>
+							</div>
+							<div className='flex items-center justify-between max-md:flex-col max-md:pt-8'>
+								<a
+									className='text-gray-500 hover:underline max-md:text-center'
+									target='_blank'
+									rel='noreferrer'
+									href={`https://www.smogon.com/dex/sv/pokemon/${pokemonInfo.name}`}
+								>
+									Smogon Breakdown
+								</a>
+								<LocalIETabber
+									selectedPokemon={selectedPokemon}
+									pokemonParty={pokemonParty}
+									setPokemonParty={setPokemonParty}
+									setTotalEVs={setTotalEVs}
+									setEnableToast={setEnableToast}
+									selectedTeam={selectedTeam}
+								/>
+							</div>
 						</div>
-						<div className='grid h-full grid-cols-2 flex-wrap justify-evenly gap-16 rounded-xl max-xl:grid-cols-1 max-md:mx-auto md:border md:p-12'>
-							<StatBar
-								label={'HP'}
-								id={0}
-								baseValue={pokemonInfo.stats[0].base_stat}
-								level={pokemonParty[selectedTeam][selectedPokemon].level}
-								iv={pokemonParty[selectedTeam][selectedPokemon].iv[0]}
-								ev={pokemonParty[selectedTeam][selectedPokemon].ev[0]}
-								totalEVs={totalEVs}
-								setTotalEVs={setTotalEVs}
-								selectedPokemon={selectedPokemon}
-								setPokemonParty={setPokemonParty}
-								selectedNature={
-									pokemonParty[selectedTeam][selectedPokemon].nature
-								}
-								natures={natures}
-								selectedTeam={selectedTeam}
-							/>
-							<StatBar
-								label={'Atk'}
-								id={1}
-								baseValue={pokemonInfo.stats[1].base_stat}
-								level={pokemonParty[selectedTeam][selectedPokemon].level}
-								iv={pokemonParty[selectedTeam][selectedPokemon].iv[1]}
-								ev={pokemonParty[selectedTeam][selectedPokemon].ev[1]}
-								totalEVs={totalEVs}
-								setTotalEVs={setTotalEVs}
-								selectedPokemon={selectedPokemon}
-								setPokemonParty={setPokemonParty}
-								selectedNature={
-									pokemonParty[selectedTeam][selectedPokemon].nature
-								}
-								natures={natures}
-								selectedTeam={selectedTeam}
-							/>
-							<StatBar
-								label={'Def'}
-								id={2}
-								baseValue={pokemonInfo.stats[2].base_stat}
-								level={pokemonParty[selectedTeam][selectedPokemon].level}
-								iv={pokemonParty[selectedTeam][selectedPokemon].iv[2]}
-								ev={pokemonParty[selectedTeam][selectedPokemon].ev[2]}
-								totalEVs={totalEVs}
-								setTotalEVs={setTotalEVs}
-								selectedPokemon={selectedPokemon}
-								setPokemonParty={setPokemonParty}
-								selectedNature={
-									pokemonParty[selectedTeam][selectedPokemon].nature
-								}
-								natures={natures}
-								selectedTeam={selectedTeam}
-							/>
-							<StatBar
-								label={'Sp. Atk'}
-								id={3}
-								baseValue={pokemonInfo.stats[3].base_stat}
-								level={pokemonParty[selectedTeam][selectedPokemon].level}
-								iv={pokemonParty[selectedTeam][selectedPokemon].iv[3]}
-								ev={pokemonParty[selectedTeam][selectedPokemon].ev[3]}
-								totalEVs={totalEVs}
-								setTotalEVs={setTotalEVs}
-								selectedPokemon={selectedPokemon}
-								setPokemonParty={setPokemonParty}
-								selectedNature={
-									pokemonParty[selectedTeam][selectedPokemon].nature
-								}
-								natures={natures}
-								selectedTeam={selectedTeam}
-							/>
-							<StatBar
-								label={'Sp. Def'}
-								id={4}
-								baseValue={pokemonInfo.stats[4].base_stat}
-								level={pokemonParty[selectedTeam][selectedPokemon].level}
-								iv={pokemonParty[selectedTeam][selectedPokemon].iv[4]}
-								ev={pokemonParty[selectedTeam][selectedPokemon].ev[4]}
-								totalEVs={totalEVs}
-								setTotalEVs={setTotalEVs}
-								selectedPokemon={selectedPokemon}
-								setPokemonParty={setPokemonParty}
-								selectedNature={
-									pokemonParty[selectedTeam][selectedPokemon].nature
-								}
-								natures={natures}
-								selectedTeam={selectedTeam}
-							/>
-							<StatBar
-								label={'Speed'}
-								id={5}
-								baseValue={pokemonInfo.stats[5].base_stat}
-								level={pokemonParty[selectedTeam][selectedPokemon].level}
-								iv={pokemonParty[selectedTeam][selectedPokemon].iv[5]}
-								ev={pokemonParty[selectedTeam][selectedPokemon].ev[5]}
-								totalEVs={totalEVs}
-								setTotalEVs={setTotalEVs}
-								selectedPokemon={selectedPokemon}
-								setPokemonParty={setPokemonParty}
-								selectedNature={
-									pokemonParty[selectedTeam][selectedPokemon].nature
-								}
-								natures={natures}
-								selectedTeam={selectedTeam}
-							/>
-						</div>
-						<div className='flex items-center justify-between max-md:flex-col max-md:pt-8'>
-							<a
-								className='text-gray-500 hover:underline max-md:text-center'
-								target='_blank'
-								rel='noreferrer'
-								href={`https://www.smogon.com/dex/sv/pokemon/${pokemonInfo.name}`}
-							>
-								Smogon Breakdown
-							</a>
-							<LocalIETabber
-								selectedPokemon={selectedPokemon}
-								pokemonParty={pokemonParty}
-								setPokemonParty={setPokemonParty}
-								setTotalEVs={setTotalEVs}
-								setEnableToast={setEnableToast}
-								selectedTeam={selectedTeam}
-							/>
-						</div>
-					</div>
+					)}
 				</div>
 			)}
 		</div>
