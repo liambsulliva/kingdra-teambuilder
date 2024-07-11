@@ -107,7 +107,7 @@ export default function Home() {
 							setEnableToast={setEnableToast}
 						/>
 					</div>
-					{pokemonParty[selectedTeam]?.length > 0 && (
+					{pokemonParty[selectedTeam]?.length > 0 && gameMode === 'casual' && (
 						<TypeCoverage
 							pokemonParty={pokemonParty}
 							selectedTeam={selectedTeam}
