@@ -227,28 +227,28 @@ export default function Component({
 	};
 
 	return (
-		<div className="m-4 flex flex-col items-center gap-2">
+		<div className='m-4 flex flex-col items-center gap-2'>
 			<ButtonGroup>
-				<Button color="light" onClick={() => setShowModal(true)}>
-					<DownloadIcon className="mr-3" />
+				<Button color='light' onClick={() => setShowModal(true)}>
+					<DownloadIcon className='mr-3' />
 					Import
 				</Button>
 				<Button
-					color="light"
+					color='light'
 					onClick={exportPokemonParty}
 					disabled={pokemonParty.length <= 0}
 				>
-					<UploadIcon className="mr-3" />
+					<UploadIcon className='mr-3' />
 					Export
 				</Button>
 			</ButtonGroup>
-			<p className="text-xs text-gray-500">
+			<p className='text-xs text-gray-500'>
 				From{' '}
 				<a
-					className="text-gray-500 hover:underline"
-					target="_blank"
-					rel="noreferrer"
-					href="https://play.pokemonshowdown.com/"
+					className='text-gray-500 hover:underline'
+					target='_blank'
+					rel='noreferrer'
+					href='https://play.pokemonshowdown.com/'
 				>
 					Pokemon Showdown
 				</a>
@@ -277,10 +277,10 @@ Timid Nature
 					/>
 				</Modal.Body>
 				<Modal.Footer>
-					<Button color="blue" onClick={importPokemonParty}>
+					<Button color='blue' onClick={importPokemonParty}>
 						Import
 					</Button>
-					<Button color="light" onClick={() => setShowModal(false)}>
+					<Button color='light' onClick={() => setShowModal(false)}>
 						Cancel
 					</Button>
 				</Modal.Footer>

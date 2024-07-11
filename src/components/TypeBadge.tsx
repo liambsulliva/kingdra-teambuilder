@@ -13,14 +13,14 @@ const TypeBadge: React.FC<TypeBadgeProps> = ({ type, size }) => {
 
 	return (
 		<div
-			className="flex cursor-default items-center justify-center rounded-xl"
+			className='flex cursor-default items-center justify-center rounded-xl'
 			style={{
 				padding: `${size / 8.5}rem ${size / 4.5}rem`,
 				backgroundColor: `#${color}`,
 			}}
 		>
 			<p
-				className="text-center font-semibold capitalize text-white"
+				className='text-center font-semibold capitalize text-white'
 				style={{ fontSize: `${size / 4}rem` }}
 			>
 				{type}

@@ -107,15 +107,15 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
 
 	return (
 		<div
-			className="flex h-44 w-32 cursor-pointer flex-col items-center justify-center rounded bg-[#fff] shadow transition-transform duration-200 hover:bg-gray-50 md:h-32"
+			className='flex h-44 w-32 cursor-pointer flex-col items-center justify-center rounded bg-[#fff] shadow transition-transform duration-200 hover:bg-gray-50 md:h-32'
 			onClick={handleClick}
 		>
 			<img
-				className="md:h-24 md:w-24"
+				className='md:h-24 md:w-24'
 				src={pokemon.sprite}
 				alt={pokemon.name}
 			/>
-			<p className="text-center text-sm">{pokemon.name}</p>
+			<p className='text-center text-sm'>{pokemon.name}</p>
 		</div>
 	);
 };

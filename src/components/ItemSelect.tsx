@@ -190,23 +190,23 @@ export default function ItemSelect({
 	};
 
 	return (
-		<div className="relative mb-4 flex items-center gap-4 max-md:flex-col">
-			<h3 className="text-xl text-gray-600">Item:</h3>
-			<div className="relative" ref={itemInputRef}>
+		<div className='relative mb-4 flex items-center gap-4 max-md:flex-col'>
+			<h3 className='text-xl text-gray-600'>Item:</h3>
+			<div className='relative' ref={itemInputRef}>
 				<input
 					className={`border-2 ${itemError ? 'border-red-500' : 'border-gray-300'} h-10 rounded-lg bg-white px-5 pr-16 text-sm focus:outline-none max-md:w-40`}
-					type="text"
-					name="Item"
-					placeholder="Item"
-					autoComplete="off"
+					type='text'
+					name='Item'
+					placeholder='Item'
+					autoComplete='off'
 					value={itemInput}
 					onChange={handleItemInputChange}
 					onBlur={handleItemInputBlur}
 					onKeyDown={handleKeyDown}
 				/>
-				{itemError && <p className="mt-1 text-xs text-red-500">{itemError}</p>}
+				{itemError && <p className='mt-1 text-xs text-red-500'>{itemError}</p>}
 				{itemSuggestions.length > 0 && itemInput !== '' && (
-					<ul className="absolute z-10 mt-1 w-full rounded-lg border border-gray-300 bg-white shadow-lg">
+					<ul className='absolute z-10 mt-1 w-full rounded-lg border border-gray-300 bg-white shadow-lg'>
 						{itemSuggestions.map((item, index) => (
 							<li
 								key={index}
@@ -216,7 +216,7 @@ export default function ItemSelect({
 								onClick={() => handleItemSuggestionSelect(item.name)}
 							>
 								<div>{item.name}</div>
-								<div className="text-xs text-gray-500">{item.effect}</div>
+								<div className='text-xs text-gray-500'>{item.effect}</div>
 							</li>
 						))}
 					</ul>

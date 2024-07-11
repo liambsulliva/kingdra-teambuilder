@@ -81,8 +81,8 @@ export default function PokeParty({
 	}, [pokemonParty, debouncedPostPokemonParty]);
 
 	return (
-		<div className="flex flex-col items-center py-4">
-			<div className="grid grid-cols-3 gap-4 p-6 md:grid-cols-2">
+		<div className='flex flex-col items-center py-4'>
+			<div className='grid grid-cols-3 gap-4 p-6 md:grid-cols-2'>
 				{pokemonParty[selectedTeam]?.map((pokemon, index) => (
 					<PokeSlot
 						key={pokemon.id}

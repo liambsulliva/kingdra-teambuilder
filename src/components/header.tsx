@@ -20,18 +20,18 @@ export default function Header({
 	onDeleteTeam,
 }: HeaderProps) {
 	return (
-		<div className="flex flex-row items-center justify-between p-6 pb-4">
-			<div className="flex flex-row items-center gap-10">
-				<div className="flex items-center gap-2">
-					<img src="icon.png" className="h-16" />
-					<h1 className="font-custom select-none text-5xl font-extrabold max-md:hidden">
+		<div className='flex flex-row items-center justify-between p-6 pb-4'>
+			<div className='flex flex-row items-center gap-10'>
+				<div className='flex items-center gap-2'>
+					<img src='icon.png' className='h-16' />
+					<h1 className='font-custom select-none text-5xl font-extrabold max-md:hidden'>
 						Kingdra
 					</h1>
 				</div>
 				<ModeTabber leftLabel={'Casual'} rightLabel={'Competitive'} />
 			</div>
-			<div className="flex flex-row gap-6 px-6">
-				<Button className="max-lg:hidden" color="light" onClick={onNewTeam}>
+			<div className='flex flex-row gap-6 px-6'>
+				<Button className='max-lg:hidden' color='light' onClick={onNewTeam}>
 					New Team
 				</Button>
 				<TeamSelector
@@ -40,7 +40,7 @@ export default function Header({
 					onDeleteTeam={onDeleteTeam}
 				/>
 				<SignedOut>
-					<Button color="light">
+					<Button color='light'>
 						<SignInButton />
 					</Button>
 				</SignedOut>

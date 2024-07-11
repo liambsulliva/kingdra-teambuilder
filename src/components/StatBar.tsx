@@ -209,19 +209,19 @@ const StatBar: React.FC<StatBarProps> = ({
 
 	const speedCalcs = (
 		<div>
-			<ul className="gap-1 p-2">
-				<li className="flex items-center gap-2">
-					<p className="text-gray-600">
+			<ul className='gap-1 p-2'>
+				<li className='flex items-center gap-2'>
+					<p className='text-gray-600'>
 						+1 Stage / Scarfed: <strong>{calculateStatTotal() * 1.5}</strong>
 					</p>
 				</li>
-				<li className="flex items-center gap-2">
-					<p className="text-gray-600">
+				<li className='flex items-center gap-2'>
+					<p className='text-gray-600'>
 						+2 Stages: <strong>{calculateStatTotal() * 2}</strong>
 					</p>
 				</li>
-				<li className="flex items-center gap-2">
-					<p className="text-gray-600">
+				<li className='flex items-center gap-2'>
+					<p className='text-gray-600'>
 						+3 Stages: <strong>{calculateStatTotal() * 2.5}</strong>
 					</p>
 				</li>
@@ -230,10 +230,10 @@ const StatBar: React.FC<StatBarProps> = ({
 	);
 
 	return (
-		<div className="flex flex-col gap-1">
-			<div className="flex items-center gap-2">
+		<div className='flex flex-col gap-1'>
+			<div className='flex items-center gap-2'>
 				<p className={`${getNatureColor()} select-none text-nowrap`}>{label}</p>
-				<div className="flex flex-col">
+				<div className='flex flex-col'>
 					<div
 						style={{
 							width: `${0.35 * calculateStatTotal()}px`,
@@ -259,74 +259,74 @@ const StatBar: React.FC<StatBarProps> = ({
 				</div>
 				<p>{calculateStatTotal()}</p>
 				{label === 'Speed' && (
-					<Tooltip content={speedCalcs} style="light" className="w-64">
+					<Tooltip content={speedCalcs} style='light' className='w-64'>
 						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="1.5rem"
-							height="1.5rem"
-							viewBox="0 0 24 24"
+							xmlns='http://www.w3.org/2000/svg'
+							width='1.5rem'
+							height='1.5rem'
+							viewBox='0 0 24 24'
 						>
 							<path
-								fill="black"
-								d="M12 17q.425 0 .713-.288T13 16v-4q0-.425-.288-.712T12 11t-.712.288T11 12v4q0 .425.288.713T12 17m0-8q.425 0 .713-.288T13 8t-.288-.712T12 7t-.712.288T11 8t.288.713T12 9m0 13q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"
+								fill='black'
+								d='M12 17q.425 0 .713-.288T13 16v-4q0-.425-.288-.712T12 11t-.712.288T11 12v4q0 .425.288.713T12 17m0-8q.425 0 .713-.288T13 8t-.288-.712T12 7t-.712.288T11 8t.288.713T12 9m0 13q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22'
 							/>
 						</svg>
 					</Tooltip>
 				)}
 			</div>
-			<div className="flex gap-2">
+			<div className='flex gap-2'>
 				<p
-					className="select-none text-gray-500"
+					className='select-none text-gray-500'
 					onDoubleClick={handleIVDoubleClick}
 				>
 					IV
 				</p>
 				<input
-					className="w-32"
-					type="range"
-					min="0"
-					max="31"
+					className='w-32'
+					type='range'
+					min='0'
+					max='31'
 					value={iv}
 					onChange={(e) => validateAndSetIV(parseInt(e.target.value, 10))}
 				/>
-				<div className="relative">
+				<div className='relative'>
 					<input
 						className={`border-2 ${ivError ? 'border-red-500' : 'border-gray-300'} w-18 h-10 rounded-lg bg-white px-4 text-sm focus:outline-none`}
-						type="number"
+						type='number'
 						value={ivInput}
 						onChange={handleIvInputChange}
 						onBlur={handleIvInputBlur}
 						onKeyDown={handleIvInputKeyPress}
-						min="0"
-						max="31"
+						min='0'
+						max='31'
 					/>
 				</div>
 			</div>
-			<div className="flex gap-2">
+			<div className='flex gap-2'>
 				<p
-					className="select-none text-gray-500"
+					className='select-none text-gray-500'
 					onDoubleClick={handleEVDoubleClick}
 				>
 					EV
 				</p>
 				<input
-					className="w-32"
-					type="range"
-					min="0"
-					max="252"
+					className='w-32'
+					type='range'
+					min='0'
+					max='252'
 					value={ev}
 					onChange={handleEV}
 				/>
-				<div className="relative">
+				<div className='relative'>
 					<input
 						className={`border-2 ${evError ? 'border-red-500' : 'border-gray-300'} h-10 w-20 rounded-lg bg-white px-4 text-sm focus:outline-none`}
-						type="number"
+						type='number'
 						value={evInput}
 						onChange={handleEvInputChange}
 						onBlur={handleEvInputBlur}
 						onKeyDown={handleEvInputKeyPress}
-						min="0"
-						max="252"
+						min='0'
+						max='252'
 					/>
 				</div>
 			</div>

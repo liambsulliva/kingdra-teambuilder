@@ -21,26 +21,26 @@ const socials = [
 
 export default function Footer() {
 	return (
-		<div className="flex flex-row items-center justify-between p-8">
-			<p className="font-medium">
+		<div className='flex flex-row items-center justify-between p-8'>
+			<p className='font-medium'>
 				Designed and Developed by{' '}
 				<a
-					className="text-black hover:underline"
-					target="_blank"
-					rel="noreferrer"
-					href="https://liambsullivan.com/"
+					className='text-black hover:underline'
+					target='_blank'
+					rel='noreferrer'
+					href='https://liambsullivan.com/'
 				>
 					Liam Sullivan
 				</a>
 			</p>
-			<div className="flex flex-row gap-2">
+			<div className='flex flex-row gap-2'>
 				{socials.map((social, index) => (
 					<a
 						key={index}
 						href={social.href}
 						aria-label={social.name}
-						target="_blank"
-						rel="noopener noreferrer"
+						target='_blank'
+						rel='noopener noreferrer'
 					>
 						<div dangerouslySetInnerHTML={{ __html: social.icon }} />
 					</a>

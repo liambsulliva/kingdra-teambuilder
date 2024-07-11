@@ -202,24 +202,24 @@ export default function moveSelect({
 	};
 
 	return (
-		<div className="relative mb-4 flex items-center gap-4 max-md:flex-col">
-			<h3 className="text-xl text-gray-600">Move {index + 1}: </h3>
-			<div className="relative" ref={moveInputRef}>
+		<div className='relative mb-4 flex items-center gap-4 max-md:flex-col'>
+			<h3 className='text-xl text-gray-600'>Move {index + 1}: </h3>
+			<div className='relative' ref={moveInputRef}>
 				<input
 					className={`border-2 ${moveError ? 'border-red-500' : 'border-gray-300'} h-10 rounded-lg bg-white px-5 pr-12 text-sm focus:outline-none max-md:w-40`}
-					type="text"
-					name="Move"
-					autoComplete="off"
-					placeholder="Move"
+					type='text'
+					name='Move'
+					autoComplete='off'
+					placeholder='Move'
 					value={moveInput}
 					onChange={handleMoveInputChange}
 					onBlur={handleMoveInputBlur}
 					onKeyDown={handleMoveInputKeyDown}
 					ref={moveInputRef}
 				/>
-				{moveError && <p className="mt-1 text-xs text-red-500">{moveError}</p>}
+				{moveError && <p className='mt-1 text-xs text-red-500'>{moveError}</p>}
 				{moveSuggestions.length > 0 && moveInput !== '' && (
-					<ul className="absolute z-10 mt-1 w-full rounded-lg border border-gray-300 bg-white shadow-lg">
+					<ul className='absolute z-10 mt-1 w-full rounded-lg border border-gray-300 bg-white shadow-lg'>
 						{moveSuggestions.slice(0, 10).map((move, index) => (
 							<li
 								key={index}
@@ -228,35 +228,35 @@ export default function moveSelect({
 								}`}
 								onClick={() => handleMoveSuggestionSelect(move.name)}
 							>
-								<div className="flex flex-col">
-									<div className="flex items-center justify-between">
-										<h3 className="text-lg">{move.name}</h3>
-										<p className="text-xs capitalize text-gray-800">
+								<div className='flex flex-col'>
+									<div className='flex items-center justify-between'>
+										<h3 className='text-lg'>{move.name}</h3>
+										<p className='text-xs capitalize text-gray-800'>
 											BP:{' '}
-											<strong className="font-medium">
+											<strong className='font-medium'>
 												{move.base || 'N/A'}
 											</strong>
 										</p>
 									</div>
-									<div className="flex items-center justify-between">
-										<div className="flex items-center gap-2">
+									<div className='flex items-center justify-between'>
+										<div className='flex items-center gap-2'>
 											<TypeBadge type={move.type} size={2} />
 											{move.moveClass === 'physical' && (
-												<img src="physical.png" />
+												<img src='physical.png' />
 											)}
 											{move.moveClass === 'special' && (
-												<img src="special.png" />
+												<img src='special.png' />
 											)}
-											{move.moveClass === 'status' && <img src="status.png" />}
+											{move.moveClass === 'status' && <img src='status.png' />}
 										</div>
-										<p className="text-xs text-gray-800">
-											ACC: <strong className="font-medium">{move.acc}%</strong>
+										<p className='text-xs text-gray-800'>
+											ACC: <strong className='font-medium'>{move.acc}%</strong>
 										</p>
 									</div>
 									{move.effect !==
 										'Inflicts regular damage with no additional effect.' &&
 										move.effect !== 'Inflicts regular damage.' && (
-											<p className="pt-1 text-xs text-gray-500">
+											<p className='pt-1 text-xs text-gray-500'>
 												{move.effect}
 											</p>
 										)}

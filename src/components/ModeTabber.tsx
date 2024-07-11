@@ -16,22 +16,22 @@ export default function Component({ leftLabel, rightLabel }: TabberProps) {
 	};
 
 	return (
-		<div className="mx-4 max-lg:hidden">
+		<div className='mx-4 max-lg:hidden'>
 			<ButtonGroup>
 				<Button
 					color={selectedTab === 'left' ? 'blue' : 'light'}
-					title="Coming Soon!"
+					title='Coming Soon!'
 					disabled
 					onClick={() => handleTabClick('left')}
 				>
-					<PartyIcon className="mr-3" selectedTab={selectedTab} />
+					<PartyIcon className='mr-3' selectedTab={selectedTab} />
 					{leftLabel}
 				</Button>
 				<Button
 					color={selectedTab === 'right' ? 'blue' : 'light'}
 					onClick={() => handleTabClick('right')}
 				>
-					<ClashIcon className="mr-3" selectedTab={selectedTab} />
+					<ClashIcon className='mr-3' selectedTab={selectedTab} />
 					{rightLabel}
 				</Button>
 			</ButtonGroup>

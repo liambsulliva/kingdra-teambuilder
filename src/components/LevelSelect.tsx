@@ -81,23 +81,23 @@ export default function LevelSelect({
 	};
 
 	return (
-		<div className="mb-4 flex items-center gap-4">
-			<h3 className="text-xl text-gray-600">Lv.</h3>
-			<div className="relative">
+		<div className='mb-4 flex items-center gap-4'>
+			<h3 className='text-xl text-gray-600'>Lv.</h3>
+			<div className='relative'>
 				<input
 					className={`border-2 ${levelError ? 'border-red-500' : 'border-gray-300'} h-10 w-20 rounded-lg bg-white px-4 text-sm focus:outline-none`}
-					type="number"
-					name="Level"
-					autoComplete="off"
+					type='number'
+					name='Level'
+					autoComplete='off'
 					value={levelInput}
 					onChange={handleLevelInputChange}
 					onBlur={handleLevelInputBlur}
 					onKeyDown={handleLevelInputKeyPress}
-					min="1"
-					max="100"
+					min='1'
+					max='100'
 				/>
 				{levelError && (
-					<p className="mt-1 text-xs text-red-500">{levelError}</p>
+					<p className='mt-1 text-xs text-red-500'>{levelError}</p>
 				)}
 			</div>
 		</div>

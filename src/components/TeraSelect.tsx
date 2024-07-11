@@ -162,8 +162,8 @@ export default function TeraSelect({
 	const textColor = isExactMatch ? 'white' : 'black';
 
 	return (
-		<div className="relative flex items-center gap-4">
-			<div className="relative" ref={teraInputRef}>
+		<div className='relative flex items-center gap-4'>
+			<div className='relative' ref={teraInputRef}>
 				<input
 					className={`border-2 ${teraError ? 'border-red-500' : 'border-gray-300'} h-12 w-32 rounded-xl px-4 text-xl/8 focus:outline-none`}
 					style={{
@@ -173,18 +173,18 @@ export default function TeraSelect({
 						fontWeight: fontWeight,
 						textAlign: textAlign,
 					}}
-					type="text"
-					name="Tera Type"
-					placeholder="Tera"
-					autoComplete="off"
+					type='text'
+					name='Tera Type'
+					placeholder='Tera'
+					autoComplete='off'
 					value={teraInput}
 					onChange={handleTeraInputChange}
 					onBlur={handleTeraInputBlur}
 					onKeyDown={handleKeyDown}
 				/>
-				{teraError && <p className="mt-1 text-xs text-red-500">{teraError}</p>}
+				{teraError && <p className='mt-1 text-xs text-red-500'>{teraError}</p>}
 				{teraSuggestions.length > 0 && teraInput !== '' && (
-					<ul className="absolute z-10 mt-1 w-full rounded-lg border border-gray-300 bg-white shadow-lg">
+					<ul className='absolute z-10 mt-1 w-full rounded-lg border border-gray-300 bg-white shadow-lg'>
 						{teraSuggestions.slice(0, 10).map((type, index) => (
 							<li
 								key={index}

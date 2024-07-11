@@ -254,25 +254,25 @@ export default function NatureSelect({
 	};
 
 	return (
-		<div className="relative mb-4 flex items-center gap-4 max-md:flex-col">
-			<h3 className="text-xl text-gray-600">Nature:</h3>
-			<div className="relative" ref={natureInputRef}>
+		<div className='relative mb-4 flex items-center gap-4 max-md:flex-col'>
+			<h3 className='text-xl text-gray-600'>Nature:</h3>
+			<div className='relative' ref={natureInputRef}>
 				<input
 					className={`border-2 ${natureError ? 'border-red-500' : 'border-gray-300'} h-10 rounded-lg bg-white px-5 pr-16 text-sm focus:outline-none max-md:w-40`}
-					type="text"
-					name="Nature"
-					placeholder="Nature"
-					autoComplete="off"
+					type='text'
+					name='Nature'
+					placeholder='Nature'
+					autoComplete='off'
 					value={natureInput}
 					onChange={handleNatureInputChange}
 					onBlur={handleNatureInputBlur}
 					onKeyDown={handleKeyDown}
 				/>
 				{natureError && (
-					<p className="mt-1 text-xs text-red-500">{natureError}</p>
+					<p className='mt-1 text-xs text-red-500'>{natureError}</p>
 				)}
 				{natureSuggestions.length > 0 && natureInput !== '' && (
-					<ul className="absolute z-10 mt-1 w-full rounded-lg border border-gray-300 bg-white shadow-lg">
+					<ul className='absolute z-10 mt-1 w-full rounded-lg border border-gray-300 bg-white shadow-lg'>
 						{natureSuggestions.slice(0, 10).map((nature, index) => (
 							<li
 								key={index}
@@ -282,7 +282,7 @@ export default function NatureSelect({
 								onClick={() => handleNatureSuggestionSelect(nature)}
 							>
 								<div>{nature}</div>
-								<div className="text-xs">
+								<div className='text-xs'>
 									{natureDescriptions[nature.toLowerCase() as Nature]}
 								</div>
 							</li>

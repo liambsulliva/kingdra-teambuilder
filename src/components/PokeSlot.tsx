@@ -46,16 +46,16 @@ export default function PokeSlot({
 		}
 	};
 	return (
-		<div className="relative">
+		<div className='relative'>
 			{pokemon ? (
 				<div
-					className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded bg-[#fff] shadow transition-transform duration-200 hover:bg-gray-50"
+					className='flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded bg-[#fff] shadow transition-transform duration-200 hover:bg-gray-50'
 					onClick={() => {
 						setSelectedPokemon((selected) => (selected === index ? -1 : index));
 					}}
 				>
 					<div
-						className="absolute right-0 top-0 -translate-y-2 translate-x-2"
+						className='absolute right-0 top-0 -translate-y-2 translate-x-2'
 						onClick={() => {
 							handleDelete();
 						}}
@@ -65,7 +65,7 @@ export default function PokeSlot({
 					<img src={pokemon.sprite} alt={pokemon.name} />
 				</div>
 			) : (
-				<div className="h-24 w-24 rounded bg-[#f9f9f9]" />
+				<div className='h-24 w-24 rounded bg-[#f9f9f9]' />
 			)}
 		</div>
 	);

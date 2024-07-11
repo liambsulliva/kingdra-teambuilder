@@ -244,14 +244,14 @@ export default function Component({
 	};
 
 	return (
-		<div className="m-4 flex flex-col items-center gap-2">
+		<div className='m-4 flex flex-col items-center gap-2'>
 			<ButtonGroup>
-				<Button color="light" onClick={() => setShowModal(true)}>
-					<DownloadIcon className="mr-3" />
+				<Button color='light' onClick={() => setShowModal(true)}>
+					<DownloadIcon className='mr-3' />
 					Import
 				</Button>
-				<Button color="light" onClick={exportSelectedPokemon}>
-					<UploadIcon className="mr-3" />
+				<Button color='light' onClick={exportSelectedPokemon}>
+					<UploadIcon className='mr-3' />
 					Export
 				</Button>
 			</ButtonGroup>
@@ -277,10 +277,10 @@ Timid Nature
 					/>
 				</Modal.Body>
 				<Modal.Footer>
-					<Button color="blue" onClick={importPokemon}>
+					<Button color='blue' onClick={importPokemon}>
 						Import
 					</Button>
-					<Button color="light" onClick={() => setShowModal(false)}>
+					<Button color='light' onClick={() => setShowModal(false)}>
 						Cancel
 					</Button>
 				</Modal.Footer>

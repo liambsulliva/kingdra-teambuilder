@@ -75,7 +75,7 @@ export default function Home() {
 
 	return (
 		<body
-			className="mx-auto"
+			className='mx-auto'
 			style={{ width: '1850px', maxWidth: 'calc(100% - 1rem)' }}
 		>
 			<ClerkProvider>
@@ -87,8 +87,8 @@ export default function Home() {
 					onNewTeam={handleNewTeam}
 					onDeleteTeam={handleDeleteTeam}
 				/>
-				<div className="font-serif mx-auto flex flex-col gap-8 p-8">
-					<div className="flex flex-col gap-4 md:flex-row">
+				<div className='font-serif mx-auto flex flex-col gap-8 p-8'>
+					<div className='flex flex-col gap-4 md:flex-row'>
 						<PokeParty
 							pokemonParty={pokemonParty}
 							setPokemonParty={setPokemonParty}
