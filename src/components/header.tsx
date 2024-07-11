@@ -5,6 +5,7 @@ import '@/app/globals.css';
 import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 
 interface HeaderProps {
+	setGameMode: (mode: string) => void;
 	numTeams: number;
 	setNumTeams: (num: number) => void;
 	selectedTeam: number;
@@ -14,6 +15,7 @@ interface HeaderProps {
 }
 
 const Header = ({
+	setGameMode,
 	numTeams,
 	setSelectedTeam,
 	onNewTeam,
@@ -28,7 +30,11 @@ const Header = ({
 						Kingdra
 					</h1>
 				</div>
-				<ModeTabber leftLabel={'Casual'} rightLabel={'Competitive'} />
+				<ModeTabber
+					leftLabel={'Casual'}
+					rightLabel={'Competitive'}
+					setGameMode={setGameMode}
+				/>
 			</div>
 			<div className='flex flex-row gap-6 px-6'>
 				<Button className='max-lg:hidden' color='light' onClick={onNewTeam}>

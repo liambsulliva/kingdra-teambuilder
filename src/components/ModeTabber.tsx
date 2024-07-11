@@ -6,13 +6,19 @@ import ClashIcon from './ClashIcon';
 interface TabberProps {
 	leftLabel: string;
 	rightLabel: string;
+	setGameMode: (mode: string) => void;
 }
 
-export default function Component({ leftLabel, rightLabel }: TabberProps) {
+export default function Component({
+	leftLabel,
+	rightLabel,
+	setGameMode,
+}: TabberProps) {
 	const [selectedTab, setSelectedTab] = useState('right');
 
 	const handleTabClick = (tab: string) => {
 		setSelectedTab(tab);
+		setGameMode(tab);
 	};
 
 	return (
@@ -20,8 +26,6 @@ export default function Component({ leftLabel, rightLabel }: TabberProps) {
 			<ButtonGroup>
 				<Button
 					color={selectedTab === 'left' ? 'blue' : 'light'}
-					title='Coming Soon!'
-					disabled
 					onClick={() => handleTabClick('left')}
 				>
 					<PartyIcon className='mr-3' selectedTab={selectedTab} />

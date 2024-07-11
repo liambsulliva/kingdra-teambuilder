@@ -12,6 +12,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import type { pokemon } from '../../lib/pokemonInterface';
 
 export default function Home() {
+	const [gameMode, setGameMode] = useState<string>('competitive');
 	const [pokemonParty, setPokemonParty] = useState<pokemon[][]>([[]]);
 	const [numTeams, setNumTeams] = useState<number>(1);
 	const [selectedPokemon, setSelectedPokemon] = useState<number>(-1);
@@ -80,6 +81,7 @@ export default function Home() {
 		>
 			<ClerkProvider>
 				<Header
+					setGameMode={setGameMode}
 					numTeams={numTeams}
 					setNumTeams={setNumTeams}
 					selectedTeam={selectedTeam}
