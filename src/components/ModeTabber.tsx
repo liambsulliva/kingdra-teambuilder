@@ -14,7 +14,7 @@ export default function Component({
 	rightLabel,
 	setGameMode,
 }: TabberProps) {
-	const [selectedTab, setSelectedTab] = useState('right');
+	const [selectedTab, setSelectedTab] = useState('competitive');
 
 	const handleTabClick = (tab: string) => {
 		setSelectedTab(tab);
@@ -25,15 +25,15 @@ export default function Component({
 		<div className='mx-4 max-lg:hidden'>
 			<ButtonGroup>
 				<Button
-					color={selectedTab === 'left' ? 'blue' : 'light'}
-					onClick={() => handleTabClick('left')}
+					color={selectedTab === 'casual' ? 'blue' : 'light'}
+					onClick={() => handleTabClick('casual')}
 				>
 					<PartyIcon className='mr-3' selectedTab={selectedTab} />
 					{leftLabel}
 				</Button>
 				<Button
-					color={selectedTab === 'right' ? 'blue' : 'light'}
-					onClick={() => handleTabClick('right')}
+					color={selectedTab === 'competitive' ? 'blue' : 'light'}
+					onClick={() => handleTabClick('competitive')}
 				>
 					<ClashIcon className='mr-3' selectedTab={selectedTab} />
 					{rightLabel}
