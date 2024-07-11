@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import { ClerkProvider } from '@clerk/nextjs';
 import type { pokemon } from '../../lib/pokemonInterface';
 
-export default function Home() {
+const Home = () => {
 	const [gameMode, setGameMode] = useState<string>('competitive');
 	const [pokemonParty, setPokemonParty] = useState<pokemon[][]>([[]]);
 	const [numTeams, setNumTeams] = useState<number>(1);
@@ -108,7 +108,7 @@ export default function Home() {
 							setEnableToast={setEnableToast}
 						/>
 					</div>
-					{pokemonParty[selectedTeam]?.length > 0 && gameMode === 'casual' && (
+					{pokemonParty[selectedTeam]?.length > 0 && (
 						<TypeCoverage
 							pokemonParty={pokemonParty}
 							selectedTeam={selectedTeam}
@@ -132,4 +132,6 @@ export default function Home() {
 			</ClerkProvider>
 		</body>
 	);
-}
+};
+
+export default Home;

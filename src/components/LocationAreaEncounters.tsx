@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import LoadingIcon from '@/components/LoadingIcon';
 import axios from 'axios';
+import { FaGamepad } from 'react-icons/fa';
 
 const LocationAreaEncounters = ({ url }: { url: string }) => {
 	const [encounters, setEncounters] = useState([]);
@@ -23,11 +24,15 @@ const LocationAreaEncounters = ({ url }: { url: string }) => {
 		fetchEncounters();
 	}, [url]);
 
+	const formatName = (name: string) => {
+		return name.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+	};
+
 	if (loading) return <LoadingIcon />;
 	if (error) return <p>{error}</p>;
 
 	return (
-		<div className='grid grid-cols-2 gap-4'>
+		<div className='grid h-[38rem] grid-cols-2 gap-4 overflow-y-auto'>
 			{encounters.length > 0 ? (
 				encounters.map(
 					(
@@ -40,18 +45,26 @@ const LocationAreaEncounters = ({ url }: { url: string }) => {
 						},
 						index
 					) => (
-						<div key={index} className='mb-4'>
-							<h4 className='font-bold'>
-								{encounter.location_area.name.replace(/-/g, ' ')}
+						<div
+							key={index}
+							className='rounded-lg border border-gray-300 p-4 shadow-sm'
+						>
+							<h4 className='mb-2 text-lg font-bold'>
+								{formatName(encounter.location_area.name)}
 							</h4>
-							<ul>
-								{encounter.version_details.map((versionDetail, index) => (
-									<li key={index}>
-										{versionDetail.version.name}: {versionDetail.max_chance}%
-										chance
-									</li>
-								))}
-							</ul>
+							{encounter.version_details.map((versionDetail, index) => (
+								<div key={index} className='mb-2 flex items-center'>
+									<FaGamepad className='mr-2 text-gray-600' />
+									<div>
+										<p className='font-semibold'>
+											{formatName(versionDetail.version.name)}
+										</p>
+										<p className='text-sm text-gray-600'>
+											{versionDetail.max_chance}% chance
+										</p>
+									</div>
+								</div>
+							))}
 						</div>
 					)
 				)

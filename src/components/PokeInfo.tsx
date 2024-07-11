@@ -18,7 +18,7 @@ import LevelSelect from './LevelSelect';
 import LocationAreaEncounters from './LocationAreaEncounters';
 import type { pokemonInfo } from '../../lib/pokemonInterface';
 
-export default function PokeInfo({
+const PokeInfo = ({
 	gameMode,
 	selectedPokemon,
 	pokemonParty,
@@ -34,7 +34,7 @@ export default function PokeInfo({
 		React.SetStateAction<{ enabled: boolean; type: string; message: string }>
 	>;
 	selectedTeam: number;
-}) {
+}) => {
 	const [pokemonInfo, setPokemonInfo] = useState<pokemonInfo | undefined>();
 	const [totalEVs, setTotalEVs] = useState(0);
 	const [validMoves, setValidMoves] = useState<{ name: string; url: string }[]>(
@@ -490,9 +490,7 @@ export default function PokeInfo({
 					)}
 					{gameMode === 'casual' && (
 						<div className='flex flex-col'>
-							<h3 className='mb-4 text-xl font-bold'>
-								Location Area Encounters:
-							</h3>
+							<h3 className='mb-4 text-xl font-bold'>Encounter Locations:</h3>
 							<LocationAreaEncounters
 								url={pokemonInfo.location_area_encounters}
 							/>
@@ -502,4 +500,6 @@ export default function PokeInfo({
 			)}
 		</div>
 	);
-}
+};
+
+export default PokeInfo;

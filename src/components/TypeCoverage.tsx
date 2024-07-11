@@ -75,11 +75,11 @@ const defensiveTooltipContent = (
 
 const typedTypeMatchups: TypeMatchups = typeMatchups as TypeMatchups;
 
-export default function TypeCoverage({
+const TypeCoverage = ({
 	pokemonParty,
 	selectedTeam,
 	setEnableToast,
-}: TypeCoverageProps) {
+}: TypeCoverageProps): JSX.Element => {
 	const [defensiveCoverage, setDefensiveCoverage] = useState<
 		Record<string, number>
 	>({});
@@ -96,7 +96,7 @@ export default function TypeCoverage({
 			for (const pokemon of pokemonParty[selectedTeam]) {
 				if (pokemon.id !== 0) {
 					try {
-						const response = await axios.get(
+						const response = await axios.get<PokemonInfo>(
 							`/api/pokemon-info?id=${pokemon.id}`
 						);
 						infoList.push(response.data);
@@ -229,7 +229,7 @@ export default function TypeCoverage({
 				</div>
 			</div>
 			<div className='relative rounded bg-[#f9f9f9] p-4 md:w-1/2'>
-				<p className='p-2 pb-4 text-center font-semibold'>Weakness Spread</p>
+				<p className='p-2 pb-4 text-center font-semibold'>Defensive Spread</p>
 				<div className='absolute right-5 top-5'>
 					<Tooltip
 						content={defensiveTooltipContent}
@@ -262,4 +262,6 @@ export default function TypeCoverage({
 			</div>
 		</div>
 	);
-}
+};
+
+export default TypeCoverage;
