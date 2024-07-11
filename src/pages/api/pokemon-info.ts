@@ -18,10 +18,7 @@ interface AbilityData {
 	}>;
 }
 
-const handler = async(
-	req: NextApiRequest,
-	res: NextApiResponse
-) => {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	if (req.method === 'GET') {
 		if (!req.query.id) {
 			res.status(404).json({ message: 'No Pokemon Queried' });
@@ -65,6 +62,6 @@ const handler = async(
 		res.setHeader('Allow', ['GET']);
 		res.status(405).end(`Method ${req.method} Not Allowed`);
 	}
-}
+};
 
 export default handler;

@@ -19,6 +19,6 @@ const RootLayout = ({
 			<body>{children}</body>
 		</html>
 	);
-}
+};
 
 export default RootLayout;
