@@ -1,5 +1,4 @@
-import { useEffect, useState, useRef, KeyboardEvent } from 'react';
-import items from '../../lib/items.json';
+import { useEffect, useState, useRef, KeyboardEvent, useCallback } from 'react';
 import { pokemon } from '../../lib/pokemonInterface';
 
 interface ItemSuggestion {
@@ -24,7 +23,6 @@ const ItemSelect = ({
 	const [focusedSuggestionIndex, setFocusedSuggestionIndex] =
 		useState<number>(-1);
 	const itemInputRef = useRef<HTMLDivElement>(null);
-	const itemsArray = items.items as { name: string; url: string }[];
 
 	useEffect(() => {
 		if (
@@ -63,23 +61,23 @@ const ItemSelect = ({
 			.join(' ');
 	};
 
-	const fetchItemEffect = async (itemName: string): Promise<string> => {
-		try {
-			const response = await fetch(
-				`https://pokeapi.co/api/v2/item/${itemName.toLowerCase()}/`
-			);
-			const data = await response.json();
-			const effect =
-				data.effect_entries.find(
-					(entry: { language: { name: string } }) =>
-						entry.language.name === 'en'
-				)?.short_effect || '';
-			return effect;
-		} catch (error) {
-			console.error('Error fetching item effect:', error);
-			return '';
-		}
-	};
+	const fetchItemSuggestions = useCallback(
+		async (input: string): Promise<ItemSuggestion[]> => {
+			try {
+				const response = await fetch(
+					`/api/pokemon-items?input=${encodeURIComponent(input)}`
+				);
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return await response.json();
+			} catch (error) {
+				console.error('Error fetching item suggestions:', error);
+				return [];
+			}
+		},
+		[]
+	);
 
 	const handleItemInputChange = async (
 		e: React.ChangeEvent<HTMLInputElement>
@@ -94,22 +92,7 @@ const ItemSelect = ({
 			return;
 		}
 
-		// Filter item suggestions based on input
-		const filteredItems = itemsArray.filter((item) =>
-			formatItemName(item.name).toLowerCase().includes(value.toLowerCase())
-		);
-
-		// Fetch effects for filtered items
-		const suggestions: ItemSuggestion[] = await Promise.all(
-			filteredItems.slice(0, 10).map(async (item) => {
-				const effect = await fetchItemEffect(item.name);
-				return {
-					name: formatItemName(item.name),
-					effect: effect,
-				};
-			})
-		);
-
+		const suggestions = await fetchItemSuggestions(value);
 		setItemSuggestions(suggestions);
 		setFocusedSuggestionIndex(-1);
 	};
@@ -119,7 +102,10 @@ const ItemSelect = ({
 			const formattedInput = itemInput.toLowerCase().replace(/\s/g, '-');
 			if (
 				itemInput === '' ||
-				itemsArray.some((item) => item.name === formattedInput)
+				itemSuggestions.some(
+					(item) =>
+						item.name.toLowerCase().replace(/\s/g, '-') === formattedInput
+				)
 			) {
 				setPokemonParty((prevParty) => {
 					const newParty = [...prevParty];
