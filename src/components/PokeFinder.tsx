@@ -156,15 +156,17 @@ const PokeFinder = ({
 		<div className='flex flex-col'>
 			<div className='relative flex w-full flex-col justify-center px-4 text-gray-600 md:flex-row md:justify-between'>
 				<div className='flex items-start gap-4 max-lg:flex-col'>
-					<div className='mt-2'>
-						<Dropdown color='light' label={`Gen ${selectedGen}`}>
-							{[1, 2, 3, 4, 5, 6, 7, 8, 9].map((gen) => (
-								<Dropdown.Item key={gen} onClick={() => handleGenChange(gen)}>
-									Gen {gen}
-								</Dropdown.Item>
-							))}
-						</Dropdown>
-					</div>
+					{gameMode === 'competitive' && (
+						<div className='mt-2'>
+							<Dropdown color='light' label={`Gen ${selectedGen}`}>
+								{[1, 2, 3, 4, 5, 6, 7, 8, 9].map((gen) => (
+									<Dropdown.Item key={gen} onClick={() => handleGenChange(gen)}>
+										Gen {gen}
+									</Dropdown.Item>
+								))}
+							</Dropdown>
+						</div>
+					)}
 					{renderTabs}
 				</div>
 				<div className='flex items-center gap-4 md:mb-8'>
