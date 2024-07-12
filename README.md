@@ -33,16 +33,15 @@ Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 - ✅ EV Limit
 - ✅ Type Matchup Breakdown
 - ✅ Client-Side Searching
+- ✅ Multiple Team Support
 - ✅ Import/Export Locally + Globally
 
 ## 🛣️ Roadmap
 
 - ❌ Dark Mode Support
-- ❌ Casual Mode
-- ❌ Multiple Team Support
 - ❌ Search fetches from Backend
 - ❌ Custom Sign-in Page
-- ❌ Prefetch Pokemon Info Preclick (current implementation has performance issues)
+
 
 ## 🪲 Known Bugs
 
