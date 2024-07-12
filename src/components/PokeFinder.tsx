@@ -1,6 +1,6 @@
 'use client';
 import '@/app/globals.css';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import PokeFinderCard from './PokeFinderCard';
 import LoadingIcon from './LoadingIcon';
 import type { pokemon } from '../../lib/pokemonInterface';
@@ -20,21 +20,23 @@ const PokeFinder = ({
 	const [pokemonData, setPokemonData] = useState<pokemon[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [currentPage, setCurrentPage] = useState(1);
-	const [searchResults, setSearchResults] = useState<pokemon[]>([]);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [selectedGeneration, setSelectedGeneration] = useState(0);
 
-	const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const newSearchTerm = event.target.value.toLowerCase();
-		setSearchTerm(newSearchTerm);
-	};
+	const handleSearch = useCallback(
+		(event: React.ChangeEvent<HTMLInputElement>) => {
+			setSearchTerm(event.target.value.toLowerCase());
+		},
+		[]
+	);
 
-	useEffect(() => {
-		const filteredPokemon = pokemonData.filter((pokemon: pokemon) =>
-			pokemon.name.toLowerCase().includes(searchTerm)
-		);
-		setSearchResults(filteredPokemon);
-	}, [searchTerm, pokemonData]);
+	const searchResults = useMemo(
+		() =>
+			pokemonData.filter((pokemon: pokemon) =>
+				pokemon.name.toLowerCase().includes(searchTerm)
+			),
+		[searchTerm, pokemonData]
+	);
 
 	const fetchData = useCallback(async () => {
 		try {
@@ -65,14 +67,13 @@ const PokeFinder = ({
 		} finally {
 			setIsLoading(false);
 		}
-	}, [currentPage, selectedGeneration]);
+	}, [currentPage, selectedGeneration, setEnableToast]);
 
 	const handleScroll = useCallback(() => {
-		const scrollPosition = window.innerHeight + window.scrollY;
-		const documentHeight = document.body.offsetHeight;
-		const scrollThreshold = documentHeight - 500;
-
-		if (scrollPosition >= scrollThreshold && !isLoading) {
+		if (
+			window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 &&
+			!isLoading
+		) {
 			setCurrentPage((prevPage) => prevPage + 1);
 		}
 	}, [isLoading]);
@@ -84,33 +85,40 @@ const PokeFinder = ({
 
 	useEffect(() => {
 		fetchData();
-	}, [fetchData, currentPage, selectedGeneration]);
+	}, [fetchData]);
 
 	useEffect(() => {
 		window.addEventListener('scroll', handleScroll);
-		return () => {
-			window.removeEventListener('scroll', handleScroll);
-		};
+		return () => window.removeEventListener('scroll', handleScroll);
 	}, [handleScroll]);
+
+	const renderTabs = useMemo(
+		() => (
+			<Tabs
+				aria-label='Tabs with underline'
+				onActiveTabChange={(tab: number) => setSelectedGeneration(tab)}
+			>
+				{[
+					'All',
+					...Array(9)
+						.fill(0)
+						.map((_, i) => `Gen ${i + 1}`),
+				].map((title, index) => (
+					<Tabs.Item
+						key={index}
+						active={selectedGeneration === index}
+						title={title}
+					/>
+				))}
+			</Tabs>
+		),
+		[selectedGeneration]
+	);
 
 	return (
 		<div className='flex flex-col'>
 			<div className='relative flex w-full flex-col justify-center px-4 text-gray-600 md:flex-row md:justify-between'>
-				<Tabs
-					aria-label='Tabs with underline'
-					onActiveTabChange={(tab: number) => setSelectedGeneration(tab)}
-				>
-					<Tabs.Item active={selectedGeneration === 0} title='All' />
-					<Tabs.Item active={selectedGeneration === 1} title='Gen I' />
-					<Tabs.Item active={selectedGeneration === 2} title='Gen II' />
-					<Tabs.Item active={selectedGeneration === 3} title='Gen III' />
-					<Tabs.Item active={selectedGeneration === 4} title='Gen IV' />
-					<Tabs.Item active={selectedGeneration === 5} title='Gen V' />
-					<Tabs.Item active={selectedGeneration === 6} title='Gen VI' />
-					<Tabs.Item active={selectedGeneration === 7} title='Gen VII' />
-					<Tabs.Item active={selectedGeneration === 8} title='Gen VIII' />
-					<Tabs.Item active={selectedGeneration === 9} title='Gen IX' />
-				</Tabs>
+				{renderTabs}
 				<input
 					className='mt-2 h-10 rounded-lg border-2 border-gray-300 bg-white px-5 pr-16 text-sm focus:outline-none max-md:mb-4'
 					type='text'

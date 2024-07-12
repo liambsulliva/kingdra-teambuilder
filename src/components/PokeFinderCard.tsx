@@ -1,4 +1,5 @@
 'use client';
+import { memo, useCallback } from 'react';
 import '@/app/globals.css';
 import type { pokemon } from '../../lib/pokemonInterface';
 
@@ -11,32 +12,20 @@ interface PokeFinderCardProps {
 	selectedTeam: number;
 }
 
-const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
-	setEnableToast,
-	pokemon,
-	setPokemonParty,
-	selectedTeam,
-}: PokeFinderCardProps) => {
-	const handleClick = async () => {
-		try {
+const PokeFinderCard: React.FC<PokeFinderCardProps> = memo(
+	({
+		setEnableToast,
+		pokemon,
+		setPokemonParty,
+		selectedTeam,
+	}: PokeFinderCardProps) => {
+		const handleClick = useCallback(() => {
 			setPokemonParty((prevPokemonParty: pokemon[][]) => {
-				console.log('Previous Pokemon Party:', prevPokemonParty);
-				console.log('Selected Team:', selectedTeam);
-
-				// Check if prevPokemonParty is an array
-				if (!Array.isArray(prevPokemonParty)) {
-					console.error('prevPokemonParty is not an array');
-					setEnableToast({
-						enabled: true,
-						type: 'error',
-						message: 'Invalid party structure.',
-					});
-					return prevPokemonParty;
-				}
-
-				// Check if selectedTeam is valid
-				if (selectedTeam < 0 || selectedTeam >= prevPokemonParty.length) {
-					console.error('Invalid selectedTeam index:', selectedTeam);
+				if (
+					!Array.isArray(prevPokemonParty) ||
+					selectedTeam < 0 ||
+					selectedTeam >= prevPokemonParty.length
+				) {
 					setEnableToast({
 						enabled: true,
 						type: 'error',
@@ -45,79 +34,64 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
 					return prevPokemonParty;
 				}
 
-				// Ensure the selected team exists
-				if (!Array.isArray(prevPokemonParty[selectedTeam])) {
-					console.error(
-						'Selected team is not an array:',
-						prevPokemonParty[selectedTeam]
-					);
-					const newPokemonParty = [...prevPokemonParty];
-					newPokemonParty[selectedTeam] = [];
-					return newPokemonParty;
-				}
+				const currentTeam = prevPokemonParty[selectedTeam] || [];
 
-				// Rest of your logic...
-				if (prevPokemonParty[selectedTeam].length >= 6) {
+				if (currentTeam.length >= 6) {
 					setEnableToast({
 						enabled: true,
 						type: 'error',
 						message: 'Your current team is full!',
 					});
 					return prevPokemonParty;
-				} else if (
-					!prevPokemonParty[selectedTeam].some((p) => p.id === pokemon.id)
-				) {
-					const updatedPokemon: pokemon = {
-						...pokemon,
-						name: pokemon.name || '',
-						id: pokemon.id || 0,
-						sprite: pokemon.sprite || '',
-						level: 100,
-						ability: '',
-						nature: '',
-						item: '',
-						tera_type: '',
-						moves: ['', '', '', ''],
-						iv: [31, 31, 31, 31, 31, 31],
-						ev: [0, 0, 0, 0, 0, 0],
-					};
-					const newPokemonParty = [...prevPokemonParty];
-					newPokemonParty[selectedTeam] = [
-						...newPokemonParty[selectedTeam],
-						updatedPokemon,
-					];
-					return newPokemonParty;
 				}
-				setEnableToast({
-					enabled: true,
-					type: 'error',
-					message: 'This Pokémon is already on your team!',
-				});
-				return prevPokemonParty;
-			});
-		} catch (error) {
-			console.error('Error in handleClick:', error);
-			setEnableToast({
-				enabled: true,
-				type: 'error',
-				message: 'There was an error adding your Pokémon.',
-			});
-		}
-	};
 
-	return (
-		<div
-			className='flex h-44 w-32 cursor-pointer flex-col items-center justify-center rounded bg-[#fff] shadow transition-transform duration-200 hover:bg-gray-50 md:h-32'
-			onClick={handleClick}
-		>
-			<img
-				className='md:h-24 md:w-24'
-				src={pokemon.sprite}
-				alt={pokemon.name}
-			/>
-			<p className='text-center text-sm'>{pokemon.name}</p>
-		</div>
-	);
-};
+				if (currentTeam.some((p) => p.id === pokemon.id)) {
+					setEnableToast({
+						enabled: true,
+						type: 'error',
+						message: 'This Pokémon is already on your team!',
+					});
+					return prevPokemonParty;
+				}
+
+				const updatedPokemon: pokemon = {
+					...pokemon,
+					name: pokemon.name || '',
+					id: pokemon.id || 0,
+					sprite: pokemon.sprite || '',
+					level: 100,
+					ability: '',
+					nature: '',
+					item: '',
+					tera_type: '',
+					moves: ['', '', '', ''],
+					iv: [31, 31, 31, 31, 31, 31],
+					ev: [0, 0, 0, 0, 0, 0],
+				};
+
+				const newPokemonParty = [...prevPokemonParty];
+				newPokemonParty[selectedTeam] = [...currentTeam, updatedPokemon];
+				return newPokemonParty;
+			});
+		}, [pokemon, selectedTeam, setPokemonParty, setEnableToast]);
+
+		return (
+			<div
+				className='flex h-44 w-32 cursor-pointer flex-col items-center justify-center rounded bg-[#fff] shadow transition-transform duration-200 hover:bg-gray-50 md:h-32'
+				onClick={handleClick}
+			>
+				<img
+					className='md:h-24 md:w-24'
+					src={pokemon.sprite}
+					alt={pokemon.name}
+					loading='lazy'
+				/>
+				<p className='text-center text-sm'>{pokemon.name}</p>
+			</div>
+		);
+	}
+);
+
+PokeFinderCard.displayName = 'PokeFinderCard';
 
 export default PokeFinderCard;
