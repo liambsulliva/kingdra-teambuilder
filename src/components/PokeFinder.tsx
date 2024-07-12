@@ -172,8 +172,16 @@ const PokeFinder = ({
 				<div className='flex items-center gap-4 md:mb-8'>
 					{gameMode === 'competitive' && (
 						<p className='text-sm text-gray-500 max-lg:hidden'>
-							Scrapes are very error-prone. Check Smogon for the most accurate
-							tiering.
+							Scrapes are very error-prone. Check{' '}
+							<a
+								className='hover:underline'
+								href='https://smogon.com'
+								target='_blank'
+								rel='noreferrer'
+							>
+								Smogon
+							</a>{' '}
+							for the most accurate tiering.
 						</p>
 					)}
 					<input
