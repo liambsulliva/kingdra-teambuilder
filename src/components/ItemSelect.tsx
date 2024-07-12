@@ -7,7 +7,7 @@ interface ItemSuggestion {
 	effect: string;
 }
 
-export default function ItemSelect({
+const ItemSelect = ({
 	selectedPokemon,
 	pokemonParty,
 	setPokemonParty,
@@ -17,7 +17,7 @@ export default function ItemSelect({
 	pokemonParty: pokemon[][];
 	setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
 	selectedTeam: number;
-}) {
+}) => {
 	const [itemInput, setItemInput] = useState<string>('');
 	const [itemSuggestions, setItemSuggestions] = useState<ItemSuggestion[]>([]);
 	const [itemError, setItemError] = useState<string>('');
@@ -40,7 +40,7 @@ export default function ItemSelect({
 	}, [selectedPokemon, selectedTeam, pokemonParty]);
 
 	useEffect(() => {
-		function handleClickOutside(event: MouseEvent) {
+		const handleClickOutside = (event: MouseEvent) => {
 			if (
 				itemInputRef.current &&
 				!itemInputRef.current.contains(event.target as Node)
@@ -48,7 +48,7 @@ export default function ItemSelect({
 				setItemSuggestions([]);
 				setFocusedSuggestionIndex(-1);
 			}
-		}
+		};
 
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
@@ -224,4 +224,6 @@ export default function ItemSelect({
 			</div>
 		</div>
 	);
-}
+};
+
+export default ItemSelect;
