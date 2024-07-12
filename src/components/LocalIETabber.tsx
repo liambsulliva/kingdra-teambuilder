@@ -4,7 +4,7 @@ import DownloadIcon from './DownloadIcon';
 import UploadIcon from './UploadIcon';
 import { pokemon } from '../../lib/pokemonInterface';
 
-export default function Component({
+const Component = ({
 	selectedPokemon,
 	pokemonParty,
 	setPokemonParty,
@@ -20,7 +20,7 @@ export default function Component({
 		React.SetStateAction<{ enabled: boolean; type: string; message: string }>
 	>;
 	selectedTeam: number;
-}) {
+}) => {
 	const [showModal, setShowModal] = useState(false);
 	const [importText, setImportText] = useState('');
 
@@ -297,4 +297,6 @@ Timid Nature
 			</Modal>
 		</div>
 	);
-}
+};
+
+export default Component;
