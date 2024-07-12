@@ -7,10 +7,12 @@ import type { pokemon } from '../../lib/pokemonInterface';
 import { Tabs } from 'flowbite-react';
 
 const PokeFinder = ({
+	gameMode,
 	setPokemonParty,
 	setEnableToast,
 	selectedTeam,
 }: {
+	gameMode: string;
 	setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
 	setEnableToast: React.Dispatch<
 		React.SetStateAction<{ enabled: boolean; type: string; message: string }>
@@ -22,6 +24,7 @@ const PokeFinder = ({
 	const [currentPage, setCurrentPage] = useState(1);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [selectedGeneration, setSelectedGeneration] = useState(0);
+	const [selectedTier, setSelectedTier] = useState('OU');
 
 	const handleSearch = useCallback(
 		(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,9 +44,13 @@ const PokeFinder = ({
 	const fetchData = useCallback(async () => {
 		try {
 			setIsLoading(true);
-			const response = await fetch(
-				`/api/pokemon?page=${currentPage}&generation=${selectedGeneration}`
-			);
+			let url;
+			if (gameMode === 'competitive') {
+				url = `/api/pokemon-smogon?tier=${selectedTier}`;
+			} else {
+				url = `/api/pokemon?page=${currentPage}&generation=${selectedGeneration}`;
+			}
+			const response = await fetch(url);
 			if (!response.ok) {
 				throw new Error('Network response was not ok');
 			}
@@ -62,26 +69,27 @@ const PokeFinder = ({
 			setEnableToast({
 				enabled: true,
 				type: 'error',
-				message: `Failed to fetch basic pokemon data from server.`,
+				message: `Failed to fetch pokemon data from server.`,
 			});
 		} finally {
 			setIsLoading(false);
 		}
-	}, [currentPage, selectedGeneration, setEnableToast]);
+	}, [currentPage, selectedGeneration, selectedTier, gameMode, setEnableToast]);
 
 	const handleScroll = useCallback(() => {
 		if (
+			gameMode !== 'competitive' &&
 			window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 &&
 			!isLoading
 		) {
 			setCurrentPage((prevPage) => prevPage + 1);
 		}
-	}, [isLoading]);
+	}, [isLoading, gameMode]);
 
 	useEffect(() => {
 		setCurrentPage(1);
 		setPokemonData([]);
-	}, [selectedGeneration]);
+	}, [selectedGeneration, selectedTier, gameMode]);
 
 	useEffect(() => {
 		fetchData();
@@ -92,28 +100,43 @@ const PokeFinder = ({
 		return () => window.removeEventListener('scroll', handleScroll);
 	}, [handleScroll]);
 
-	const renderTabs = useMemo(
-		() => (
+	const renderTabs = useMemo(() => {
+		const tabTitles =
+			gameMode === 'competitive'
+				? ['OU', 'UU', 'RU', 'NU', 'PU', 'ZU']
+				: [
+						'All',
+						...Array(9)
+							.fill(0)
+							.map((_, i) => `Gen ${i + 1}`),
+					];
+
+		return (
 			<Tabs
 				aria-label='Tabs with underline'
-				onActiveTabChange={(tab: number) => setSelectedGeneration(tab)}
+				onActiveTabChange={(tab: number) => {
+					if (gameMode === 'competitive') {
+						setSelectedTier(tabTitles[tab]);
+					} else {
+						setSelectedGeneration(tab);
+					}
+				}}
 			>
-				{[
-					'All',
-					...Array(9)
-						.fill(0)
-						.map((_, i) => `Gen ${i + 1}`),
-				].map((title, index) => (
+				{tabTitles.map((title, index) => (
 					<Tabs.Item
 						key={index}
-						active={selectedGeneration === index}
+						active={
+							(gameMode === 'competitive'
+								? selectedTier
+								: selectedGeneration) ===
+							(gameMode === 'competitive' ? title : index)
+						}
 						title={title}
 					/>
 				))}
 			</Tabs>
-		),
-		[selectedGeneration]
-	);
+		);
+	}, [selectedGeneration, selectedTier, gameMode]);
 
 	return (
 		<div className='flex flex-col'>

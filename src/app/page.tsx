@@ -116,6 +116,7 @@ const Home = () => {
 						/>
 					)}
 					<PokeFinder
+						gameMode={gameMode}
 						setPokemonParty={setPokemonParty}
 						selectedTeam={selectedTeam}
 						setEnableToast={setEnableToast}
