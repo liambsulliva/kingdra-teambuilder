@@ -144,7 +144,7 @@ const PokeInfo = ({
 	return (
 		<div className='flex-grow rounded bg-[#f9f9f9]'>
 			{pokemonInfo && pokemonParty[selectedTeam][selectedPokemon] && (
-				<div className='flex justify-evenly gap-24 rounded-lg bg-white py-12 pl-14 pr-8 shadow-md max-lg:flex-col max-md:pl-8'>
+				<div className='flex justify-evenly gap-16 rounded-lg bg-white py-12 pl-14 pr-8 shadow-md max-lg:flex-col max-md:pl-8'>
 					<div className='flex flex-col gap-2'>
 						<div className='flex max-md:justify-center max-md:gap-4'>
 							<div className='flex h-32 w-32 items-center justify-center'>

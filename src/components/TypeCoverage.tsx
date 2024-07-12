@@ -194,7 +194,7 @@ const TypeCoverage = ({
 
 	return (
 		<div className='flex gap-4 max-md:flex-col'>
-			<div className='relative rounded bg-[#f9f9f9] p-4 md:w-1/2'>
+			<div className='relative rounded bg-[#f9f9f9] p-4'>
 				<p className='p-2 pb-4 text-center font-semibold'>Offensive Spread</p>
 				<div className='absolute right-5 top-5'>
 					<Tooltip
@@ -228,7 +228,7 @@ const TypeCoverage = ({
 					))}
 				</div>
 			</div>
-			<div className='relative rounded bg-[#f9f9f9] p-4 md:w-1/2'>
+			<div className='relative rounded bg-[#f9f9f9] p-4'>
 				<p className='p-2 pb-4 text-center font-semibold'>Defensive Spread</p>
 				<div className='absolute right-5 top-5'>
 					<Tooltip
