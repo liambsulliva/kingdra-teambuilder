@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import PokeFinderCard from './PokeFinderCard';
 import LoadingIcon from './LoadingIcon';
 import type { pokemon } from '../../lib/pokemonInterface';
-import { Tabs } from 'flowbite-react';
+import { Tabs, Dropdown } from 'flowbite-react';
 
 const PokeFinder = ({
 	gameMode,
@@ -25,6 +25,7 @@ const PokeFinder = ({
 	const [searchTerm, setSearchTerm] = useState('');
 	const [selectedGeneration, setSelectedGeneration] = useState(0);
 	const [selectedTier, setSelectedTier] = useState('OU');
+	const [selectedGen, setSelectedGen] = useState(9); // Default to the latest generation
 
 	const handleSearch = useCallback(
 		(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,7 +47,7 @@ const PokeFinder = ({
 			setIsLoading(true);
 			let url;
 			if (gameMode === 'competitive') {
-				url = `/api/pokemon-smogon?tier=${selectedTier}`;
+				url = `/api/pokemon-smogon?tier=${selectedTier}&gen=${selectedGen}`;
 			} else {
 				url = `/api/pokemon?page=${currentPage}&generation=${selectedGeneration}`;
 			}
@@ -74,7 +75,14 @@ const PokeFinder = ({
 		} finally {
 			setIsLoading(false);
 		}
-	}, [currentPage, selectedGeneration, selectedTier, gameMode, setEnableToast]);
+	}, [
+		currentPage,
+		selectedGeneration,
+		selectedTier,
+		selectedGen,
+		gameMode,
+		setEnableToast,
+	]);
 
 	const handleScroll = useCallback(() => {
 		if (
@@ -89,7 +97,7 @@ const PokeFinder = ({
 	useEffect(() => {
 		setCurrentPage(1);
 		setPokemonData([]);
-	}, [selectedGeneration, selectedTier, gameMode]);
+	}, [selectedGeneration, selectedTier, selectedGen, gameMode]);
 
 	useEffect(() => {
 		fetchData();
@@ -138,13 +146,30 @@ const PokeFinder = ({
 		);
 	}, [selectedGeneration, selectedTier, gameMode]);
 
+	const handleGenChange = (gen: number) => {
+		setSelectedGen(gen);
+		setCurrentPage(1);
+		setPokemonData([]);
+	};
+
 	return (
 		<div className='flex flex-col'>
 			<div className='relative flex w-full flex-col justify-center px-4 text-gray-600 md:flex-row md:justify-between'>
-				{renderTabs}
-				<div className='mb-8 flex items-center gap-4'>
+				<div className='flex items-start gap-4 max-lg:flex-col'>
+					<div className='mt-2'>
+						<Dropdown color='light' label={`Gen ${selectedGen}`}>
+							{[1, 2, 3, 4, 5, 6, 7, 8, 9].map((gen) => (
+								<Dropdown.Item key={gen} onClick={() => handleGenChange(gen)}>
+									Gen {gen}
+								</Dropdown.Item>
+							))}
+						</Dropdown>
+					</div>
+					{renderTabs}
+				</div>
+				<div className='flex items-center gap-4 md:mb-8'>
 					{gameMode === 'competitive' && (
-						<p className='text-sm text-gray-500'>
+						<p className='text-sm text-gray-500 max-lg:hidden'>
 							Scrapes are very error-prone. Check Smogon for the most accurate
 							tiering.
 						</p>

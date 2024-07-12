@@ -15,11 +15,14 @@ interface SmogonData {
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	const tier = req.query.tier ? String(req.query.tier).toLowerCase() : 'ou';
+	const gen: number = req.query.gen
+		? parseInt(Array.isArray(req.query.gen) ? req.query.gen[0] : req.query.gen)
+		: 9;
 
 	try {
 		// Fetch Smogon usage data
 		const smogonResponse = await fetch(
-			`https://pkmn.github.io/smogon/data/stats/gen9${tier}.json`
+			`https://pkmn.github.io/smogon/data/stats/gen${gen}${tier}.json`
 		);
 		const smogonData: SmogonData = (await smogonResponse.json()) as SmogonData;
 
