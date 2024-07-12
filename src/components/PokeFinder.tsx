@@ -142,15 +142,23 @@ const PokeFinder = ({
 		<div className='flex flex-col'>
 			<div className='relative flex w-full flex-col justify-center px-4 text-gray-600 md:flex-row md:justify-between'>
 				{renderTabs}
-				<input
-					className='mt-2 h-10 rounded-lg border-2 border-gray-300 bg-white px-5 pr-16 text-sm focus:outline-none max-md:mb-4'
-					type='text'
-					name='search'
-					autoComplete='off'
-					placeholder='Search'
-					value={searchTerm}
-					onChange={handleSearch}
-				/>
+				<div className='mb-8 flex items-center gap-4'>
+					{gameMode === 'competitive' && (
+						<p className='text-sm text-gray-500'>
+							Scrapes are very error-prone. Check Smogon for the most accurate
+							tiering.
+						</p>
+					)}
+					<input
+						className='h-10 rounded-lg border-2 border-gray-300 bg-white px-5 pr-16 text-sm focus:outline-none max-md:mb-4'
+						type='text'
+						name='search'
+						autoComplete='off'
+						placeholder='Search'
+						value={searchTerm}
+						onChange={handleSearch}
+					/>
+				</div>
 			</div>
 			<div className='mx-auto grid w-full grid-cols-2 items-center justify-center gap-6 rounded bg-[#f9f9f9] p-6 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-9 2xl:grid-cols-12'>
 				{searchResults.map((pokemon: pokemon) => (

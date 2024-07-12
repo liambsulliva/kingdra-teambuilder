@@ -56,6 +56,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 			})
 		);
 
+		// Some Pokémon may not be found in the db, so filter out the ones not found
 		const filteredPokemonData = pokemonData.filter(
 			(item): item is NonNullable<typeof item> => item !== null
 		);
