@@ -6,7 +6,7 @@ import React, {
 	useCallback,
 	useMemo,
 } from 'react';
-import { debounce } from 'lodash';
+import debounce from 'lodash.debounce';
 import { pokemon } from '../../lib/pokemonInterface';
 import TypeBadge from './TypeBadge';
 
