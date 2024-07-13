@@ -126,20 +126,18 @@ const PokeInfo = ({
 							selectedPokemon={selectedPokemon}
 							setPokemonParty={setPokemonParty}
 						/>
-						<div className='flex flex-col'>
-							<NatureSelect
-								selectedPokemon={selectedPokemon}
-								pokemonParty={pokemonParty}
-								setPokemonParty={setPokemonParty}
-								selectedTeam={selectedTeam}
-							/>
-							<ItemSelect
-								selectedPokemon={selectedPokemon}
-								pokemonParty={pokemonParty}
-								setPokemonParty={setPokemonParty}
-								selectedTeam={selectedTeam}
-							/>
-						</div>
+						<NatureSelect
+							selectedPokemon={selectedPokemon}
+							pokemonParty={pokemonParty}
+							setPokemonParty={setPokemonParty}
+							selectedTeam={selectedTeam}
+						/>
+						<ItemSelect
+							selectedPokemon={selectedPokemon}
+							pokemonParty={pokemonParty}
+							setPokemonParty={setPokemonParty}
+							selectedTeam={selectedTeam}
+						/>
 						<div className='flex items-center justify-between'>
 							<div className='flex flex-col max-md:mx-auto'>
 								{[0, 1, 2, 3].map((index) => (
