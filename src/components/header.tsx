@@ -22,11 +22,11 @@ const Header = ({
 	onDeleteTeam,
 }: HeaderProps) => {
 	return (
-		<div className='flex flex-row items-center justify-between p-6 pb-4'>
-			<div className='flex flex-row items-center gap-10'>
+		<div className='flex flex-row items-center justify-between p-6 pb-4 max-md:flex-col max-md:gap-8'>
+			<div className='flex flex-row items-center gap-10 max-lg:flex-col'>
 				<div className='flex items-center gap-2'>
 					<img src='icon.png' className='h-16' />
-					<h1 className='font-custom select-none text-5xl font-extrabold max-md:hidden'>
+					<h1 className='font-custom select-none text-5xl font-extrabold'>
 						Kingdra
 					</h1>
 				</div>
@@ -37,7 +37,7 @@ const Header = ({
 				/>
 			</div>
 			<div className='flex flex-row gap-6 px-6'>
-				<Button className='max-lg:hidden' color='light' onClick={onNewTeam}>
+				<Button color='light' onClick={onNewTeam}>
 					New Team
 				</Button>
 				<TeamSelector

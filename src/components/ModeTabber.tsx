@@ -18,7 +18,7 @@ const Component = ({ leftLabel, rightLabel, setGameMode }: TabberProps) => {
 	};
 
 	return (
-		<div className='mx-4 max-lg:hidden'>
+		<div className='mx-4'>
 			<ButtonGroup>
 				<Button
 					color={selectedTab === 'casual' ? 'blue' : 'light'}

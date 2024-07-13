@@ -65,7 +65,7 @@ const DropdownMenu = ({
 	}, []);
 
 	return (
-		<div className='flex items-center justify-center'>
+		<div className='z-50 flex items-center justify-center'>
 			<div className='group relative' ref={dropdownRef}>
 				<button
 					id='dropdown-button'
@@ -106,10 +106,7 @@ const DropdownMenu = ({
 									display: filterItems(`Team ${index + 1}`) ? 'flex' : 'none',
 								}}
 							>
-								<span
-									className='text-nowrap'
-									onClick={() => handleSelection(index)}
-								>
+								<span onClick={() => handleSelection(index)}>
 									Team {index + 1}
 								</span>
 								<svg
