@@ -2,7 +2,6 @@ import '@/app/globals.css';
 import typeMatchups from '../../lib/typeMatchups.json';
 import TypeBadge from './TypeBadge';
 import { Tooltip } from 'flowbite-react';
-import { useMemo, useCallback } from 'react';
 import type { pokemon, pokemonInfo } from '../../lib/pokemonInterface';
 import TeraSelect from './TeraSelect';
 
@@ -19,7 +18,7 @@ const PokemonTypeInfo = ({
 	setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
 	selectedTeam: number;
 }) => {
-	const calculateCombinedMatchups = useCallback((types: string[]) => {
+	const calculateCombinedMatchups = (types: string[]) => {
 		const effectiveness: { [key: string]: number } = {};
 
 		types.forEach((type) => {
@@ -47,16 +46,11 @@ const PokemonTypeInfo = ({
 		});
 
 		return { weaknesses, resistances, immunities };
-	}, []);
+	};
 
-	const combinedMatchups = useMemo(() => {
-		if (pokemonInfo && pokemonInfo.types) {
-			return calculateCombinedMatchups(
-				pokemonInfo.types.map((t: { type: { name: string } }) => t.type.name)
-			);
-		}
-		return { weaknesses: [], resistances: [], immunities: [] };
-	}, [calculateCombinedMatchups, pokemonInfo]);
+	const combinedMatchups = calculateCombinedMatchups(
+		pokemonInfo.types.map((t: { type: { name: string } }) => t.type.name)
+	);
 
 	return (
 		<div className='flex flex-col'>
