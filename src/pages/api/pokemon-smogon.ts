@@ -60,9 +60,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		);
 
 		// Some Pokémon may not be found in the db, so filter out the ones not found
-		const filteredPokemonData = pokemonData.filter(
-			(item): item is NonNullable<typeof item> => item !== null
-		);
+		const filteredPokemonData = pokemonData
+			.filter((item): item is NonNullable<typeof item> => item !== null)
+			.filter(
+				(pokemon) =>
+					!pokemon.name.includes('-gmax') &&
+					!pokemon.name.includes('-mega') &&
+					!pokemon.name.includes('-totem')
+			);
 
 		res.status(200).json({
 			pokemonData: filteredPokemonData,

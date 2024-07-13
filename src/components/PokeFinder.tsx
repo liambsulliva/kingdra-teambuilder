@@ -111,7 +111,7 @@ const PokeFinder = ({
 	const renderTabs = useMemo(() => {
 		const tabTitles =
 			gameMode === 'competitive'
-				? ['OU', 'UU', 'RU', 'NU', 'PU', 'ZU']
+				? ['Ubers', 'OU', 'UU', 'RU', 'NU', 'PU', 'ZU']
 				: [
 						'All',
 						...Array(9)
