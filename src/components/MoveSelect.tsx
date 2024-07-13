@@ -1,10 +1,9 @@
 import React, {
 	useEffect,
 	useState,
+	useCallback,
 	useRef,
 	KeyboardEvent,
-	useCallback,
-	useMemo,
 } from 'react';
 import debounce from 'lodash.debounce';
 import { pokemon } from '../../lib/pokemonInterface';
@@ -89,41 +88,38 @@ const MoveSelect = React.memo(
 			}
 		}, [selectedPokemon, selectedTeam, pokemonParty, index, formatMoveName]);
 
-		const fetchMoveData = useCallback(
-			async (url: string): Promise<MoveSuggestion> => {
-				if (moveCache.current[url]) {
-					return moveCache.current[url];
-				}
+		const fetchMoveData = async (url: string): Promise<MoveSuggestion> => {
+			if (moveCache.current[url]) {
+				return moveCache.current[url];
+			}
 
-				try {
-					const response = await fetch(
-						`/api/pokemon-moves?url=${encodeURIComponent(url)}`
-					);
-					if (!response.ok) {
-						throw new Error('Network response was not ok');
-					}
-					const moveData: MoveSuggestion = await response.json();
-
-					moveCache.current[url] = moveData;
-					return moveData;
-				} catch (error) {
-					setEnableToast({
-						enabled: true,
-						type: 'error',
-						message: `Error fetching move: ${error}`,
-					});
-					return {
-						name: '',
-						base: 0,
-						acc: 0,
-						type: '',
-						effect: '',
-						moveClass: '',
-					};
+			try {
+				const response = await fetch(
+					`/api/pokemon-moves?url=${encodeURIComponent(url)}`
+				);
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
 				}
-			},
-			[setEnableToast]
-		);
+				const moveData: MoveSuggestion = await response.json();
+
+				moveCache.current[url] = moveData;
+				return moveData;
+			} catch (error) {
+				setEnableToast({
+					enabled: true,
+					type: 'error',
+					message: `Error fetching move: ${error}`,
+				});
+				return {
+					name: '',
+					base: 0,
+					acc: 0,
+					type: '',
+					effect: '',
+					moveClass: '',
+				};
+			}
+		};
 
 		const debouncedHandleMoveInputChange = debounce(async (value: string) => {
 			if (value === '') {
@@ -134,9 +130,7 @@ const MoveSelect = React.memo(
 
 			const filteredMoves = validMoves.filter(
 				(move: { name: string; url: string }) =>
-					formatMoveName(move.name)
-						.toLowerCase()
-						.includes(value.toLowerCase())
+					formatMoveName(move.name).toLowerCase().includes(value.toLowerCase())
 			);
 
 			const suggestions: MoveSuggestion[] = await Promise.all(
@@ -148,17 +142,15 @@ const MoveSelect = React.memo(
 			setMoveSuggestions(suggestions);
 		}, 300);
 
-		const handleMoveInputChange = useCallback(
-			(e: React.ChangeEvent<HTMLInputElement>) => {
+		const handleMoveInputChange =
+			() => (e: React.ChangeEvent<HTMLInputElement>) => {
 				const value = e.target.value;
 				setMoveInput(value);
 				setSelectedSuggestionIndex(-1);
 				debouncedHandleMoveInputChange(value);
-			},
-			[debouncedHandleMoveInputChange]
-		);
+			};
 
-		const handleMoveInputBlur = useCallback(() => {
+		const handleMoveInputBlur = () => {
 			const formattedInput = moveInput.toLowerCase().replace(/\s/g, '-');
 			if (
 				moveInput === '' ||
@@ -176,64 +168,51 @@ const MoveSelect = React.memo(
 			} else {
 				setMoveError('Please enter a valid move');
 			}
-		}, [
-			moveInput,
-			validMoves,
-			setPokemonParty,
-			selectedTeam,
-			selectedPokemon,
-			index,
-		]);
+		};
 
-		const handleMoveSuggestionSelect = useCallback(
-			(moveName: string) => {
-				setMoveInput(moveName);
-				setPokemonParty((prevParty) => {
-					const newParty = [...prevParty];
-					if (newParty[selectedTeam][selectedPokemon]) {
-						newParty[selectedTeam][selectedPokemon].moves[index] = moveName
-							.toLowerCase()
-							.replace(/\s/g, '-');
-					}
-					return newParty;
-				});
-				setMoveSuggestions([]);
-				setMoveError('');
-			},
-			[setPokemonParty, selectedTeam, selectedPokemon, index]
-		);
-
-		const handleMoveInputKeyDown = useCallback(
-			(e: KeyboardEvent<HTMLInputElement>) => {
-				if (moveSuggestions.length === 0) return;
-
-				switch (e.key) {
-					case 'ArrowDown':
-						e.preventDefault();
-						setSelectedSuggestionIndex((prevIndex) =>
-							prevIndex < moveSuggestions.length - 1 ? prevIndex + 1 : 0
-						);
-						break;
-					case 'ArrowUp':
-						e.preventDefault();
-						setSelectedSuggestionIndex((prevIndex) =>
-							prevIndex > 0 ? prevIndex - 1 : moveSuggestions.length - 1
-						);
-						break;
-					case 'Enter':
-						e.preventDefault();
-						if (selectedSuggestionIndex >= 0) {
-							handleMoveSuggestionSelect(
-								moveSuggestions[selectedSuggestionIndex].name
-							);
-						}
-						break;
+		const handleMoveSuggestionSelect = (moveName: string) => {
+			setMoveInput(moveName);
+			setPokemonParty((prevParty) => {
+				const newParty = [...prevParty];
+				if (newParty[selectedTeam][selectedPokemon]) {
+					newParty[selectedTeam][selectedPokemon].moves[index] = moveName
+						.toLowerCase()
+						.replace(/\s/g, '-');
 				}
-			},
-			[moveSuggestions, selectedSuggestionIndex, handleMoveSuggestionSelect]
-		);
+				return newParty;
+			});
+			setMoveSuggestions([]);
+			setMoveError('');
+		};
 
-		const renderMoveSuggestions = useMemo(() => {
+		const handleMoveInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+			if (moveSuggestions.length === 0) return;
+
+			switch (e.key) {
+				case 'ArrowDown':
+					e.preventDefault();
+					setSelectedSuggestionIndex((prevIndex) =>
+						prevIndex < moveSuggestions.length - 1 ? prevIndex + 1 : 0
+					);
+					break;
+				case 'ArrowUp':
+					e.preventDefault();
+					setSelectedSuggestionIndex((prevIndex) =>
+						prevIndex > 0 ? prevIndex - 1 : moveSuggestions.length - 1
+					);
+					break;
+				case 'Enter':
+					e.preventDefault();
+					if (selectedSuggestionIndex >= 0) {
+						handleMoveSuggestionSelect(
+							moveSuggestions[selectedSuggestionIndex].name
+						);
+					}
+					break;
+			}
+		};
+
+		const renderMoveSuggestions = () => {
 			return moveSuggestions.map((move, index) => (
 				<li
 					key={move.name}
@@ -275,7 +254,7 @@ const MoveSelect = React.memo(
 					</div>
 				</li>
 			));
-		}, [moveSuggestions, selectedSuggestionIndex, handleMoveSuggestionSelect]);
+		};
 
 		return (
 			<div className='relative mb-4 flex items-center gap-4 max-md:flex-col'>
@@ -298,7 +277,7 @@ const MoveSelect = React.memo(
 					)}
 					{moveSuggestions.length > 0 && moveInput !== '' && (
 						<ul className='absolute z-10 mt-1 w-full rounded-lg border border-gray-300 bg-white shadow-lg'>
-							{renderMoveSuggestions}
+							{renderMoveSuggestions()}
 						</ul>
 					)}
 				</div>

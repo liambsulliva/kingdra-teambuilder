@@ -1,10 +1,10 @@
 import React, {
 	useEffect,
 	useState,
+	useMemo,
+	useCallback,
 	useRef,
 	KeyboardEvent,
-	useCallback,
-	useMemo,
 } from 'react';
 import natures from '../../lib/natures.json';
 import { pokemon } from '../../lib/pokemonInterface';
@@ -166,29 +166,28 @@ const NatureSelect = React.memo(
 			};
 		}, []);
 
-		const handleNatureInputChange = useCallback(
-			(e: React.ChangeEvent<HTMLInputElement>) => {
-				const value = e.target.value;
-				setNatureInput(value);
+		const handleNatureInputChange = (
+			e: React.ChangeEvent<HTMLInputElement>
+		) => {
+			const value = e.target.value;
+			setNatureInput(value);
 
-				const filteredSuggestions = naturesArray.filter((nature) =>
-					nature.toLowerCase().includes(value.toLowerCase())
-				);
-				const formattedSuggestions = filteredSuggestions.map(
-					formatNatureName
-				) as Nature[];
+			const filteredSuggestions = naturesArray.filter((nature) =>
+				nature.toLowerCase().includes(value.toLowerCase())
+			);
+			const formattedSuggestions = filteredSuggestions.map(
+				formatNatureName
+			) as Nature[];
 
-				setNatureSuggestions(formattedSuggestions.slice(0, 10));
-				setFocusedSuggestionIndex(-1);
+			setNatureSuggestions(formattedSuggestions.slice(0, 10));
+			setFocusedSuggestionIndex(-1);
 
-				if (value === '') {
-					setNatureError('');
-				}
-			},
-			[naturesArray]
-		);
+			if (value === '') {
+				setNatureError('');
+			}
+		};
 
-		const handleNatureInputBlur = useCallback(() => {
+		const handleNatureInputBlur = () => {
 			setTimeout(() => {
 				const lowercaseInput = natureInput.toLowerCase();
 				if (
@@ -212,13 +211,7 @@ const NatureSelect = React.memo(
 				setNatureSuggestions([]);
 				setFocusedSuggestionIndex(-1);
 			}, 100);
-		}, [
-			natureInput,
-			naturesArray,
-			setPokemonParty,
-			selectedTeam,
-			selectedPokemon,
-		]);
+		};
 
 		const handleNatureSuggestionSelect = useCallback(
 			(nature: Nature) => {
@@ -237,7 +230,15 @@ const NatureSelect = React.memo(
 				setFocusedSuggestionIndex(-1);
 				setNatureError('');
 			},
-			[setPokemonParty, selectedTeam, selectedPokemon]
+			[
+				selectedTeam,
+				selectedPokemon,
+				setNatureInput,
+				setPokemonParty,
+				setNatureSuggestions,
+				setFocusedSuggestionIndex,
+				setNatureError,
+			]
 		);
 
 		const handleKeyDown = useCallback(
@@ -275,7 +276,7 @@ const NatureSelect = React.memo(
 			[natureSuggestions, focusedSuggestionIndex, handleNatureSuggestionSelect]
 		);
 
-		const renderNatureSuggestions = useMemo(() => {
+		const renderNatureSuggestions = () => {
 			return natureSuggestions.map((nature, index) => (
 				<li
 					key={nature}
@@ -290,11 +291,7 @@ const NatureSelect = React.memo(
 					</div>
 				</li>
 			));
-		}, [
-			natureSuggestions,
-			focusedSuggestionIndex,
-			handleNatureSuggestionSelect,
-		]);
+		};
 
 		return (
 			<div className='relative mb-4 flex items-center gap-4 max-md:flex-col'>
@@ -316,7 +313,7 @@ const NatureSelect = React.memo(
 					)}
 					{natureSuggestions.length > 0 && natureInput !== '' && (
 						<ul className='absolute z-10 mt-1 w-full rounded-lg border border-gray-300 bg-white shadow-lg'>
-							{renderNatureSuggestions}
+							{renderNatureSuggestions()}
 						</ul>
 					)}
 				</div>

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, KeyboardEvent, useCallback } from 'react';
+import { useEffect, useState, useRef, KeyboardEvent } from 'react';
 import { pokemon } from '../../lib/pokemonInterface';
 
 interface ItemSuggestion {
@@ -61,23 +61,22 @@ const ItemSelect = ({
 			.join(' ');
 	};
 
-	const fetchItemSuggestions = useCallback(
-		async (input: string): Promise<ItemSuggestion[]> => {
-			try {
-				const response = await fetch(
-					`/api/pokemon-items?input=${encodeURIComponent(input)}`
-				);
-				if (!response.ok) {
-					throw new Error('Network response was not ok');
-				}
-				return await response.json();
-			} catch (error) {
-				console.error('Error fetching item suggestions:', error);
-				return [];
+	const fetchItemSuggestions = async (
+		input: string
+	): Promise<ItemSuggestion[]> => {
+		try {
+			const response = await fetch(
+				`/api/pokemon-items?input=${encodeURIComponent(input)}`
+			);
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
 			}
-		},
-		[]
-	);
+			return await response.json();
+		} catch (error) {
+			console.error('Error fetching item suggestions:', error);
+			return [];
+		}
+	};
 
 	const handleItemInputChange = async (
 		e: React.ChangeEvent<HTMLInputElement>
