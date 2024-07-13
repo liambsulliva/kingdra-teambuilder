@@ -113,7 +113,7 @@ const TypeCoverage = ({
 		};
 
 		fetchPokemonInfo();
-	}, [pokemonParty]);
+	}, [pokemonParty, selectedTeam, setEnableToast]);
 
 	useEffect(() => {
 		const calculateDefensiveCoverage = () => {

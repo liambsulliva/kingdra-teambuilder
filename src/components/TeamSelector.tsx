@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 
 interface TeamSelectorProps {
 	numTeams: number;
@@ -17,11 +17,14 @@ const DropdownMenu = ({
 	const [searchTerm, setSearchTerm] = useState('');
 	const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-	const handleSelection = (index: number) => {
-		setIsOpen(false);
-		setTitle(`Team ${index + 1}`);
-		setSelectedTeam(index);
-	};
+	const handleSelection = useCallback(
+		(index: number) => {
+			setIsOpen(false);
+			setTitle(`Team ${index + 1}`);
+			setSelectedTeam(index);
+		},
+		[setIsOpen, setTitle, setSelectedTeam]
+	);
 
 	const toggleDropdown = () => {
 		setIsOpen(!isOpen);
@@ -53,7 +56,7 @@ const DropdownMenu = ({
 		if (numTeams > 0) {
 			handleSelection(numTeams - 1);
 		}
-	}, [numTeams]);
+	}, [numTeams, handleSelection]);
 
 	useEffect(() => {
 		document.addEventListener('mousedown', handleClickOutside);

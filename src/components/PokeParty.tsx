@@ -26,6 +26,8 @@ const PokeParty = ({
 }) => {
 	const { isSignedIn } = useAuth();
 
+	// Callback needed for fetch
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const debouncedFetchPokemonParty = useCallback(
 		debounce(async () => {
 			if (isSignedIn) {
@@ -47,30 +49,27 @@ const PokeParty = ({
 		[isSignedIn]
 	);
 
-	const debouncedPostPokemonParty = useCallback(
-		debounce(async () => {
-			if (isSignedIn) {
-				try {
-					const response = await axios.post('/api/pokemon-party', {
-						pokemonParty,
-					});
-					// Handle the response here
-					if (response.status === 201) {
-						//console.log("POST Success");
-					} else {
-						console.log('POST Failure');
-					}
-				} catch (error) {
-					setEnableToast({
-						enabled: true,
-						type: 'error',
-						message: `Failed to submit Pokémon team to server: ${error}`,
-					});
+	const debouncedPostPokemonParty = debounce(async () => {
+		if (isSignedIn) {
+			try {
+				const response = await axios.post('/api/pokemon-party', {
+					pokemonParty,
+				});
+				// Handle the response here
+				if (response.status === 201) {
+					//console.log("POST Success");
+				} else {
+					console.log('POST Failure');
 				}
+			} catch (error) {
+				setEnableToast({
+					enabled: true,
+					type: 'error',
+					message: `Failed to submit Pokémon team to server: ${error}`,
+				});
 			}
-		}, 500),
-		[pokemonParty]
-	);
+		}
+	}, 500);
 
 	useEffect(() => {
 		debouncedFetchPokemonParty();

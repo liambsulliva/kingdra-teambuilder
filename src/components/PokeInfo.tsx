@@ -41,6 +41,59 @@ const PokeInfo = ({
 		[]
 	);
 
+	const calculateCombinedMatchups = useCallback((types: string[]) => {
+		const effectiveness: { [key: string]: number } = {};
+
+		types.forEach((type) => {
+			const matchups = typeMatchups[type as keyof typeof typeMatchups];
+
+			matchups.weaknesses.forEach((w) => {
+				effectiveness[w] = (effectiveness[w] || 1) * 2;
+			});
+			matchups.resistances.forEach((r) => {
+				effectiveness[r] = (effectiveness[r] || 1) * 0.5;
+			});
+			matchups.immunities.forEach((i) => {
+				effectiveness[i] = 0;
+			});
+		});
+
+		const weaknesses: string[] = [];
+		const resistances: string[] = [];
+		const immunities: string[] = [];
+
+		Object.entries(effectiveness).forEach(([type, value]) => {
+			if (value > 1) weaknesses.push(type);
+			else if (value < 1 && value > 0) resistances.push(type);
+			else if (value === 0) immunities.push(type);
+		});
+
+		return { weaknesses, resistances, immunities };
+	}, []);
+
+	const combinedMatchups = useMemo(() => {
+		if (pokemonInfo && pokemonInfo.types) {
+			return calculateCombinedMatchups(
+				pokemonInfo.types.map((t: { type: { name: string } }) => t.type.name)
+			);
+		}
+		return { weaknesses: [], resistances: [], immunities: [] };
+	}, [calculateCombinedMatchups, pokemonInfo]);
+
+	const handleAbilitySelect = useCallback(
+		(abilityName: string) => {
+			setPokemonParty((prevParty) => {
+				const newParty = [...prevParty];
+				newParty[selectedTeam][selectedPokemon] = {
+					...newParty[selectedTeam][selectedPokemon],
+					ability: abilityName,
+				};
+				return newParty;
+			});
+		},
+		[selectedTeam, selectedPokemon, setPokemonParty]
+	);
+
 	useEffect(() => {
 		const fetchPokemonInfo = async () => {
 			try {
@@ -82,60 +135,7 @@ const PokeInfo = ({
 			setTotalEVs(newTotalEVs);
 		}
 		fetchPokemonInfo();
-	}, [selectedTeam, selectedPokemon, pokemonParty]);
-
-	const calculateCombinedMatchups = useCallback((types: string[]) => {
-		const effectiveness: { [key: string]: number } = {};
-
-		types.forEach((type) => {
-			const matchups = typeMatchups[type as keyof typeof typeMatchups];
-
-			matchups.weaknesses.forEach((w) => {
-				effectiveness[w] = (effectiveness[w] || 1) * 2;
-			});
-			matchups.resistances.forEach((r) => {
-				effectiveness[r] = (effectiveness[r] || 1) * 0.5;
-			});
-			matchups.immunities.forEach((i) => {
-				effectiveness[i] = 0;
-			});
-		});
-
-		const weaknesses: string[] = [];
-		const resistances: string[] = [];
-		const immunities: string[] = [];
-
-		Object.entries(effectiveness).forEach(([type, value]) => {
-			if (value > 1) weaknesses.push(type);
-			else if (value < 1 && value > 0) resistances.push(type);
-			else if (value === 0) immunities.push(type);
-		});
-
-		return { weaknesses, resistances, immunities };
-	}, []);
-
-	const combinedMatchups = useMemo(() => {
-		if (pokemonInfo && pokemonInfo.types) {
-			return calculateCombinedMatchups(
-				pokemonInfo.types.map((t: { type: { name: string } }) => t.type.name)
-			);
-		}
-		return { weaknesses: [], resistances: [], immunities: [] };
-	}, [pokemonInfo?.types, calculateCombinedMatchups]);
-
-	const handleAbilitySelect = useCallback(
-		(abilityName: string) => {
-			setPokemonParty((prevParty) => {
-				const newParty = [...prevParty];
-				newParty[selectedTeam][selectedPokemon] = {
-					...newParty[selectedTeam][selectedPokemon],
-					ability: abilityName,
-				};
-				return newParty;
-			});
-		},
-		[selectedTeam, selectedPokemon, setPokemonParty]
-	);
+	}, [selectedTeam, selectedPokemon, pokemonParty, handleAbilitySelect]);
 
 	if (!pokemonInfo || !pokemonParty[selectedTeam][selectedPokemon]) {
 		return null;

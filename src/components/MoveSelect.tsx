@@ -52,21 +52,6 @@ const MoveSelect = React.memo(
 		const moveCache = useRef<Record<string, MoveSuggestion>>({});
 
 		useEffect(() => {
-			if (
-				pokemonParty[selectedTeam][selectedPokemon] &&
-				pokemonParty[selectedTeam][selectedPokemon].moves[index]
-			) {
-				setMoveInput(
-					formatMoveName(
-						pokemonParty[selectedTeam][selectedPokemon].moves[index]
-					)
-				);
-			} else {
-				setMoveInput('');
-			}
-		}, [selectedPokemon, selectedTeam, pokemonParty, index]);
-
-		useEffect(() => {
 			const handleClickOutside = (event: MouseEvent) => {
 				if (
 					moveInputRef.current &&
@@ -88,6 +73,21 @@ const MoveSelect = React.memo(
 				.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 				.join(' ');
 		}, []);
+
+		useEffect(() => {
+			if (
+				pokemonParty[selectedTeam][selectedPokemon] &&
+				pokemonParty[selectedTeam][selectedPokemon].moves[index]
+			) {
+				setMoveInput(
+					formatMoveName(
+						pokemonParty[selectedTeam][selectedPokemon].moves[index]
+					)
+				);
+			} else {
+				setMoveInput('');
+			}
+		}, [selectedPokemon, selectedTeam, pokemonParty, index, formatMoveName]);
 
 		const fetchMoveData = useCallback(
 			async (url: string): Promise<MoveSuggestion> => {
@@ -125,31 +125,28 @@ const MoveSelect = React.memo(
 			[setEnableToast]
 		);
 
-		const debouncedHandleMoveInputChange = useCallback(
-			debounce(async (value: string) => {
-				if (value === '') {
-					setMoveSuggestions([]);
-					setMoveError('');
-					return;
-				}
+		const debouncedHandleMoveInputChange = debounce(async (value: string) => {
+			if (value === '') {
+				setMoveSuggestions([]);
+				setMoveError('');
+				return;
+			}
 
-				const filteredMoves = validMoves.filter(
-					(move: { name: string; url: string }) =>
-						formatMoveName(move.name)
-							.toLowerCase()
-							.includes(value.toLowerCase())
-				);
+			const filteredMoves = validMoves.filter(
+				(move: { name: string; url: string }) =>
+					formatMoveName(move.name)
+						.toLowerCase()
+						.includes(value.toLowerCase())
+			);
 
-				const suggestions: MoveSuggestion[] = await Promise.all(
-					filteredMoves.slice(0, 10).map(async (move) => {
-						return await fetchMoveData(move.url);
-					})
-				);
+			const suggestions: MoveSuggestion[] = await Promise.all(
+				filteredMoves.slice(0, 10).map(async (move) => {
+					return await fetchMoveData(move.url);
+				})
+			);
 
-				setMoveSuggestions(suggestions);
-			}, 300),
-			[validMoves, formatMoveName, fetchMoveData]
-		);
+			setMoveSuggestions(suggestions);
+		}, 300);
 
 		const handleMoveInputChange = useCallback(
 			(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,36 +156,6 @@ const MoveSelect = React.memo(
 				debouncedHandleMoveInputChange(value);
 			},
 			[debouncedHandleMoveInputChange]
-		);
-
-		const handleMoveInputKeyDown = useCallback(
-			(e: KeyboardEvent<HTMLInputElement>) => {
-				if (moveSuggestions.length === 0) return;
-
-				switch (e.key) {
-					case 'ArrowDown':
-						e.preventDefault();
-						setSelectedSuggestionIndex((prevIndex) =>
-							prevIndex < moveSuggestions.length - 1 ? prevIndex + 1 : 0
-						);
-						break;
-					case 'ArrowUp':
-						e.preventDefault();
-						setSelectedSuggestionIndex((prevIndex) =>
-							prevIndex > 0 ? prevIndex - 1 : moveSuggestions.length - 1
-						);
-						break;
-					case 'Enter':
-						e.preventDefault();
-						if (selectedSuggestionIndex >= 0) {
-							handleMoveSuggestionSelect(
-								moveSuggestions[selectedSuggestionIndex].name
-							);
-						}
-						break;
-				}
-			},
-			[moveSuggestions, selectedSuggestionIndex]
 		);
 
 		const handleMoveInputBlur = useCallback(() => {
@@ -234,6 +201,36 @@ const MoveSelect = React.memo(
 				setMoveError('');
 			},
 			[setPokemonParty, selectedTeam, selectedPokemon, index]
+		);
+
+		const handleMoveInputKeyDown = useCallback(
+			(e: KeyboardEvent<HTMLInputElement>) => {
+				if (moveSuggestions.length === 0) return;
+
+				switch (e.key) {
+					case 'ArrowDown':
+						e.preventDefault();
+						setSelectedSuggestionIndex((prevIndex) =>
+							prevIndex < moveSuggestions.length - 1 ? prevIndex + 1 : 0
+						);
+						break;
+					case 'ArrowUp':
+						e.preventDefault();
+						setSelectedSuggestionIndex((prevIndex) =>
+							prevIndex > 0 ? prevIndex - 1 : moveSuggestions.length - 1
+						);
+						break;
+					case 'Enter':
+						e.preventDefault();
+						if (selectedSuggestionIndex >= 0) {
+							handleMoveSuggestionSelect(
+								moveSuggestions[selectedSuggestionIndex].name
+							);
+						}
+						break;
+				}
+			},
+			[moveSuggestions, selectedSuggestionIndex, handleMoveSuggestionSelect]
 		);
 
 		const renderMoveSuggestions = useMemo(() => {
