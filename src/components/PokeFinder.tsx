@@ -1,4 +1,3 @@
-'use client';
 import '@/app/globals.css';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import PokeFinderCard from './PokeFinderCard';

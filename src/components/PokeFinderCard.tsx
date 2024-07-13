@@ -1,4 +1,3 @@
-'use client';
 import { memo, useCallback } from 'react';
 import '@/app/globals.css';
 import type { pokemon } from '../../lib/pokemonInterface';

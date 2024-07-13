@@ -1,4 +1,3 @@
-'use client';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 
 interface TeamSelectorProps {

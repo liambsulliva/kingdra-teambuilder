@@ -1,5 +1,3 @@
-'use client';
-
 import '@/app/globals.css';
 import typeMatchups from '../../lib/typeMatchups.json';
 import TypeBadge from './TypeBadge';
@@ -14,7 +12,6 @@ import NatureSelect from './NatureSelect';
 import ItemSelect from './ItemSelect';
 import TeraSelect from './TeraSelect';
 import MoveSelect from './MoveSelect';
-import LevelSelect from './LevelSelect';
 import LocationAreaEncounters from './LocationAreaEncounters';
 import type { pokemonInfo } from '../../lib/pokemonInterface';
 import PokemonBasicInfo from './PokemonBasicInfo';
