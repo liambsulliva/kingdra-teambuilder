@@ -17,6 +17,7 @@ import MoveSelect from './MoveSelect';
 import LevelSelect from './LevelSelect';
 import LocationAreaEncounters from './LocationAreaEncounters';
 import type { pokemonInfo } from '../../lib/pokemonInterface';
+import PokemonBasicInfo from './PokemonBasicInfo';
 
 const PokeInfo = ({
 	gameMode,
@@ -146,68 +147,15 @@ const PokeInfo = ({
 			{pokemonInfo && pokemonParty[selectedTeam][selectedPokemon] && (
 				<div className='flex justify-evenly gap-16 rounded-lg bg-white py-12 pl-14 pr-8 shadow-md max-lg:flex-col max-md:pl-8'>
 					<div className='flex flex-col gap-2'>
-						<div className='flex max-md:justify-center max-md:gap-4'>
-							<div className='flex h-32 w-32 items-center justify-center'>
-								{pokemonInfo.sprites.versions['generation-v']['black-white']
-									.animated.front_default ? (
-									<img
-										src={
-											pokemonInfo.sprites.versions['generation-v'][
-												'black-white'
-											].animated.front_default
-										}
-										alt={pokemonInfo.name}
-										className='object-contain'
-									/>
-								) : (
-									<img
-										src={pokemonParty[selectedTeam][selectedPokemon].sprite}
-										alt={pokemonParty[selectedTeam][selectedPokemon].name}
-										className='object-contain'
-									/>
-								)}
-							</div>
-							<div
-								className={`flex flex-col ${gameMode === 'competitive' ? 'justify-end' : 'justify-center'}`}
-							>
-								<h2 className='mb-3 text-4xl font-bold capitalize text-black'>
-									{(() => {
-										const nameParts = pokemonInfo.name.split('-');
-										if (nameParts.length > 1) {
-											const form: string | undefined = nameParts.pop();
-											if (form && ['galar', 'hisui', 'alola'].includes(form)) {
-												const regionName =
-													form === 'galar'
-														? 'Galarian'
-														: form === 'hisui'
-															? 'Hisuian'
-															: 'Alolan';
-												return `${regionName} ${nameParts
-													.map(
-														(part) =>
-															part.charAt(0).toUpperCase() + part.slice(1)
-													)
-													.join(' ')}`;
-											}
-										}
-										return pokemonInfo.name
-											.split('-')
-											.map(
-												(part) => part.charAt(0).toUpperCase() + part.slice(1)
-											)
-											.join(' ');
-									})()}
-								</h2>
-								{gameMode === 'competitive' && (
-									<LevelSelect
-										selectedPokemon={selectedPokemon}
-										pokemonParty={pokemonParty}
-										setPokemonParty={setPokemonParty}
-										selectedTeam={selectedTeam}
-									/>
-								)}
-							</div>
-						</div>
+						<PokemonBasicInfo
+							pokemonInfo={pokemonInfo}
+							pokemonParty={pokemonParty}
+							selectedTeam={selectedTeam}
+							selectedPokemon={selectedPokemon}
+							gameMode={gameMode}
+							setPokemonParty={setPokemonParty}
+							setEnableToast={setEnableToast}
+						/>
 						<div className='flex flex-col'>
 							<p className='mb-4 flex items-center gap-2.5 text-lg text-xl text-gray-600 max-md:flex-col'>
 								Type:
