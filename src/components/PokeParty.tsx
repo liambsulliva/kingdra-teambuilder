@@ -62,11 +62,15 @@ const PokeParty = ({
 					console.log('POST Failure');
 				}
 			} catch (error) {
-				setEnableToast({
+				{
+					/*
+					setEnableToast({
 					enabled: true,
 					type: 'error',
 					message: `Failed to submit Pokémon team to server: ${error}`,
-				});
+					});
+					*/
+				}
 			}
 		}
 	}, 500);
