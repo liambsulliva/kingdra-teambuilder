@@ -1,20 +1,18 @@
 import '@/app/globals.css';
-import typeMatchups from '../../lib/typeMatchups.json';
-import TypeBadge from './TypeBadge';
 import natures from '../../lib/natures.json';
-import { Button, Tooltip } from 'flowbite-react';
-import { useEffect, useMemo, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import axios from 'axios';
 import StatBar from './StatBar';
 import type { pokemon } from '../../lib/pokemonInterface';
 import LocalIETabber from './LocalIETabber';
 import NatureSelect from './NatureSelect';
 import ItemSelect from './ItemSelect';
-import TeraSelect from './TeraSelect';
 import MoveSelect from './MoveSelect';
 import LocationAreaEncounters from './LocationAreaEncounters';
 import type { pokemonInfo } from '../../lib/pokemonInterface';
 import PokemonBasicInfo from './PokemonBasicInfo';
+import PokemonTypeInfo from './PokemonTypeInfo';
+import PokemonAbilitySelector from './PokemonAbilitySelector';
 
 const PokeInfo = ({
 	gameMode,
@@ -38,45 +36,6 @@ const PokeInfo = ({
 	const [validMoves, setValidMoves] = useState<{ name: string; url: string }[]>(
 		[]
 	);
-
-	const calculateCombinedMatchups = useCallback((types: string[]) => {
-		const effectiveness: { [key: string]: number } = {};
-
-		types.forEach((type) => {
-			const matchups = typeMatchups[type as keyof typeof typeMatchups];
-
-			matchups.weaknesses.forEach((w) => {
-				effectiveness[w] = (effectiveness[w] || 1) * 2;
-			});
-			matchups.resistances.forEach((r) => {
-				effectiveness[r] = (effectiveness[r] || 1) * 0.5;
-			});
-			matchups.immunities.forEach((i) => {
-				effectiveness[i] = 0;
-			});
-		});
-
-		const weaknesses: string[] = [];
-		const resistances: string[] = [];
-		const immunities: string[] = [];
-
-		Object.entries(effectiveness).forEach(([type, value]) => {
-			if (value > 1) weaknesses.push(type);
-			else if (value < 1 && value > 0) resistances.push(type);
-			else if (value === 0) immunities.push(type);
-		});
-
-		return { weaknesses, resistances, immunities };
-	}, []);
-
-	const combinedMatchups = useMemo(() => {
-		if (pokemonInfo && pokemonInfo.types) {
-			return calculateCombinedMatchups(
-				pokemonInfo.types.map((t: { type: { name: string } }) => t.type.name)
-			);
-		}
-		return { weaknesses: [], resistances: [], immunities: [] };
-	}, [calculateCombinedMatchups, pokemonInfo]);
 
 	const handleAbilitySelect = useCallback(
 		(abilityName: string) => {
@@ -153,125 +112,21 @@ const PokeInfo = ({
 							setPokemonParty={setPokemonParty}
 							setEnableToast={setEnableToast}
 						/>
+						<PokemonTypeInfo
+							pokemonInfo={pokemonInfo}
+							selectedPokemon={selectedPokemon}
+							pokemonParty={pokemonParty}
+							setPokemonParty={setPokemonParty}
+							selectedTeam={selectedTeam}
+						/>
+						<PokemonAbilitySelector
+							pokemonInfo={pokemonInfo}
+							pokemonParty={pokemonParty}
+							selectedTeam={selectedTeam}
+							selectedPokemon={selectedPokemon}
+							setPokemonParty={setPokemonParty}
+						/>
 						<div className='flex flex-col'>
-							<p className='mb-4 flex items-center gap-2.5 text-lg text-xl text-gray-600 max-md:flex-col'>
-								Type:
-								<div className='relative flex items-center gap-2 px-2 max-md:flex-wrap'>
-									<Tooltip
-										content={
-											<div className='w-64 p-2'>
-												<p className='mb-2 font-bold'>Weaknesses:</p>
-												<div className='mb-2 flex flex-wrap gap-1'>
-													{combinedMatchups.weaknesses.length > 0 ? (
-														combinedMatchups.weaknesses.map((type, index) => (
-															<TypeBadge key={index} type={type} size={3} />
-														))
-													) : (
-														<span>None</span>
-													)}
-												</div>
-												<p className='mb-2 font-bold'>Resistances:</p>
-												<div className='mb-2 flex flex-wrap gap-1'>
-													{combinedMatchups.resistances.length > 0 ? (
-														combinedMatchups.resistances.map((type, index) => (
-															<TypeBadge key={index} type={type} size={3} />
-														))
-													) : (
-														<span>None</span>
-													)}
-												</div>
-												<p className='mb-2 font-bold'>Immunities:</p>
-												<div className='flex flex-wrap gap-1'>
-													{combinedMatchups.immunities.length > 0 ? (
-														combinedMatchups.immunities.map((type, index) => (
-															<TypeBadge key={index} type={type} size={3} />
-														))
-													) : (
-														<span>None</span>
-													)}
-												</div>
-											</div>
-										}
-										style='light'
-									>
-										<div className='flex gap-2'>
-											{pokemonInfo.types.map(
-												(
-													typeInfo: { type: { name: string } },
-													index: number
-												) => (
-													<TypeBadge
-														key={index}
-														type={typeInfo.type.name}
-														size={5}
-													/>
-												)
-											)}
-										</div>
-									</Tooltip>
-								</div>
-							</p>
-							<p className='mb-4 flex items-center gap-2.5 text-lg text-xl text-gray-600 max-md:flex-col'>
-								Tera Type:
-								<div className='flex items-center gap-2 px-2 max-md:flex-wrap'>
-									<TeraSelect
-										selectedPokemon={selectedPokemon}
-										pokemonParty={pokemonParty}
-										setPokemonParty={setPokemonParty}
-										selectedTeam={selectedTeam}
-									/>
-								</div>
-							</p>
-							<div className='mb-4 flex items-center gap-4 max-md:flex-col'>
-								<h3 className='text-xl text-gray-600'>Ability:</h3>
-								<ul className='relative flex flex-wrap gap-2 text-nowrap'>
-									{Array.from(
-										new Set<string>(
-											pokemonInfo.abilities.map(
-												(ability: { ability: { name: string } }) =>
-													ability.ability.name
-											)
-										)
-									).map((abilityName: string, index: number) => {
-										let effectText =
-											pokemonInfo.abilities.find(
-												(a: { ability: { name: string } }) =>
-													a.ability.name === abilityName
-											)?.effect || '';
-										effectText = effectText.split('Overworld:')[0].trim();
-
-										// Convert ability name to "This Case" format
-										const displayName = abilityName
-											.split('-')
-											.map(
-												(word) => word.charAt(0).toUpperCase() + word.slice(1)
-											)
-											.join(' ');
-
-										return (
-											<Tooltip
-												key={index}
-												className='w-64 text-wrap'
-												content={effectText}
-												style='light'
-											>
-												<Button
-													color={
-														pokemonParty[selectedTeam][selectedPokemon]
-															.ability === abilityName
-															? 'blue'
-															: 'light'
-													}
-													onClick={() => handleAbilitySelect(abilityName)}
-													className={`font-bold capitalize`}
-												>
-													{displayName}
-												</Button>
-											</Tooltip>
-										);
-									})}
-								</ul>
-							</div>
 							<NatureSelect
 								selectedPokemon={selectedPokemon}
 								pokemonParty={pokemonParty}
