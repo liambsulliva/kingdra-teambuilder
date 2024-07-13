@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { ClerkProvider } from '@clerk/nextjs';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 import PokeParty from '@/components/PokeParty';
@@ -7,8 +9,6 @@ import PokeInfo from '@/components/PokeInfo';
 import PokeFinder from '@/components/PokeFinder';
 import Toast from '@/components/Toast';
 import TypeCoverage from '@/components/TypeCoverage';
-import { useEffect, useState } from 'react';
-import { ClerkProvider } from '@clerk/nextjs';
 import type { pokemon } from '../../lib/pokemonInterface';
 
 const Home = () => {
@@ -39,40 +39,52 @@ const Home = () => {
 		}
 	}, [numTeams, selectedTeam]);
 
-	useEffect(() => {
-		console.log('Pokemon Party:');
-		console.log(pokemonParty);
-		console.log(`NumTeams: ${numTeams}`);
-	}, [pokemonParty, numTeams]);
-
-	const handleNewTeam = () => {
+	const handleNewTeam = useCallback(() => {
 		setNumTeams((prevNumTeams) => prevNumTeams + 1);
 		setPokemonParty((prevParty) => [...prevParty, []]);
 		setSelectedTeam((prevSelectedTeam) => prevSelectedTeam + 1);
-	};
+	}, []);
 
-	const handleDeleteTeam = (index: number) => {
-		if (numTeams <= 1) {
-			setEnableToast({
-				enabled: true,
-				type: 'error',
-				message: "You can't delete the last team!",
-			});
-			return;
-		}
-
-		setNumTeams((prevNumTeams) => prevNumTeams - 1);
-		setPokemonParty((prevParty) => {
-			const newParty = prevParty.filter((_, i) => i !== index);
-			return newParty;
-		});
-		setSelectedTeam((prevSelected) => {
-			if (prevSelected >= index) {
-				return Math.max(0, prevSelected - 1);
+	const handleDeleteTeam = useCallback(
+		(index: number) => {
+			if (numTeams <= 1) {
+				setEnableToast({
+					enabled: true,
+					type: 'error',
+					message: "You can't delete the last team!",
+				});
+				return;
 			}
-			return prevSelected;
-		});
-	};
+
+			setNumTeams((prevNumTeams) => prevNumTeams - 1);
+			setPokemonParty((prevParty) => {
+				const newParty = prevParty.filter((_, i) => i !== index);
+				return newParty;
+			});
+			setSelectedTeam((prevSelected) => {
+				if (prevSelected >= index) {
+					return Math.max(0, prevSelected - 1);
+				}
+				return prevSelected;
+			});
+		},
+		[numTeams]
+	);
+
+	const memoizedHeader = useMemo(
+		() => (
+			<Header
+				setGameMode={setGameMode}
+				numTeams={numTeams}
+				setNumTeams={setNumTeams}
+				selectedTeam={selectedTeam}
+				setSelectedTeam={setSelectedTeam}
+				onNewTeam={handleNewTeam}
+				onDeleteTeam={handleDeleteTeam}
+			/>
+		),
+		[numTeams, selectedTeam, handleNewTeam, handleDeleteTeam]
+	);
 
 	return (
 		<body
@@ -80,15 +92,7 @@ const Home = () => {
 			style={{ width: '1850px', maxWidth: 'calc(100% - 1rem)' }}
 		>
 			<ClerkProvider>
-				<Header
-					setGameMode={setGameMode}
-					numTeams={numTeams}
-					setNumTeams={setNumTeams}
-					selectedTeam={selectedTeam}
-					setSelectedTeam={setSelectedTeam}
-					onNewTeam={handleNewTeam}
-					onDeleteTeam={handleDeleteTeam}
-				/>
+				{memoizedHeader}
 				<div className='font-serif mx-auto flex flex-col gap-8 p-8'>
 					<div className='flex flex-col gap-4 md:flex-row'>
 						<PokeParty
@@ -122,7 +126,7 @@ const Home = () => {
 						setEnableToast={setEnableToast}
 					/>
 				</div>
-				{enableToast && (
+				{enableToast.enabled && (
 					<Toast
 						enabled={enableToast.enabled}
 						type={enableToast.type}
