@@ -27,7 +27,12 @@ module.exports = {
 		ecmaVersion: 'latest',
 		sourceType: 'module',
 	},
-	plugins: ['@typescript-eslint', 'react', 'prefer-arrow'],
+	plugins: [
+		'@typescript-eslint',
+		'react',
+		'prefer-arrow',
+		'usememo-recommendations',
+	],
 	rules: {
 		'prefer-arrow/prefer-arrow-functions': [
 			'warn',
@@ -37,5 +42,6 @@ module.exports = {
 				classPropertiesAllowed: false,
 			},
 		],
+		'usememo-recommendations/detect-heavy-operations': 'warn',
 	},
 };

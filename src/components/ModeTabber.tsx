@@ -9,11 +9,7 @@ interface TabberProps {
 	setGameMode: (mode: string) => void;
 }
 
-export default function Component({
-	leftLabel,
-	rightLabel,
-	setGameMode,
-}: TabberProps) {
+const Component = ({ leftLabel, rightLabel, setGameMode }: TabberProps) => {
 	const [selectedTab, setSelectedTab] = useState('competitive');
 
 	const handleTabClick = (tab: string) => {
@@ -41,4 +37,6 @@ export default function Component({
 			</ButtonGroup>
 		</div>
 	);
-}
+};
+
+export default Component;

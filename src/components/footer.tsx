@@ -19,7 +19,7 @@ const socials = [
 	},
 ];
 
-export default function Footer() {
+const Footer = () => {
 	return (
 		<div className='flex flex-row items-center justify-between p-8'>
 			<p className='font-medium'>
@@ -48,4 +48,6 @@ export default function Footer() {
 			</div>
 		</div>
 	);
-}
+};
+
+export default Footer;
