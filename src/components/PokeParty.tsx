@@ -9,6 +9,8 @@ import type { pokemon } from '@/lib/pokemonInterface';
 
 const PokeParty = ({
 	pokemonParty,
+	teamNames,
+	setTeamNames,
 	setPokemonParty,
 	setSelectedPokemon,
 	setEnableToast,
@@ -16,6 +18,8 @@ const PokeParty = ({
 	setNumTeams,
 }: {
 	pokemonParty: pokemon[][];
+	teamNames: string[];
+	setTeamNames: React.Dispatch<React.SetStateAction<string[]>>;
 	setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
 	setSelectedPokemon: React.Dispatch<React.SetStateAction<number>>;
 	setEnableToast: React.Dispatch<
@@ -35,6 +39,7 @@ const PokeParty = ({
 					const response = await axios.get('/api/pokemon-party');
 					setPokemonParty(response.data.pokemonParty);
 					setNumTeams(response.data.pokemonParty.length);
+					setTeamNames(response.data.teamNames);
 				} catch (error) {
 					setEnableToast({
 						enabled: true,
@@ -53,6 +58,7 @@ const PokeParty = ({
 		if (isSignedIn) {
 			try {
 				const response = await axios.post('/api/pokemon-party', {
+					teamNames,
 					pokemonParty,
 				});
 				// Handle the response here
@@ -81,7 +87,7 @@ const PokeParty = ({
 
 	useEffect(() => {
 		debouncedPostPokemonParty();
-	}, [pokemonParty, debouncedPostPokemonParty]);
+	}, [pokemonParty, teamNames, debouncedPostPokemonParty]);
 
 	return (
 		<div className='flex flex-col items-center py-4'>

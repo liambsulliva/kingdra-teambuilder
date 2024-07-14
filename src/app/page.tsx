@@ -11,8 +11,6 @@ import Toast from '@/components/Toast';
 import TypeCoverage from '@/components/TypeCoverage';
 import type { pokemon } from '@/lib/pokemonInterface';
 import NewTeamModal from '@/components/NewTeamModal';
-import { fetchTeamNames, updateTeamNames } from '@/lib/teamNameFetch';
-import debounce from 'lodash.debounce';
 
 const Home = () => {
 	const [gameMode, setGameMode] = useState<string>('competitive');
@@ -43,32 +41,6 @@ const Home = () => {
 			setSelectedTeam(Math.max(0, numTeams - 1));
 		}
 	}, [numTeams, selectedTeam]);
-
-	useEffect(() => {
-		const loadTeamNames = async () => {
-			try {
-				const names = await fetchTeamNames();
-				setTeamNames(names);
-			} catch (error) {
-				console.error('Failed to load team names:', error);
-			}
-		};
-		loadTeamNames();
-	}, []);
-
-	useEffect(() => {
-		debounce(async () => {
-			const handleUpdateTeamNames = async (newTeamNames: string[]) => {
-				try {
-					await updateTeamNames(newTeamNames);
-					setTeamNames(newTeamNames);
-				} catch (error) {
-					console.error('Failed to update team names:', error);
-				}
-			};
-			handleUpdateTeamNames(teamNames);
-		}, 500);
-	}, [teamNames]);
 
 	const handleNewTeam = useCallback(() => {
 		setShowNewTeamModal(true);
@@ -157,6 +129,8 @@ const Home = () => {
 							selectedTeam={selectedTeam}
 							setEnableToast={setEnableToast}
 							setNumTeams={setNumTeams}
+							teamNames={teamNames}
+							setTeamNames={setTeamNames}
 						/>
 						<PokeInfo
 							gameMode={gameMode}
