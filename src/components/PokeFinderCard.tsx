@@ -80,10 +80,16 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
 			<img
 				className='md:h-24 md:w-24'
 				src={pokemon.sprite}
-				alt={pokemon.name}
+				alt={pokemon.name
+					.replace(/-/g, ' ')
+					.replace(/(^|\s)\S/g, (match) => match.toUpperCase())}
 				loading='lazy'
 			/>
-			<p className='text-center text-sm'>{pokemon.name}</p>
+			<p className='text-center text-sm'>
+				{pokemon.name
+					.replace(/-/g, ' ')
+					.replace(/(^|\s)\S/g, (match) => match.toUpperCase())}
+			</p>
 		</div>
 	);
 };
