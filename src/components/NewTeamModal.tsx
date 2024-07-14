@@ -21,6 +21,12 @@ const NewTeamModal: React.FC<NewTeamModalProps> = ({
 		}
 	};
 
+	const handleKeyDown = (event: React.KeyboardEvent) => {
+		if (event.key === 'Enter') {
+			handleConfirm();
+		}
+	};
+
 	return (
 		<Modal show={show} onClose={onClose}>
 			<Modal.Header>Create New Team</Modal.Header>
@@ -35,6 +41,7 @@ const NewTeamModal: React.FC<NewTeamModalProps> = ({
 							placeholder='Enter team name'
 							value={teamName}
 							onChange={(e) => setTeamName(e.target.value)}
+							onKeyDown={handleKeyDown}
 							required
 						/>
 					</div>
