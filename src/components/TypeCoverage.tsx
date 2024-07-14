@@ -44,7 +44,7 @@ const renderTypeBadge = (type: string, size: number = 2) => (
 const offensiveTooltipContent = (
 	<div>
 		<p>
-			This component takes the moves of each of your pokemon (minus special
+			This component takes the moves of each of your pokemon (except status
 			moves) and aggregates their types to get a picture of all of the types
 			your team covers super-effectively. For instance, if you had a 1 pokemon
 			team of Venusaur with the moves Giga Drain and Sludge Bomb, your total
