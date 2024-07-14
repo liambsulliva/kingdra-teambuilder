@@ -46,6 +46,7 @@ const PokemonSchema = new mongoose.Schema({
 const UserSchema = new mongoose.Schema({
 	clerkUserId: { type: String, unique: true },
 	pokemonParty: [[PokemonSchema]],
+	teamNames: [String],
 });
 
 const Pokemon =
