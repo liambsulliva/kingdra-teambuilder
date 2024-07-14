@@ -218,19 +218,17 @@ const TypeCoverage = ({
 			});
 
 			movesList.forEach((pokemonMoves: Array<MoveData>) => {
-				const seenMoves: Array<string> = [];
+				const coveredTypes: Array<string> = [];
 				pokemonMoves.forEach((move) => {
 					const moveType = move.type.toLowerCase();
-					if (seenMoves.includes(moveType)) {
-						return;
-					}
-					seenMoves.push(moveType);
 					Object.keys(typeColors).forEach((defenderType) => {
 						if (
 							typedTypeMatchups[defenderType]?.weaknesses.includes(moveType) &&
-							move.moveClass !== 'status'
+							move.moveClass !== 'status' &&
+							!coveredTypes.includes(defenderType)
 						) {
 							coverage[defenderType] += 1;
+							coveredTypes.push(defenderType);
 						}
 					});
 				});
