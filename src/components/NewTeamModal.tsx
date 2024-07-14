@@ -28,7 +28,7 @@ const NewTeamModal: React.FC<NewTeamModalProps> = ({
 	};
 
 	return (
-		<Modal show={show} onClose={onClose}>
+		<Modal show={show} onClose={onClose} dismissible>
 			<Modal.Header>Create New Team</Modal.Header>
 			<Modal.Body>
 				<div className='space-y-6'>
