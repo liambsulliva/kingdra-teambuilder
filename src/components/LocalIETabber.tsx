@@ -164,10 +164,25 @@ const Component = ({
 		const nameMatch = nameWithNicknameAndGender.match(
 			/(?:\(([^()]+)\))?(?:\s*\([MF]\))?$/
 		);
-		const name = nameMatch
+
+		let name = nameMatch
 			? nameMatch[1] ||
 				nameWithNicknameAndGender.replace(/\s*\([MF]\)\s*$/, '').trim()
 			: nameWithNicknameAndGender.replace(/\s*\([MF]\)\s*$/, '').trim();
+
+		const forceIncarnateForms = [
+			'landorus',
+			'thundurus',
+			'tornadus',
+			'enamorus',
+		];
+		if (
+			forceIncarnateForms.includes(name.toLowerCase()) &&
+			!name.toLowerCase().endsWith('-therian') &&
+			!name.toLowerCase().endsWith('-incarnate')
+		) {
+			name += '-incarnate';
+		}
 
 		const item = rawItem ? capitalizeWords(rawItem) : '';
 
