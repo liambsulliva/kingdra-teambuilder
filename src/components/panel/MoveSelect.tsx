@@ -234,7 +234,10 @@ const MoveSelect = ({
 							)}
 						</div>
 						<p className='text-xs text-gray-800'>
-							ACC: <strong className='font-medium'>{move.acc}%</strong>
+							ACC:
+							<strong className='font-medium'>
+								{move.acc !== null ? ` ${move.acc}%` : ' N/A'}
+							</strong>
 						</p>
 					</div>
 					{move.effect !==
