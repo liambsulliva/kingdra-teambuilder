@@ -10,12 +10,12 @@ import PokeFinder from '@/components/PokeFinder';
 import Toast from '@/components/Toast';
 import TypeCoverage from '@/components/TypeCoverage';
 import type { pokemon } from '@/lib/pokemonInterface';
+import NewTeamModal from '@/components/NewTeamModal';
 
 const Home = () => {
 	const [gameMode, setGameMode] = useState<string>('competitive');
 	const [pokemonParty, setPokemonParty] = useState<pokemon[][]>([[]]);
 	const [numTeams, setNumTeams] = useState<number>(1);
-	const [teamNames, setTeamNames] = useState<string[]>(['Team 1']);
 	const [selectedPokemon, setSelectedPokemon] = useState<number>(-1);
 	const [selectedTeam, setSelectedTeam] = useState<number>(0);
 	const [enableToast, setEnableToast] = useState({
@@ -23,6 +23,8 @@ const Home = () => {
 		type: '',
 		message: '',
 	});
+	const [teamNames, setTeamNames] = useState<string[]>(['Team 1']);
+	const [showNewTeamModal, setShowNewTeamModal] = useState(false);
 
 	useEffect(() => {
 		let timer: NodeJS.Timeout;
@@ -41,10 +43,15 @@ const Home = () => {
 	}, [numTeams, selectedTeam]);
 
 	const handleNewTeam = useCallback(() => {
+		setShowNewTeamModal(true);
+	}, []);
+
+	const handleCreateNewTeam = useCallback((teamName: string) => {
 		setNumTeams((prevNumTeams) => prevNumTeams + 1);
 		setPokemonParty((prevParty) => [...prevParty, []]);
-		setTeamNames((prevNames) => [...prevNames, `Team ${prevNames.length + 1}`]);
+		setTeamNames((prevNames) => [...prevNames, teamName]);
 		setSelectedTeam((prevSelectedTeam) => prevSelectedTeam + 1);
+		setShowNewTeamModal(false);
 	}, []);
 
 	const handleDeleteTeam = useCallback(
@@ -59,7 +66,10 @@ const Home = () => {
 			}
 
 			setNumTeams((prevNumTeams) => prevNumTeams - 1);
-			setPokemonParty((prevParty) => prevParty.filter((_, i) => i !== index));
+			setPokemonParty((prevParty) => {
+				const newParty = prevParty.filter((_, i) => i !== index);
+				return newParty;
+			});
 			setTeamNames((prevNames) => prevNames.filter((_, i) => i !== index));
 			setSelectedTeam((prevSelected) => {
 				if (prevSelected >= index) {
@@ -150,6 +160,11 @@ const Home = () => {
 						message={enableToast.message}
 					/>
 				)}
+				<NewTeamModal
+					show={showNewTeamModal}
+					onClose={() => setShowNewTeamModal(false)}
+					onConfirm={handleCreateNewTeam}
+				/>
 				<Footer />
 			</ClerkProvider>
 		</body>
