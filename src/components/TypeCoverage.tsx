@@ -28,6 +28,15 @@ interface TypeMatchups {
 	[key: string]: TypeMatchup;
 }
 
+type MoveData = {
+	name: string;
+	base: number;
+	type: string;
+	acc: number;
+	effect: string;
+	moveClass: string;
+};
+
 const renderTypeBadge = (type: string, size: number = 2) => (
 	<TypeBadge type={type} size={size} />
 );
@@ -35,18 +44,20 @@ const renderTypeBadge = (type: string, size: number = 2) => (
 const offensiveTooltipContent = (
 	<div>
 		<p>
-			This component calculates the types that each Pokémon would cover assuming
-			each has a STAB move for each of its type(s) and adds 1 for each. For
-			example, Venusaur is Grass/Poison, so its STAB Spread would be...
+			This component takes the moves of each of your pokemon (minus special
+			moves) and aggregates their types to get a picture of all of the types
+			your team covers super-effectively. For instance, if you had a 1 pokemon
+			team of Venusaur with the moves Giga Drain and Sludge Bomb, your total
+			offensive spread would be...
 		</p>
 		<ul className='p-2'>
 			<li className='flex items-center gap-2'>
-				{renderTypeBadge('grass')} → {renderTypeBadge('water')}
+				{renderTypeBadge('grass')} Giga Drain → {renderTypeBadge('water')}
 				{renderTypeBadge('ground')}
 				{renderTypeBadge('rock')} + 1
 			</li>
 			<li className='mt-1 flex items-center gap-2'>
-				{renderTypeBadge('poison')} → {renderTypeBadge('grass')}
+				{renderTypeBadge('poison')} Sludge Bomb → {renderTypeBadge('grass')}
 				{renderTypeBadge('fairy')} + 1
 			</li>
 		</ul>
@@ -57,8 +68,9 @@ const defensiveTooltipContent = (
 	<div>
 		<p>
 			This component calculates every weakness for a given pokemon and adds 1 to
-			every type it is weak to. For example, Venusaur is Grass/Poison, so its
-			weakness spread would be...
+			every type it is weak to. For instance, if you had a 1 pokemon team of
+			Venusaur with the types Grass and Poison, your total defensive spread
+			would be...
 		</p>
 		<ul className='p-2'>
 			<li className='flex items-center gap-2'>
@@ -89,6 +101,42 @@ const TypeCoverage = ({
 	const [pokemonInfoList, setPokemonInfoList] = useState<Array<PokemonInfo>>(
 		[]
 	);
+	const [movesList, setMovesList] = useState<Array<Array<MoveData>>>([[]]);
+
+	useEffect(() => {
+		const generateMovesList = async () => {
+			const movesList: Array<Array<MoveData>> = [];
+			for (const pokemon of pokemonParty[selectedTeam]) {
+				const pokemonMoves: Array<MoveData> = [];
+				for (const move of pokemon.moves) {
+					const formattedMove = move.toLowerCase().replace(/\s/g, '-');
+					try {
+						const response = await axios.get(
+							`/api/pokemon-moves?url=https://pokeapi.co/api/v2/move/${formattedMove}`
+						);
+						const moveData: MoveData = {
+							name: response.data.name,
+							base: response.data.base,
+							type: response.data.type,
+							acc: response.data.acc,
+							effect: response.data.effect,
+							moveClass: response.data.moveClass,
+						};
+						pokemonMoves.push(moveData);
+					} catch (error) {
+						setEnableToast({
+							enabled: true,
+							type: 'error',
+							message: `Error fetching move data: ${error}`,
+						});
+					}
+				}
+				movesList.push(pokemonMoves);
+			}
+			setMovesList(movesList);
+		};
+		generateMovesList();
+	}, [pokemonParty, selectedTeam, setMovesList, setEnableToast]);
 
 	useEffect(() => {
 		const fetchPokemonInfo = async () => {
@@ -169,15 +217,20 @@ const TypeCoverage = ({
 				coverage[type] = 0;
 			});
 
-			pokemonInfoList.forEach((pokemon) => {
-				pokemon.types.forEach((typeObj) => {
-					const type = typeObj.type.name;
-					Object.keys(typeColors).forEach((otherType) => {
+			movesList.forEach((pokemonMoves: Array<MoveData>) => {
+				const seenMoves: Array<string> = [];
+				pokemonMoves.forEach((move) => {
+					const moveType = move.type.toLowerCase();
+					if (seenMoves.includes(moveType)) {
+						return;
+					}
+					seenMoves.push(moveType);
+					Object.keys(typeColors).forEach((defenderType) => {
 						if (
-							otherType !== type &&
-							typedTypeMatchups[otherType]?.weaknesses.includes(type)
+							typedTypeMatchups[defenderType]?.weaknesses.includes(moveType) &&
+							move.moveClass !== 'status'
 						) {
-							coverage[otherType] += 1;
+							coverage[defenderType] += 1;
 						}
 					});
 				});
@@ -186,11 +239,11 @@ const TypeCoverage = ({
 			setOffensiveCoverage(coverage);
 		};
 
-		if (pokemonInfoList.length > 0) {
+		if (pokemonInfoList.length > 0 && movesList.length > 0) {
 			calculateDefensiveCoverage();
 			calculateOffensiveCoverage();
 		}
-	}, [pokemonInfoList]);
+	}, [pokemonInfoList, movesList]);
 
 	return (
 		<div className='flex gap-4 max-md:flex-col'>
@@ -220,7 +273,7 @@ const TypeCoverage = ({
 						<div className='flex flex-col items-center gap-2 p-2' key={type}>
 							<TypeBadge type={type} size={4} />
 							<p
-								className={offensiveCoverage[type] >= 3 ? 'text-green-500' : ''}
+								className={offensiveCoverage[type] >= 4 ? 'text-green-500' : ''}
 							>
 								{offensiveCoverage[type] || 0}
 							</p>
