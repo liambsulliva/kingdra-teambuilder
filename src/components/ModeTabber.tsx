@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button, ButtonGroup } from 'flowbite-react';
-import PartyIcon from '@/components/ui/PartyIcon';
-import ClashIcon from '@/components/ui/ClashIcon';
+import PartyIcon from '@/components/icons/PartyIcon';
+import ClashIcon from '@/components/icons/ClashIcon';
 
 interface TabberProps {
 	leftLabel: string;

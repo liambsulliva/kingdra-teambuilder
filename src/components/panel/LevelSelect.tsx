@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { pokemon } from '../../lib/pokemonInterface';
+import { pokemon } from '@/lib/pokemonInterface';
 
 interface LevelSelectProps {
 	selectedPokemon: number;

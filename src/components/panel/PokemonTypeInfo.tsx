@@ -1,9 +1,9 @@
 import '@/app/globals.css';
-import typeMatchups from '../../lib/typeMatchups.json';
-import TypeBadge from '@/components/ui/TypeBadge';
+import typeMatchups from '@/lib/typeMatchups.json';
+import TypeBadge from '@/components/icons/TypeBadge';
 import { Tooltip } from 'flowbite-react';
-import type { pokemon, pokemonInfo } from '../../lib/pokemonInterface';
-import TeraSelect from '@/components/TeraSelect';
+import type { pokemon, pokemonInfo } from '@/lib/pokemonInterface';
+import TeraSelect from '@/components/panel/TeraSelect';
 
 const PokemonTypeInfo = ({
 	pokemonInfo,

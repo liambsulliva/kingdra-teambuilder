@@ -6,8 +6,8 @@ import React, {
 	KeyboardEvent,
 } from 'react';
 import debounce from 'lodash.debounce';
-import { pokemon } from '../../lib/pokemonInterface';
-import TypeBadge from '@/components/ui/TypeBadge';
+import { pokemon } from '@/lib/pokemonInterface';
+import TypeBadge from '@/components/icons/TypeBadge';
 
 interface MoveSuggestion {
 	name: string;

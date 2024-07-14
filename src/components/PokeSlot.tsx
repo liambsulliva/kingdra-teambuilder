@@ -1,8 +1,8 @@
 import '@/app/globals.css';
-import CloseIcon from '@/components/ui/CloseIcon';
+import CloseIcon from '@/components/icons/CloseIcon';
 import axios from 'axios';
 import { useAuth } from '@clerk/nextjs';
-import type { pokemon } from '../../lib/pokemonInterface';
+import type { pokemon } from '@/lib/pokemonInterface';
 
 const PokeSlot = ({
 	pokemon,

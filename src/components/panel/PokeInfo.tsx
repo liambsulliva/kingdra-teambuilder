@@ -1,18 +1,18 @@
 import '@/app/globals.css';
-import natures from '../../lib/natures.json';
+import natures from '@/lib/natures.json';
 import { useEffect, useCallback, useState } from 'react';
 import axios from 'axios';
-import StatBar from './StatBar';
-import type { pokemon } from '../../lib/pokemonInterface';
-import LocalIETabber from './LocalIETabber';
-import NatureSelect from './NatureSelect';
-import ItemSelect from './ItemSelect';
-import MoveSelect from './MoveSelect';
-import LocationAreaEncounters from './LocationAreaEncounters';
-import type { pokemonInfo } from '../../lib/pokemonInterface';
-import PokemonBasicInfo from './PokemonBasicInfo';
-import PokemonTypeInfo from './PokemonTypeInfo';
-import PokemonAbilitySelector from './PokemonAbilitySelector';
+import StatBar from '@/components/panel/StatBar';
+import type { pokemon } from '@/lib/pokemonInterface';
+import LocalIETabber from '@/components/LocalIETabber';
+import NatureSelect from '@/components/panel/NatureSelect';
+import ItemSelect from '@/components/panel/ItemSelect';
+import MoveSelect from '@/components/panel/MoveSelect';
+import LocationAreaEncounters from '@/components/LocationAreaEncounters';
+import type { pokemonInfo } from '@/lib/pokemonInterface';
+import PokemonBasicInfo from '@/components/panel/PokemonBasicInfo';
+import PokemonTypeInfo from '@/components/panel/PokemonTypeInfo';
+import PokemonAbilitySelector from '@/components/panel/PokemonAbilitySelector';
 
 const PokeInfo = ({
 	gameMode,

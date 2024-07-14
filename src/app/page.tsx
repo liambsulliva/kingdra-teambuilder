@@ -5,11 +5,11 @@ import { ClerkProvider } from '@clerk/nextjs';
 import Header from '@/components/layouts/header';
 import Footer from '@/components/layouts/footer';
 import PokeParty from '@/components/PokeParty';
-import PokeInfo from '@/components/PokeInfo';
+import PokeInfo from '@/components/panel/PokeInfo';
 import PokeFinder from '@/components/PokeFinder';
-import Toast from '@/components/ui/Toast';
+import Toast from '@/components/Toast';
 import TypeCoverage from '@/components/TypeCoverage';
-import type { pokemon } from '../../lib/pokemonInterface';
+import type { pokemon } from '@/lib/pokemonInterface';
 
 const Home = () => {
 	const [gameMode, setGameMode] = useState<string>('competitive');

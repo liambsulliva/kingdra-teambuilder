@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, KeyboardEvent } from 'react';
-import { pokemon } from '../../lib/pokemonInterface';
-import typeColors from '../../lib/typeColors.json';
+import { pokemon } from '@/lib/pokemonInterface';
+import typeColors from '@/lib/typeColors.json';
 
 type TeraType = keyof typeof typeColors;
 

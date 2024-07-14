@@ -1,8 +1,8 @@
-import type { pokemon } from '../../lib/pokemonInterface';
+import type { pokemon } from '@/lib/pokemonInterface';
 import { Tooltip } from 'flowbite-react';
-import typeColors from '../../lib/typeColors.json';
-import typeMatchups from '../../lib/typeMatchups.json';
-import TypeBadge from './ui/TypeBadge';
+import typeColors from '@/lib/typeColors.json';
+import typeMatchups from '@/lib/typeMatchups.json';
+import TypeBadge from '@/components/icons/TypeBadge';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 

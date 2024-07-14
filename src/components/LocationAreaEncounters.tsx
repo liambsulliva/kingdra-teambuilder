@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import LoadingIcon from '@/components/ui/LoadingIcon';
+import LoadingIcon from '@/components/icons/LoadingIcon';
 import axios from 'axios';
 import { FaGamepad } from 'react-icons/fa';
 

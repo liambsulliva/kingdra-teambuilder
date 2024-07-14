@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { Button, Tooltip } from 'flowbite-react';
-import { pokemon } from '../../lib/pokemonInterface';
+import { pokemon } from '@/lib/pokemonInterface';
 
 interface PokemonAbilitySelectorProps {
 	pokemonInfo: {

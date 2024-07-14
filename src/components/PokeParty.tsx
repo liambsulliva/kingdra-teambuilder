@@ -5,7 +5,7 @@ import PokeSlot from '@/components/PokeSlot';
 import GlobalIETabber from '@/components/GlobalIETabber';
 import debounce from 'lodash.debounce';
 import '@/app/globals.css';
-import type { pokemon } from '../../lib/pokemonInterface';
+import type { pokemon } from '@/lib/pokemonInterface';
 
 const PokeParty = ({
 	pokemonParty,

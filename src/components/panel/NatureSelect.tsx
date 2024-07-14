@@ -6,8 +6,8 @@ import React, {
 	useRef,
 	KeyboardEvent,
 } from 'react';
-import natures from '../../lib/natures.json';
-import { pokemon } from '../../lib/pokemonInterface';
+import natures from '@/lib/natures.json';
+import { pokemon } from '@/lib/pokemonInterface';
 
 type Nature = keyof typeof natures;
 

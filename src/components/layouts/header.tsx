@@ -1,5 +1,5 @@
 import ModeTabber from '@/components/ModeTabber';
-import TeamSelector from '../TeamSelector';
+import TeamSelector from '@/components/TeamSelector';
 import { Button } from 'flowbite-react';
 import '@/app/globals.css';
 import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import type { pokemonInfo } from '../../../lib/pokemonInterface';
+import type { pokemonInfo } from '@/lib/pokemonInterface';
 import fetch from 'node-fetch';
 
 interface PokemonData {

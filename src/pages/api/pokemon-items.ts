@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import items from '../../../lib/items.json';
+import items from '@/lib/items.json';
 
 type ItemData = {
 	name: string;

@@ -1,5 +1,5 @@
-import LevelSelect from './LevelSelect';
-import type { pokemon, pokemonInfo } from '../../lib/pokemonInterface';
+import LevelSelect from '@/components/panel/LevelSelect';
+import type { pokemon, pokemonInfo } from '@/lib/pokemonInterface';
 
 const PokemonBasicInfo = ({
 	pokemonInfo,

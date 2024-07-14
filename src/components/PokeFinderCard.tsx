@@ -1,5 +1,5 @@
 import '@/app/globals.css';
-import type { pokemon } from '../../lib/pokemonInterface';
+import type { pokemon } from '@/lib/pokemonInterface';
 
 interface PokeFinderCardProps {
 	setEnableToast: React.Dispatch<

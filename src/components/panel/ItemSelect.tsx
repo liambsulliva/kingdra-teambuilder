@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, KeyboardEvent } from 'react';
-import { pokemon } from '../../lib/pokemonInterface';
+import { pokemon } from '@/lib/pokemonInterface';
 
 interface ItemSuggestion {
 	name: string;

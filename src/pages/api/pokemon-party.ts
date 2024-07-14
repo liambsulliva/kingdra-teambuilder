@@ -3,8 +3,8 @@
 
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
-import dbConnect, { User } from '../../../lib/db';
-import { pokemon } from '../../../lib/pokemonInterface';
+import dbConnect, { User } from '@/lib/db';
+import { pokemon } from '@/lib/pokemonInterface';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	await dbConnect();

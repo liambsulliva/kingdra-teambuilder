@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Tooltip } from 'flowbite-react';
-import type { pokemon } from '../../lib/pokemonInterface';
+import type { pokemon } from '@/lib/pokemonInterface';
 
 interface StatBarProps {
 	label: string;
