@@ -2,12 +2,12 @@
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { ClerkProvider } from '@clerk/nextjs';
-import Header from '@/components/header';
-import Footer from '@/components/footer';
+import Header from '@/components/layouts/header';
+import Footer from '@/components/layouts/footer';
 import PokeParty from '@/components/PokeParty';
 import PokeInfo from '@/components/PokeInfo';
 import PokeFinder from '@/components/PokeFinder';
-import Toast from '@/components/Toast';
+import Toast from '@/components/ui/Toast';
 import TypeCoverage from '@/components/TypeCoverage';
 import type { pokemon } from '../../lib/pokemonInterface';
 

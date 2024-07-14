@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, ButtonGroup, Modal, Textarea } from 'flowbite-react';
-import DownloadIcon from './DownloadIcon';
-import UploadIcon from './UploadIcon';
+import DownloadIcon from './ui/DownloadIcon';
+import UploadIcon from './ui/UploadIcon';
 import { pokemon } from '../../lib/pokemonInterface';
 
 const Component = ({

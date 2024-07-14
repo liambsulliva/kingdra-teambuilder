@@ -1,7 +1,7 @@
 // components/TypeBadge.tsx
 
 import React from 'react';
-import typeColors from '../../lib/typeColors.json';
+import typeColors from '../../../lib/typeColors.json';
 
 interface TypeBadgeProps {
 	type: string;

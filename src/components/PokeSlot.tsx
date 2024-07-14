@@ -1,5 +1,5 @@
 import '@/app/globals.css';
-import CloseIcon from './CloseIcon';
+import CloseIcon from '@/components/ui/CloseIcon';
 import axios from 'axios';
 import { useAuth } from '@clerk/nextjs';
 import type { pokemon } from '../../lib/pokemonInterface';

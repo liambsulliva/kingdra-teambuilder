@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import LoadingIcon from '@/components/LoadingIcon';
+import LoadingIcon from '@/components/ui/LoadingIcon';
 import axios from 'axios';
 import { FaGamepad } from 'react-icons/fa';
 
@@ -25,7 +25,10 @@ const LocationAreaEncounters = ({ url }: { url: string }) => {
 	}, [url]);
 
 	const formatName = (name: string) => {
-		return name.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+		return name
+			.split('-')
+			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+			.join(' ');
 	};
 
 	if (loading) return <LoadingIcon />;

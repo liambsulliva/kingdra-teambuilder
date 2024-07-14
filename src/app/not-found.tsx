@@ -1,5 +1,5 @@
-import './globals.css';
-import Footer from '@/components/footer';
+import '@/app/globals.css';
+import Footer from '@/components/layouts/footer';
 
 const notFound = () => {
 	return (

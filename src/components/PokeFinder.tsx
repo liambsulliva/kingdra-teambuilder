@@ -1,7 +1,7 @@
 import '@/app/globals.css';
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import PokeFinderCard from './PokeFinderCard';
-import LoadingIcon from './LoadingIcon';
+import PokeFinderCard from '@/components/PokeFinderCard';
+import LoadingIcon from '@/components/ui/LoadingIcon';
 import type { pokemon } from '../../lib/pokemonInterface';
 import { Tabs, Dropdown } from 'flowbite-react';
 

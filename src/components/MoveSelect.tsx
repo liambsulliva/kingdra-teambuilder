@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import debounce from 'lodash.debounce';
 import { pokemon } from '../../lib/pokemonInterface';
-import TypeBadge from './TypeBadge';
+import TypeBadge from '@/components/ui/TypeBadge';
 
 interface MoveSuggestion {
 	name: string;

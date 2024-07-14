@@ -1,6 +1,6 @@
 import '@/app/globals.css';
 import { Button, FloatingLabel } from 'flowbite-react';
-import BackIcon from '@/components/BackIcon';
+import BackIcon from '@/components/ui/BackIcon';
 
 const SigninPage: React.FC = () => {
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
