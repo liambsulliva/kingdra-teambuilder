@@ -15,6 +15,7 @@ const Home = () => {
 	const [gameMode, setGameMode] = useState<string>('competitive');
 	const [pokemonParty, setPokemonParty] = useState<pokemon[][]>([[]]);
 	const [numTeams, setNumTeams] = useState<number>(1);
+	const [teamNames, setTeamNames] = useState<string[]>(['Team 1']);
 	const [selectedPokemon, setSelectedPokemon] = useState<number>(-1);
 	const [selectedTeam, setSelectedTeam] = useState<number>(0);
 	const [enableToast, setEnableToast] = useState({
@@ -42,6 +43,7 @@ const Home = () => {
 	const handleNewTeam = useCallback(() => {
 		setNumTeams((prevNumTeams) => prevNumTeams + 1);
 		setPokemonParty((prevParty) => [...prevParty, []]);
+		setTeamNames((prevNames) => [...prevNames, `Team ${prevNames.length + 1}`]);
 		setSelectedTeam((prevSelectedTeam) => prevSelectedTeam + 1);
 	}, []);
 
@@ -57,10 +59,8 @@ const Home = () => {
 			}
 
 			setNumTeams((prevNumTeams) => prevNumTeams - 1);
-			setPokemonParty((prevParty) => {
-				const newParty = prevParty.filter((_, i) => i !== index);
-				return newParty;
-			});
+			setPokemonParty((prevParty) => prevParty.filter((_, i) => i !== index));
+			setTeamNames((prevNames) => prevNames.filter((_, i) => i !== index));
 			setSelectedTeam((prevSelected) => {
 				if (prevSelected >= index) {
 					return Math.max(0, prevSelected - 1);
@@ -70,6 +70,14 @@ const Home = () => {
 		},
 		[numTeams]
 	);
+
+	const handleTeamNameChange = useCallback((index: number, newName: string) => {
+		setTeamNames((prevNames) => {
+			const newNames = [...prevNames];
+			newNames[index] = newName;
+			return newNames;
+		});
+	}, []);
 
 	const memoizedHeader = useMemo(
 		() => (
@@ -81,9 +89,18 @@ const Home = () => {
 				setSelectedTeam={setSelectedTeam}
 				onNewTeam={handleNewTeam}
 				onDeleteTeam={handleDeleteTeam}
+				teamNames={teamNames}
+				onTeamNameChange={handleTeamNameChange}
 			/>
 		),
-		[numTeams, selectedTeam, handleNewTeam, handleDeleteTeam]
+		[
+			numTeams,
+			selectedTeam,
+			handleNewTeam,
+			handleDeleteTeam,
+			teamNames,
+			handleTeamNameChange,
+		]
 	);
 
 	return (

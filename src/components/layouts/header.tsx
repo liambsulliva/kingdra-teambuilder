@@ -7,19 +7,23 @@ import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 interface HeaderProps {
 	setGameMode: (mode: string) => void;
 	numTeams: number;
+	teamNames: Array<string>;
 	setNumTeams: (num: number) => void;
 	selectedTeam: number;
 	setSelectedTeam: (team: number) => void;
 	onNewTeam: () => void;
 	onDeleteTeam: (index: number) => void;
+	onTeamNameChange: (index: number, newName: string) => void;
 }
 
 const Header = ({
 	setGameMode,
 	numTeams,
+	teamNames,
 	setSelectedTeam,
 	onNewTeam,
 	onDeleteTeam,
+	onTeamNameChange,
 }: HeaderProps) => {
 	return (
 		<div className='flex flex-row items-center justify-between p-6 pb-4 max-md:flex-col max-md:gap-8'>
@@ -44,6 +48,8 @@ const Header = ({
 					numTeams={numTeams}
 					setSelectedTeam={setSelectedTeam}
 					onDeleteTeam={onDeleteTeam}
+					teamNames={teamNames}
+					onTeamNameChange={onTeamNameChange}
 				/>
 				<SignedOut>
 					<Button color='light'>
