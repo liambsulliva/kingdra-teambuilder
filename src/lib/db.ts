@@ -8,27 +8,6 @@ if (!MONGODB_URI) {
 	);
 }
 
-interface Cached {
-	conn: typeof mongoose | null;
-	promise: Promise<typeof mongoose> | null;
-}
-
-interface GlobalWithMongoose extends Global {
-	mongoose?: Cached;
-}
-
-let cached: Cached = (global as GlobalWithMongoose).mongoose || {
-	conn: null,
-	promise: null,
-};
-
-if (!cached) {
-	cached = (global as GlobalWithMongoose).mongoose = {
-		conn: null,
-		promise: null,
-	};
-}
-
 const PokemonSchema = new mongoose.Schema({
 	name: String,
 	id: Number,
@@ -49,36 +28,19 @@ const UserSchema = new mongoose.Schema({
 	teamNames: [String],
 });
 
-const Pokemon =
-	mongoose.models.Pokemon || mongoose.model('Pokemon', PokemonSchema);
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
 
 const dbConnect = async (): Promise<typeof mongoose> => {
-	if (cached.conn) {
-		return cached.conn;
-	}
+	const opts = {
+		bufferCommands: false,
+		serverSelectionTimeoutMS: 5000,
+		socketTimeoutMS: 45000,
+	};
 
-	if (!cached.promise) {
-		const opts = {
-			bufferCommands: false,
-			serverSelectionTimeoutMS: 5000,
-			socketTimeoutMS: 45000,
-		};
-
-		cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
-			return mongoose;
-		});
-	}
-
-	try {
-		cached.conn = await cached.promise;
-	} catch (e) {
-		cached.promise = null;
-		throw e;
-	}
-
-	return cached.conn;
+	return mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
+		return mongoose;
+	});
 };
 
 export default dbConnect;
-export { User, Pokemon };
+export { User };

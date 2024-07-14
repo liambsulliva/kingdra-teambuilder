@@ -12,6 +12,7 @@ import TypeCoverage from '@/components/TypeCoverage';
 import type { pokemon } from '@/lib/pokemonInterface';
 import NewTeamModal from '@/components/NewTeamModal';
 import { fetchTeamNames, updateTeamNames } from '@/lib/teamNameFetch';
+import debounce from 'lodash.debounce';
 
 const Home = () => {
 	const [gameMode, setGameMode] = useState<string>('competitive');
@@ -56,15 +57,17 @@ const Home = () => {
 	}, []);
 
 	useEffect(() => {
-		const handleUpdateTeamNames = async (newTeamNames: string[]) => {
-			try {
-				await updateTeamNames(newTeamNames);
-				setTeamNames(newTeamNames);
-			} catch (error) {
-				console.error('Failed to update team names:', error);
-			}
-		};
-		handleUpdateTeamNames(teamNames);
+		debounce(async () => {
+			const handleUpdateTeamNames = async (newTeamNames: string[]) => {
+				try {
+					await updateTeamNames(newTeamNames);
+					setTeamNames(newTeamNames);
+				} catch (error) {
+					console.error('Failed to update team names:', error);
+				}
+			};
+			handleUpdateTeamNames(teamNames);
+		}, 500);
 	}, [teamNames]);
 
 	const handleNewTeam = useCallback(() => {
