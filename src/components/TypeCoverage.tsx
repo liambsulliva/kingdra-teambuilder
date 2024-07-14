@@ -271,7 +271,7 @@ const TypeCoverage = ({
 						<div className='flex flex-col items-center gap-2 p-2' key={type}>
 							<TypeBadge type={type} size={4} />
 							<p
-								className={offensiveCoverage[type] >= 4 ? 'text-green-500' : ''}
+								className={offensiveCoverage[type] === 0 ? 'text-red-500' : ''}
 							>
 								{offensiveCoverage[type] || 0}
 							</p>
