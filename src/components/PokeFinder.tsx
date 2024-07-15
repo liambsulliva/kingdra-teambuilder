@@ -194,7 +194,7 @@ const PokeFinder = ({
 					/>
 				</div>
 			</div>
-			<div className='mx-auto grid w-full grid-cols-2 items-center justify-center gap-6 rounded bg-[#f9f9f9] p-6 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-9 2xl:grid-cols-12'>
+			<div className='mx-auto grid w-full grid-cols-2 items-center justify-center gap-6 rounded bg-stone-50 p-6 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-9 2xl:grid-cols-12'>
 				{searchResults.map((pokemon: pokemon) => (
 					<PokeFinderCard
 						key={pokemon.id}

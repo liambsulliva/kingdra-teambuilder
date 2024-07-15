@@ -13,7 +13,7 @@ const SigninPage: React.FC = () => {
 				<BackIcon />
 				Back
 			</Button>
-			<div className='flex flex-col items-center justify-center rounded-xl bg-[#f9f9f9] px-12 py-8'>
+			<div className='flex flex-col items-center justify-center rounded-xl bg-stone-50 px-12 py-8'>
 				<h1 className='p-1 text-2xl font-bold'>Sign In</h1>
 				<h2 className='text-md p-1 pb-8 font-light'>
 					Let&apos;s start with your email.
@@ -21,7 +21,7 @@ const SigninPage: React.FC = () => {
 				<form onSubmit={handleSubmit} className='w-64'>
 					<div className='mb-4'>
 						<FloatingLabel
-							className='bg-[#f9f9f9]'
+							className='bg-stone-50'
 							variant='outlined'
 							label='Email'
 							type='email'

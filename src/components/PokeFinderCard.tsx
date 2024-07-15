@@ -74,7 +74,7 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
 
 	return (
 		<div
-			className='flex h-44 w-32 cursor-pointer flex-col items-center justify-center rounded bg-[#fff] shadow transition-transform duration-200 hover:bg-gray-50 md:h-32'
+			className='flex h-44 w-32 cursor-pointer flex-col items-center justify-center rounded bg-white shadow transition-transform duration-200 hover:bg-gray-50 md:h-32'
 			onClick={handleClick}
 		>
 			<img
