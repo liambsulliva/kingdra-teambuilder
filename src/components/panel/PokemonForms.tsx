@@ -49,7 +49,7 @@ const PokemonForms: React.FC<PokemonFormsProps> = ({ forms, height }) => {
 
 	return (
 		<div>
-			<h3 className='mb-2 text-xl font-bold'>Alternate Forms:</h3>
+			<h3 className='mb-2 text-xl font-bold'>Cosmetic Forms:</h3>
 			<div className={`flex h-[${height}rem] flex-wrap gap-4 overflow-y-auto`}>
 				{formDetails
 					.filter((form) => !form.is_default)
