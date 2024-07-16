@@ -40,7 +40,6 @@
 		"eslint-plugin-prefer-arrow": "^1.2.3",
 		"eslint-plugin-react": "^7.34.3",
 		"eslint-plugin-react-hooks": "^4.6.2",
-		"eslint-plugin-usememo-recommendations": "^1.0.2",
 		"jsdom": "^24.1.0",
 		"postcss": "^8.4.38",
 		"prettier": "^3.3.2",

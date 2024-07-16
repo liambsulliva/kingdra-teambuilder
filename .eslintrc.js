@@ -42,6 +42,5 @@ module.exports = {
 				classPropertiesAllowed: false,
 			},
 		],
-		'usememo-recommendations/detect-heavy-operations': 'warn',
 	},
 };
