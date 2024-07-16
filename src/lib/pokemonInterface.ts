@@ -61,5 +61,9 @@ export interface pokemonInfo {
 			url: string;
 		};
 	}[];
+	forms: {
+		name: string;
+		url: string;
+	}[];
 	location_area_encounters: string;
 }

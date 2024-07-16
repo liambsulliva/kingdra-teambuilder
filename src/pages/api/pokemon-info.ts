@@ -3,6 +3,7 @@ import type { pokemonInfo } from '@/lib/pokemonInterface';
 import fetch from 'node-fetch';
 
 interface PokemonData {
+	forms: { name: string; url: string }[];
 	name: string;
 	id: number;
 	types: Array<{ type: { name: string } }>;
@@ -72,6 +73,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 				sprites: data.sprites,
 				stats: data.stats,
 				moves: data.moves,
+				forms: data.forms,
 				location_area_encounters: data.location_area_encounters,
 			};
 

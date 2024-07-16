@@ -8,11 +8,12 @@ import LocalIETabber from '@/components/LocalIETabber';
 import NatureSelect from '@/components/panel/NatureSelect';
 import ItemSelect from '@/components/panel/ItemSelect';
 import MoveSelect from '@/components/panel/MoveSelect';
-import LocationAreaEncounters from '@/components/LocationAreaEncounters';
+import LocationAreaEncounters from '@/components/panel/LocationAreaEncounters';
 import type { pokemonInfo } from '@/lib/pokemonInterface';
 import PokemonBasicInfo from '@/components/panel/PokemonBasicInfo';
 import PokemonTypeInfo from '@/components/panel/PokemonTypeInfo';
 import PokemonAbilitySelector from '@/components/panel/PokemonAbilitySelector';
+import PokemonForms from './PokemonForms';
 
 const PokeInfo = ({
 	gameMode,
@@ -304,12 +305,24 @@ const PokeInfo = ({
 						</div>
 					)}
 					{gameMode === 'casual' && (
-						<div className='flex flex-col'>
-							<h3 className='mb-4 text-xl font-bold'>Encounter Locations:</h3>
-							<LocationAreaEncounters
-								url={pokemonInfo.location_area_encounters}
-							/>
-						</div>
+						<>
+							{pokemonInfo.forms.length > 1 ? (
+								<div className='flex flex-wrap gap-8'>
+									<PokemonForms height={16} forms={pokemonInfo.forms} />
+									<LocationAreaEncounters
+										height={16}
+										url={pokemonInfo.location_area_encounters}
+									/>
+								</div>
+							) : (
+								<div className='flex gap-4'>
+									<LocationAreaEncounters
+										height={38}
+										url={pokemonInfo.location_area_encounters}
+									/>
+								</div>
+							)}
+						</>
 					)}
 				</div>
 			)}
