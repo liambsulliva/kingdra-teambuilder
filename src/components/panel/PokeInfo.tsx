@@ -66,12 +66,29 @@ const PokeInfo = ({
 						handleAbilitySelect(response.data.abilities[0].ability.name);
 					}
 
-					const moves = response.data.moves.map(
-						(move: { move: { name: string; url: string } }) => ({
+					const moves = response.data.moves
+						.filter(
+							(move: {
+								version_group_details: {
+									level_learned_at: number;
+									version_group: { name: string };
+								}[];
+							}) => {
+								const validVersionGroup = move.version_group_details.find(
+									(detail: { version_group: { name: string } }) =>
+										detail.version_group.name === 'scarlet-violet'
+								);
+								return (
+									validVersionGroup &&
+									validVersionGroup.level_learned_at <=
+										pokemonParty[selectedTeam][selectedPokemon].level
+								);
+							}
+						)
+						.map((move: { move: { name: string; url: string } }) => ({
 							name: move.move.name,
 							url: move.move.url,
-						})
-					);
+						}));
 					setValidMoves(moves);
 				}
 			} catch (error) {
