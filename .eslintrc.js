@@ -30,8 +30,7 @@ module.exports = {
 	plugins: [
 		'@typescript-eslint',
 		'react',
-		'prefer-arrow',
-		'usememo-recommendations',
+		'prefer-arrow'
 	],
 	rules: {
 		'prefer-arrow/prefer-arrow-functions': [
