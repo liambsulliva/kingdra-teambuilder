@@ -5,7 +5,6 @@ import axios from 'axios';
 
 interface PokemonFormsProps {
 	forms: PokemonForm[];
-	height: number;
 }
 
 interface PokemonForm {
@@ -26,7 +25,7 @@ interface FormDetails {
 	}[];
 }
 
-const PokemonForms: React.FC<PokemonFormsProps> = ({ forms, height }) => {
+const PokemonForms: React.FC<PokemonFormsProps> = ({ forms }) => {
 	const [formDetails, setFormDetails] = useState<FormDetails[]>([]);
 
 	useEffect(() => {
@@ -48,33 +47,27 @@ const PokemonForms: React.FC<PokemonFormsProps> = ({ forms, height }) => {
 	}, [forms]);
 
 	return (
-		<div>
-			<h3 className='mb-2 text-xl font-bold'>Cosmetic Forms:</h3>
-			<div
-				className={`flex flex-wrap gap-4 overflow-y-auto`}
-				style={{ height: `${height}rem` }}
-			>
-				{formDetails
-					.filter((form) => !form.is_default)
-					.map((form, index) => (
-						<div key={index} className='rounded border p-4'>
-							<h4 className='text-center font-semibold'>
-								{form.name
+		<div className='flex h-[38rem] flex-wrap gap-4 overflow-y-auto'>
+			{formDetails
+				.filter((form) => !form.is_default)
+				.map((form, index) => (
+					<div key={index} className='rounded border p-4'>
+						<h4 className='text-center font-semibold'>
+							{form.name
+								.replace(/-/g, ' ')
+								.replace(/(^|\s)\S/g, (match) => match.toUpperCase())}
+						</h4>
+						{form.sprites.front_default && (
+							<img
+								src={form.sprites.front_default}
+								alt={form.name
 									.replace(/-/g, ' ')
 									.replace(/(^|\s)\S/g, (match) => match.toUpperCase())}
-							</h4>
-							{form.sprites.front_default && (
-								<img
-									src={form.sprites.front_default}
-									alt={form.name
-										.replace(/-/g, ' ')
-										.replace(/(^|\s)\S/g, (match) => match.toUpperCase())}
-									className='mx-auto'
-								/>
-							)}
-						</div>
-					))}
-			</div>
+								className='mx-auto'
+							/>
+						)}
+					</div>
+				))}
 		</div>
 	);
 };
