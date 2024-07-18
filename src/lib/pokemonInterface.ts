@@ -40,6 +40,7 @@ export interface pokemonInfo {
 			name: string;
 		};
 		effect?: string;
+		is_hidden: boolean;
 	}[];
 	sprites: {
 		versions: {

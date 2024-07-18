@@ -7,7 +7,10 @@ interface PokemonData {
 	name: string;
 	id: number;
 	types: Array<{ type: { name: string } }>;
-	abilities: Array<{ ability: { name: string; url: string } }>;
+	abilities: Array<{
+		ability: { name: string; url: string };
+		is_hidden: boolean;
+	}>;
 	sprites: {
 		versions: {
 			'generation-v': {
@@ -32,7 +35,7 @@ interface PokemonData {
 	}[];
 	location_area_encounters: string;
 	species: { name: string; url: string };
-	cries: { latest: string; legacy: string }
+	cries: { latest: string; legacy: string };
 }
 
 interface AbilityData {
@@ -71,6 +74,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 					return {
 						ability: { name: ability.ability.name },
 						effect,
+						is_hidden: ability.is_hidden,
 					};
 				})
 			);

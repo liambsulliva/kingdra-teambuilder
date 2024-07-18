@@ -8,6 +8,7 @@ interface PokemonAbilitySelectorProps {
 			ability: {
 				name: string;
 			};
+			is_hidden: boolean;
 			effect?: string;
 		}>;
 	};
@@ -42,18 +43,27 @@ const PokemonAbilitySelector: React.FC<PokemonAbilitySelectorProps> = ({
 		<div className='mb-4 flex items-center gap-4 max-md:flex-col'>
 			<h3 className='text-xl text-gray-600'>Ability:</h3>
 			<ul className='relative flex flex-wrap gap-2 text-nowrap'>
-				{Array.from(
-					new Set(pokemonInfo.abilities.map((ability) => ability.ability.name))
-				).map((abilityName, index) => {
-					let effectText =
-						pokemonInfo.abilities.find((a) => a.ability.name === abilityName)
-							?.effect || '';
+				{pokemonInfo.abilities.map((ability, index) => {
+					let effectText = ability.effect || '';
 					effectText = effectText.split('Overworld:')[0].trim();
+					if (ability.is_hidden) {
+						effectText = 'Hidden Ability: ' + effectText;
+					}
 
-					const displayName = abilityName
+					const displayName = ability.ability.name
 						.split('-')
 						.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 						.join(' ');
+
+					const isSelected =
+						pokemonParty[selectedTeam][selectedPokemon].ability ===
+						ability.ability.name;
+					const color =
+						isSelected && ability.is_hidden
+							? 'purple'
+							: isSelected
+								? 'blue'
+								: 'light';
 
 					return (
 						<Tooltip
@@ -63,13 +73,8 @@ const PokemonAbilitySelector: React.FC<PokemonAbilitySelectorProps> = ({
 							style='light'
 						>
 							<Button
-								color={
-									pokemonParty[selectedTeam][selectedPokemon].ability ===
-									abilityName
-										? 'blue'
-										: 'light'
-								}
-								onClick={() => handleAbilitySelect(abilityName)}
+								color={color}
+								onClick={() => handleAbilitySelect(ability.ability.name)}
 								className={`font-bold capitalize`}
 							>
 								{displayName}
