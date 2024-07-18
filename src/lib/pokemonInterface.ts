@@ -63,7 +63,10 @@ export interface pokemonInfo {
 		base_stat: number;
 	}[];
 	moves: {
-		version_group_details: any;
+		version_group_details: {
+			version_group: { name: string };
+			level_learned_at: number;
+		}[];
 		move: {
 			name: string;
 			url: string;
