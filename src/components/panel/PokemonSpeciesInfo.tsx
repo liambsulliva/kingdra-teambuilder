@@ -84,13 +84,20 @@ const PokemonSpeciesInfo: React.FC<PokemonSpeciesInfoProps> = ({
 		<div className='flex h-[38rem] flex-col gap-4 overflow-y-auto'>
 			{speciesInfo ? (
 				<>
-					{speciesInfo.pokedex_numbers?.[0]?.entry_number &&
-						speciesInfo.pokedex_numbers[0]?.pokedex?.name &&
-						speciesInfo.flavor_text_entries?.[0]?.flavor_text && (
+					{speciesInfo.pokedex_numbers?.find(
+						(entry) => entry.pokedex.name === 'national'
+					)?.entry_number &&
+						speciesInfo.flavor_text_entries?.find(
+							(entry) => entry.language.name === 'en'
+						)?.flavor_text && (
 							<div className='flex flex-col gap-1'>
-								<h1 className='text-xl font-bold'>{`${speciesInfo.pokedex_numbers[0].pokedex.name.charAt(0).toUpperCase() + speciesInfo.pokedex_numbers[0].pokedex.name.slice(1)} Dex #${speciesInfo.pokedex_numbers[0].entry_number}`}</h1>
+								<h1 className='text-xl font-bold'>{`National Dex #${speciesInfo.pokedex_numbers.find((entry) => entry.pokedex.name === 'national')?.entry_number}`}</h1>
 								<p className='text-gray-500'>
-									{speciesInfo.flavor_text_entries[0].flavor_text}
+									{
+										speciesInfo.flavor_text_entries.find(
+											(entry) => entry.language.name === 'en'
+										)?.flavor_text
+									}
 								</p>
 							</div>
 						)}
@@ -138,21 +145,21 @@ const PokemonSpeciesInfo: React.FC<PokemonSpeciesInfoProps> = ({
 							{speciesInfo.is_baby !== undefined && (
 								<InfoItem
 									icon={<FaPaw />}
-									label='Is Baby'
+									label='Baby?'
 									value={speciesInfo.is_baby ? 'Yes' : 'No'}
 								/>
 							)}
 							{speciesInfo.is_legendary !== undefined && (
 								<InfoItem
 									icon={<FaPaw />}
-									label='Is Legendary'
+									label='Legendary?'
 									value={speciesInfo.is_legendary ? 'Yes' : 'No'}
 								/>
 							)}
 							{speciesInfo.is_mythical !== undefined && (
 								<InfoItem
 									icon={<FaPaw />}
-									label='Is Mythical'
+									label='Mythical?'
 									value={speciesInfo.is_mythical ? 'Yes' : 'No'}
 								/>
 							)}
@@ -175,14 +182,16 @@ const PokemonSpeciesInfo: React.FC<PokemonSpeciesInfoProps> = ({
 							</div>
 						)}
 
-						{(speciesInfo.egg_groups?.[0]?.name ||
+						{(speciesInfo.egg_groups?.find((group) => group.name)?.name ||
 							speciesInfo.color?.name ||
 							speciesInfo.shape?.name) && (
 							<div className='flex-grow rounded border p-6'>
 								<h3 className='mb-2 text-xl font-bold'>Egg Group</h3>
-								{speciesInfo.egg_groups?.[0]?.name && (
+								{speciesInfo.egg_groups?.find((group) => group.name)?.name && (
 									<p className='text-gray-500'>
-										{formatName(speciesInfo.egg_groups[0].name)}
+										{formatName(
+											speciesInfo.egg_groups.find((group) => group.name)!.name
+										)}
 									</p>
 								)}
 							</div>
