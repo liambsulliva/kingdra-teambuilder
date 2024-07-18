@@ -52,6 +52,10 @@ export interface pokemonInfo {
 			};
 		};
 	};
+	cries: {
+		latest: string;
+		legacy: string;
+	};
 	species: {
 		url: string;
 	};
@@ -59,6 +63,7 @@ export interface pokemonInfo {
 		base_stat: number;
 	}[];
 	moves: {
+		version_group_details: any;
 		move: {
 			name: string;
 			url: string;

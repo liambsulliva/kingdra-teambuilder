@@ -1,6 +1,6 @@
 import '@/app/globals.css';
 import natures from '@/lib/natures.json';
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useMemo, useRef } from 'react';
 import axios from 'axios';
 import StatBar from '@/components/panel/StatBar';
 import type { pokemon } from '@/lib/pokemonInterface';
@@ -16,6 +16,7 @@ import PokemonAbilitySelector from '@/components/panel/PokemonAbilitySelector';
 import PokemonForms from './PokemonForms';
 import { Tabs } from 'flowbite-react';
 import PokemonSpeciesInfo from './PokemonSpeciesInfo';
+import { FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 
 const PokeInfo = ({
 	gameMode,
@@ -34,11 +35,17 @@ const PokeInfo = ({
 	>;
 	selectedTeam: number;
 }) => {
-	const [pokemonInfo, setPokemonInfo] = useState<pokemonInfo | undefined>();
 	const [totalEVs, setTotalEVs] = useState(0);
+	const [enableSound, setEnableSound] = useState(true);
 	const [validMoves, setValidMoves] = useState<{ name: string; url: string }[]>(
 		[]
 	);
+	const [pokemonInfo, setPokemonInfo] = useState<pokemonInfo | null>(null);
+	const lastPlayedPokemonRef = useRef<number | null>(null);
+
+	const currentPokemon = useMemo(() => {
+		return pokemonParty[selectedTeam][selectedPokemon];
+	}, [pokemonParty, selectedTeam, selectedPokemon]);
 
 	const handleAbilitySelect = useCallback(
 		(abilityName: string) => {
@@ -54,72 +61,86 @@ const PokeInfo = ({
 		[selectedTeam, selectedPokemon, setPokemonParty]
 	);
 
-	useEffect(() => {
-		const fetchPokemonInfo = async () => {
+	const fetchPokemonInfo = useCallback(async () => {
+		if (currentPokemon && currentPokemon.id !== 0) {
 			try {
-				if (pokemonParty[selectedTeam][selectedPokemon].id !== 0) {
-					const response = await axios.get(
-						`/api/pokemon-info?id=${pokemonParty[selectedTeam][selectedPokemon].id}`
-					);
-					setPokemonInfo(response.data);
-					if (
-						!pokemonParty[selectedTeam][selectedPokemon].ability &&
-						response.data.abilities.length > 0
-					) {
-						handleAbilitySelect(response.data.abilities[0].ability.name);
-					}
+				const response = await axios.get<pokemonInfo>(
+					`/api/pokemon-info?id=${currentPokemon.id}`
+				);
+				setPokemonInfo(response.data);
 
-					const moves = response.data.moves
-						.filter(
-							(move: {
-								version_group_details: {
-									level_learned_at: number;
-									version_group: { name: string };
-								}[];
-							}) => {
-								const validVersionGroup = move.version_group_details.find(
-									(detail: { version_group: { name: string } }) =>
-										detail.version_group.name === 'scarlet-violet'
-								);
-								return (
-									validVersionGroup &&
-									validVersionGroup.level_learned_at <=
-										pokemonParty[selectedTeam][selectedPokemon].level
-								);
-							}
-						)
-						.map((move: { move: { name: string; url: string } }) => ({
-							name: move.move.name,
-							url: move.move.url,
-						}));
-					setValidMoves(moves);
+				const moves = response.data.moves
+					.filter((move) => {
+						const validVersionGroup = move.version_group_details.find(
+							(detail: { version_group: { name: string } }) =>
+								detail.version_group.name === 'scarlet-violet'
+						);
+						return (
+							validVersionGroup &&
+							validVersionGroup.level_learned_at <= currentPokemon.level
+						);
+					})
+					.map((move) => ({
+						name: move.move.name,
+						url: move.move.url,
+					}));
+				setValidMoves(moves);
+
+				if (!currentPokemon.ability && response.data.abilities.length > 0) {
+					handleAbilitySelect(response.data.abilities[0].ability.name);
 				}
 			} catch (error) {
 				console.error('Failed to fetch Pokemon info:', error);
 			}
-		};
-
-		if (
-			pokemonParty &&
-			selectedPokemon !== -1 &&
-			pokemonParty[selectedTeam][selectedPokemon] &&
-			pokemonParty[selectedTeam][selectedPokemon].ev
-		) {
-			const newTotalEVs = pokemonParty[selectedTeam][selectedPokemon].ev.reduce(
-				(sum, ev) => sum + ev,
-				0
-			);
-			setTotalEVs(newTotalEVs);
 		}
+	}, [currentPokemon, handleAbilitySelect]);
+
+	useEffect(() => {
 		fetchPokemonInfo();
-	}, [selectedTeam, selectedPokemon, pokemonParty, handleAbilitySelect]);
+	}, [fetchPokemonInfo]);
+
+	const playPokemonCry = useCallback(
+		async (pokemonId: number, audioUrl: string) => {
+			if (enableSound && audioUrl) {
+				try {
+					const audio = new Audio(audioUrl);
+					await audio.play();
+					lastPlayedPokemonRef.current = pokemonId;
+				} catch (error) {
+					console.error('Failed to play Pokémon cry:', error);
+				}
+			}
+		},
+		[enableSound]
+	);
+
+	useEffect(() => {
+		if (
+			pokemonInfo &&
+			selectedPokemon !== -1 &&
+			pokemonInfo.id !== lastPlayedPokemonRef.current
+		) {
+			const audioUrl = pokemonInfo.cries.latest || pokemonInfo.cries.legacy;
+			playPokemonCry(pokemonInfo.id, audioUrl);
+		}
+	}, [pokemonInfo, selectedPokemon, playPokemonCry]);
+
+	const toggleSound = () => {
+		setEnableSound((prevState) => !prevState);
+	};
 
 	if (!pokemonInfo || !pokemonParty[selectedTeam][selectedPokemon]) {
 		return null;
 	}
 
 	return (
-		<div className='flex-grow rounded bg-stone-50'>
+		<div className='relative flex-grow rounded bg-stone-50'>
+			<button
+				onClick={toggleSound}
+				className='absolute right-4 top-4 z-10 rounded-full bg-white p-2'
+			>
+				{enableSound ? <FaVolumeUp size={20} /> : <FaVolumeMute size={20} />}
+			</button>
 			{pokemonInfo && pokemonParty[selectedTeam][selectedPokemon] && (
 				<div className='flex justify-evenly gap-16 rounded-lg bg-white py-12 pl-14 pr-8 shadow-md max-lg:flex-col max-md:pl-8'>
 					<div className='flex flex-col gap-2'>
