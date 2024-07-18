@@ -35,7 +35,7 @@ const LocationAreaEncounters = ({ url }: { url: string }) => {
 	if (error) return <p>{error}</p>;
 
 	return (
-		<div className='flex h-[38rem] flex-wrap gap-4 overflow-y-auto'>
+		<div className='flex h-[38rem] w-full flex-wrap gap-4 overflow-y-auto'>
 			{encounters.length > 0 ? (
 				encounters.map(
 					(
@@ -48,7 +48,7 @@ const LocationAreaEncounters = ({ url }: { url: string }) => {
 						},
 						index
 					) => (
-						<div key={index} className='rounded border p-4'>
+						<div key={index} className='flex-grow rounded border p-6'>
 							<h4 className='mb-2 text-lg font-bold'>
 								{formatName(encounter.location_area.name)}
 							</h4>
@@ -59,7 +59,7 @@ const LocationAreaEncounters = ({ url }: { url: string }) => {
 										<p className='font-semibold'>
 											{formatName(versionDetail.version.name)}
 										</p>
-										<p className='text-sm text-gray-600'>
+										<p className='text-sm text-gray-500'>
 											{versionDetail.max_chance}% chance
 										</p>
 									</div>

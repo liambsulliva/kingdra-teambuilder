@@ -22,6 +22,7 @@ interface PokemonData {
 	stats: Array<{ base_stat: number }>;
 	moves: Array<{ move: { name: string; url: string } }>;
 	location_area_encounters: string;
+	species: { name: string; url: string };
 }
 
 interface AbilityData {
@@ -75,6 +76,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 				moves: data.moves,
 				forms: data.forms,
 				location_area_encounters: data.location_area_encounters,
+				species: data.species,
 			};
 
 			console.log(pokemonInfo);

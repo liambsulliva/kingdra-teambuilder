@@ -16,7 +16,7 @@ import PokemonAbilitySelector from '@/components/panel/PokemonAbilitySelector';
 import PokemonForms from './PokemonForms';
 import { Tabs } from 'flowbite-react';
 import { HiUserCircle } from 'react-icons/hi';
-import { MdDashboard } from 'react-icons/md';
+import PokemonSpeciesInfo from './PokemonSpeciesInfo';
 
 const PokeInfo = ({
 	gameMode,
@@ -308,24 +308,21 @@ const PokeInfo = ({
 						</div>
 					)}
 					{gameMode === 'casual' && (
-						<div className='flex flex-col gap-1'>
-							<Tabs aria-label='Tabs with underline'>
-								<Tabs.Item
-									active
-									title='Encounter Locations'
-									icon={HiUserCircle}
-								>
-									<LocationAreaEncounters
-										url={pokemonInfo.location_area_encounters}
-									/>
+						<Tabs className='flex flex-nowrap' aria-label='Tabs with underline'>
+							<Tabs.Item active title='Basic Info' icon={HiUserCircle}>
+								<PokemonSpeciesInfo url={pokemonInfo.species.url} />
+							</Tabs.Item>
+							<Tabs.Item active title='Encounter Locations' icon={HiUserCircle}>
+								<LocationAreaEncounters
+									url={pokemonInfo.location_area_encounters}
+								/>
+							</Tabs.Item>
+							{pokemonInfo.forms.length > 1 && (
+								<Tabs.Item title='Cosmetic Forms' icon={HiUserCircle}>
+									<PokemonForms forms={pokemonInfo.forms} />
 								</Tabs.Item>
-								{pokemonInfo.forms.length > 1 && (
-									<Tabs.Item title='Cosmetic Forms' icon={MdDashboard}>
-										<PokemonForms forms={pokemonInfo.forms} />
-									</Tabs.Item>
-								)}
-							</Tabs>
-						</div>
+							)}
+						</Tabs>
 					)}
 				</div>
 			)}

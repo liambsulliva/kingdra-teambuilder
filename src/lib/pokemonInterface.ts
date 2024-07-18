@@ -52,6 +52,9 @@ export interface pokemonInfo {
 			};
 		};
 	};
+	species: {
+		url: string;
+	};
 	stats: {
 		base_stat: number;
 	}[];

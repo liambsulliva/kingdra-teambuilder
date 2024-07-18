@@ -51,7 +51,7 @@ const PokemonForms: React.FC<PokemonFormsProps> = ({ forms }) => {
 			{formDetails
 				.filter((form) => !form.is_default)
 				.map((form, index) => (
-					<div key={index} className='rounded border p-4'>
+					<div key={index} className='flex-grow rounded border p-4'>
 						<h4 className='text-center font-semibold'>
 							{form.name
 								.replace(/-/g, ' ')
