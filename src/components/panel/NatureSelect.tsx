@@ -212,12 +212,11 @@ const NatureSelect = React.memo(
 		};
 
 		const handleNatureInputBlur = () => {
-			if (suggestionClickedRef.current) {
-				suggestionClickedRef.current = false;
-				return;
-			}
-
 			setTimeout(() => {
+				if (suggestionClickedRef.current) {
+					suggestionClickedRef.current = false;
+					return;
+				}
 				setIsInputFocused(false);
 				const lowercaseInput = natureInput.toLowerCase();
 				if (
