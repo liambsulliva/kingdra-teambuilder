@@ -307,21 +307,44 @@ const PokeInfo = ({
 						</div>
 					)}
 					{gameMode === 'casual' && (
-						<Tabs className='flex flex-nowrap' aria-label='Tabs with underline'>
-							<Tabs.Item active title='Basic Info'>
-								<PokemonSpeciesInfo url={pokemonInfo.species.url} />
-							</Tabs.Item>
-							<Tabs.Item active title='Encounter Locations'>
-								<LocationAreaEncounters
-									url={pokemonInfo.location_area_encounters}
-								/>
-							</Tabs.Item>
-							{pokemonInfo.forms.length > 1 && (
-								<Tabs.Item title='Cosmetic Forms'>
-									<PokemonForms forms={pokemonInfo.forms} />
+						<div>
+							<Tabs
+								className='flex flex-nowrap'
+								aria-label='Tabs with underline'
+							>
+								<Tabs.Item active title='Basic Info'>
+									<PokemonSpeciesInfo url={pokemonInfo.species.url} />
 								</Tabs.Item>
-							)}
-						</Tabs>
+								<Tabs.Item active title='Encounter Locations'>
+									<LocationAreaEncounters
+										url={pokemonInfo.location_area_encounters}
+									/>
+								</Tabs.Item>
+								{pokemonInfo.forms.length > 1 && (
+									<Tabs.Item title='Cosmetic Forms'>
+										<PokemonForms forms={pokemonInfo.forms} />
+									</Tabs.Item>
+								)}
+							</Tabs>
+							<div className='flex items-center justify-between max-md:flex-col max-md:pt-8'>
+								<a
+									className='text-gray-500 hover:underline max-md:text-center'
+									target='_blank'
+									rel='noreferrer'
+									href={`https://www.serebii.net/pokedex-sv/${pokemonInfo.name}`}
+								>
+									Serebii Breakdown
+								</a>
+								<LocalIETabber
+									selectedPokemon={selectedPokemon}
+									pokemonParty={pokemonParty}
+									setPokemonParty={setPokemonParty}
+									setTotalEVs={setTotalEVs}
+									setEnableToast={setEnableToast}
+									selectedTeam={selectedTeam}
+								/>
+							</div>
+						</div>
 					)}
 				</div>
 			)}

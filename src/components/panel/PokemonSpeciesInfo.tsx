@@ -124,8 +124,12 @@ const PokemonSpeciesInfo: React.FC<PokemonSpeciesInfoProps> = ({
 							{speciesInfo.gender_rate !== undefined && (
 								<InfoItem
 									icon={<FaPaw />}
-									label='Gender Rate'
-									value={speciesInfo.gender_rate}
+									label='Gender Rate (M/F)'
+									value={
+										speciesInfo.gender_rate === -1
+											? 'No Gender'
+											: speciesInfo.gender_rate
+									}
 								/>
 							)}
 							{speciesInfo.capture_rate !== undefined && (
@@ -202,7 +206,14 @@ const PokemonSpeciesInfo: React.FC<PokemonSpeciesInfoProps> = ({
 								<h3 className='mb-2 text-xl font-bold'>Evolution</h3>
 								<p className='text-gray-500'>
 									Evolves from{' '}
-									{formatName(speciesInfo.evolves_from_species.name)}
+									<a
+										href={`https://www.serebii.net/pokedex-sv/${speciesInfo.evolves_from_species.name}`}
+										rel='noreferrer'
+										target='_blank'
+										className='font-medium hover:underline'
+									>
+										{formatName(speciesInfo.evolves_from_species.name)}
+									</a>
 								</p>
 							</div>
 						)}
