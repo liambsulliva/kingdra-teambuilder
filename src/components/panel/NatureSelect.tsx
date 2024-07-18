@@ -112,6 +112,12 @@ const natureDescriptions = {
 			<span style={{ color: 'blue' }}>Atk ↓</span>
 		</>
 	),
+	// Add neutral natures
+	hardy: <span style={{ color: 'gray' }}>Neutral</span>,
+	docile: <span style={{ color: 'gray' }}>Neutral</span>,
+	serious: <span style={{ color: 'gray' }}>Neutral</span>,
+	bashful: <span style={{ color: 'gray' }}>Neutral</span>,
+	quirky: <span style={{ color: 'gray' }}>Neutral</span>,
 };
 
 interface NatureSelectProps {
@@ -135,7 +141,18 @@ const NatureSelect = React.memo(
 			useState<number>(-1);
 		const [isInputFocused, setIsInputFocused] = useState<boolean>(false);
 		const natureInputRef = useRef<HTMLDivElement>(null);
-		const naturesArray = useMemo(() => Object.keys(natures) as Nature[], []);
+		const naturesArray = useMemo(() => {
+			const allNatures = Object.keys(natures) as Nature[];
+			const neutralNatures = [
+				'hardy',
+				'docile',
+				'serious',
+				'bashful',
+				'quirky',
+			];
+			return [...allNatures, ...neutralNatures] as Nature[];
+		}, []);
+		const suggestionClickedRef = useRef(false);
 
 		useEffect(() => {
 			if (
@@ -195,6 +212,11 @@ const NatureSelect = React.memo(
 		};
 
 		const handleNatureInputBlur = () => {
+			if (suggestionClickedRef.current) {
+				suggestionClickedRef.current = false;
+				return;
+			}
+
 			setTimeout(() => {
 				setIsInputFocused(false);
 				const lowercaseInput = natureInput.toLowerCase();
@@ -223,7 +245,9 @@ const NatureSelect = React.memo(
 
 		const handleNatureSuggestionSelect = useCallback(
 			(nature: Nature) => {
-				setNatureInput(formatNatureName(nature));
+				suggestionClickedRef.current = true;
+				const formattedNature = formatNatureName(nature);
+				setNatureInput(formattedNature);
 				setPokemonParty((prevParty) => {
 					const newParty = [...prevParty];
 					if (newParty[selectedTeam][selectedPokemon]) {
