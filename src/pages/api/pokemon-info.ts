@@ -20,7 +20,16 @@ interface PokemonData {
 		};
 	};
 	stats: Array<{ base_stat: number }>;
-	moves: Array<{ move: { name: string; url: string } }>;
+	moves: {
+		version_group_details: {
+			version_group: { name: string };
+			level_learned_at: number;
+		}[];
+		move: {
+			name: string;
+			url: string;
+		};
+	}[];
 	location_area_encounters: string;
 	species: { name: string; url: string };
 	cries: { latest: string; legacy: string }
