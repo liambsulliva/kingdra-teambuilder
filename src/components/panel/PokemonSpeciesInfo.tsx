@@ -200,8 +200,8 @@ const PokemonSpeciesInfo: React.FC<PokemonSpeciesInfoProps> = ({
 						{speciesInfo.evolves_from_species?.name && (
 							<div className='rounded border p-6'>
 								<h3 className='mb-2 text-xl font-bold'>Evolution</h3>
-								<p>
-									Evolves from:{' '}
+								<p className='text-gray-500'>
+									Evolves from{' '}
 									{formatName(speciesInfo.evolves_from_species.name)}
 								</p>
 							</div>
