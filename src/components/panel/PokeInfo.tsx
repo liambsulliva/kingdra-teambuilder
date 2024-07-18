@@ -15,7 +15,6 @@ import PokemonTypeInfo from '@/components/panel/PokemonTypeInfo';
 import PokemonAbilitySelector from '@/components/panel/PokemonAbilitySelector';
 import PokemonForms from './PokemonForms';
 import { Tabs } from 'flowbite-react';
-import { HiUserCircle } from 'react-icons/hi';
 import PokemonSpeciesInfo from './PokemonSpeciesInfo';
 
 const PokeInfo = ({
@@ -309,16 +308,16 @@ const PokeInfo = ({
 					)}
 					{gameMode === 'casual' && (
 						<Tabs className='flex flex-nowrap' aria-label='Tabs with underline'>
-							<Tabs.Item active title='Basic Info' icon={HiUserCircle}>
+							<Tabs.Item active title='Basic Info'>
 								<PokemonSpeciesInfo url={pokemonInfo.species.url} />
 							</Tabs.Item>
-							<Tabs.Item active title='Encounter Locations' icon={HiUserCircle}>
+							<Tabs.Item active title='Encounter Locations'>
 								<LocationAreaEncounters
 									url={pokemonInfo.location_area_encounters}
 								/>
 							</Tabs.Item>
 							{pokemonInfo.forms.length > 1 && (
-								<Tabs.Item title='Cosmetic Forms' icon={HiUserCircle}>
+								<Tabs.Item title='Cosmetic Forms'>
 									<PokemonForms forms={pokemonInfo.forms} />
 								</Tabs.Item>
 							)}
