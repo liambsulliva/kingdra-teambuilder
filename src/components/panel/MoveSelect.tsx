@@ -45,6 +45,7 @@ const MoveSelect = ({
 		useState<number>(-1);
 	const moveInputRef = useRef<HTMLInputElement>(null);
 	const moveCache = useRef<Record<string, MoveSuggestion>>({});
+	const [isInputFocused, setIsInputFocused] = useState<boolean>(false);
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -82,6 +83,11 @@ const MoveSelect = ({
 		}
 	}, [selectedPokemon, selectedTeam, pokemonParty, index, formatMoveName]);
 
+	const handleMoveInputFocus = () => {
+		setIsInputFocused(true);
+		handleMoveSuggestions('');
+	};
+
 	const fetchMoveData = async (url: string): Promise<MoveSuggestion> => {
 		if (moveCache.current[url]) {
 			return moveCache.current[url];
@@ -116,19 +122,22 @@ const MoveSelect = ({
 	};
 
 	const handleMoveSuggestions = async (value: string) => {
+		let filteredMoves;
+
 		if (value === '') {
-			setMoveSuggestions([]);
-			setMoveError('');
-			return;
+			filteredMoves = validMoves;
+		} else {
+			filteredMoves = validMoves.filter((move: { name: string; url: string }) =>
+				formatMoveName(move.name).toLowerCase().startsWith(value.toLowerCase())
+			);
 		}
 
-		const filteredMoves = validMoves.filter(
-			(move: { name: string; url: string }) =>
-				formatMoveName(move.name).toLowerCase().includes(value.toLowerCase())
+		filteredMoves = validMoves.filter((move: { name: string; url: string }) =>
+			formatMoveName(move.name).toLowerCase().startsWith(value.toLowerCase())
 		);
 
 		const suggestions: MoveSuggestion[] = await Promise.all(
-			filteredMoves.slice(0, 10).map(async (move) => {
+			filteredMoves.map(async (move) => {
 				return await fetchMoveData(move.url);
 			})
 		);
@@ -255,20 +264,23 @@ const MoveSelect = ({
 			<h3 className='text-xl text-gray-600'>Move {index + 1}: </h3>
 			<div className='relative' ref={moveInputRef}>
 				<input
-					className={`border-2 ${moveError ? 'border-red-500' : 'border-gray-300'} h-10 rounded-lg bg-white px-5 pr-12 text-sm focus:outline-none max-md:w-40`}
+					className={`border-2 ${
+						moveError ? 'border-red-500' : 'border-gray-300'
+					} h-10 rounded-lg bg-white px-5 pr-12 text-sm focus:outline-none max-md:w-40`}
 					type='text'
 					name='Move'
 					autoComplete='off'
 					placeholder='Move'
 					value={moveInput}
 					onChange={handleMoveInputChange}
+					onFocus={handleMoveInputFocus}
 					onBlur={handleMoveInputBlur}
 					onKeyDown={handleMoveInputKeyDown}
 					ref={moveInputRef}
 				/>
 				{moveError && <p className='mt-1 text-xs text-red-500'>{moveError}</p>}
-				{moveSuggestions.length > 0 && moveInput !== '' && (
-					<ul className='absolute z-10 mt-1 w-full rounded-lg border border-gray-300 bg-white shadow-lg'>
+				{isInputFocused && moveSuggestions.length > 0 && (
+					<ul className='absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg'>
 						{renderMoveSuggestions()}
 					</ul>
 				)}
