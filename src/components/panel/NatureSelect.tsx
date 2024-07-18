@@ -133,6 +133,7 @@ const NatureSelect = React.memo(
 		const [natureError, setNatureError] = useState<string>('');
 		const [focusedSuggestionIndex, setFocusedSuggestionIndex] =
 			useState<number>(-1);
+		const [isInputFocused, setIsInputFocused] = useState<boolean>(false);
 		const natureInputRef = useRef<HTMLDivElement>(null);
 		const naturesArray = useMemo(() => Object.keys(natures) as Nature[], []);
 
@@ -155,6 +156,7 @@ const NatureSelect = React.memo(
 					natureInputRef.current &&
 					!natureInputRef.current.contains(event.target as Node)
 				) {
+					setIsInputFocused(false);
 					setNatureSuggestions([]);
 					setFocusedSuggestionIndex(-1);
 				}
@@ -173,13 +175,13 @@ const NatureSelect = React.memo(
 			setNatureInput(value);
 
 			const filteredSuggestions = naturesArray.filter((nature) =>
-				nature.toLowerCase().includes(value.toLowerCase())
+				nature.toLowerCase().startsWith(value.toLowerCase())
 			);
 			const formattedSuggestions = filteredSuggestions.map(
 				formatNatureName
 			) as Nature[];
 
-			setNatureSuggestions(formattedSuggestions.slice(0, 10));
+			setNatureSuggestions(formattedSuggestions);
 			setFocusedSuggestionIndex(-1);
 
 			if (value === '') {
@@ -187,8 +189,14 @@ const NatureSelect = React.memo(
 			}
 		};
 
+		const handleNatureInputFocus = () => {
+			setIsInputFocused(true);
+			setNatureSuggestions(naturesArray.map(formatNatureName) as Nature[]);
+		};
+
 		const handleNatureInputBlur = () => {
 			setTimeout(() => {
+				setIsInputFocused(false);
 				const lowercaseInput = natureInput.toLowerCase();
 				if (
 					natureInput === '' ||
@@ -305,14 +313,15 @@ const NatureSelect = React.memo(
 						autoComplete='off'
 						value={natureInput}
 						onChange={handleNatureInputChange}
+						onFocus={handleNatureInputFocus}
 						onBlur={handleNatureInputBlur}
 						onKeyDown={handleKeyDown}
 					/>
 					{natureError && (
 						<p className='mt-1 text-xs text-red-500'>{natureError}</p>
 					)}
-					{natureSuggestions.length > 0 && natureInput !== '' && (
-						<ul className='absolute z-10 mt-1 w-full rounded-lg border border-gray-300 bg-white shadow-lg'>
+					{isInputFocused && natureSuggestions.length > 0 && (
+						<ul className='absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg'>
 							{renderNatureSuggestions()}
 						</ul>
 					)}
