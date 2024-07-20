@@ -104,7 +104,7 @@ const PokeInfo = ({
 			if (enableSound && audioUrl) {
 				try {
 					const audio = new Audio(audioUrl);
-					audio.volume = 0.5;
+					audio.volume = 0.2;
 					await audio.play();
 					lastPlayedPokemonRef.current = pokemonId;
 				} catch (error) {
