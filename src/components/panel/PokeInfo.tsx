@@ -51,10 +51,9 @@ const GET_POKEMON_INFO = gql`
 			pokemon_v2_pokemonstats {
 				base_stat
 			}
-			pokemon_v2_pokemonmoves {
-				pokemon_v2_versiongroup {
-					name
-				}
+			pokemon_v2_pokemonmoves(
+				where: { pokemon_v2_versiongroup: { name: { _eq: "scarlet-violet" } } }
+			) {
 				level
 				pokemon_v2_move {
 					name
@@ -157,7 +156,6 @@ const PokeInfo = ({
 					}) => ({
 						version_group_details: [
 							{
-								version_group: { name: move.pokemon_v2_versiongroup.name },
 								level_learned_at: move.level,
 							},
 						],
@@ -178,20 +176,10 @@ const PokeInfo = ({
 
 			setPokemonInfo(formattedPokemonInfo);
 
-			const moves = formattedPokemonInfo.moves
-				.filter((move) => {
-					const validVersionGroup = move.version_group_details.find(
-						(detail) => detail.version_group.name === 'scarlet-violet'
-					);
-					return (
-						validVersionGroup &&
-						validVersionGroup.level_learned_at <= currentPokemon.level
-					);
-				})
-				.map((move) => ({
-					name: move.move.name,
-					url: move.move.url,
-				}));
+			const moves = formattedPokemonInfo.moves.map((move) => ({
+				name: move.move.name,
+				url: move.move.url,
+			}));
 			setValidMoves(moves);
 
 			if (
