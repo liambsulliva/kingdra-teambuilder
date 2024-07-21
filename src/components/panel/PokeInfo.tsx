@@ -1,7 +1,8 @@
+'use client';
+
 import '@/app/globals.css';
 import natures from '@/lib/natures.json';
-import { useEffect, useCallback, useState, useMemo, useRef } from 'react';
-import axios from 'axios';
+import { useEffect, useCallback, useState, useMemo } from 'react';
 import StatBar from '@/components/panel/StatBar';
 import type { pokemon } from '@/lib/pokemonInterface';
 import LocalIETabber from '@/components/LocalIETabber';
@@ -17,6 +18,55 @@ import PokemonForms from './PokemonForms';
 import { Tabs } from 'flowbite-react';
 import PokemonSpeciesInfo from './PokemonSpeciesInfo';
 import { FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
+import { useQuery, gql } from '@apollo/client';
+import client from '@/lib/apolloClient';
+
+const GET_POKEMON_INFO = gql`
+	query GetPokemonInfo($id: Int!) {
+		pokemon_v2_pokemon(where: { id: { _eq: $id } }) {
+			name
+			id
+			pokemon_v2_pokemontypes {
+				pokemon_v2_type {
+					name
+				}
+			}
+			pokemon_v2_pokemonabilities {
+				pokemon_v2_ability {
+					name
+				}
+				is_hidden
+			}
+			pokemon_v2_pokemonsprites {
+				sprites
+			}
+			pokemon_v2_pokemonspecy {
+				pokemon_v2_pokemonspeciesflavortexts(
+					where: { language_id: { _eq: 9 } }
+					limit: 1
+				) {
+					flavor_text
+				}
+			}
+			pokemon_v2_pokemonstats {
+				base_stat
+			}
+			pokemon_v2_pokemonmoves {
+				pokemon_v2_versiongroup {
+					name
+				}
+				level
+				pokemon_v2_move {
+					name
+				}
+			}
+			pokemon_v2_pokemonforms {
+				name
+				form_name
+			}
+		}
+	}
+`;
 
 const PokeInfo = ({
 	gameMode,
@@ -41,11 +91,16 @@ const PokeInfo = ({
 		[]
 	);
 	const [pokemonInfo, setPokemonInfo] = useState<pokemonInfo | null>(null);
-	const lastPlayedPokemonRef = useRef<number | null>(null);
 
 	const currentPokemon = useMemo(() => {
 		return pokemonParty[selectedTeam][selectedPokemon];
 	}, [pokemonParty, selectedTeam, selectedPokemon]);
+
+	const { loading, error, data } = useQuery(GET_POKEMON_INFO, {
+		variables: { id: currentPokemon?.id },
+		skip: !currentPokemon || currentPokemon.id === 0,
+		client: client,
+	});
 
 	const handleAbilitySelect = useCallback(
 		(abilityName: string) => {
@@ -61,83 +116,100 @@ const PokeInfo = ({
 		[selectedTeam, selectedPokemon, setPokemonParty]
 	);
 
-	const fetchPokemonInfo = useCallback(async () => {
-		if (currentPokemon && currentPokemon.id !== 0) {
-			try {
-				const response = await axios.get<pokemonInfo>(
-					`/api/pokemon-info?id=${currentPokemon.id}`
-				);
-				setPokemonInfo(response.data);
-
-				const moves = response.data.moves
-					.filter((move) => {
-						const validVersionGroup = move.version_group_details.find(
-							(detail: { version_group: { name: string } }) =>
-								detail.version_group.name === 'scarlet-violet'
-						);
-						return (
-							validVersionGroup &&
-							validVersionGroup.level_learned_at <= currentPokemon.level
-						);
+	useEffect(() => {
+		if (data && data.pokemon_v2_pokemon.length > 0) {
+			const fetchedPokemon = data.pokemon_v2_pokemon[0];
+			const formattedPokemonInfo: pokemonInfo = {
+				name: fetchedPokemon.name,
+				id: fetchedPokemon.id,
+				types: fetchedPokemon.pokemon_v2_pokemontypes.map(
+					(type: { pokemon_v2_type: { name: string } }) => ({
+						type: { name: type.pokemon_v2_type.name },
 					})
-					.map((move) => ({
-						name: move.move.name,
-						url: move.move.url,
-					}));
-				setValidMoves(moves);
+				),
+				abilities: fetchedPokemon.pokemon_v2_pokemonabilities.map(
+					(ability: {
+						pokemon_v2_ability: { name: string };
+						is_hidden: boolean;
+					}) => ({
+						ability: { name: ability.pokemon_v2_ability.name },
+						is_hidden: ability.is_hidden,
+					})
+				),
+				sprites: fetchedPokemon.pokemon_v2_pokemonsprites[0].sprites,
+				cries: {
+					latest: '', // Not available in the current GraphQL schema
+					legacy: '', // Not available in the current GraphQL schema
+				},
+				species: {
+					url: `https://pokeapi.co/api/v2/pokemon-species/${fetchedPokemon.id}/`,
+				},
+				stats: fetchedPokemon.pokemon_v2_pokemonstats.map(
+					(stat: { base_stat: number }) => ({
+						base_stat: stat.base_stat,
+					})
+				),
+				moves: fetchedPokemon.pokemon_v2_pokemonmoves.map(
+					(move: {
+						pokemon_v2_move: { name: string };
+						pokemon_v2_versiongroup: { name: string };
+						level: number;
+					}) => ({
+						version_group_details: [
+							{
+								version_group: { name: move.pokemon_v2_versiongroup.name },
+								level_learned_at: move.level,
+							},
+						],
+						move: {
+							name: move.pokemon_v2_move.name,
+							url: `https://pokeapi.co/api/v2/move/${move.pokemon_v2_move.name}/`,
+						},
+					})
+				),
+				forms: fetchedPokemon.pokemon_v2_pokemonforms.map(
+					(form: { name: string }) => ({
+						name: form.name,
+						url: `https://pokeapi.co/api/v2/pokemon-form/${form.name}/`,
+					})
+				),
+				location_area_encounters: `https://pokeapi.co/api/v2/pokemon/${fetchedPokemon.id}/encounters`,
+			};
 
-				if (!currentPokemon.ability && response.data.abilities.length > 0) {
-					handleAbilitySelect(response.data.abilities[0].ability.name);
-				}
-			} catch (error) {
-				console.error('Failed to fetch Pokemon info:', error);
+			setPokemonInfo(formattedPokemonInfo);
+
+			const moves = formattedPokemonInfo.moves
+				.filter((move) => {
+					const validVersionGroup = move.version_group_details.find(
+						(detail) => detail.version_group.name === 'scarlet-violet'
+					);
+					return (
+						validVersionGroup &&
+						validVersionGroup.level_learned_at <= currentPokemon.level
+					);
+				})
+				.map((move) => ({
+					name: move.move.name,
+					url: move.move.url,
+				}));
+			setValidMoves(moves);
+
+			if (
+				!currentPokemon.ability &&
+				formattedPokemonInfo.abilities.length > 0
+			) {
+				handleAbilitySelect(formattedPokemonInfo.abilities[0].ability.name);
 			}
 		}
-	}, [currentPokemon, handleAbilitySelect]);
+	}, [data, currentPokemon, handleAbilitySelect]);
 
-	useEffect(() => {
-		fetchPokemonInfo();
-	}, [fetchPokemonInfo]);
-
-	const playPokemonCry = useCallback(
-		async (pokemonId: number, audioUrl: string) => {
-			if (enableSound && audioUrl) {
-				try {
-					const audio = new Audio(audioUrl);
-					audio.volume = 0.2;
-					await audio.play();
-					lastPlayedPokemonRef.current = pokemonId;
-				} catch (error) {
-					console.error('Failed to play Pokémon cry:', error);
-				}
-			}
-		},
-		[enableSound]
-	);
-
-	useEffect(() => {
-		if (
-			pokemonInfo &&
-			selectedPokemon !== -1 &&
-			pokemonInfo.id !== lastPlayedPokemonRef.current
-		) {
-			const audioUrl = pokemonInfo.cries.latest || pokemonInfo.cries.legacy;
-			playPokemonCry(pokemonInfo.id, audioUrl);
-		}
-	}, [pokemonInfo, selectedPokemon, playPokemonCry]);
-
-	const toggleSound = () => {
-		setEnableSound((prevState) => !prevState);
-	};
-
-	if (!pokemonInfo || !pokemonParty[selectedTeam][selectedPokemon]) {
-		return null;
-	}
+	if (loading) return <p>Loading...</p>;
+	if (error) return <p>Error: {error.message}</p>;
 
 	return (
 		<div className='relative flex-grow rounded bg-stone-50'>
 			<button
-				onClick={toggleSound}
+				onClick={() => setEnableSound(!enableSound)}
 				className='absolute right-4 top-4 z-10 rounded-full bg-white p-2'
 			>
 				{enableSound ? <FaVolumeUp size={20} /> : <FaVolumeMute size={20} />}
