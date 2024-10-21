@@ -82,8 +82,12 @@ const Header = ({
 					isMenuOpen ? 'translate-x-0' : 'translate-x-full'
 				} transition-transform duration-300 ease-out`}
 			>
-				<div className='flex flex-col space-y-4 p-6'>
+				<div className='flex flex-col items-center space-y-4 p-6'>
 					{/* Close Button */}
+					<div className='flex w-full justify-between px-4 pb-4'>
+						<SignedIn>
+							<UserButton />
+						</SignedIn>
 						<button
 							onClick={toggleMenu}
 							className='self-end text-2xl focus:outline-none'
@@ -91,17 +95,25 @@ const Header = ({
 						>
 							×
 						</button>
+					</div>
 					<ModeTabber
 						leftLabel={'Casual'}
 						rightLabel={'Competitive'}
 						setGameMode={setGameMode}
 					/>
+					<SignedOut>
+						<Button color='light' onClick={toggleMenu}>
+							<SignInButton />
+						</Button>
+					</SignedOut>
+
 					<Button
 						color='light'
 						onClick={() => {
 							onNewTeam();
 							toggleMenu();
 						}}
+						className='w-[calc(100%-1.5rem)]'
 					>
 						New Team
 					</Button>
@@ -112,14 +124,6 @@ const Header = ({
 						teamNames={teamNames}
 						onTeamNameChange={onTeamNameChange}
 					/>
-					<SignedOut>
-						<Button color='light' onClick={toggleMenu}>
-							<SignInButton />
-						</Button>
-					</SignedOut>
-					<SignedIn>
-						<UserButton />
-					</SignedIn>
 				</div>
 			</div>
 			{/* Overlay Background */}

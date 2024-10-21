@@ -85,8 +85,8 @@ const DropdownMenu = ({
 	}, [saveEdit]);
 
 	return (
-		<div className='z-50 flex items-center justify-center'>
-			<div className='group relative' ref={dropdownRef}>
+		<div className='z-50 flex items-center justify-center max-md:w-[calc(100%-1.5rem)]'>
+			<div className='group relative w-full max-w-md' ref={dropdownRef}>
 				<button
 					id='dropdown-button'
 					className='inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-transform duration-200 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-gray-100'
@@ -108,7 +108,7 @@ const DropdownMenu = ({
 					</svg>
 				</button>
 				{isOpen && (
-					<div className='absolute right-0 mt-2 space-y-1 rounded-md bg-white p-1 shadow-lg ring-1 ring-black ring-opacity-5'>
+					<div className='absolute right-0 mt-2 space-y-1 rounded-md bg-white p-1 shadow-lg ring-1 ring-black ring-opacity-5 max-md:w-full'>
 						<input
 							id='search-input'
 							className='block w-full rounded-md border border-gray-300 px-4 py-2 text-gray-800 focus:outline-none'

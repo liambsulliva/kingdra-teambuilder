@@ -120,7 +120,7 @@ const Home = () => {
 		>
 			<ClerkProvider>
 				{memoizedHeader}
-				<div className='font-serif mx-auto flex flex-col gap-8 p-8'>
+				<div className='font-serif mx-auto flex flex-col gap-8 md:p-8'>
 					<div className='flex flex-col gap-4 md:flex-row'>
 						<PokeParty
 							pokemonParty={pokemonParty}
@@ -142,13 +142,14 @@ const Home = () => {
 							setEnableToast={setEnableToast}
 						/>
 					</div>
-					{pokemonParty[selectedTeam]?.length > 0 && (
-						<TypeCoverage
-							pokemonParty={pokemonParty}
-							selectedTeam={selectedTeam}
-							setEnableToast={setEnableToast}
-						/>
-					)}
+					{pokemonParty[selectedTeam]?.length > 0 &&
+						window.innerWidth > 768 && (
+							<TypeCoverage
+								pokemonParty={pokemonParty}
+								selectedTeam={selectedTeam}
+								setEnableToast={setEnableToast}
+							/>
+						)}
 					{window.innerWidth > 768 && (
 						<PokeFinder
 							gameMode={gameMode}

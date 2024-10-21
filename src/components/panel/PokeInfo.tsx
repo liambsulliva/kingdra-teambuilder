@@ -85,7 +85,6 @@ const PokeInfo = ({
 	selectedTeam: number;
 }) => {
 	const [totalEVs, setTotalEVs] = useState(0);
-	const [enableSound, setEnableSound] = useState(true);
 	const [validMoves, setValidMoves] = useState<{ name: string; url: string }[]>(
 		[]
 	);
@@ -196,12 +195,6 @@ const PokeInfo = ({
 
 	return (
 		<div className='relative flex-grow rounded bg-stone-50'>
-			<button
-				onClick={() => setEnableSound(!enableSound)}
-				className='absolute right-4 top-4 z-10 rounded-full bg-white p-2'
-			>
-				{enableSound ? <FaVolumeUp size={20} /> : <FaVolumeMute size={20} />}
-			</button>
 			{pokemonInfo && pokemonParty[selectedTeam][selectedPokemon] && (
 				<div className='flex justify-evenly gap-16 rounded-lg bg-white py-12 pl-14 pr-8 shadow-md max-lg:flex-col max-md:pl-8'>
 					<div className='flex flex-col gap-2'>

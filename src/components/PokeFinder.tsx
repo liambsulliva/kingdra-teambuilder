@@ -107,7 +107,7 @@ const PokeFinder = ({
 		return () => window.removeEventListener('scroll', handleScroll);
 	}, [handleScroll]);
 
-	const renderTabs = useMemo(() => {
+	const renderTabsOrDropdown = useMemo(() => {
 		const tabTitles =
 			gameMode === 'competitive'
 				? ['Ubers', 'OU', 'UU', 'RU', 'NU', 'PU', 'ZU']
@@ -118,16 +118,37 @@ const PokeFinder = ({
 							.map((_, i) => `Gen ${i + 1}`),
 					];
 
-		return (
+		const handleTabChange = (tab: number | string) => {
+			if (gameMode === 'competitive') {
+				setSelectedTier(typeof tab === 'string' ? tab : tabTitles[tab]);
+			} else {
+				setSelectedGeneration(
+					typeof tab === 'number' ? tab : tabTitles.indexOf(tab)
+				);
+			}
+		};
+
+		const mobileDropdown = (
+			<Dropdown
+				label={
+					gameMode === 'competitive'
+						? selectedTier
+						: `Gen ${selectedGeneration}`
+				}
+				color='light'
+			>
+				{tabTitles.map((title, index) => (
+					<Dropdown.Item key={index} onClick={() => handleTabChange(title)}>
+						{title}
+					</Dropdown.Item>
+				))}
+			</Dropdown>
+		);
+
+		const desktopTabs = (
 			<Tabs
 				aria-label='Tabs with underline'
-				onActiveTabChange={(tab: number) => {
-					if (gameMode === 'competitive') {
-						setSelectedTier(tabTitles[tab]);
-					} else {
-						setSelectedGeneration(tab);
-					}
-				}}
+				onActiveTabChange={handleTabChange}
 			>
 				{tabTitles.map((title, index) => (
 					<Tabs.Item
@@ -143,6 +164,13 @@ const PokeFinder = ({
 				))}
 			</Tabs>
 		);
+
+		return (
+			<>
+				<div className='self-center md:hidden'>{mobileDropdown}</div>
+				<div className='hidden md:block'>{desktopTabs}</div>
+			</>
+		);
 	}, [selectedGeneration, selectedTier, gameMode]);
 
 	const handleGenChange = (gen: number) => {
@@ -154,9 +182,9 @@ const PokeFinder = ({
 	return (
 		<div className='flex flex-col'>
 			<div className='relative flex w-full flex-col justify-center px-4 text-gray-600 md:flex-row md:justify-between'>
-				<div className='flex items-start gap-4 max-lg:flex-col'>
+				<div className='flex gap-4 max-md:mb-2'>
 					{gameMode === 'competitive' && (
-						<div className='mt-2'>
+						<div className='mt-2 max-md:mb-2'>
 							<Dropdown color='light' label={`Gen ${selectedGen}`}>
 								{[1, 2, 3, 4, 5, 6, 7, 8, 9].map((gen) => (
 									<Dropdown.Item key={gen} onClick={() => handleGenChange(gen)}>
@@ -166,7 +194,7 @@ const PokeFinder = ({
 							</Dropdown>
 						</div>
 					)}
-					{renderTabs}
+					{renderTabsOrDropdown}
 				</div>
 				<div className='flex items-center gap-4 md:mb-8'>
 					{gameMode === 'competitive' && (
