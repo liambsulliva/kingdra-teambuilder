@@ -6,9 +6,7 @@ import type { pokemon } from '@/lib/pokemonInterface';
 
 const PokeSlot = ({
 	pokemon,
-	index,
 	setPokemonParty,
-	setSelectedPokemon,
 	selectedTeam,
 	onClick,
 }: {

@@ -6,7 +6,7 @@ import GlobalIETabber from '@/components/GlobalIETabber';
 import debounce from 'lodash.debounce';
 import '@/app/globals.css';
 import type { pokemon } from '@/lib/pokemonInterface';
-import { Modal, ModalHeader, ModalBody } from 'flowbite-react';
+import { Modal } from 'flowbite-react';
 import PokeInfo from '@/components/panel/PokeInfo';
 import PokeFinder from '@/components/PokeFinder';
 import { Button } from 'flowbite-react';
@@ -192,8 +192,6 @@ const PokeParty = ({
 					show={isModalOpen}
 					size='xl'
 					onClose={() => setIsModalOpen(false)}
-					placement='bottom'
-					animation
 				>
 					<Modal.Header>Pokémon Info</Modal.Header>
 					<Modal.Body>

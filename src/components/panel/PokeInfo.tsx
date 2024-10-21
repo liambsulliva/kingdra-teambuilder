@@ -17,7 +17,6 @@ import PokemonAbilitySelector from '@/components/panel/PokemonAbilitySelector';
 import PokemonForms from './PokemonForms';
 import { Tabs } from 'flowbite-react';
 import PokemonSpeciesInfo from './PokemonSpeciesInfo';
-import { FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 import { useQuery, gql } from '@apollo/client';
 import client from '@/lib/apolloClient';
 
