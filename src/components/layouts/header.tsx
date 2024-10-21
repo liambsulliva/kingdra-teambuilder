@@ -78,58 +78,58 @@ const Header = ({
 			</div>
 			{/* Mobile Menu Overlay */}
 			<div
-				className={`fixed right-0 top-0 z-50 h-full w-3/4 transform bg-white shadow-lg ${
+				className={`fixed right-0 top-0 z-[60] h-full w-3/4 transform bg-white shadow-lg ${
 					isMenuOpen ? 'translate-x-0' : 'translate-x-full'
 				} transition-transform duration-300 ease-out`}
 			>
 				<div className='flex flex-col items-center space-y-4 p-6'>
-					{/* Close Button */}
-					<div className='flex w-full justify-between px-4 pb-4'>
-						<SignedIn>
-							<UserButton />
-						</SignedIn>
-						<button
-							onClick={toggleMenu}
-							className='self-end text-2xl focus:outline-none'
-							aria-label='Close Menu'
-						>
-							×
-						</button>
-					</div>
-					<ModeTabber
-						leftLabel={'Casual'}
-						rightLabel={'Competitive'}
-						setGameMode={setGameMode}
-					/>
-					<SignedOut>
-						<Button color='light' onClick={toggleMenu}>
-							<SignInButton />
-						</Button>
-					</SignedOut>
+						{/* Close Button */}
+						<div className='flex w-full justify-between px-4 pb-4'>
+							<SignedIn>
+								<UserButton />
+							</SignedIn>
+							<button
+								onClick={toggleMenu}
+								className='self-end text-2xl focus:outline-none'
+								aria-label='Close Menu'
+							>
+								×
+							</button>
+						</div>
+						<ModeTabber
+							leftLabel={'Casual'}
+							rightLabel={'Competitive'}
+							setGameMode={setGameMode}
+						/>
+						<SignedOut>
+							<Button color='light' onClick={toggleMenu}>
+								<SignInButton />
+							</Button>
+						</SignedOut>
 
-					<Button
-						color='light'
-						onClick={() => {
-							onNewTeam();
-							toggleMenu();
-						}}
-						className='w-[calc(100%-1.5rem)]'
-					>
-						New Team
-					</Button>
-					<TeamSelector
-						numTeams={numTeams}
-						setSelectedTeam={setSelectedTeam}
-						onDeleteTeam={onDeleteTeam}
-						teamNames={teamNames}
-						onTeamNameChange={onTeamNameChange}
-					/>
+						<Button
+							color='light'
+							onClick={() => {
+								onNewTeam();
+								toggleMenu();
+							}}
+							className='w-[calc(100%-1.5rem)]'
+						>
+							New Team
+						</Button>
+						<TeamSelector
+							numTeams={numTeams}
+							setSelectedTeam={setSelectedTeam}
+							onDeleteTeam={onDeleteTeam}
+							teamNames={teamNames}
+							onTeamNameChange={onTeamNameChange}
+						/>
 				</div>
 			</div>
 			{/* Overlay Background */}
 			{isMenuOpen && (
 				<div
-					className='fixed inset-0 bg-black opacity-50'
+					className='fixed inset-0 z-[55] bg-black opacity-50'
 					onClick={toggleMenu}
 					aria-hidden='true'
 				></div>
