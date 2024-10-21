@@ -8,6 +8,8 @@ import '@/app/globals.css';
 import type { pokemon } from '@/lib/pokemonInterface';
 import { Modal, ModalHeader, ModalBody } from 'flowbite-react';
 import PokeInfo from '@/components/panel/PokeInfo';
+import PokeFinder from '@/components/PokeFinder';
+import { Button } from 'flowbite-react';
 
 const PokeParty = ({
 	pokemonParty,
@@ -18,6 +20,7 @@ const PokeParty = ({
 	setEnableToast,
 	selectedTeam,
 	setNumTeams,
+	gameMode,
 }: {
 	pokemonParty: pokemon[][];
 	teamNames: string[];
@@ -29,11 +32,14 @@ const PokeParty = ({
 	>;
 	selectedTeam: number;
 	setNumTeams: React.Dispatch<React.SetStateAction<number>>;
+	gameMode: string;
 }) => {
 	const { isSignedIn } = useAuth();
 	const [isMobile, setIsMobile] = useState<boolean>(false);
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 	const [modalPokemonIndex, setModalPokemonIndex] = useState<number>(-1);
+	const [isPokeFinderModalOpen, setIsPokeFinderModalOpen] =
+		useState<boolean>(false);
 
 	// Check for mobile screen size
 	useEffect(() => {
@@ -113,11 +119,40 @@ const PokeParty = ({
 		}
 	};
 
+	const handleAddPokemon = () => {
+		if (isMobile) {
+			setIsPokeFinderModalOpen(true);
+		}
+	};
+
 	return (
 		<div className='flex flex-col items-center py-4'>
 			<div
 				className={`grid gap-4 p-6 max-md:w-full ${isMobile ? 'grid-cols-1' : 'grid-cols-3 sm:grid-cols-1 md:grid-cols-2'}`}
 			>
+				{isMobile && (
+					<>
+						<Button onClick={handleAddPokemon} className='mt-4'>
+							Add Pokemon
+						</Button>
+						<Modal
+							show={isPokeFinderModalOpen}
+							size='xl'
+							onClose={() => setIsPokeFinderModalOpen(false)}
+							position='bottom-center'
+						>
+							<Modal.Header>Add Pokemon</Modal.Header>
+							<Modal.Body>
+								<PokeFinder
+									gameMode={gameMode}
+									setPokemonParty={setPokemonParty}
+									setEnableToast={setEnableToast}
+									selectedTeam={selectedTeam}
+								/>
+							</Modal.Body>
+						</Modal>
+					</>
+				)}
 				{pokemonParty[selectedTeam]?.map((pokemon, index) => (
 					<PokeSlot
 						key={pokemon.id}

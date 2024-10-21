@@ -131,6 +131,7 @@ const Home = () => {
 							setNumTeams={setNumTeams}
 							teamNames={teamNames}
 							setTeamNames={setTeamNames}
+							gameMode={gameMode}
 						/>
 						<PokeInfo
 							gameMode={gameMode}
@@ -148,12 +149,14 @@ const Home = () => {
 							setEnableToast={setEnableToast}
 						/>
 					)}
-					<PokeFinder
-						gameMode={gameMode}
-						setPokemonParty={setPokemonParty}
-						selectedTeam={selectedTeam}
-						setEnableToast={setEnableToast}
-					/>
+					{window.innerWidth > 768 && (
+						<PokeFinder
+							gameMode={gameMode}
+							setPokemonParty={setPokemonParty}
+							selectedTeam={selectedTeam}
+							setEnableToast={setEnableToast}
+						/>
+					)}
 				</div>
 				{enableToast.enabled && (
 					<Toast

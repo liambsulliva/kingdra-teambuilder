@@ -35,16 +35,6 @@ const Header = ({
 	return (
 		<div className='relative flex items-center justify-between bg-white p-6 pb-4'>
 			<div className='flex items-center gap-4'>
-				{/* Hamburger Menu Button - Mobile */}
-				<div className='mr-4 md:hidden'>
-					<button
-						onClick={toggleMenu}
-						className='text-2xl focus:outline-none'
-						aria-label='Toggle Menu'
-					>
-						☰
-					</button>
-				</div>
 				<img src='icon.png' alt='Logo' className='h-16' />
 				<h1 className='font-custom select-none text-5xl font-extrabold'>
 					Kingdra
@@ -76,21 +66,31 @@ const Header = ({
 					<UserButton />
 				</SignedIn>
 			</div>
+			{/* Hamburger Menu Button - Mobile */}
+			<div className='md:hidden'>
+				<button
+					onClick={toggleMenu}
+					className='text-2xl focus:outline-none'
+					aria-label='Toggle Menu'
+				>
+					☰
+				</button>
+			</div>
 			{/* Mobile Menu Overlay */}
 			<div
-				className={`fixed left-0 top-0 z-50 h-full w-3/4 transform bg-white shadow-lg ${
-					isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+				className={`fixed right-0 top-0 z-50 h-full w-3/4 transform bg-white shadow-lg ${
+					isMenuOpen ? 'translate-x-0' : 'translate-x-full'
 				} transition-transform duration-300 ease-out`}
 			>
 				<div className='flex flex-col space-y-4 p-6'>
 					{/* Close Button */}
-					<button
-						onClick={toggleMenu}
-						className='self-end text-2xl focus:outline-none'
-						aria-label='Close Menu'
-					>
-						×
-					</button>
+						<button
+							onClick={toggleMenu}
+							className='self-end text-2xl focus:outline-none'
+							aria-label='Close Menu'
+						>
+							×
+						</button>
 					<ModeTabber
 						leftLabel={'Casual'}
 						rightLabel={'Competitive'}
