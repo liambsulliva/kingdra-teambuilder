@@ -25,6 +25,7 @@ const Home = () => {
 	});
 	const [teamNames, setTeamNames] = useState<string[]>(['Team 1']);
 	const [showNewTeamModal, setShowNewTeamModal] = useState(false);
+	const [isWide, setIsWide] = useState<boolean>(false);
 
 	useEffect(() => {
 		let timer: NodeJS.Timeout;
@@ -113,6 +114,15 @@ const Home = () => {
 		]
 	);
 
+	useEffect(() => {
+		const handleResize = () => {
+			setIsWide(window.innerWidth > 768);
+		};
+		handleResize();
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	}, []);
+
 	return (
 		<body
 			className='mx-auto'
@@ -142,15 +152,14 @@ const Home = () => {
 							setEnableToast={setEnableToast}
 						/>
 					</div>
-					{pokemonParty[selectedTeam]?.length > 0 &&
-						window.innerWidth > 768 && (
-							<TypeCoverage
-								pokemonParty={pokemonParty}
-								selectedTeam={selectedTeam}
-								setEnableToast={setEnableToast}
-							/>
-						)}
-					{window.innerWidth > 768 && (
+					{pokemonParty[selectedTeam]?.length > 0 && isWide && (
+						<TypeCoverage
+							pokemonParty={pokemonParty}
+							selectedTeam={selectedTeam}
+							setEnableToast={setEnableToast}
+						/>
+					)}
+					{isWide && (
 						<PokeFinder
 							gameMode={gameMode}
 							setPokemonParty={setPokemonParty}

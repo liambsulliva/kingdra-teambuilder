@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useCallback, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import axios from 'axios';
@@ -44,7 +46,9 @@ const PokeParty = ({
 	// Check for mobile screen size
 	useEffect(() => {
 		const handleResize = () => {
-			setIsMobile(window.innerWidth <= 768);
+			setIsMobile(
+				typeof window !== 'undefined' ? window.innerWidth <= 768 : false
+			);
 		};
 		handleResize();
 		window.addEventListener('resize', handleResize);
@@ -72,7 +76,7 @@ const PokeParty = ({
 				setPokemonParty([[]]);
 			}
 		}, 500),
-		[isSignedIn]
+		[isSignedIn, setPokemonParty, setNumTeams, setTeamNames, setEnableToast]
 	);
 
 	const debouncedPostPokemonParty = debounce(async () => {
@@ -89,15 +93,13 @@ const PokeParty = ({
 					console.log('POST Failure');
 				}
 			} catch (error) {
-				{
-					/*
+				/*
 					setEnableToast({
-					enabled: true,
-					type: 'error',
-					message: `Failed to submit Pokémon team to server: ${error}`,
+						enabled: true,
+						type: 'error',
+						message: `Failed to submit Pokémon team to server: ${error}`,
 					});
 					*/
-				}
 			}
 		}
 	}, 500);
@@ -128,7 +130,9 @@ const PokeParty = ({
 	return (
 		<div className='flex flex-col items-center md:py-4'>
 			<div
-				className={`grid gap-4 p-6 max-md:w-full ${isMobile ? 'grid-cols-1' : 'grid-cols-3 sm:grid-cols-1 md:grid-cols-2'}`}
+				className={`grid gap-4 p-6 max-md:w-full ${
+					isMobile ? 'grid-cols-1' : 'grid-cols-3 sm:grid-cols-1 md:grid-cols-2'
+				}`}
 			>
 				{isMobile && (
 					<>

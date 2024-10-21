@@ -1,3 +1,5 @@
+'use client';
+
 import '@/app/globals.css';
 import CloseIcon from '@/components/icons/CloseIcon';
 import axios from 'axios';

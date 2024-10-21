@@ -1,3 +1,5 @@
+'use client';
+
 import '@/app/globals.css';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import PokeFinderCard from '@/components/PokeFinderCard';
@@ -25,6 +27,11 @@ const PokeFinder = ({
 	const [selectedGeneration, setSelectedGeneration] = useState(0);
 	const [selectedTier, setSelectedTier] = useState('OU');
 	const [selectedGen, setSelectedGen] = useState(9); // Default to the latest generation
+	const [isClient, setIsClient] = useState(false);
+
+	useEffect(() => {
+		setIsClient(true);
+	}, []);
 
 	const handleSearch = useCallback(
 		(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,12 +93,13 @@ const PokeFinder = ({
 	const handleScroll = useCallback(() => {
 		if (
 			gameMode !== 'competitive' &&
+			isClient &&
 			window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 &&
 			!isLoading
 		) {
 			setCurrentPage((prevPage) => prevPage + 1);
 		}
-	}, [isLoading, gameMode]);
+	}, [isLoading, gameMode, isClient]);
 
 	useEffect(() => {
 		setCurrentPage(1);
@@ -103,9 +111,11 @@ const PokeFinder = ({
 	}, [fetchData]);
 
 	useEffect(() => {
-		window.addEventListener('scroll', handleScroll);
-		return () => window.removeEventListener('scroll', handleScroll);
-	}, [handleScroll]);
+		if (isClient) {
+			window.addEventListener('scroll', handleScroll);
+			return () => window.removeEventListener('scroll', handleScroll);
+		}
+	}, [handleScroll, isClient]);
 
 	const renderTabsOrDropdown = useMemo(() => {
 		const tabTitles =
