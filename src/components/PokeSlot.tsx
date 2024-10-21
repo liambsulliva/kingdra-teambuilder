@@ -80,7 +80,11 @@ const PokeSlot = ({
 							className='h-24 w-24'
 						/>
 						{isMobile && (
-							<span className='text-2xl font-semibold'>{pokemon.name}</span>
+							<span className='ml-4 text-2xl font-semibold'>
+								{pokemon.name
+									.toLowerCase()
+									.replace(/(^|\s)\w/g, (c) => c.toUpperCase())}
+							</span>
 						)}
 					</>
 				) : (
