@@ -10,17 +10,19 @@ const PokeSlot = ({
 	setPokemonParty,
 	setSelectedPokemon,
 	selectedTeam,
+	onClick,
 }: {
 	pokemon: pokemon | null;
 	index: number;
 	setPokemonParty: React.Dispatch<React.SetStateAction<pokemon[][]>>;
 	setSelectedPokemon: React.Dispatch<React.SetStateAction<number>>;
 	selectedTeam: number;
+	onClick: () => void;
 }) => {
 	const { isSignedIn } = useAuth();
 	const handleDelete = async () => {
 		if (!pokemon) {
-			return null;
+			return;
 		}
 		try {
 			setPokemonParty((prevPokemonParty: pokemon[][]) => {
@@ -47,26 +49,29 @@ const PokeSlot = ({
 	};
 	return (
 		<div className='relative'>
-			{pokemon ? (
-				<div
-					className='flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded bg-white shadow transition-transform duration-200 hover:bg-gray-50'
-					onClick={() => {
-						setSelectedPokemon((selected) => (selected === index ? -1 : index));
-					}}
-				>
-					<div
-						className='absolute right-0 top-0 -translate-y-2 translate-x-2'
-						onClick={() => {
-							handleDelete();
-						}}
-					>
-						<CloseIcon />
-					</div>
-					<img src={pokemon.sprite} alt={pokemon.name} />
-				</div>
-			) : (
-				<div className='h-24 w-24 rounded bg-stone-50' />
-			)}
+			<div
+				className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded bg-white transition-transform duration-200 hover:bg-gray-50 max-md:w-full ${
+					!pokemon ? 'bg-stone-50' : ''
+				}`}
+				onClick={onClick}
+			>
+				{pokemon ? (
+					<>
+						<div
+							className='absolute right-0 top-0 -translate-y-2 translate-x-2'
+							onClick={(e) => {
+								e.stopPropagation();
+								handleDelete();
+							}}
+						>
+							<CloseIcon />
+						</div>
+						<img src={pokemon.sprite} alt={pokemon.name} />
+					</>
+				) : (
+					<div className='h-24 w-24 rounded bg-stone-50 max-md:w-full' />
+				)}
+			</div>
 		</div>
 	);
 };

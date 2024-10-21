@@ -26,39 +26,46 @@ const Header = ({
 	onTeamNameChange,
 }: HeaderProps) => {
 	return (
-		<div className='flex flex-row items-center justify-between p-6 pb-4 max-md:flex-col max-md:gap-8'>
-			<div className='flex flex-row items-center gap-10 max-lg:flex-col'>
+		<div className='flex flex-col items-center gap-8 p-6 pb-4 md:flex-row md:justify-between'>
+			<div className='flex flex-col items-center md:flex-row md:items-center md:gap-10'>
 				<div className='flex items-center gap-2'>
-					<img src='icon.png' className='h-16' />
+					<img src='icon.png' className='h-16' alt='Icon' />
 					<h1 className='font-custom select-none text-5xl font-extrabold'>
 						Kingdra
 					</h1>
 				</div>
-				<ModeTabber
-					leftLabel={'Casual'}
-					rightLabel={'Competitive'}
-					setGameMode={setGameMode}
-				/>
+				<div className='mt-4 flex items-center gap-4 md:mt-0'>
+					<SignedOut>
+						<Button color='light'>
+							<SignInButton />
+						</Button>
+					</SignedOut>
+					<SignedIn>
+						<UserButton />
+					</SignedIn>
+					<ModeTabber
+						leftLabel='Casual'
+						rightLabel='Competitive'
+						setGameMode={setGameMode}
+					/>
+				</div>
 			</div>
-			<div className='flex flex-row gap-6 px-6'>
-				<Button color='light' onClick={onNewTeam}>
-					New Team
-				</Button>
+			<div className='flex w-full flex-col items-center gap-4 md:w-auto'>
 				<TeamSelector
 					numTeams={numTeams}
 					setSelectedTeam={setSelectedTeam}
 					onDeleteTeam={onDeleteTeam}
 					teamNames={teamNames}
 					onTeamNameChange={onTeamNameChange}
+					className='w-full md:w-auto'
 				/>
-				<SignedOut>
-					<Button color='light'>
-						<SignInButton />
-					</Button>
-				</SignedOut>
-				<SignedIn>
-					<UserButton />
-				</SignedIn>
+				<Button
+					color='light'
+					onClick={onNewTeam}
+					className='w-full md:mb-0 md:w-auto'
+				>
+					New Team
+				</Button>
 			</div>
 			{/* Hamburger Menu Here on md: */}
 		</div>

@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import axios from 'axios';
 import PokeSlot from '@/components/PokeSlot';
@@ -6,6 +6,8 @@ import GlobalIETabber from '@/components/GlobalIETabber';
 import debounce from 'lodash.debounce';
 import '@/app/globals.css';
 import type { pokemon } from '@/lib/pokemonInterface';
+import { Modal, ModalHeader, ModalBody } from 'flowbite-react';
+import PokeInfo from '@/components/panel/PokeInfo';
 
 const PokeParty = ({
 	pokemonParty,
@@ -29,6 +31,19 @@ const PokeParty = ({
 	setNumTeams: React.Dispatch<React.SetStateAction<number>>;
 }) => {
 	const { isSignedIn } = useAuth();
+	const [isMobile, setIsMobile] = useState<boolean>(false);
+	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+	const [modalPokemonIndex, setModalPokemonIndex] = useState<number>(-1);
+
+	// Check for mobile screen size
+	useEffect(() => {
+		const handleResize = () => {
+			setIsMobile(window.innerWidth <= 768);
+		};
+		handleResize();
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	}, []);
 
 	// Callback needed for fetch
 	// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,9 +104,20 @@ const PokeParty = ({
 		debouncedPostPokemonParty();
 	}, [pokemonParty, teamNames, debouncedPostPokemonParty]);
 
+	const handleSlotClick = (index: number) => {
+		if (isMobile) {
+			setModalPokemonIndex(index);
+			setIsModalOpen(true);
+		} else {
+			setSelectedPokemon(index);
+		}
+	};
+
 	return (
 		<div className='flex flex-col items-center py-4'>
-			<div className='grid grid-cols-3 gap-4 p-6 md:grid-cols-2'>
+			<div
+				className={`grid gap-4 p-6 max-md:w-full ${isMobile ? 'grid-cols-1' : 'grid-cols-3 sm:grid-cols-1 md:grid-cols-2'}`}
+			>
 				{pokemonParty[selectedTeam]?.map((pokemon, index) => (
 					<PokeSlot
 						key={pokemon.id}
@@ -100,6 +126,7 @@ const PokeParty = ({
 						setPokemonParty={setPokemonParty}
 						setSelectedPokemon={setSelectedPokemon}
 						selectedTeam={selectedTeam}
+						onClick={() => handleSlotClick(index)}
 					/>
 				))}
 				{Array(Math.max(0, 6 - (pokemonParty[selectedTeam]?.length || 0))).fill(
@@ -109,6 +136,7 @@ const PokeParty = ({
 						setPokemonParty={setPokemonParty}
 						setSelectedPokemon={setSelectedPokemon}
 						selectedTeam={selectedTeam}
+						onClick={() => {}}
 					/>
 				)}
 			</div>
@@ -120,6 +148,29 @@ const PokeParty = ({
 					selectedTeam={selectedTeam}
 				/>
 			</div>
+			{isMobile && (
+				<Modal
+					show={isModalOpen}
+					size='xl'
+					onClose={() => setIsModalOpen(false)}
+					placement='bottom'
+					animation
+				>
+					<Modal.Header>Pokémon Info</Modal.Header>
+					<Modal.Body>
+						{modalPokemonIndex !== -1 && (
+							<PokeInfo
+								gameMode='mobile'
+								selectedPokemon={modalPokemonIndex}
+								pokemonParty={pokemonParty}
+								setPokemonParty={setPokemonParty}
+								setEnableToast={setEnableToast}
+								selectedTeam={selectedTeam}
+							/>
+						)}
+					</Modal.Body>
+				</Modal>
+			)}
 		</div>
 	);
 };
