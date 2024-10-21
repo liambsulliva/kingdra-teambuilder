@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import ModeTabber from '@/components/ModeTabber';
 import TeamSelector from '@/components/TeamSelector';
 import { Button } from 'flowbite-react';
@@ -25,49 +26,110 @@ const Header = ({
 	onDeleteTeam,
 	onTeamNameChange,
 }: HeaderProps) => {
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+	const toggleMenu = () => {
+		setIsMenuOpen((prev) => !prev);
+	};
+
 	return (
-		<div className='flex flex-col items-center gap-8 p-6 pb-4 md:flex-row md:justify-between'>
-			<div className='flex flex-col items-center md:flex-row md:items-center md:gap-10'>
-				<div className='flex items-center gap-2'>
-					<img src='icon.png' className='h-16' alt='Icon' />
-					<h1 className='font-custom select-none text-5xl font-extrabold'>
-						Kingdra
-					</h1>
+		<div className='relative flex items-center justify-between bg-white p-6 pb-4'>
+			<div className='flex items-center gap-4'>
+				{/* Hamburger Menu Button - Mobile */}
+				<div className='mr-4 md:hidden'>
+					<button
+						onClick={toggleMenu}
+						className='text-2xl focus:outline-none'
+						aria-label='Toggle Menu'
+					>
+						☰
+					</button>
 				</div>
-				<div className='mt-4 flex items-center gap-4 md:mt-0'>
-					<SignedOut>
-						<Button color='light'>
-							<SignInButton />
-						</Button>
-					</SignedOut>
-					<SignedIn>
-						<UserButton />
-					</SignedIn>
-					<ModeTabber
-						leftLabel='Casual'
-						rightLabel='Competitive'
-						setGameMode={setGameMode}
-					/>
-				</div>
+				<img src='icon.png' alt='Logo' className='h-16' />
+				<h1 className='font-custom select-none text-5xl font-extrabold'>
+					Kingdra
+				</h1>
 			</div>
-			<div className='flex w-full flex-col items-center gap-4 md:w-auto'>
+			{/* Desktop Menu */}
+			<div className='hidden items-center gap-6 md:flex'>
+				<ModeTabber
+					leftLabel={'Casual'}
+					rightLabel={'Competitive'}
+					setGameMode={setGameMode}
+				/>
+				<Button color='light' onClick={onNewTeam}>
+					New Team
+				</Button>
 				<TeamSelector
 					numTeams={numTeams}
 					setSelectedTeam={setSelectedTeam}
 					onDeleteTeam={onDeleteTeam}
 					teamNames={teamNames}
 					onTeamNameChange={onTeamNameChange}
-					className='w-full md:w-auto'
 				/>
-				<Button
-					color='light'
-					onClick={onNewTeam}
-					className='w-full md:mb-0 md:w-auto'
-				>
-					New Team
-				</Button>
+				<SignedOut>
+					<Button color='light'>
+						<SignInButton />
+					</Button>
+				</SignedOut>
+				<SignedIn>
+					<UserButton />
+				</SignedIn>
 			</div>
-			{/* Hamburger Menu Here on md: */}
+			{/* Mobile Menu Overlay */}
+			<div
+				className={`fixed left-0 top-0 z-50 h-full w-3/4 transform bg-white shadow-lg ${
+					isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+				} transition-transform duration-300 ease-out`}
+			>
+				<div className='flex flex-col space-y-4 p-6'>
+					{/* Close Button */}
+					<button
+						onClick={toggleMenu}
+						className='self-end text-2xl focus:outline-none'
+						aria-label='Close Menu'
+					>
+						×
+					</button>
+					<ModeTabber
+						leftLabel={'Casual'}
+						rightLabel={'Competitive'}
+						setGameMode={setGameMode}
+					/>
+					<Button
+						color='light'
+						onClick={() => {
+							onNewTeam();
+							toggleMenu();
+						}}
+					>
+						New Team
+					</Button>
+					<TeamSelector
+						numTeams={numTeams}
+						setSelectedTeam={setSelectedTeam}
+						onDeleteTeam={onDeleteTeam}
+						teamNames={teamNames}
+						onTeamNameChange={onTeamNameChange}
+					/>
+					<SignedOut>
+						<Button color='light' onClick={toggleMenu}>
+							<SignInButton />
+						</Button>
+					</SignedOut>
+					<SignedIn>
+						<UserButton />
+					</SignedIn>
+				</div>
+			</div>
+			{/* Overlay Background */}
+			{isMenuOpen && (
+				<div
+					className='fixed inset-0 bg-black opacity-50'
+					onClick={toggleMenu}
+					aria-hidden='true'
+				></div>
+			)}
 		</div>
 	);
 };
