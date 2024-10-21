@@ -40,7 +40,7 @@ const Header = ({
 					Kingdra
 				</h1>
 			</div>
-			{/* Desktop Menu */}
+			{/* Desktop \/\/ */}
 			<div className='hidden items-center gap-6 md:flex'>
 				<ModeTabber
 					leftLabel={'Casual'}
@@ -66,7 +66,7 @@ const Header = ({
 					<UserButton />
 				</SignedIn>
 			</div>
-			{/* Hamburger Menu Button - Mobile */}
+			{/* Hamburger Menu - Mobile ONLY */}
 			<div className='md:hidden'>
 				<button
 					onClick={toggleMenu}
@@ -76,57 +76,56 @@ const Header = ({
 					☰
 				</button>
 			</div>
-			{/* Mobile Menu Overlay */}
+			{/* Hamburger OVERLAY */}
 			<div
 				className={`fixed right-0 top-0 z-[60] h-full w-3/4 transform bg-white shadow-lg ${
 					isMenuOpen ? 'translate-x-0' : 'translate-x-full'
 				} transition-transform duration-300 ease-out`}
 			>
 				<div className='flex flex-col items-center space-y-4 p-6'>
-						{/* Close Button */}
-						<div className='flex w-full justify-between px-4 pb-4'>
-							<SignedIn>
-								<UserButton />
-							</SignedIn>
-							<button
-								onClick={toggleMenu}
-								className='self-end text-2xl focus:outline-none'
-								aria-label='Close Menu'
-							>
-								×
-							</button>
-						</div>
-						<ModeTabber
-							leftLabel={'Casual'}
-							rightLabel={'Competitive'}
-							setGameMode={setGameMode}
-						/>
-						<SignedOut>
-							<Button color='light' onClick={toggleMenu}>
-								<SignInButton />
-							</Button>
-						</SignedOut>
-
-						<Button
-							color='light'
-							onClick={() => {
-								onNewTeam();
-								toggleMenu();
-							}}
-							className='w-[calc(100%-1.5rem)]'
+					<div className='flex w-full justify-between px-4 pb-4'>
+						<SignedIn>
+							<UserButton />
+						</SignedIn>
+						<button
+							onClick={toggleMenu}
+							className='self-end text-2xl focus:outline-none'
+							aria-label='Close Menu'
 						>
-							New Team
+							×
+						</button>
+					</div>
+					<ModeTabber
+						leftLabel={'Casual'}
+						rightLabel={'Competitive'}
+						setGameMode={setGameMode}
+					/>
+					<SignedOut>
+						<Button color='light' onClick={toggleMenu}>
+							<SignInButton />
 						</Button>
-						<TeamSelector
-							numTeams={numTeams}
-							setSelectedTeam={setSelectedTeam}
-							onDeleteTeam={onDeleteTeam}
-							teamNames={teamNames}
-							onTeamNameChange={onTeamNameChange}
-						/>
+					</SignedOut>
+
+					<Button
+						color='light'
+						onClick={() => {
+							onNewTeam();
+							toggleMenu();
+						}}
+						className='w-[calc(100%-1.5rem)]'
+					>
+						New Team
+					</Button>
+					<TeamSelector
+						numTeams={numTeams}
+						setSelectedTeam={setSelectedTeam}
+						onDeleteTeam={onDeleteTeam}
+						teamNames={teamNames}
+						onTeamNameChange={onTeamNameChange}
+					/>
 				</div>
 			</div>
-			{/* Overlay Background */}
+			{/* Fake BG for Overlay */}
 			{isMenuOpen && (
 				<div
 					className='fixed inset-0 z-[55] bg-black opacity-50'
