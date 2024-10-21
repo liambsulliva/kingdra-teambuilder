@@ -3,6 +3,7 @@ import CloseIcon from '@/components/icons/CloseIcon';
 import axios from 'axios';
 import { useAuth } from '@clerk/nextjs';
 import type { pokemon } from '@/lib/pokemonInterface';
+import { useState, useEffect } from 'react';
 
 const PokeSlot = ({
 	pokemon,
@@ -18,6 +19,15 @@ const PokeSlot = ({
 	onClick: () => void;
 }) => {
 	const { isSignedIn } = useAuth();
+	const [isMobile, setIsMobile] = useState(false);
+
+	useEffect(() => {
+		const checkMobile = () => setIsMobile(window.innerWidth < 768);
+		checkMobile();
+		window.addEventListener('resize', checkMobile);
+		return () => window.removeEventListener('resize', checkMobile);
+	}, []);
+
 	const handleDelete = async () => {
 		if (!pokemon) {
 			return;
@@ -48,9 +58,9 @@ const PokeSlot = ({
 	return (
 		<div className='relative'>
 			<div
-				className={`flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded bg-white transition-transform duration-200 hover:bg-gray-50 max-md:w-full ${
-					!pokemon ? 'bg-stone-50' : ''
-				}`}
+				className={`flex h-24 cursor-pointer items-center rounded bg-white transition-transform duration-200 hover:bg-gray-50 ${
+					!pokemon ? 'bg-stone-50' : 'border border-neutral-200'
+				} ${isMobile ? 'w-full justify-start' : 'w-24 flex-col justify-center'}`}
 				onClick={onClick}
 			>
 				{pokemon ? (
@@ -64,10 +74,19 @@ const PokeSlot = ({
 						>
 							<CloseIcon />
 						</div>
-						<img src={pokemon.sprite} alt={pokemon.name} />
+						<img
+							src={pokemon.sprite}
+							alt={pokemon.name}
+							className='h-24 w-24'
+						/>
+						{isMobile && (
+							<span className='text-2xl font-semibold'>{pokemon.name}</span>
+						)}
 					</>
 				) : (
-					<div className='h-24 w-24 rounded bg-stone-50 max-md:w-full' />
+					<div
+						className={`h-24 rounded bg-stone-50 ${isMobile ? 'w-full' : 'w-24'}`}
+					/>
 				)}
 			</div>
 		</div>
