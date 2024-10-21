@@ -59,7 +59,7 @@ const PokeSlot = ({
 		<div className='relative'>
 			<div
 				className={`flex h-24 cursor-pointer items-center rounded bg-white transition-transform duration-200 hover:bg-gray-50 ${
-					!pokemon ? 'bg-stone-50' : 'border border-neutral-200'
+					!pokemon ? 'bg-stone-50' : 'shadow'
 				} ${isMobile ? 'w-full justify-start' : 'w-24 flex-col justify-center'}`}
 				onClick={onClick}
 			>
