@@ -192,10 +192,12 @@ const PokeInfo = ({
 	if (loading) return <p>Loading...</p>;
 	if (error) return <p>Error: {error.message}</p>;
 
+	const statLabels = ['HP', 'Atk', 'Def', 'Sp. Atk', 'Sp. Def', 'Speed'];
+
 	return (
 		<div className='relative flex-grow rounded bg-stone-50'>
 			{pokemonInfo && pokemonParty[selectedTeam][selectedPokemon] && (
-				<div className='flex justify-evenly gap-16 rounded-lg bg-white py-12 pl-14 pr-8 md:shadow-md max-lg:flex-col max-md:pl-8'>
+				<div className='flex justify-evenly gap-16 rounded-lg bg-white py-12 pl-14 pr-8 max-lg:flex-col max-md:pl-8 md:shadow-md'>
 					<div className='flex flex-col gap-2'>
 						<PokemonBasicInfo
 							pokemonInfo={pokemonInfo}
@@ -257,108 +259,26 @@ const PokeInfo = ({
 								</p>
 							</div>
 							<div className='grid h-full grid-cols-2 flex-wrap justify-evenly gap-16 rounded-xl max-xl:grid-cols-1 max-md:mx-auto md:border md:p-12'>
-								<StatBar
-									label={'HP'}
-									id={0}
-									baseValue={pokemonInfo.stats[0].base_stat}
-									level={pokemonParty[selectedTeam][selectedPokemon].level}
-									iv={pokemonParty[selectedTeam][selectedPokemon].iv[0]}
-									ev={pokemonParty[selectedTeam][selectedPokemon].ev[0]}
-									totalEVs={totalEVs}
-									setTotalEVs={setTotalEVs}
-									selectedPokemon={selectedPokemon}
-									setPokemonParty={setPokemonParty}
-									selectedNature={
-										pokemonParty[selectedTeam][selectedPokemon].nature
-									}
-									natures={natures}
-									selectedTeam={selectedTeam}
-								/>
-								<StatBar
-									label={'Atk'}
-									id={1}
-									baseValue={pokemonInfo.stats[1].base_stat}
-									level={pokemonParty[selectedTeam][selectedPokemon].level}
-									iv={pokemonParty[selectedTeam][selectedPokemon].iv[1]}
-									ev={pokemonParty[selectedTeam][selectedPokemon].ev[1]}
-									totalEVs={totalEVs}
-									setTotalEVs={setTotalEVs}
-									selectedPokemon={selectedPokemon}
-									setPokemonParty={setPokemonParty}
-									selectedNature={
-										pokemonParty[selectedTeam][selectedPokemon].nature
-									}
-									natures={natures}
-									selectedTeam={selectedTeam}
-								/>
-								<StatBar
-									label={'Def'}
-									id={2}
-									baseValue={pokemonInfo.stats[2].base_stat}
-									level={pokemonParty[selectedTeam][selectedPokemon].level}
-									iv={pokemonParty[selectedTeam][selectedPokemon].iv[2]}
-									ev={pokemonParty[selectedTeam][selectedPokemon].ev[2]}
-									totalEVs={totalEVs}
-									setTotalEVs={setTotalEVs}
-									selectedPokemon={selectedPokemon}
-									setPokemonParty={setPokemonParty}
-									selectedNature={
-										pokemonParty[selectedTeam][selectedPokemon].nature
-									}
-									natures={natures}
-									selectedTeam={selectedTeam}
-								/>
-								<StatBar
-									label={'Sp. Atk'}
-									id={3}
-									baseValue={pokemonInfo.stats[3].base_stat}
-									level={pokemonParty[selectedTeam][selectedPokemon].level}
-									iv={pokemonParty[selectedTeam][selectedPokemon].iv[3]}
-									ev={pokemonParty[selectedTeam][selectedPokemon].ev[3]}
-									totalEVs={totalEVs}
-									setTotalEVs={setTotalEVs}
-									selectedPokemon={selectedPokemon}
-									setPokemonParty={setPokemonParty}
-									selectedNature={
-										pokemonParty[selectedTeam][selectedPokemon].nature
-									}
-									natures={natures}
-									selectedTeam={selectedTeam}
-								/>
-								<StatBar
-									label={'Sp. Def'}
-									id={4}
-									baseValue={pokemonInfo.stats[4].base_stat}
-									level={pokemonParty[selectedTeam][selectedPokemon].level}
-									iv={pokemonParty[selectedTeam][selectedPokemon].iv[4]}
-									ev={pokemonParty[selectedTeam][selectedPokemon].ev[4]}
-									totalEVs={totalEVs}
-									setTotalEVs={setTotalEVs}
-									selectedPokemon={selectedPokemon}
-									setPokemonParty={setPokemonParty}
-									selectedNature={
-										pokemonParty[selectedTeam][selectedPokemon].nature
-									}
-									natures={natures}
-									selectedTeam={selectedTeam}
-								/>
-								<StatBar
-									label={'Speed'}
-									id={5}
-									baseValue={pokemonInfo.stats[5].base_stat}
-									level={pokemonParty[selectedTeam][selectedPokemon].level}
-									iv={pokemonParty[selectedTeam][selectedPokemon].iv[5]}
-									ev={pokemonParty[selectedTeam][selectedPokemon].ev[5]}
-									totalEVs={totalEVs}
-									setTotalEVs={setTotalEVs}
-									selectedPokemon={selectedPokemon}
-									setPokemonParty={setPokemonParty}
-									selectedNature={
-										pokemonParty[selectedTeam][selectedPokemon].nature
-									}
-									natures={natures}
-									selectedTeam={selectedTeam}
-								/>
+								{statLabels.map((label, index) => (
+									<StatBar
+										key={index}
+										label={label}
+										id={index}
+										baseValue={pokemonInfo.stats[index].base_stat}
+										level={pokemonParty[selectedTeam][selectedPokemon].level}
+										iv={pokemonParty[selectedTeam][selectedPokemon].iv[index]}
+										ev={pokemonParty[selectedTeam][selectedPokemon].ev[index]}
+										totalEVs={totalEVs}
+										setTotalEVs={setTotalEVs}
+										selectedPokemon={selectedPokemon}
+										setPokemonParty={setPokemonParty}
+										selectedNature={
+											pokemonParty[selectedTeam][selectedPokemon].nature
+										}
+										natures={natures}
+										selectedTeam={selectedTeam}
+									/>
+								))}
 							</div>
 							<div className='flex items-center justify-between max-md:flex-col max-md:pt-8'>
 								<a
