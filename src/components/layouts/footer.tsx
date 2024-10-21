@@ -21,9 +21,20 @@ const socials = [
 
 const Footer = () => {
 	return (
-		<div className='flex flex-row items-center justify-between p-8'>
-			<p className='font-medium'>
+		<div className='flex flex-row items-center justify-between border-t p-8'>
+			<p className='font-medium max-md:hidden'>
 				Designed and Developed by{' '}
+				<a
+					className='text-black hover:underline'
+					target='_blank'
+					rel='noreferrer'
+					href='https://liambsullivan.com/'
+				>
+					Liam Sullivan
+				</a>
+			</p>
+			<p className='font-medium md:hidden'>
+				Built by{' '}
 				<a
 					className='text-black hover:underline'
 					target='_blank'
