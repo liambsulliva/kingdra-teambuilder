@@ -197,7 +197,7 @@ const PokeParty = ({
 					<Modal.Body>
 						{modalPokemonIndex !== -1 && (
 							<PokeInfo
-								gameMode='mobile'
+								gameMode={gameMode}
 								selectedPokemon={modalPokemonIndex}
 								pokemonParty={pokemonParty}
 								setPokemonParty={setPokemonParty}
