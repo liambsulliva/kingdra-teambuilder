@@ -21,7 +21,7 @@ const socials = [
 
 const Footer = () => {
 	return (
-		<div className='flex flex-row items-center justify-between border-t p-8'>
+		<div className='flex flex-row items-center justify-between border-t p-8 max-md:mt-4'>
 			<p className='font-medium max-md:hidden'>
 				Designed and Developed by{' '}
 				<a
