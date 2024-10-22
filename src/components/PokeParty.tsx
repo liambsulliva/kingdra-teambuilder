@@ -130,7 +130,7 @@ const PokeParty = ({
 	return (
 		<div className='flex flex-col items-center md:py-4'>
 			<div
-				className={`grid gap-4 p-6 max-md:w-full ${
+				className={`grid gap-4 p-6 pt-2 max-md:w-full ${
 					isMobile ? 'grid-cols-1' : 'grid-cols-3 sm:grid-cols-1 md:grid-cols-2'
 				}`}
 			>

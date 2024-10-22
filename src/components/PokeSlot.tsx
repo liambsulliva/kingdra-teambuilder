@@ -76,11 +76,13 @@ const PokeSlot = ({
 						>
 							<CloseIcon />
 						</div>
-						<img
-							src={pokemon.sprite}
-							alt={pokemon.name}
-							className='h-24 w-24'
-						/>
+						<div className="h-24 w-24 aspect-square">
+							<img
+								src={pokemon.sprite}
+								alt={pokemon.name}
+								className='h-full w-full object-contain'
+							/>
+						</div>
 						{isMobile && (
 							<span className='ml-4 text-2xl font-semibold'>
 								{pokemon.name

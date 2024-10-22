@@ -33,7 +33,7 @@ const Header = ({
 	};
 
 	return (
-		<div className='relative flex items-center justify-between bg-white p-6 pb-4'>
+		<div className='relative flex items-center justify-between bg-white p-6'>
 			<div className='flex items-center gap-4'>
 				<img src='icon.png' alt='Logo' className='h-16' />
 				<h1 className='font-custom select-none text-5xl font-extrabold'>
