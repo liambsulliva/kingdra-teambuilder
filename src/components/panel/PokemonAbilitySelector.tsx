@@ -39,11 +39,22 @@ const PokemonAbilitySelector: React.FC<PokemonAbilitySelectorProps> = ({
 		[selectedTeam, selectedPokemon, setPokemonParty]
 	);
 
+	// Ensure unique abilities...
+	const uniqueAbilities: Array<(typeof pokemonInfo.abilities)[0]> = [];
+	const abilityNames = new Set<string>();
+
+	pokemonInfo.abilities.forEach((ability) => {
+		if (!abilityNames.has(ability.ability.name)) {
+			abilityNames.add(ability.ability.name);
+			uniqueAbilities.push(ability);
+		}
+	});
+
 	return (
 		<div className='mb-4 flex items-center gap-4 max-md:flex-col'>
 			<h3 className='text-xl text-gray-600'>Ability:</h3>
 			<ul className='relative flex flex-wrap gap-2 text-nowrap'>
-				{pokemonInfo.abilities.map((ability, index) => {
+				{uniqueAbilities.map((ability, index) => {
 					let effectText = ability.effect || '';
 					effectText = effectText.split('Overworld:')[0].trim();
 					if (ability.is_hidden) {
@@ -75,7 +86,7 @@ const PokemonAbilitySelector: React.FC<PokemonAbilitySelectorProps> = ({
 							<Button
 								color={color}
 								onClick={() => handleAbilitySelect(ability.ability.name)}
-								className={`font-bold capitalize`}
+								className='font-bold capitalize'
 							>
 								{displayName}
 							</Button>
