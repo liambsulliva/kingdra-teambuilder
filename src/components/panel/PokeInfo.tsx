@@ -19,6 +19,7 @@ import { Tabs } from 'flowbite-react';
 import PokemonSpeciesInfo from './PokemonSpeciesInfo';
 import { useQuery, gql } from '@apollo/client';
 import client from '@/lib/apolloClient';
+import LoadingIcon from '@/components/icons/LoadingIcon';
 
 const GET_POKEMON_INFO = gql`
 	query GetPokemonInfo($id: Int!) {
@@ -189,7 +190,7 @@ const PokeInfo = ({
 		}
 	}, [data, currentPokemon, handleAbilitySelect]);
 
-	if (loading) return <p>Loading...</p>;
+	if (loading) return <LoadingIcon />;
 	if (error) return <p>Error: {error.message}</p>;
 
 	const statLabels = ['HP', 'Atk', 'Def', 'Sp. Atk', 'Sp. Def', 'Speed'];
