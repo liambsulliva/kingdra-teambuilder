@@ -85,6 +85,7 @@ const PokeSlot = ({
 							<span className='ml-4 text-2xl font-semibold'>
 								{pokemon.name
 									.toLowerCase()
+									.replace(/-/g, ' ')
 									.replace(/(^|\s)\w/g, (c) => c.toUpperCase())}
 							</span>
 						)}

@@ -198,7 +198,7 @@ const PokeInfo = ({
 	return (
 		<div className='relative flex-grow rounded bg-stone-50'>
 			{pokemonInfo && pokemonParty[selectedTeam][selectedPokemon] && (
-				<div className='flex justify-evenly gap-16 rounded-lg bg-white py-12 pl-14 pr-8 max-lg:flex-col max-md:pl-8 md:shadow-md'>
+				<div className='flex justify-evenly gap-16 rounded-lg bg-white md:py-12 py-6 md:pl-14 md:pr-8 max-lg:flex-col md:shadow-md'>
 					<div className='flex flex-col gap-2'>
 						<PokemonBasicInfo
 							pokemonInfo={pokemonInfo}
