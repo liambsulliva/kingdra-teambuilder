@@ -143,14 +143,16 @@ const Home = () => {
 							setTeamNames={setTeamNames}
 							gameMode={gameMode}
 						/>
-						<PokeInfo
-							gameMode={gameMode}
-							selectedPokemon={selectedPokemon}
-							pokemonParty={pokemonParty}
-							setPokemonParty={setPokemonParty}
-							selectedTeam={selectedTeam}
-							setEnableToast={setEnableToast}
-						/>
+						{isWide && (
+							<PokeInfo
+								gameMode={gameMode}
+								selectedPokemon={selectedPokemon}
+								pokemonParty={pokemonParty}
+								setPokemonParty={setPokemonParty}
+								selectedTeam={selectedTeam}
+								setEnableToast={setEnableToast}
+							/>
+						)}
 					</div>
 					{pokemonParty[selectedTeam]?.length > 0 && isWide && (
 						<TypeCoverage
