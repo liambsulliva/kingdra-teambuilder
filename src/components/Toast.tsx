@@ -30,7 +30,7 @@ const Toast = ({
 
 	return (
 		<div
-			className={`fixed bottom-2 left-2 z-50 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+			className={`fixed bottom-2 left-2 z-[9999] transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
 		>
 			<FlowbiteToast>
 				<div

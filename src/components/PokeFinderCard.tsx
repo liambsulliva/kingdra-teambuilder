@@ -51,6 +51,12 @@ const PokeFinderCard: React.FC<PokeFinderCardProps> = ({
 				return prevPokemonParty;
 			}
 
+			setEnableToast({
+				enabled: true,
+				type: 'success',
+				message: 'Pokèmon Added Successfully!'
+			});
+
 			const updatedPokemon: pokemon = {
 				...pokemon,
 				name: pokemon.name || '',
