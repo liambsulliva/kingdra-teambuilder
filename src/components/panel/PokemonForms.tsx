@@ -47,7 +47,7 @@ const PokemonForms: React.FC<PokemonFormsProps> = ({ forms }) => {
 	}, [forms]);
 
 	return (
-		<div className='flex h-[38rem] flex-wrap gap-4 overflow-y-auto'>
+		<div className='flex h-full sm:h-[38rem] flex-wrap gap-4 overflow-y-auto sm:overflow-y-auto max-md:overflow-none'>
 			{formDetails
 				.filter((form) => !form.is_default)
 				.map((form, index) => (

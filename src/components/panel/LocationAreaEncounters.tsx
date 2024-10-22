@@ -35,7 +35,7 @@ const LocationAreaEncounters = ({ url }: { url: string }) => {
 	if (error) return <p>{error}</p>;
 
 	return (
-		<div className='flex h-[38rem] w-full flex-wrap gap-4 overflow-y-auto'>
+		<div className='flex h-full sm:h-[38rem] w-full flex-wrap gap-4 overflow-y-auto sm:overflow-y-auto max-md:overflow-none'>
 			{encounters.length > 0 ? (
 				encounters.map(
 					(

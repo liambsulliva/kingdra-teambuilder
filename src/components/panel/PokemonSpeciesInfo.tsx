@@ -81,7 +81,7 @@ const PokemonSpeciesInfo: React.FC<PokemonSpeciesInfoProps> = ({
 	if (error) return <p>{error}</p>;
 
 	return (
-		<div className='flex h-[38rem] flex-col gap-4 overflow-y-auto'>
+		<div className='flex h-full sm:h-[38rem] flex-col gap-4 overflow-y-auto sm:overflow-y-auto max-md:overflow-none'>
 			{speciesInfo ? (
 				<>
 					{speciesInfo.pokedex_numbers?.find(
@@ -189,17 +189,17 @@ const PokemonSpeciesInfo: React.FC<PokemonSpeciesInfoProps> = ({
 						{(speciesInfo.egg_groups?.find((group) => group.name)?.name ||
 							speciesInfo.color?.name ||
 							speciesInfo.shape?.name) && (
-							<div className='flex-grow rounded border p-6'>
-								<h3 className='mb-2 text-xl font-bold'>Egg Group</h3>
-								{speciesInfo.egg_groups?.find((group) => group.name)?.name && (
-									<p className='text-gray-500'>
-										{formatName(
-											speciesInfo.egg_groups.find((group) => group.name)!.name
-										)}
-									</p>
-								)}
-							</div>
-						)}
+								<div className='flex-grow rounded border p-6'>
+									<h3 className='mb-2 text-xl font-bold'>Egg Group</h3>
+									{speciesInfo.egg_groups?.find((group) => group.name)?.name && (
+										<p className='text-gray-500'>
+											{formatName(
+												speciesInfo.egg_groups.find((group) => group.name)!.name
+											)}
+										</p>
+									)}
+								</div>
+							)}
 
 						{speciesInfo.evolves_from_species?.name && (
 							<div className='rounded border p-6'>
