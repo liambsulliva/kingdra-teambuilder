@@ -21,7 +21,7 @@ const PokemonBasicInfo = ({
 }) => {
 	return (
 		<div className='flex flex-col gap-2'>
-			<div className='flex max-md:justify-center max-md:gap-4'>
+			<div className='flex max-md:gap-4'>
 				<div className='flex h-32 w-32 items-center justify-center'>
 					{pokemonInfo.sprites.versions['generation-v']['black-white'].animated
 						.front_default ? (
@@ -44,7 +44,7 @@ const PokemonBasicInfo = ({
 				<div
 					className={`flex flex-col ${gameMode === 'competitive' ? 'justify-end' : 'justify-center'}`}
 				>
-					<h2 className='mb-3 text-4xl font-bold capitalize text-black'>
+					<h2 className='mb-3 text-4xl max-md:text-3xl font-bold capitalize text-black'>
 						{(() => {
 							const nameParts = pokemonInfo.name.split('-');
 							if (nameParts.length > 1) {

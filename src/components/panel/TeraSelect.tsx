@@ -165,7 +165,7 @@ const TeraSelect = ({
 		<div className='relative flex items-center gap-4'>
 			<div className='relative' ref={teraInputRef}>
 				<input
-					className={`border-2 ${teraError ? 'border-red-500' : 'border-gray-300'} h-12 w-32 rounded-xl px-4 text-xl/8 focus:outline-none`}
+					className={`border-2 ${teraError ? 'border-red-500' : 'border-gray-300'} h-12 w-32 rounded-xl px-4 text-xl/8 focus:outline-none max-md:w-full`}
 					style={{
 						backgroundColor,
 						color: textColor,

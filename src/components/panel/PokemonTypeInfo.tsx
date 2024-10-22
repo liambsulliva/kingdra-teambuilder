@@ -54,7 +54,7 @@ const PokemonTypeInfo = ({
 
 	return (
 		<div className='flex flex-col'>
-			<p className='mb-4 flex items-center gap-2.5 text-xl text-gray-600 max-md:flex-col'>
+			<p className='mb-4 flex items-center gap-2.5 text-xl text-gray-600'>
 				Type:
 				<div className='relative flex items-center gap-2 px-2 max-md:flex-wrap'>
 					<Tooltip
@@ -104,7 +104,7 @@ const PokemonTypeInfo = ({
 					</Tooltip>
 				</div>
 			</p>
-			<p className='mb-4 flex items-center gap-2.5 text-xl text-gray-600 max-md:flex-col'>
+			<p className='mb-4 flex items-center gap-2.5 text-xl text-gray-600 max-md:text-nowrap'>
 				Tera Type:
 				<div className='flex items-center gap-2 px-2 max-md:flex-wrap'>
 					<TeraSelect

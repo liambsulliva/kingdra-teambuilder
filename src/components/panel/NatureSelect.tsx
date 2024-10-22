@@ -325,11 +325,11 @@ const NatureSelect = React.memo(
 		};
 
 		return (
-			<div className='relative mb-4 flex items-center gap-4 max-md:flex-col'>
+			<div className='relative mb-4 flex items-center gap-4'>
 				<h3 className='text-xl text-gray-600'>Nature:</h3>
 				<div className='relative' ref={natureInputRef}>
 					<input
-						className={`border-2 ${natureError ? 'border-red-500' : 'border-gray-300'} h-10 rounded-lg bg-white px-5 pr-16 text-sm focus:outline-none max-md:w-40`}
+						className={`border-2 ${natureError ? 'border-red-500' : 'border-gray-300'} h-10 rounded-lg bg-white px-5 pr-16 text-sm focus:outline-none max-md:w-full`}
 						type='text'
 						name='Nature'
 						placeholder='Nature'

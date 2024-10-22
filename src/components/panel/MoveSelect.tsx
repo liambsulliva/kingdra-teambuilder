@@ -260,13 +260,13 @@ const MoveSelect = ({
 	};
 
 	return (
-		<div className='relative mb-4 flex items-center gap-4 max-md:flex-col'>
-			<h3 className='text-xl text-gray-600'>Move {index + 1}: </h3>
+		<div className='relative mb-4 flex items-center gap-4'>
+			<h3 className='max-md:text-nowrap text-xl text-gray-600'>Move {index + 1}: </h3>
 			<div className='relative' ref={moveInputRef}>
 				<input
 					className={`border-2 ${
 						moveError ? 'border-red-500' : 'border-gray-300'
-					} h-10 rounded-lg bg-white px-5 pr-12 text-sm focus:outline-none max-md:w-40`}
+					} h-10 rounded-lg bg-white px-5 pr-12 text-sm focus:outline-none max-md:w-full`}
 					type='text'
 					name='Move'
 					autoComplete='off'

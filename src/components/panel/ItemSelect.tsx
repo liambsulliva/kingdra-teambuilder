@@ -175,11 +175,11 @@ const ItemSelect = ({
 	};
 
 	return (
-		<div className='relative mb-4 flex items-center gap-4 max-md:flex-col'>
+		<div className='relative mb-4 flex items-center gap-4'>
 			<h3 className='text-xl text-gray-600'>Item:</h3>
 			<div className='relative' ref={itemInputRef}>
 				<input
-					className={`border-2 ${itemError ? 'border-red-500' : 'border-gray-300'} h-10 rounded-lg bg-white px-5 pr-16 text-sm focus:outline-none max-md:w-40`}
+					className={`border-2 ${itemError ? 'border-red-500' : 'border-gray-300'} h-10 rounded-lg bg-white px-5 pr-16 text-sm focus:outline-none max-md:w-full`}
 					type='text'
 					name='Item'
 					placeholder='Item'

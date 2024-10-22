@@ -51,7 +51,7 @@ const PokemonAbilitySelector: React.FC<PokemonAbilitySelectorProps> = ({
 	});
 
 	return (
-		<div className='mb-4 flex items-center gap-4 max-md:flex-col'>
+		<div className='mb-4 flex items-center gap-4'>
 			<h3 className='text-xl text-gray-600'>Ability:</h3>
 			<ul className='relative flex flex-wrap gap-2 text-nowrap'>
 				{uniqueAbilities.map((ability, index) => {

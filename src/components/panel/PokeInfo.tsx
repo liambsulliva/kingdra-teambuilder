@@ -196,9 +196,9 @@ const PokeInfo = ({
 	const statLabels = ['HP', 'Atk', 'Def', 'Sp. Atk', 'Sp. Def', 'Speed'];
 
 	return (
-		<div className='relative flex-grow rounded bg-stone-50'>
+		<div className='relative flex-grow rounded bg-stone-50 max-md:flex max-md:w-full max-md:justify-center max-md:bg-white max-md:px-4'>
 			{pokemonInfo && pokemonParty[selectedTeam][selectedPokemon] && (
-				<div className='flex justify-evenly gap-16 rounded-lg bg-white md:py-12 py-6 md:pl-14 md:pr-8 max-lg:flex-col md:shadow-md'>
+				<div className='flex justify-evenly gap-16 rounded-lg bg-white py-6 max-lg:flex-col max-md:gap-8 md:py-12 md:pl-14 md:pr-8 md:shadow-md'>
 					<div className='flex flex-col gap-2'>
 						<PokemonBasicInfo
 							pokemonInfo={pokemonInfo}
@@ -236,7 +236,7 @@ const PokeInfo = ({
 							selectedTeam={selectedTeam}
 						/>
 						<div className='flex items-center justify-between'>
-							<div className='flex flex-col max-md:mx-auto'>
+							<div className='flex flex-col'>
 								{[0, 1, 2, 3].map((index) => (
 									<MoveSelect
 										key={index}
@@ -259,7 +259,7 @@ const PokeInfo = ({
 									Remaining EV points: {508 - totalEVs}
 								</p>
 							</div>
-							<div className='grid h-full grid-cols-2 flex-wrap justify-evenly gap-16 rounded-xl max-xl:grid-cols-1 max-md:mx-auto md:border md:p-12'>
+							<div className='grid h-full grid-cols-2 flex-wrap justify-evenly gap-16 rounded-xl max-xl:grid-cols-1 max-md:mx-auto max-md:gap-8 md:border md:p-12'>
 								{statLabels.map((label, index) => (
 									<StatBar
 										key={index}
