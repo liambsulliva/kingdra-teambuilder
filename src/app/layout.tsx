@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -26,7 +27,10 @@ const RootLayout = ({
 					rel='stylesheet'
 				></link>
 			</head>
-			<body>{children}</body>
+			<body>
+				{children}
+				<Script src='/service-worker.js' />
+			</body>
 		</html>
 	);
 };
