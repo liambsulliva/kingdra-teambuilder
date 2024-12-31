@@ -42,6 +42,8 @@ const PokeParty = ({
 	const [modalPokemonIndex, setModalPokemonIndex] = useState<number>(-1);
 	const [isPokeFinderModalOpen, setIsPokeFinderModalOpen] =
 		useState<boolean>(false);
+	const [receivedInitialTeam, setReceivedInitialTeam] =
+		useState<boolean>(false);
 
 	// Check for mobile screen size
 	useEffect(() => {
@@ -65,6 +67,7 @@ const PokeParty = ({
 					setPokemonParty(response.data.pokemonParty);
 					setNumTeams(response.data.pokemonParty.length);
 					setTeamNames(response.data.teamNames);
+					setReceivedInitialTeam(true);
 				} catch (error) {
 					setEnableToast({
 						enabled: true,
@@ -74,19 +77,19 @@ const PokeParty = ({
 				}
 			} else {
 				setPokemonParty([[]]);
+				setReceivedInitialTeam(true);
 			}
 		}, 500),
 		[isSignedIn, setPokemonParty, setNumTeams, setTeamNames, setEnableToast]
 	);
 
 	const debouncedPostPokemonParty = debounce(async () => {
-		if (isSignedIn) {
+		if (isSignedIn && receivedInitialTeam) {
 			try {
 				const response = await axios.post('/api/pokemon-party', {
 					teamNames,
 					pokemonParty,
 				});
-				// Handle the response here
 				if (response.status === 201) {
 					//console.log("POST Success");
 				} else {
@@ -110,7 +113,7 @@ const PokeParty = ({
 
 	useEffect(() => {
 		debouncedPostPokemonParty();
-	}, [pokemonParty, teamNames, debouncedPostPokemonParty]);
+	}, [pokemonParty, teamNames, debouncedPostPokemonParty, receivedInitialTeam]);
 
 	const handleSlotClick = (index: number) => {
 		if (isMobile) {
