@@ -1,15 +1,14 @@
 import type { Config } from 'tailwindcss';
-import flowbite from 'flowbite-react/tailwind';
+import flowbiteReact from 'flowbite-react/plugin/tailwindcss';
 
 const config: Config = {
 	content: [
-		'./node_modules/flowbite-react/lib/**/*.js',
 		'./pages/**/*.{ts,tsx}',
 		'./public/**/*.html',
 		'./src/pages/**/*.{js,ts,jsx,tsx,mdx}',
 		'./src/components/**/*.{js,ts,jsx,tsx,mdx}',
 		'./src/app/**/*.{js,ts,jsx,tsx,mdx}',
-		flowbite.content(),
+		'.flowbite-react/class-list.json',
 	],
 	theme: {
 		extend: {
@@ -23,6 +22,6 @@ const config: Config = {
 			sans: ['Montserrat', 'Helvetica', 'Arial', 'sans-serif'],
 		},
 	},
-	plugins: [require('flowbite/plugin'), flowbite.plugin()],
+	plugins: [flowbiteReact],
 };
 export default config;

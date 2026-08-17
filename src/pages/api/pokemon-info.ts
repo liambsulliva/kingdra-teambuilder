@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import type { pokemonInfo } from '@/lib/pokemonInterface';
-import fetch from 'node-fetch';
 
 interface PokemonData {
 	forms: { name: string; url: string }[];

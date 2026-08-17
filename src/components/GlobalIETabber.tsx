@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { Button, ButtonGroup, Modal, Textarea } from 'flowbite-react';
+import {
+	Button,
+	ButtonGroup,
+	Modal,
+	ModalHeader,
+	ModalBody,
+	ModalFooter,
+	Textarea,
+} from 'flowbite-react';
 import DownloadIcon from '@/components/icons/DownloadIcon';
 import UploadIcon from '@/components/icons/UploadIcon';
 import { pokemon } from '@/lib/pokemonInterface';
@@ -282,8 +290,8 @@ const Component = ({
 			</p>
 
 			<Modal show={showModal} onClose={() => setShowModal(false)} dismissible>
-				<Modal.Header>Import Pokémon Party Data</Modal.Header>
-				<Modal.Body>
+				<ModalHeader>Import Pokémon Party Data</ModalHeader>
+				<ModalBody>
 					<Textarea
 						rows={13}
 						placeholder={`Expected Formatting:
@@ -302,15 +310,15 @@ Timid Nature
 						value={importText}
 						onChange={(e) => setImportText(e.target.value)}
 					/>
-				</Modal.Body>
-				<Modal.Footer>
+				</ModalBody>
+				<ModalFooter>
 					<Button color='blue' onClick={importPokemonParty}>
 						Import
 					</Button>
 					<Button color='light' onClick={() => setShowModal(false)}>
 						Cancel
 					</Button>
-				</Modal.Footer>
+				</ModalFooter>
 			</Modal>
 		</div>
 	);

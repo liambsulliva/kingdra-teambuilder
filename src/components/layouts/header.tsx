@@ -3,7 +3,7 @@ import ModeTabber from '@/components/ModeTabber';
 import TeamSelector from '@/components/TeamSelector';
 import { Button } from 'flowbite-react';
 import '@/app/globals.css';
-import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { SignInButton, Show, UserButton } from '@clerk/nextjs';
 
 interface HeaderProps {
 	setGameMode: (mode: string) => void;
@@ -57,14 +57,14 @@ const Header = ({
 					teamNames={teamNames}
 					onTeamNameChange={onTeamNameChange}
 				/>
-				<SignedOut>
+				<Show when='signed-out'>
 					<Button color='light'>
 						<SignInButton />
 					</Button>
-				</SignedOut>
-				<SignedIn>
+				</Show>
+				<Show when='signed-in'>
 					<UserButton />
-				</SignedIn>
+				</Show>
 			</div>
 			{/* Hamburger Menu - Mobile ONLY */}
 			<div className='md:hidden'>
@@ -84,9 +84,9 @@ const Header = ({
 			>
 				<div className='flex flex-col items-center space-y-4 p-6'>
 					<div className='flex w-full justify-between px-4 pb-4'>
-						<SignedIn>
+						<Show when='signed-in'>
 							<UserButton />
-						</SignedIn>
+						</Show>
 						<button
 							onClick={toggleMenu}
 							className='self-end text-2xl focus:outline-none'
@@ -100,11 +100,11 @@ const Header = ({
 						rightLabel={'Competitive'}
 						setGameMode={setGameMode}
 					/>
-					<SignedOut>
+					<Show when='signed-out'>
 						<Button color='light' onClick={toggleMenu}>
 							<SignInButton />
 						</Button>
-					</SignedOut>
+					</Show>
 
 					<Button
 						color='light'

@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import fetch from 'node-fetch';
 
 const getPokemonGeneration = (id: number): number => {
 	if (id <= 151) return 1;

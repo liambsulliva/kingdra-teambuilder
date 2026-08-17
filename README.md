@@ -67,9 +67,6 @@ Check out the [Demo](https://pokedraft.liambsullivan.com), hosted on Vercel.
 - [**GraphQL**](https://graphql.org/) - A query language for your API.
 - [**Axios**](https://axios-http.com/) - A promise-based HTTP client for the browser and Node.js.
 - [**Lodash.debounce**](https://lodash.com/docs/4.17.15#debounce) - A utility function that limits the rate at which a function can be called.
-- [**Node-Fetch**](https://www.npmjs.com/package/node-fetch) - A light-weight module that brings `window.fetch` to Node.js.
-- [**Debounce**](https://lodash.com/docs/4.17.15#debounce) - Utility for debouncing rapid function calls.
-- [**Dotenv**](https://www.npmjs.com/package/dotenv) - Loads environment variables from a `.env` file.
 - [**Vitest**](https://vitest.dev/) - A blazing fast unit test framework.
 
 ### **Dev Dependencies**

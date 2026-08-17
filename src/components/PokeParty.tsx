@@ -8,10 +8,9 @@ import GlobalIETabber from '@/components/GlobalIETabber';
 import debounce from 'lodash.debounce';
 import '@/app/globals.css';
 import type { pokemon } from '@/lib/pokemonInterface';
-import { Modal } from 'flowbite-react';
+import { Button, Modal, ModalHeader, ModalBody } from 'flowbite-react';
 import PokeInfo from '@/components/panel/PokeInfo';
 import PokeFinder from '@/components/PokeFinder';
-import { Button } from 'flowbite-react';
 
 const PokeParty = ({
 	pokemonParty,
@@ -152,15 +151,15 @@ const PokeParty = ({
 							onClose={() => setIsPokeFinderModalOpen(false)}
 							position='bottom-center'
 						>
-							<Modal.Header>Add Pokemon</Modal.Header>
-							<Modal.Body>
+							<ModalHeader>Add Pokemon</ModalHeader>
+							<ModalBody>
 								<PokeFinder
 									gameMode={gameMode}
 									setPokemonParty={setPokemonParty}
 									setEnableToast={setEnableToast}
 									selectedTeam={selectedTeam}
 								/>
-							</Modal.Body>
+							</ModalBody>
 						</Modal>
 					</>
 				)}
@@ -200,8 +199,8 @@ const PokeParty = ({
 					size='xl'
 					onClose={() => setIsModalOpen(false)}
 				>
-					<Modal.Header>Pokémon Info</Modal.Header>
-					<Modal.Body>
+					<ModalHeader>Pokémon Info</ModalHeader>
+					<ModalBody>
 						{modalPokemonIndex !== -1 && (
 							<PokeInfo
 								gameMode={gameMode}
@@ -212,7 +211,7 @@ const PokeParty = ({
 								selectedTeam={selectedTeam}
 							/>
 						)}
-					</Modal.Body>
+					</ModalBody>
 				</Modal>
 			)}
 		</div>

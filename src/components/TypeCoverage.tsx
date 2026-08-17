@@ -91,7 +91,7 @@ const TypeCoverage = ({
 	pokemonParty,
 	selectedTeam,
 	setEnableToast,
-}: TypeCoverageProps): JSX.Element => {
+}: TypeCoverageProps) => {
 	const [defensiveCoverage, setDefensiveCoverage] = useState<
 		Record<string, number>
 	>({});

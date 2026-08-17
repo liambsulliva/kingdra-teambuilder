@@ -15,7 +15,7 @@ import PokemonBasicInfo from '@/components/panel/PokemonBasicInfo';
 import PokemonTypeInfo from '@/components/panel/PokemonTypeInfo';
 import PokemonAbilitySelector from '@/components/panel/PokemonAbilitySelector';
 import PokemonForms from './PokemonForms';
-import { Tabs } from 'flowbite-react';
+import { Tabs, TabItem } from 'flowbite-react';
 import PokemonSpeciesInfo from './PokemonSpeciesInfo';
 import { useQuery, gql } from '@apollo/client';
 import client from '@/lib/apolloClient';
@@ -306,19 +306,20 @@ const PokeInfo = ({
 							<Tabs
 								className='flex flex-nowrap'
 								aria-label='Tabs with underline'
+								variant='underline'
 							>
-								<Tabs.Item active title='Basic Info'>
+								<TabItem active title='Basic Info'>
 									<PokemonSpeciesInfo url={pokemonInfo.species.url} />
-								</Tabs.Item>
-								<Tabs.Item active title='Encounter Locations'>
+								</TabItem>
+								<TabItem active title='Encounter Locations'>
 									<LocationAreaEncounters
 										url={pokemonInfo.location_area_encounters}
 									/>
-								</Tabs.Item>
+								</TabItem>
 								{pokemonInfo.forms.length > 1 && (
-									<Tabs.Item title='Cosmetic Forms'>
+									<TabItem title='Cosmetic Forms'>
 										<PokemonForms forms={pokemonInfo.forms} />
-									</Tabs.Item>
+									</TabItem>
 								)}
 							</Tabs>
 							<div className='flex items-center justify-between max-md:flex-col max-md:pt-8'>

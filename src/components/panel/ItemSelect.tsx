@@ -6,6 +6,13 @@ interface ItemSuggestion {
 	effect: string;
 }
 
+const formatItemName = (name: string) => {
+	return name
+		.split('-')
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
+};
+
 const ItemSelect = ({
 	selectedPokemon,
 	pokemonParty,
@@ -53,13 +60,6 @@ const ItemSelect = ({
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, []);
-
-	const formatItemName = (name: string) => {
-		return name
-			.split('-')
-			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-			.join(' ');
-	};
 
 	const fetchItemSuggestions = async (
 		input: string

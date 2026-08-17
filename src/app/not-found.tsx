@@ -1,5 +1,6 @@
 import '@/app/globals.css';
 import Footer from '@/components/layouts/footer';
+import Link from 'next/link';
 
 const notFound = () => {
 	return (
@@ -8,9 +9,9 @@ const notFound = () => {
 				<link rel='icon' href='/favicon.ico' />
 			</head>
 			<body className='flex flex-col items-center gap-2 p-32'>
-				<a href='/' className='mb-8 text-black hover:underline'>
+				<Link href='/' className='mb-8 text-black hover:underline'>
 					Home
-				</a>
+				</Link>
 				<h1 className='text-5xl font-bold'>
 					You&apos;re lost aren&apos;t you...
 				</h1>

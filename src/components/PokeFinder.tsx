@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import PokeFinderCard from '@/components/PokeFinderCard';
 import LoadingIcon from '@/components/icons/LoadingIcon';
 import type { pokemon } from '@/lib/pokemonInterface';
-import { Tabs, Dropdown } from 'flowbite-react';
+import { Tabs, TabItem, Dropdown, DropdownItem } from 'flowbite-react';
 
 const PokeFinder = ({
 	gameMode,
@@ -150,9 +150,9 @@ const PokeFinder = ({
 				color='light'
 			>
 				{tabTitles.map((title, index) => (
-					<Dropdown.Item key={index} onClick={() => handleTabChange(title)}>
+					<DropdownItem key={index} onClick={() => handleTabChange(title)}>
 						{title}
-					</Dropdown.Item>
+					</DropdownItem>
 				))}
 			</Dropdown>
 		);
@@ -160,10 +160,11 @@ const PokeFinder = ({
 		const desktopTabs = (
 			<Tabs
 				aria-label='Tabs with underline'
+				variant='underline'
 				onActiveTabChange={handleTabChange}
 			>
 				{tabTitles.map((title, index) => (
-					<Tabs.Item
+					<TabItem
 						key={index}
 						active={
 							(gameMode === 'competitive'
@@ -199,9 +200,9 @@ const PokeFinder = ({
 						<div className='mt-2 max-md:mb-2'>
 							<Dropdown color='light' label={`Gen ${selectedGen}`}>
 								{[1, 2, 3, 4, 5, 6, 7, 8, 9].map((gen) => (
-									<Dropdown.Item key={gen} onClick={() => handleGenChange(gen)}>
+									<DropdownItem key={gen} onClick={() => handleGenChange(gen)}>
 										Gen {gen}
-									</Dropdown.Item>
+									</DropdownItem>
 								))}
 							</Dropdown>
 						</div>

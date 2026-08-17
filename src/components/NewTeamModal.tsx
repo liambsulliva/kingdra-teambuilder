@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { Modal, Button, Label, TextInput } from 'flowbite-react';
+import {
+	Modal,
+	ModalHeader,
+	ModalBody,
+	ModalFooter,
+	Button,
+	Label,
+	TextInput,
+} from 'flowbite-react';
 
 interface NewTeamModalProps {
 	show: boolean;
@@ -29,12 +37,12 @@ const NewTeamModal: React.FC<NewTeamModalProps> = ({
 
 	return (
 		<Modal show={show} onClose={onClose} dismissible>
-			<Modal.Header>Create New Team</Modal.Header>
-			<Modal.Body>
+			<ModalHeader>Create New Team</ModalHeader>
+			<ModalBody>
 				<div className='space-y-6'>
 					<div>
 						<div className='mb-2 block'>
-							<Label htmlFor='teamName' value='Team Name' />
+							<Label htmlFor='teamName'>Team Name</Label>
 						</div>
 						<TextInput
 							id='teamName'
@@ -46,15 +54,15 @@ const NewTeamModal: React.FC<NewTeamModalProps> = ({
 						/>
 					</div>
 				</div>
-			</Modal.Body>
-			<Modal.Footer>
+			</ModalBody>
+			<ModalFooter>
 				<Button color='blue' onClick={handleConfirm}>
 					Create Team
 				</Button>
 				<Button color='light' onClick={onClose}>
 					Cancel
 				</Button>
-			</Modal.Footer>
+			</ModalFooter>
 		</Modal>
 	);
 };

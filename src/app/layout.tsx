@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import './globals.css';
+import { ThemeInit } from '../../.flowbite-react/init';
 
 export const metadata: Metadata = {
 	title: 'Kingdra - A Pokémon Teambuilder',
@@ -28,6 +29,7 @@ const RootLayout = ({
 				/>
 			</head>
 			<body>
+				<ThemeInit />
 				{children}
 				<Script src='/service-worker.js' />
 			</body>
