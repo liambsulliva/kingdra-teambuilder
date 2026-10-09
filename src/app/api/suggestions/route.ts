@@ -1,27 +1,9 @@
 import { NextResponse } from 'next/server';
+import { CACHE_HEADERS, FORMAT_ID, SETS_URL, STATS_URL, smogonJson } from '@/lib/smogon';
 
 // Suggested moves for one species in one format, the way Showdown's
 // teambuilder surfaces viable moves first: Smogon usage stats plus the moves
 // in Smogon's curated sets, both mirrored by pkmn.
-const STATS_URL = (format: string) =>
-	`https://pkmn.github.io/smogon/data/stats/${format}.json`;
-const SETS_URL = (format: string) =>
-	`https://pkmn.github.io/smogon/data/sets/${format}.json`;
-
-// Usage files are several MB (over Next's fetch-cache limit), so keep parsed
-// copies in memory for a few hours instead.
-const TTL = 6 * 60 * 60 * 1000;
-const cache = new Map<string, { at: number; data: Promise<unknown> }>();
-function cached<T>(url: string): Promise<T | null> {
-	const hit = cache.get(url);
-	if (hit && Date.now() - hit.at < TTL) return hit.data as Promise<T | null>;
-	const data = fetch(url, { cache: 'no-store' })
-		.then((r) => (r.ok ? r.json() : null))
-		.catch(() => null);
-	cache.set(url, { at: Date.now(), data });
-	return data as Promise<T | null>;
-}
-
 interface UsageStats {
 	pokemon: Record<string, { moves?: Record<string, number> }>;
 }
@@ -34,15 +16,15 @@ export async function GET(request: Request) {
 	const params = new URL(request.url).searchParams;
 	const format = params.get('format') || 'gen9ou';
 	const species = params.get('species') || '';
-	if (!/^gen\d[a-z0-9]+$/.test(format) || !species) {
+	if (!FORMAT_ID.test(format) || !species) {
 		return NextResponse.json(
 			{ error: 'Unknown format or species' },
 			{ status: 400 }
 		);
 	}
 	const [stats, sets] = await Promise.all([
-		cached<UsageStats>(STATS_URL(format)),
-		cached<Sets>(SETS_URL(format)),
+		smogonJson<UsageStats>(STATS_URL(format)),
+		smogonJson<Sets>(SETS_URL(format)),
 	]);
 	const usage = stats?.pokemon[species]?.moves ?? {};
 	const inSets = new Set(
@@ -63,10 +45,6 @@ export async function GET(request: Request) {
 				})),
 			source: stats ? 'usage' : inSets.size ? 'sets' : 'none',
 		},
-		{
-			headers: {
-				'Cache-Control': 'public, s-maxage=21600, stale-while-revalidate=86400',
-			},
-		}
+		{ headers: CACHE_HEADERS }
 	);
 }

@@ -5,7 +5,8 @@ import './globals.css';
 
 const text = Stack_Sans_Text({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-text', fallback: ['system-ui', 'sans-serif'], adjustFontFallback: false });
 const head = Stack_Sans_Headline({ subsets: ['latin'], weight: ['600', '700'], variable: '--font-head', fallback: ['system-ui', 'sans-serif'], adjustFontFallback: false });
-const mono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-mono' });
+// Mono is only the small dex numbers: one weight, and it does not compete with the app's JS for the first paint.
+const mono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400'], variable: '--font-mono', preload: false });
 
 export const metadata: Metadata = {
 	title: 'Kingdra',
@@ -34,6 +35,9 @@ const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => (
 		<html lang='en' className={`${text.variable} ${head.variable} ${mono.variable}`} suppressHydrationWarning>
 			<head>
 				<script dangerouslySetInnerHTML={{ __html: themeScript }} />
+				{/* Every party icon and card sprite comes from these hosts; open the connections while the JS loads. */}
+				<link rel='preconnect' href='https://raw.githubusercontent.com' />
+				<link rel='preconnect' href='https://play.pokemonshowdown.com' />
 			</head>
 			<body>
 				{children}

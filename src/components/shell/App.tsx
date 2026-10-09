@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useIsMerged, useIsMobile, usePersistence, useValidation } from '@/lib/hooks';
-import { useOpenTeam, useStore } from '@/lib/store';
+import { OpenTeamValidation, Persistence, useIsMerged, useIsMobile } from '@/lib/hooks';
+import { useStore } from '@/lib/store';
+import { prefetchLearnsets } from '@/lib/dex';
+import { whenIdle } from '@/lib/idle';
+import { AppShell } from './AppShell';
 import { Header } from './Header';
 import { Dialogs, Toasts } from './Dialogs';
 import { DragLayer } from './DragLayer';
@@ -13,21 +16,41 @@ import { BottomPanel } from '@/components/browse/BottomPanel';
 import { BoxDrawer } from '@/components/browse/BoxDrawer';
 import { MobileApp } from '@/components/mobile/MobileApp';
 
+// Performance barometers, read with performance.getEntriesByType('mark'):
+// boot (this module evaluated) -> hydrated (server shell hydrated) -> ready (app and library on screen).
+if (typeof window !== 'undefined') performance.mark?.('kingdra:boot');
+
 export function App() {
-	usePersistence();
-	const team = useOpenTeam();
-	useValidation(team);
+	const [mounted, setMounted] = useState(false);
+	useEffect(() => {
+		performance.mark?.('kingdra:hydrated');
+		setMounted(true);
+	}, []);
+	// Persistence mounts with the server-rendered shell, so a guest library is loaded before the first full render.
+	return (
+		<>
+			<Persistence />
+			{mounted ? <Workbench /> : <AppShell />}
+		</>
+	);
+}
+
+function Workbench() {
 	const hydrated = useStore((s) => s.hydrated);
 	const mobile = useIsMobile();
 	const merged = useIsMerged();
 	const setMerged = useStore((s) => s.setMerged);
-	const [mounted, setMounted] = useState(false);
-	useEffect(() => setMounted(true), []);
 	useEffect(() => setMerged(merged), [merged, setMerged]);
-	if (!mounted) return <div className='h-dvh' />;
+	useEffect(() => {
+		if (!hydrated) return;
+		performance.mark?.('kingdra:ready');
+		// The first card opened needs the learnsets; load them while nothing else is happening.
+		return whenIdle(prefetchLearnsets, 2000);
+	}, [hydrated]);
 
 	return (
 		<DragLayer>
+			<OpenTeamValidation />
 			{mobile ? (
 				<MobileApp />
 			) : (

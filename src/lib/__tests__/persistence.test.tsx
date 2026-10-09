@@ -60,7 +60,8 @@ describe('guest and account libraries stay apart', () => {
 		await flush();
 		act(() => useStore.getState().createTeam({ name: 'Guest team' }));
 		act(() => useStore.getState().addMember('Garchomp'));
-		await flush();
+		// Guest saves wait 250 ms after the last change.
+		await act(async () => new Promise((r) => setTimeout(r, 300)));
 		expect(stored()).toContain('Guest team');
 
 		auth.isSignedIn = true;

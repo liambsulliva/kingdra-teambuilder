@@ -71,7 +71,7 @@ describe('guest library in this browser', () => {
 		await mount();
 		s().renameTeam(s().library.teams[5].id, 'Edited offline');
 		s().storeInBox(s().library.teams[0].members[0].uid);
-		await flush();
+		await wait(300);
 		expect(stored()!.teams[5].name).toBe('Edited offline');
 		expect(stored()!.boxes.flatMap((b) => b.slots).filter(Boolean)).toHaveLength(101);
 		expect(localStorage.getItem(GUEST_KEY)).toBe('1');
@@ -91,6 +91,42 @@ describe('guest library in this browser', () => {
 		expect(s().library.teams).toHaveLength(33);
 	});
 
+	it('loads before Clerk has, and Clerk arriving does not reload it', async () => {
+		seedLocalLibrary(stress.library);
+		auth.isLoaded = false;
+		const m = await mount();
+		expect(s().hydrated).toBe(true);
+		expect(s().library).toEqual(stress.library);
+		const loaded = s().library;
+		auth.isLoaded = true;
+		m.rerender(<Probe />);
+		await flush();
+		expect(s().library).toBe(loaded);
+		expect(fetchCalls).toHaveLength(0);
+	});
+
+	it('writes a burst of edits to storage once', async () => {
+		seedLocalLibrary(stress.library);
+		await mount();
+		const setItem = vi.spyOn(Storage.prototype, 'setItem');
+		try {
+			for (let i = 0; i < 20; i++) s().renameTeam(s().library.teams[0].id, `Rename ${i}`);
+			await wait(300);
+			expect(setItem.mock.calls.filter(([k]) => k === LOCAL_KEY)).toHaveLength(1);
+			expect(stored()!.teams[0].name).toBe('Rename 19');
+		} finally {
+			setItem.mockRestore();
+		}
+	});
+
+	it('writes a waiting save when the page is hidden', async () => {
+		seedLocalLibrary(stress.library);
+		await mount();
+		s().renameTeam(s().library.teams[0].id, 'Before close');
+		window.dispatchEvent(new Event('pagehide'));
+		expect(stored()!.teams[0].name).toBe('Before close');
+	});
+
 	it('starts fresh when the saved copy is corrupt', async () => {
 		localStorage.setItem(LOCAL_KEY, '{"teams": [ broken');
 		await mount();
@@ -105,8 +141,9 @@ describe('guest library in this browser', () => {
 		const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
 		try {
 			s().createTeam({ name: 'No room' });
-			await flush();
+			await wait(300);
 			expect(names(s().library)).toContain('No room');
+			expect(s().save).toBe('error');
 		} finally {
 			setItem.mockRestore();
 			errors.mockRestore();
@@ -151,6 +188,32 @@ describe('signed-in account library', () => {
 		auth.isSignedIn = true;
 		await mount();
 		expect(names(cloud())).toEqual(names(stress.library));
+	});
+
+	it('does not write an unchanged account library back on load', async () => {
+		db.doc = { library: clone(stress.library) };
+		auth.isSignedIn = true;
+		await mount();
+		expect(s().save).toBe('saved');
+		expect(puts()).toHaveLength(0);
+	});
+
+	it('loads a returning account before Clerk has', async () => {
+		db.doc = { library: clone(stress.library) };
+		localStorage.setItem('kingdra.account', '1');
+		auth.isLoaded = false;
+		auth.isSignedIn = false;
+		await mount();
+		expect(s().library.teams).toEqual(stress.library.teams);
+		expect(s().save).toBe('saved');
+	});
+
+	it('forgets the account hint when Clerk reports signed out', async () => {
+		db.doc = { library: clone(stress.library) };
+		localStorage.setItem('kingdra.account', '1');
+		await mount();
+		expect(localStorage.getItem('kingdra.account')).toBeNull();
+		expect(names(s().library)).toEqual(['Team 1']);
 	});
 
 	it('debounces edits into one save of the latest library', async () => {

@@ -213,11 +213,11 @@ export const useStore = create<Store>()((set, get) => {
 		mobileActionUid: null,
 
 		hydrate: (library) =>
-			set((s) => ({
-				library,
-				hydrated: true,
-				openTeamId: library.teams.some((t) => t.id === s.openTeamId) ? s.openTeamId : library.teams[0].id,
-			})),
+			set((s) => {
+				const open = library.teams.find((t) => t.id === s.openTeamId) ?? library.teams[0];
+				// The carousel opens on a tab the open team has: a casual team has no OU tab.
+				return { library, hydrated: true, openTeamId: open.id, carouselTab: getTiersDefault(open) ?? s.carouselTab };
+			}),
 		toast: (kind, message) => {
 			const id = uid();
 			set((s) => ({ toasts: [...s.toasts.slice(-2), { id, kind, message }] }));

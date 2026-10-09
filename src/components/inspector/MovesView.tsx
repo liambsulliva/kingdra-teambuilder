@@ -1,14 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import type { Move } from '@pkmn/data';
 import { Icon } from '@/components/ui/Icon';
 import { SearchField, Tab } from '@/components/ui/controls';
 import { TYPE_COLORS, TypeBadge } from '@/components/ui/TypeBadge';
-import { learnableMoves } from '@/lib/dex';
+import { cachedLearnableMoves, learnableMoves } from '@/lib/dex';
 import { MAX_MOVES, type PokemonSet, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
+import { cachedSuggestions, NO_SUGGESTIONS, suggestionsFor } from '@/lib/hooks';
 import { flyValue } from '@/components/motion/choreography';
 
 const CATS = ['All', 'Physical', 'Special', 'Status'] as const;
@@ -18,7 +19,8 @@ const CAT_SHORT: Record<string, string> = {
 	Status: 'Status',
 };
 
-function MoveRow({
+/** Memoized: picking a move re-renders only the rows whose state changed. */
+const MoveRow = memo(function MoveRow({
 	move,
 	state,
 	usage,
@@ -27,7 +29,7 @@ function MoveRow({
 	move: Move;
 	state: 'default' | 'current' | 'used';
 	usage?: number;
-	onPick: (el: HTMLElement) => void;
+	onPick: (move: Move, el: HTMLElement) => void;
 }) {
 	const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
 		id: `move:${move.name}`,
@@ -39,7 +41,7 @@ function MoveRow({
 			type='button'
 			{...listeners}
 			{...attributes}
-			onClick={(e) => onPick(e.currentTarget)}
+			onClick={(e) => onPick(move, e.currentTarget)}
 			title={move.shortDesc || move.desc}
 			className={`flex h-9 w-full items-center gap-2 rounded px-2 text-left transition-colors ${
 				state === 'current' ? 'bg-accent-soft' : 'hover:bg-hover'
@@ -72,7 +74,7 @@ function MoveRow({
 			</span>
 		</button>
 	);
-}
+});
 
 export function MovesView({
 	team,
@@ -83,40 +85,54 @@ export function MovesView({
 }) {
 	const activeSlot = useStore((s) => s.activeMoveSlot);
 	const pickMove = useStore((s) => s.pickMove);
-	const [moves, setMoves] = useState<Move[] | null>(null);
+	const { mode, gen, format } = team;
+	const ctx = useMemo(() => ({ mode, gen, format }) as Team, [mode, gen, format]);
+	const [moves, setMoves] = useState<readonly Move[] | null>(() => cachedLearnableMoves(ctx, member.species, member.level));
 	const [query, setQuery] = useState('');
 	const [cat, setCat] = useState<(typeof CATS)[number]>('All');
-	const [suggested, setSuggested] = useState<Map<string, number>>(new Map());
+	const suggestFormat = mode === 'casual' ? `gen${gen}ou` : format;
+	const [suggested, setSuggested] = useState(() => cachedSuggestions(suggestFormat, member.species) ?? NO_SUGGESTIONS);
+	const search = useRef<HTMLInputElement>(null);
+
+	// A new slot starts a fresh search, as if the list had just opened.
+	const [slotShown, setSlotShown] = useState(activeSlot);
+	if (slotShown !== activeSlot) {
+		setSlotShown(activeSlot);
+		setQuery('');
+		setCat('All');
+	}
+	const firstSlot = useRef(true);
+	useEffect(() => {
+		if (firstSlot.current) firstSlot.current = false;
+		else search.current?.focus();
+	}, [activeSlot]);
 
 	// Only moves the Pokémon can know at its level are offered; a level-up move above it is not.
+	// Keyed on the team's context, not the team object: picking a move must not reload the list.
 	useEffect(() => {
 		let live = true;
-		setMoves(null);
-		learnableMoves(team, member.species, member.level).then((m) => live && setMoves(m));
+		const cached = cachedLearnableMoves(ctx, member.species, member.level);
+		setMoves(cached);
+		if (!cached) learnableMoves(ctx, member.species, member.level).then((m) => live && setMoves(m));
 		return () => {
 			live = false;
 		};
-	}, [team, member.species, member.level]);
+	}, [ctx, member.species, member.level]);
 
 	// Suggested moves, like Showdown: Smogon usage stats and curated sets for
 	// this species in the team's format (casual teams use their gen's OU).
 	useEffect(() => {
 		let live = true;
-		setSuggested(new Map());
-		const format = team.mode === 'casual' ? `gen${team.gen}ou` : team.format;
-		fetch(
-			`/api/suggestions?format=${format}&species=${encodeURIComponent(member.species)}`
-		)
-			.then((r) => (r.ok ? r.json() : { moves: [] }))
-			.then(
-				(j: { moves: { name: string; usage: number }[] }) =>
-					live && setSuggested(new Map(j.moves.map((m) => [m.name, m.usage])))
-			)
-			.catch(() => undefined);
+		const cached = cachedSuggestions(suggestFormat, member.species);
+		setSuggested(cached ?? NO_SUGGESTIONS);
+		if (!cached)
+			suggestionsFor(suggestFormat, member.species)
+				.then((m) => live && setSuggested(m))
+				.catch(() => undefined);
 		return () => {
 			live = false;
 		};
-	}, [team.mode, team.gen, team.format, member.species]);
+	}, [suggestFormat, member.species]);
 
 	const shown = useMemo(() => {
 		const q = query.trim().toLowerCase();
@@ -135,7 +151,7 @@ export function MovesView({
 	const padded = [...member.moves, '', '', '', ''].slice(0, MAX_MOVES);
 	const nextEmpty = padded.findIndex((m) => !m);
 
-	const pick = (move: Move, el: HTMLElement) => {
+	const pickNow = (move: Move, el: HTMLElement) => {
 		const target = member.moves.includes(move.name)
 			? -1
 			: activeSlot ?? nextEmpty;
@@ -150,6 +166,12 @@ export function MovesView({
 				)
 			);
 	};
+	// One callback for every row, so the memoized rows are not re-rendered for a new closure.
+	const latestPick = useRef(pickNow);
+	useLayoutEffect(() => {
+		latestPick.current = pickNow;
+	});
+	const pick = useCallback((move: Move, el: HTMLElement) => latestPick.current(move, el), []);
 
 	return (
 		<div className='flex flex-col gap-3'>
@@ -170,6 +192,7 @@ export function MovesView({
 				</span>
 			</div>
 			<SearchField
+				ref={search}
 				autoFocus
 				placeholder={
 					moves ? `Search ${moves.length} learnable moves` : 'Loading moves'
@@ -223,7 +246,7 @@ export function MovesView({
 											? 'used'
 											: 'default'
 								}
-								onPick={(el) => pick(m, el)}
+								onPick={pick}
 							/>
 						))}
 						{rest.length > 0 && (
@@ -244,7 +267,7 @@ export function MovesView({
 									? 'used'
 									: 'default'
 						}
-						onPick={(el) => pick(m, el)}
+						onPick={pick}
 					/>
 				))}
 			</div>

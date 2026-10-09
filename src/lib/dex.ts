@@ -156,10 +156,19 @@ export function generationFor(
 	return (wide ? extended : standard).get(team.gen as GenerationNum);
 }
 
-/** Species a team can browse: casual = introduced through its generation. */
+const speciesCache = new Map<string, readonly Specie[]>();
+
+/** Species a team can browse: casual = introduced through its generation. Shared per context, so callers copy before sorting. */
 export function speciesFor(
 	team: Pick<Team, 'mode' | 'gen' | 'format'>
-): Specie[] {
+): readonly Specie[] {
+	const key = `${team.mode}:${team.gen}:${team.mode === 'casual' ? '' : team.format}`;
+	let list = speciesCache.get(key);
+	if (!list) speciesCache.set(key, (list = Object.freeze(listSpecies(team))));
+	return list;
+}
+
+function listSpecies(team: Pick<Team, 'mode' | 'gen' | 'format'>): Specie[] {
 	const gen = generationFor(team);
 	const usable = (s: Specie) =>
 		s.gen <= team.gen &&
@@ -208,7 +217,7 @@ const tierRank = (tier: string) => {
 export function speciesInTier(team: Team, tab: string): Specie[] {
 	const all = speciesFor(team);
 	if (team.mode === 'casual') {
-		if (tab === 'All') return all;
+		if (tab === 'All') return [...all];
 		const g = Number(tab.replace(/\D/g, ''));
 		return all.filter((s) => s.gen === g);
 	}
@@ -281,6 +290,11 @@ async function lowestLevelUp(gen: Generation, species: string) {
  * A level-up move counts only when it is learned at or below the level. TM,
  * tutor, egg and event moves have no level, so they always count.
  */
+/** Start loading the learnset data (a large chunk) so the first card opened does not wait on it. */
+export function prefetchLearnsets() {
+	void Dex.learnsets.get('pikachu').catch(() => undefined);
+}
+
 export async function learnsetAt(team: Team, species: string, level: number): Promise<Record<string, string[]>> {
 	const gen = generationFor(team);
 	const learnable = (await gen.learnsets.learnable(species)) ?? {};
@@ -292,7 +306,37 @@ export async function learnsetAt(team: Team, species: string, level: number): Pr
 	);
 }
 
-export async function learnableMoves(
+const learnableCache = new Map<string, Promise<readonly Move[]>>();
+const learnableDone = new Map<string, readonly Move[]>();
+const LEARNABLE_CACHE_SIZE = 64;
+const learnableKey = (team: Pick<Team, 'mode' | 'gen' | 'format'>, species: string, level: number) =>
+	`${team.mode}:${team.gen}:${team.format}:${species}:${level}`;
+
+/** A learnable-move list already worked out, so a view can show it on its first render. */
+export const cachedLearnableMoves = (team: Pick<Team, 'mode' | 'gen' | 'format'>, species: string, level: number) =>
+	learnableDone.get(learnableKey(team, species, level)) ?? null;
+
+/** Moves the species can know at this level, by name. Cached per team context; the list is shared, so copy before sorting. */
+export function learnableMoves(team: Team, species: string, level: number): Promise<readonly Move[]> {
+	const key = learnableKey(team, species, level);
+	let pending = learnableCache.get(key);
+	if (!pending) {
+		pending = findLearnableMoves(team, species, level).then((list) => {
+			learnableDone.set(key, list);
+			return list;
+		});
+		pending.catch(() => learnableCache.delete(key));
+		learnableCache.set(key, pending);
+		if (learnableCache.size > LEARNABLE_CACHE_SIZE) {
+			const oldest = learnableCache.keys().next().value!;
+			learnableCache.delete(oldest);
+			learnableDone.delete(oldest);
+		}
+	}
+	return pending;
+}
+
+async function findLearnableMoves(
 	team: Team,
 	species: string,
 	level: number

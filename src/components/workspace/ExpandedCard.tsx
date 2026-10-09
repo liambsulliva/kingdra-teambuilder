@@ -36,13 +36,15 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 	const line = evolutionLine(team, member.species);
 	const nature = getNature(team, member.nature);
 
+	// Keyed on the team's context, not the team object, so an edit to this member does not look it up again.
+	const { mode, gen, format } = team;
 	useEffect(() => {
 		let live = true;
-		supportFor(team, member.species, member.level).then((groups) => live && setSupport(groups)).catch(() => live && setSupport([]));
+		supportFor({ mode, gen, format } as Team, member.species, member.level).then((groups) => live && setSupport(groups)).catch(() => live && setSupport([]));
 		return () => {
 			live = false;
 		};
-	}, [team, member.species, member.level]);
+	}, [mode, gen, format, member.species, member.level]);
 
 	const rows: { view: InspectorView; label: string; value: string; empty: string; flag: string[] }[] = [];
 	if (fields.level) rows.push({ view: 'level', label: 'Level', value: String(member.level), empty: '', flag: problemsFor(problems, ['level']) });

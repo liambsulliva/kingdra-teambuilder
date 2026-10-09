@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState, useTransition } from 'react';
 import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icon';
 import { SearchField } from '@/components/ui/controls';
@@ -12,6 +12,22 @@ import { exportTeam } from '@/lib/showdown';
 import { MAX_TEAM_SIZE, type PokemonSet, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { openTeamWithMotion } from '@/components/motion/choreography';
+import { whenIdle } from '@/lib/idle';
+
+/** Cards mounted on the first render; the rest follow in chunks while the browser is idle. */
+const FIRST_CARDS = 60;
+const CARD_CHUNK = 60;
+
+/** How many of `total` items to render: a first screenful at once, then the rest without blocking input. */
+function useProgressiveCount(total: number) {
+	const [count, setCount] = useState(FIRST_CARDS);
+	const [, startTransition] = useTransition();
+	useEffect(() => {
+		if (count >= total) return;
+		return whenIdle(() => startTransition(() => setCount((c) => c + CARD_CHUNK)));
+	}, [count, total]);
+	return Math.min(count, total);
+}
 
 export function TeamLibrary() {
 	const teams = useStore((s) => s.library.teams);
@@ -23,8 +39,9 @@ export function TeamLibrary() {
 	const shown = useMemo(() => {
 		const q = query.trim().toLowerCase();
 		const named = (name: string) => name.toLowerCase().includes(q);
-		return teams.filter((t) => named(t.name) || t.members.some((m) => named(m.species) || named(m.name)));
+		return q ? teams.filter((t) => named(t.name) || t.members.some((m) => named(m.species) || named(m.name))) : teams;
 	}, [teams, query]);
+	const count = useProgressiveCount(shown.length);
 	return (
 		<aside aria-label='Teams' className='flex min-h-0 flex-col'>
 			<div className='flex h-12 shrink-0 items-center pl-6 pr-3'>
@@ -41,8 +58,9 @@ export function TeamLibrary() {
 				</div>
 			)}
 			<ol className='flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-6'>
-				{shown.map((team, i) => (
-					<li key={team.id} className={i > 0 ? 'border-t border-line' : ''}>
+				{shown.slice(0, count).map((team, i) => (
+					// Off-screen cards skip layout and paint; the browser keeps their last measured height.
+					<li key={team.id} className={`[contain-intrinsic-size:auto_92px] [content-visibility:auto] ${i > 0 ? 'border-t border-line' : ''}`}>
 						<TeamCard team={team} open={team.id === openTeamId} />
 					</li>
 				))}
@@ -52,7 +70,8 @@ export function TeamLibrary() {
 	);
 }
 
-function TeamCard({ team, open }: { team: Team; open: boolean }) {
+/** Memoized: an edit replaces only its own team object, so every other card skips the render. */
+const TeamCard = memo(function TeamCard({ team, open }: { team: Team; open: boolean }) {
 	const renameTeam = useStore((s) => s.renameTeam);
 	const issues = useStore((s) => s.validation[team.id]?.count ?? 0);
 	const slots = Array.from({ length: MAX_TEAM_SIZE }, (_, i) => team.members[i]);
@@ -122,7 +141,7 @@ function TeamCard({ team, open }: { team: Team; open: boolean }) {
 			{open && <TeamControls team={team} />}
 		</div>
 	);
-}
+});
 
 /** A member on a team that isn't open. Drag it onto another team's card, or into the open party. */
 function DraggableMember({ team, member, children }: { team: Team; member: PokemonSet; children: React.ReactNode }) {
@@ -139,7 +158,8 @@ function TeamSlot({ team, index, empty, onPick, children }: { team: Team; index:
 	const { setNodeRef, isOver, active } = useDroppable({ id: `teamslot:${team.id}:${index}`, data: { kind: 'teamslot', teamId: team.id, index } });
 	const drag = active?.data.current as DragData | undefined;
 	const dragging = drag?.kind === 'candidate' || drag?.kind === 'member' || drag?.kind === 'evolution';
-	const ok = !!dragging && accepts(drag, { kind: 'teamslot', teamId: team.id, index });
+	// Every slot re-renders whenever the drag moves over something new; the answer only changes with the drag or this team.
+	const ok = useMemo(() => !!dragging && accepts(drag, { kind: 'teamslot', teamId: team.id, index }), [dragging, drag, team, index]);
 	return (
 		<span
 			ref={setNodeRef}
@@ -157,6 +177,23 @@ function TeamSlot({ team, index, empty, onPick, children }: { team: Team; index:
 		</span>
 	);
 }
+
+const GENS = Array.from({ length: 9 }, (_, i) => 9 - i);
+let casualOpts: React.ReactNode;
+let formatOpts: React.ReactNode;
+/** The same elements every render: React skips diffing about 100 options when the open team changes. */
+const casualOptions = () =>
+	(casualOpts ??= GENS.map((g) => (
+		<option key={g} value={`casual:${g}`}>Gen {g}</option>
+	)));
+const formatOptions = () =>
+	(formatOpts ??= GENS.map((g) => (
+		<optgroup key={g} label={`Gen ${g}`}>
+			{formatsForGen(g).map((f) => (
+				<option key={f.id} value={f.id}>Gen {g} {f.name}</option>
+			))}
+		</optgroup>
+	)));
 
 function TeamControls({ team }: { team: Team }) {
 	const setTeamContext = useStore((s) => s.setTeamContext);
@@ -195,17 +232,7 @@ function TeamControls({ team }: { team: Team }) {
 						}}
 						className='h-8 max-w-[120px] appearance-none truncate rounded-md bg-transparent pl-1 pr-6 text-xs font-medium hover:bg-hover'
 					>
-						{team.mode === 'casual'
-							? Array.from({ length: 9 }, (_, i) => 9 - i).map((g) => (
-									<option key={g} value={`casual:${g}`}>Gen {g}</option>
-								))
-							: Array.from({ length: 9 }, (_, i) => 9 - i).map((g) => (
-									<optgroup key={g} label={`Gen ${g}`}>
-										{formatsForGen(g).map((f) => (
-											<option key={f.id} value={f.id}>Gen {g} {f.name}</option>
-										))}
-									</optgroup>
-								))}
+						{team.mode === 'casual' ? casualOptions() : formatOptions()}
 					</select>
 					<Icon name='chevron-down' className='pointer-events-none absolute right-1 text-muted' />
 				</label>

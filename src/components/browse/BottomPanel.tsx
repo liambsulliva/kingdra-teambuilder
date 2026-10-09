@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { memo, useDeferredValue, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useDraggable } from '@dnd-kit/core';
 import { Icon } from '@/components/ui/Icon';
@@ -27,22 +27,28 @@ export function useCandidates() {
 	const search = useStore((s) => s.carouselSearch);
 	const gen = useStore((s) => s.carouselGen);
 	const roles = useRoles(team.mode === 'competitive' ? team.format : null);
+	// Typing stays responsive: the list filters at a lower priority than the keystroke.
+	const query = useDeferredValue(search);
+	const { mode, gen: teamGen, format } = team;
+	// Keyed on the team's context, not the team object, so editing a member does not re-sort the list.
 	const list = useMemo(() => {
-		const q = search.trim().toLowerCase();
-		const tabKey = tab === 'Ubers' && team.format.includes('doubles') ? 'DUber' : tab;
-		const base = q ? speciesFor(team).filter((s) => s.name.toLowerCase().includes(q)) : speciesInTier(team, tabKey);
-		const bst = (s: (typeof base)[number]) => STATS.reduce((n, k) => n + s.baseStats[k], 0);
-		return base
+		const ctx = { mode, gen: teamGen, format } as Team;
+		const q = query.trim().toLowerCase();
+		const tabKey = tab === 'Ubers' && format.includes('doubles') ? 'DUber' : tab;
+		const base = q ? speciesFor(ctx).filter((s) => s.name.toLowerCase().includes(q)) : speciesInTier(ctx, tabKey);
+		const shown = base
 			.filter((s) => gen === null || s.gen === gen)
-			.filter((s) => role === 'All roles' || team.mode === 'casual' || roles[s.name]?.includes(role))
-			.sort((a, b) => Number(!!roles[b.name]) - Number(!!roles[a.name]) || bst(b) - bst(a));
-	}, [team, tab, role, search, gen, roles]);
-	return { team, list, roles, filterKey: `${team.id}:${team.format}:${team.gen}:${tab}:${role}:${search}:${gen}` };
+			.filter((s) => role === 'All roles' || mode === 'casual' || roles[s.name]?.includes(role));
+		const bst = new Map(shown.map((s) => [s, STATS.reduce((n, k) => n + s.baseStats[k], 0)]));
+		return shown.sort((a, b) => Number(!!roles[b.name]) - Number(!!roles[a.name]) || bst.get(b)! - bst.get(a)!);
+	}, [mode, teamGen, format, tab, role, query, gen, roles]);
+	// Search is left out: a cross-fade on every keystroke would remount the whole list.
+	return { team, list, roles, search: query, filterKey: `${team.id}:${format}:${teamGen}:${tab}:${role}:${gen}` };
 }
 
 const cardLook = 'flex h-[164px] shrink-0 flex-col gap-1.5 rounded-lg border bg-bg p-3 text-left';
 
-function CandidateBody({ species, types, roles, casual }: { species: string; types: string[]; roles?: string[]; casual: boolean }) {
+function CandidateBody({ species, types, roles, casual }: { species: string; types: readonly string[]; roles?: string[]; casual: boolean }) {
 	return (
 		<>
 			<CardSprite species={species} />
@@ -69,7 +75,8 @@ export function CandidateOverlay({ species }: { species: string }) {
 	);
 }
 
-export function CandidateCard({ species, types, roles, casual, wide }: { species: string; types: string[]; roles?: string[]; casual: boolean; wide?: boolean }) {
+/** Memoized: its props come from cached species and roles, so a team edit leaves every card alone. */
+export const CandidateCard = memo(function CandidateCard({ species, types, roles, casual, wide }: { species: string; types: readonly string[]; roles?: string[]; casual: boolean; wide?: boolean }) {
 	const addMember = useStore((s) => s.addMember);
 	const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: `cand:${species}`, data: { kind: 'candidate', species } });
 	return (
@@ -85,10 +92,10 @@ export function CandidateCard({ species, types, roles, casual, wide }: { species
 			<CandidateBody species={species} types={types} roles={roles} casual={casual} />
 		</button>
 	);
-}
+});
 
 export function BottomPanel() {
-	const { team, list, roles, filterKey } = useCandidates();
+	const { team, list, roles, filterKey, search: shownSearch } = useCandidates();
 	const tab = useStore((s) => s.carouselTab);
 	const role = useStore((s) => s.carouselRole);
 	const search = useStore((s) => s.carouselSearch);
@@ -97,7 +104,10 @@ export function BottomPanel() {
 	const setTeamContext = useStore((s) => s.setTeamContext);
 	const boxOpen = useStore((s) => s.boxOpen);
 	const setBoxOpen = useStore((s) => s.setBoxOpen);
-	const [limit, setLimit] = useState(60);
+	// Cards render 60 at a time as the row scrolls; a new filter starts over at 60.
+	const [paged, setPaged] = useState({ key: '', limit: 60 });
+	const pageKey = `${filterKey}:${shownSearch}`;
+	const limit = paged.key === pageKey ? paged.limit : 60;
 	const casual = team.mode === 'casual';
 	const tabs = tierTabs(team);
 
@@ -158,14 +168,15 @@ export function BottomPanel() {
 					transition={{ duration: 0.1 }}
 					onScroll={(e) => {
 						const el = e.currentTarget;
-						if (el.scrollLeft + el.clientWidth > el.scrollWidth - 600) setLimit((l) => l + 60);
+						// Scroll events arrive faster than renders; asking for the same next page twice is harmless.
+						if (limit < list.length && el.scrollLeft + el.clientWidth > el.scrollWidth - 600) setPaged({ key: pageKey, limit: limit + 60 });
 					}}
 					className='scrollbar-none flex min-h-0 flex-1 gap-3 overflow-x-auto px-6 pb-4 [mask-image:linear-gradient(to_right,black_calc(100%-96px),transparent)]'
 				>
 					{list.slice(0, limit).map((s) => (
 						<CandidateCard key={s.name} species={s.name} types={s.types} roles={roles[s.name]} casual={casual} />
 					))}
-					{!list.length && <p className='self-center text-base text-muted'>{search ? `No Pokémon named “${search}” in Gen ${team.gen}.` : 'Nothing in this tier yet.'}</p>}
+					{!list.length && <p className='self-center text-base text-muted'>{shownSearch ? `No Pokémon named “${shownSearch}” in Gen ${team.gen}.` : 'Nothing in this tier yet.'}</p>}
 				</motion.div>
 			</AnimatePresence>
 		</section>

@@ -81,7 +81,7 @@ export const statTable = (value: number): StatTable => ({
 
 export function newSet(species: string, partial: Partial<PokemonSet> = {}): PokemonSet {
 	return {
-		uid: uid(),
+		uid: partial.uid ?? uid(),
 		species,
 		name: '',
 		item: '',
@@ -130,7 +130,8 @@ export function emptyLibrary(): Library {
 
 /** Clamp a set to the hard limits every standard format shares. */
 export function normalizeSet(set: Partial<PokemonSet> & { species: string }): PokemonSet {
-	const base = newSet(set.species, set);
+	// The uid is settled below; skip minting one only to throw it away.
+	const base = newSet(set.species, { ...set, uid: set.uid || '' });
 	const clampTable = (t: Partial<StatTable> | undefined, min: number, max: number, fallback: number) => {
 		const out = statTable(fallback);
 		for (const s of STATS) {

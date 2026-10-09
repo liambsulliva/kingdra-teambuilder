@@ -1,6 +1,8 @@
 import { vi } from 'vitest';
 import { emptyLibrary, type Library } from '@/lib/model';
 import { useStore, type Store } from '@/lib/store';
+import { clearRequestCaches } from '@/lib/hooks';
+import { clearSmogonCache } from '@/lib/smogon';
 
 /** What Clerk's useAuth reports. Flip `isSignedIn` and remount to sign in or out. */
 export const auth = { isLoaded: true, isSignedIn: false };
@@ -104,6 +106,8 @@ export function seedLocalLibrary(library: Library) {
 }
 
 export function resetEnv() {
+	clearRequestCaches();
+	clearSmogonCache();
 	auth.isLoaded = true;
 	auth.isSignedIn = false;
 	Object.assign(viewport, { mobile: false, merged: false, reducedMotion: true });

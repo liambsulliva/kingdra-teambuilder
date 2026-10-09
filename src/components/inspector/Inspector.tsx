@@ -22,7 +22,6 @@ export function Inspector() {
 	const merged = useStore((s) => s.merged);
 	const compare = useStore((s) => s.compareSpecies);
 	const setInspector = useStore((s) => s.setInspector);
-	const activeSlot = useStore((s) => s.activeMoveSlot);
 	const casual = team.mode === 'casual';
 	const fields = fieldsFor(team);
 	// Each key row on the card has a tab of its own too, shown only where the format has that field.
@@ -76,7 +75,7 @@ export function Inspector() {
 		const props = { team, member };
 		body = {
 			stats: <StatsView {...props} />,
-			moves: <MovesView key={`${member.uid}:${activeSlot}`} {...props} />,
+			moves: <MovesView key={member.uid} {...props} />,
 			ability: <AbilityView {...props} />,
 			item: <ItemView {...props} />,
 			nature: <NatureView {...props} />,
