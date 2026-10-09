@@ -80,25 +80,18 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 	};
 
 	return (
+		<div className='relative w-full'>
 		<section aria-label={`${member.name || member.species} set`} className='flex w-full max-w-[580px] flex-col gap-4'>
 			<div className='flex gap-4 md:gap-6'>
 				<div data-card-sprite className='flex size-[72px] shrink-0 items-end justify-center md:size-24'>
 					<PokemonSprite species={member.species} shiny={member.shiny} size={mobile ? 72 : 96} />
 				</div>
 				<div className='flex min-w-0 flex-1 flex-col gap-2.5'>
-					<div className='flex items-end gap-2'>
+					{/* Room on the right for the member actions, which sit at the top right of the panel. */}
+					<div className='flex items-end gap-2 pr-36'>
 						<h2 className='truncate font-head text-[24px] font-semibold leading-7 tracking-[-0.02em] md:text-[32px] md:leading-9'>{member.name || member.species}</h2>
 						<span className='pb-1 font-mono text-2xs text-muted'>#{species?.num ?? '?'}</span>
 						{member.name && <span className='truncate pb-1 text-xs text-muted'>{member.species}</span>}
-						<span className='flex-1' />
-						<div className='flex shrink-0'>
-							<IconButton icon='export' label='Copy set as Showdown text' onClick={copy} />
-							<IconButton icon='import' label='Paste a Showdown set' onClick={() => setDialog('importSet')} />
-							{team.mode === 'competitive' && <IconButton icon='details' label='More details' selected={inspector === 'details'} onClick={() => setInspector('details')} />}
-							<span className='ml-2 flex'>
-								<IconButton icon='trash' label={`Delete ${member.name || member.species}`} tone='danger' tooltipAlign='end' onClick={() => setDialog('deleteMember')} />
-							</span>
-						</div>
 					</div>
 					<div className='flex items-center gap-1'>
 						{(species?.types ?? []).map((t) => (
@@ -145,29 +138,18 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 			)}
 
 			<div className='flex flex-col gap-2'>
-				<div className='flex items-start pl-2'>
-					<span className='flex h-6 items-center text-xs text-muted'>Moves</span>
-					<div className='ml-3 flex min-w-0 flex-col items-start gap-1.5'>
-						<button type='button' onClick={loadSmogon} className='flex h-6 items-center text-xs font-medium text-muted hover:text-fg'>
-							Load Smogon Set
-						</button>
-						{sets && (
-							<div className='flex flex-wrap gap-1.5'>
-								{Object.entries(sets).map(([name, set]) => (
-									<Button key={name} className='!h-7 !px-2 !text-xs' onClick={() => applySet(name, set)}>
-										{name}
-									</Button>
-								))}
-							</div>
-						)}
-					</div>
-					<span className='flex-1' />
-					<IconButton
-						icon='stats'
-						label={team.mode === 'casual' ? 'Base stats' : 'Stats'}
-						selected={inspector === 'stats' || (team.mode === 'casual' && inspector === 'pokedex')}
-						onClick={() => setInspector(team.mode === 'casual' ? 'pokedex' : 'stats')}
-					/>
+				{/* The set buttons follow the Load button inline and wrap back to the left edge. */}
+				<div className='flex flex-wrap items-center gap-x-3 gap-y-1.5 pl-2'>
+					<span className='text-xs text-muted'>Moves</span>
+					<button type='button' onClick={loadSmogon} className='text-xs font-medium text-muted hover:text-fg'>
+						Load Smogon Set
+					</button>
+					{sets &&
+						Object.entries(sets).map(([name, set]) => (
+							<Button key={name} className='!h-7 !px-2 !text-xs' onClick={() => applySet(name, set)}>
+								{name}
+							</Button>
+						))}
 				</div>
 				{support.length > 0 && (
 					<div className='flex flex-wrap items-center gap-1.5 pl-2'>
@@ -204,6 +186,15 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 				</div>
 			</div>
 		</section>
+		<div className='absolute right-0 top-0 flex'>
+			<IconButton icon='export' label='Copy set as Showdown text' onClick={copy} />
+			<IconButton icon='import' label='Paste a Showdown set' onClick={() => setDialog('importSet')} />
+			{team.mode === 'competitive' && <IconButton icon='details' label='More details' selected={inspector === 'details'} onClick={() => setInspector('details')} />}
+			<span className='ml-2 flex'>
+				<IconButton icon='trash' label={`Delete ${member.name || member.species}`} tone='danger' tooltipAlign='end' onClick={() => setDialog('deleteMember')} />
+			</span>
+		</div>
+		</div>
 	);
 }
 
@@ -272,7 +263,7 @@ function MoveCell({ team, slot, move, active, flagged, onClick }: { team: Team; 
 					</span>
 					<span className='flex items-center gap-1.5 text-xs text-muted'>
 						{data && <TypeSwatch type={data.type} />}
-						{data ? `${data.type} - ${data.category.toLowerCase()}${data.basePower ? ` - ${data.basePower}` : ''}` : 'Unknown move'}
+						{data ? `${data.type} - ${data.category}${data.basePower ? ` - ${data.basePower}` : ''}` : 'Unknown move'}
 					</span>
 				</>
 			) : (

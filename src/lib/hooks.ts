@@ -62,6 +62,8 @@ export function usePersistence() {
 			setSave('saving');
 			try {
 				const res = await fetch('/api/library');
+				// A failed request must not read as "no library yet", or the local copy would be saved over the account.
+				if (!res.ok) throw new Error(`Load failed (${res.status})`);
 				const { library: cloud } = (await res.json()) as { library: Library | null };
 				let merged = cloud ? normalizeLibrary(cloud) : (local ?? emptyLibrary());
 				// Guest teams made before signing in are appended, never overwritten.
@@ -72,12 +74,16 @@ export function usePersistence() {
 				}
 				if (cancelled) return;
 				hydrate(merged);
-				localStorage.removeItem(GUEST_KEY);
 				await putCloud(merged);
+				// The guest work is in the account now; keep none of it on this device.
+				localStorage.removeItem(GUEST_KEY);
+				localStorage.removeItem(LOCAL_KEY);
 				setSave('saved');
 			} catch {
+				// Until the account loads, nothing is saved: an autosave now would overwrite the account.
 				hydrate(local ?? emptyLibrary());
 				setSave('error');
+				return;
 			}
 			ready.current = true;
 		})();
@@ -88,8 +94,9 @@ export function usePersistence() {
 
 	useEffect(() => {
 		if (!hydrated || !ready.current) return;
-		writeLocal(library);
+		// Only guest libraries live on this device. An account's library is never mirrored here, so signing out cannot show it.
 		if (!isSignedIn) {
+			writeLocal(library);
 			localStorage.setItem(GUEST_KEY, '1');
 			return;
 		}

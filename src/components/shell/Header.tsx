@@ -23,7 +23,7 @@ export function Logo({ size = 38 }: { size?: number }) {
 
 function SaveStatus() {
 	const save = useStore((s) => s.save);
-	const label = { local: 'Saved in this browser', saving: 'Saving', saved: 'Saved', error: 'Not saved, retrying' }[save];
+	const label = { local: 'Saved in this browser', saving: 'Saving', saved: 'Saved', error: 'Not saved' }[save];
 	return (
 		<span className={`hidden items-center gap-1.5 pr-2 text-xs md:inline-flex ${save === 'error' ? 'text-danger' : 'text-muted'}`} aria-live='polite'>
 			<Icon name={save === 'error' ? 'warning' : 'saved'} />

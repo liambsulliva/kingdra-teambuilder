@@ -63,7 +63,7 @@ export function CandidateOverlay({ species }: { species: string }) {
 	const roles = useRoles(team.mode === 'competitive' ? team.format : null);
 	const types = getSpecies(team, species)?.types ?? [];
 	return (
-		<div className={`${cardLook} w-[152px] -rotate-3 border-line-strong shadow-lg`}>
+		<div className={`${cardLook} w-[152px] -rotate-3 border-dashed border-line-strong opacity-[0.33]`}>
 			<CandidateBody species={species} types={types} roles={roles[species]} casual={team.mode === 'casual'} />
 		</div>
 	);
