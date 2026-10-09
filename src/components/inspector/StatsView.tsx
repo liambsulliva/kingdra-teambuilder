@@ -91,7 +91,7 @@ export function StatsView({ team, member }: { team: Team; member: PokemonSet }) 
 					<div key={s} className='flex flex-col gap-1.5'>
 						<StatRow stat={s} base={species.baseStats[s]} final={stats[s]} marker={marker} />
 						<div className='flex items-center gap-2 pl-[52px]'>
-							<button type='button' className='text-xs text-muted hover:text-fg' title='Double-click to reset' onDoubleClick={() => setEv(s, 0)}>
+							<button type='button' className='mr-2 text-xs text-muted hover:text-fg' title='Double-click to reset' onDoubleClick={() => setEv(s, 0)}>
 								{dv ? 'Exp' : 'EV'}
 							</button>
 							<ElasticSlider label={`${STAT_LABELS[s]} EVs`} value={member.evs[s]} max={EV_PER_STAT} step={4} onChange={(v) => setEv(s, v)} />

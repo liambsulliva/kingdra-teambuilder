@@ -70,7 +70,7 @@ export function MovesView({ team, member }: { team: Team; member: PokemonSet }) 
 	const nextEmpty = padded.findIndex((m) => !m);
 
 	const pick = (move: Move, el: HTMLElement) => {
-		const target = activeSlot ?? (member.moves.includes(move.name) ? -1 : nextEmpty);
+		const target = member.moves.includes(move.name) ? -1 : (activeSlot ?? nextEmpty);
 		pickMove(move.name);
 		if (target >= 0) requestAnimationFrame(() => flyValue(el, `[data-move-slot="${target}"]`, move.name, TYPE_COLORS[move.type]));
 	};

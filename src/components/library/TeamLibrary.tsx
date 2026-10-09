@@ -67,7 +67,13 @@ function TeamCard({ team, open }: { team: Team; open: boolean }) {
 		>
 			<div className='flex gap-1'>
 				{slots.map((m, i) => (
-					<TeamSlot key={i} team={team} index={i} empty={open || !m}>
+					<TeamSlot
+						key={i}
+						team={team}
+						index={i}
+						empty={open || !m}
+						onPick={m && !open ? async () => { await openTeamWithMotion(team.id); useStore.getState().selectMember(m.uid); } : undefined}
+					>
 						{m && !open && <PokemonIcon species={m.species} className='bounce-glyph' />}
 					</TeamSlot>
 				))}
@@ -109,7 +115,7 @@ function TeamCard({ team, open }: { team: Team; open: boolean }) {
 }
 
 /** A slot on a team card. Dropping a suggestion here adds it to that team if its format can field it. */
-function TeamSlot({ team, index, empty, children }: { team: Team; index: number; empty: boolean; children?: React.ReactNode }) {
+function TeamSlot({ team, index, empty, onPick, children }: { team: Team; index: number; empty: boolean; onPick?: () => void; children?: React.ReactNode }) {
 	const { setNodeRef, isOver, active } = useDroppable({ id: `teamslot:${team.id}:${index}`, data: { kind: 'teamslot', teamId: team.id, index } });
 	const species = active?.data.current?.kind === 'candidate' ? (active.data.current.species as string) : null;
 	const ok = !!species && canUseSpecies(team, species);
@@ -117,7 +123,8 @@ function TeamSlot({ team, index, empty, children }: { team: Team; index: number;
 		<span
 			ref={setNodeRef}
 			data-team-icon={`${team.id}:${index}`}
-			className={`bounce-host size-8 rounded-md transition-colors ${
+			onClick={onPick && ((e) => { e.stopPropagation(); onPick(); })}
+className={`bounce-host size-8 rounded-md transition-colors ${onPick ? 'cursor-pointer' : ''} ${
 				isOver && species ? (ok ? 'border border-dashed border-accent bg-accent-soft' : 'border border-dashed border-danger') : empty ? 'border border-dashed border-line-strong/60' : ''
 			}`}
 		>

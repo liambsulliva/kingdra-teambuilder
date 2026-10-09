@@ -3,13 +3,12 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
+import { TypeBadge } from '@/components/ui/TypeBadge';
 import { PokemonIcon } from '@/components/pokemon/PokemonIcon';
 import { getSpecies } from '@/lib/dex';
 import { MAX_TEAM_SIZE, type PokemonSet } from '@/lib/model';
 import { useOpenTeam, useStore } from '@/lib/store';
 import { liftToCard } from '@/components/motion/choreography';
-
-const spring = { type: 'spring' as const, stiffness: 520, damping: 34 };
 
 export async function selectWithLift(member: PokemonSet, from?: DOMRect) {
 	const store = useStore.getState();
@@ -23,60 +22,57 @@ export async function selectWithLift(member: PokemonSet, from?: DOMRect) {
 	sprite.style.opacity = '';
 }
 
-function MemberSlot({ member, index, onHover }: { member: PokemonSet; index: number; onHover: (m: PokemonSet | null) => void }) {
-	const { attributes, listeners, setNodeRef: dragRef, isDragging } = useDraggable({ id: `member:${member.uid}`, data: { kind: 'member', uid: member.uid, species: member.species } });
+/** One fixed cell of the party row. Cells never move, so the skeletons stay put as members come and go. */
+function PartyCell({ index, member, onHover }: { index: number; member?: PokemonSet; onHover: (m: PokemonSet | null) => void }) {
 	const { setNodeRef: dropRef, isOver, active } = useDroppable({ id: `party:${index}`, data: { kind: 'party', index } });
-	const flagged = useStore((s) => (s.validation[s.openTeamId]?.byMember[member.uid]?.length ?? 0) > 0);
-	const dropHint = isOver && active && !String(active.id).endsWith(member.uid);
-	return (
-		<motion.div layout transition={spring} ref={dropRef} className='relative'>
-			<button
-				ref={dragRef}
-				type='button'
-				{...listeners}
-				{...attributes}
-				data-party-member
-				data-index={index}
-				data-species={member.species}
-				aria-label={`${member.name || member.species}. Put on the card`}
-				onClick={(e) => selectWithLift(member, e.currentTarget.getBoundingClientRect())}
-				onMouseEnter={() => onHover(member)}
-				onMouseLeave={() => onHover(null)}
-				onFocus={() => onHover(member)}
-				onBlur={() => onHover(null)}
-				className={`bounce-host squishy relative block size-8 rounded-md ${dropHint ? 'outline-dashed outline-1 outline-accent' : ''} ${isDragging ? 'opacity-30' : ''}`}
-			>
-				<PokemonIcon species={member.species} className='bounce-glyph' />
-				{flagged && <span className='absolute -right-0.5 -top-0.5 size-1.5 rounded-full bg-danger' aria-label='Has legality issues' />}
-			</button>
-		</motion.div>
-	);
-}
-
-function EmptySlot({ index }: { index: number }) {
-	const { setNodeRef, isOver, active } = useDroppable({ id: `party:${index}`, data: { kind: 'party', index } });
 	const live = !!active && active.data.current?.kind !== 'move';
+	const dropHint = isOver && live && !(member && String(active.id).endsWith(member.uid));
 	return (
-		<motion.div
-			layout
-			transition={spring}
-			ref={setNodeRef}
-			className={`size-8 rounded-md border border-dashed transition-colors ${
-				isOver && live ? 'border-accent bg-accent-soft' : live ? 'border-accent/60' : 'border-line-strong/60'
-			}`}
-		/>
+		<div
+			ref={dropRef}
+			className={`relative size-8 rounded-md border transition-colors ${
+				member ? 'border-transparent' : isOver && live ? 'border-dashed border-accent bg-accent-soft' : live ? 'border-dashed border-accent/60' : 'border-dashed border-line-strong/60'
+			} ${member && dropHint ? 'outline-dashed outline-1 outline-accent' : ''}`}
+		>
+			{member && <MemberButton member={member} index={index} onHover={onHover} />}
+		</div>
 	);
 }
 
-/** Bottom-left party. While a member is on the card the row holds five. */
+function MemberButton({ member, index, onHover }: { member: PokemonSet; index: number; onHover: (m: PokemonSet | null) => void }) {
+	const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: `member:${member.uid}`, data: { kind: 'member', uid: member.uid, species: member.species } });
+	const flagged = useStore((s) => (s.validation[s.openTeamId]?.byMember[member.uid]?.length ?? 0) > 0);
+	return (
+		<button
+			ref={setNodeRef}
+			type='button'
+			{...listeners}
+			{...attributes}
+			data-party-member
+			data-index={index}
+			data-species={member.species}
+			aria-label={`${member.name || member.species}. Put on the card`}
+			onClick={(e) => selectWithLift(member, e.currentTarget.getBoundingClientRect())}
+			onMouseEnter={() => onHover(member)}
+			onMouseLeave={() => onHover(null)}
+			onFocus={() => onHover(member)}
+			onBlur={() => onHover(null)}
+			className={`bounce-host squishy absolute -inset-px block rounded-md ${isDragging ? 'opacity-30' : ''}`}
+		>
+			<span className='absolute inset-px'>
+				<PokemonIcon species={member.species} className='bounce-glyph' />
+			</span>
+			{flagged && <span className='absolute -right-0.5 -top-0.5 size-1.5 rounded-full bg-danger' aria-label='Has legality issues' />}
+		</button>
+	);
+}
+
+/** Bottom-left party: six fixed cells. */
 export function PartyRow() {
 	const team = useOpenTeam();
 	const selectedUid = useStore((s) => s.selectedUid);
 	const rejectedAt = useStore((s) => s.rejectedAt);
 	const [hovered, setHovered] = useState<PokemonSet | null>(null);
-	const others = team.members.filter((m) => m.uid !== selectedUid);
-	const positions = selectedUid ? MAX_TEAM_SIZE - 1 : MAX_TEAM_SIZE;
-	const empties = Math.max(0, positions - others.length);
 	const species = hovered ? getSpecies(team, hovered.species) : null;
 	return (
 		<div className='flex flex-col gap-2' data-party>
@@ -86,18 +82,18 @@ export function PartyRow() {
 				transition={{ duration: 0.36 }}
 				className='flex gap-2'
 			>
-				{others.map((m) => (
-					<MemberSlot key={m.uid} member={m} index={team.members.indexOf(m)} onHover={setHovered} />
-				))}
-				{Array.from({ length: empties }, (_, i) => (
-					<EmptySlot key={`empty-${i}`} index={team.members.length + i} />
-				))}
+				{Array.from({ length: MAX_TEAM_SIZE }, (_, i) => {
+					const m = team.members[i];
+					// The member on the card has left its cell, which stays an empty skeleton.
+					return <PartyCell key={i} index={i} member={m && m.uid !== selectedUid ? m : undefined} onHover={setHovered} />;
+				})}
 			</motion.div>
 			<p className='flex h-4 items-center gap-2 text-xs' aria-live='polite'>
 				{hovered ? (
 					<>
 						<span className='font-medium'>{hovered.name || hovered.species}</span>
-						<span className='text-muted'>{species?.types.join('/').toLowerCase()} - drag out to remove</span>
+						<span className='flex gap-1'>{species?.types.map((t) => <TypeBadge key={t} type={t} />)}</span>
+						<span className='text-muted'>drag out to remove</span>
 					</>
 				) : (
 					<>

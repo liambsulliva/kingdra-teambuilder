@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Dex } from '@pkmn/dex';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
@@ -50,6 +50,7 @@ export function BoxDrawer() {
 	const deleteBox = useStore((s) => s.deleteBox);
 	const takeFromBox = useStore((s) => s.takeFromBox);
 	const team = useOpenTeam();
+	const tabsRef = useRef<HTMLDivElement>(null);
 	const [selected, setSelected] = useState<number | null>(null);
 	const [renaming, setRenaming] = useState(false);
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -57,6 +58,10 @@ export function BoxDrawer() {
 	const stored = selected !== null ? box.slots[selected] : null;
 	const species = stored ? getSpecies(team, stored.species) : null;
 	const count = box.slots.filter(Boolean).length;
+
+	useEffect(() => {
+		tabsRef.current?.querySelector('[aria-selected=true]')?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+	}, [index, boxes.length, open]);
 
 	useEffect(() => {
 		if (!open) return;
@@ -82,7 +87,7 @@ export function BoxDrawer() {
 						key='drawer'
 						aria-label='Box'
 						role='dialog'
-						className='fixed bottom-6 left-1/2 z-50 flex w-max max-w-[calc(100vw-32px)] flex-col gap-4 rounded-2xl border border-line bg-bg px-6 pb-6 shadow-[0_-8px_24px_rgba(0,0,0,0.06)]'
+						className='fixed bottom-6 left-1/2 z-50 flex w-[704px] max-w-[calc(100vw-32px)] flex-col gap-4 rounded-2xl border border-line bg-bg px-6 pb-6 shadow-[0_-8px_24px_rgba(0,0,0,0.06)]'
 						initial={{ y: '110%', x: '-50%' }}
 						animate={{ y: 0, x: '-50%' }}
 						exit={{ y: '110%', x: '-50%' }}
@@ -96,7 +101,7 @@ export function BoxDrawer() {
 						<div className='flex items-center gap-3'>
 							<h2 className='text-md font-semibold'>Box</h2>
 							<IconButton icon='chevron-left' label='Previous box' disabled={index === 0} onClick={() => { setIndex(index - 1); setSelected(null); }} />
-							<div role='tablist' className='scrollbar-none flex max-w-[360px] gap-4 overflow-x-auto'>
+							<div ref={tabsRef} role='tablist' className='scrollbar-none flex min-w-0 flex-1 gap-4 overflow-x-auto'>
 								{boxes.map((b, i) =>
 									i === index && renaming ? (
 										<input
@@ -122,15 +127,15 @@ export function BoxDrawer() {
 									autoFocus
 									onBlur={() => setConfirmingDelete(false)}
 									onClick={() => { deleteBox(index); setSelected(null); setConfirmingDelete(false); }}
-									className='squishy h-8 rounded-md bg-danger px-2 text-xs font-medium text-white'
+									className='squishy h-8 shrink-0 rounded-md bg-danger px-2 text-xs font-medium text-white'
+									title={count ? `Deletes ${box.name} and the ${count} stored in it` : `Deletes ${box.name}`}
 								>
-									{count ? `Delete ${box.name} and ${count} stored?` : `Delete ${box.name}?`}
+									Delete?
 								</button>
 							) : (
 								<IconButton icon='trash' label='Delete box' disabled={boxes.length <= 1} onClick={() => setConfirmingDelete(true)} />
 							)}
 							<span className='text-xs tabular-nums text-muted'>{count} / {BOX_SIZE}</span>
-							<span className='flex-1' />
 							<IconButton icon='close' label='Close box' onClick={() => setOpen(false)} />
 						</div>
 						<div className='flex gap-12'>

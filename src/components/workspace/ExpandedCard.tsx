@@ -1,12 +1,14 @@
 'use client';
 
 import { useDroppable } from '@dnd-kit/core';
+import { useState } from 'react';
 import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icon';
+import { Button } from '@/components/ui/controls';
 import { TypeBadge, TypeSwatch } from '@/components/ui/TypeBadge';
 import { PokemonIcon, PokemonSprite } from '@/components/pokemon/PokemonIcon';
 import { evolutionLine, fieldsFor, getMove, getNature, getSpecies } from '@/lib/dex';
-import { exportSet } from '@/lib/showdown';
+import { exportSet, smogonPatch, type SmogonSet } from '@/lib/showdown';
 import { MAX_MOVES, type PokemonSet, type Team } from '@/lib/model';
 import { NatureText } from '@/components/inspector/StatsView';
 import { hopAndSwap } from '@/components/motion/choreography';
@@ -24,6 +26,8 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 	const setMatchupType = useStore((s) => s.setMatchupType);
 	const changeSpecies = useStore((s) => s.changeSpecies);
 	const setDialog = useStore((s) => s.setDialog);
+	const updateSet = useStore((s) => s.updateSet);
+	const [sets, setSets] = useState<Record<string, SmogonSet> | null>(null);
 	const toast = useStore((s) => s.toast);
 	const problems = useStore((s) => s.validation[team.id]?.byMember[member.uid] ?? NO_PROBLEMS);
 	const fields = fieldsFor(team);
@@ -37,6 +41,25 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 	if (fields.item) rows.push({ view: 'item', label: 'Item', value: member.item, empty: 'No item', flag: problemsFor(problems, ['item', member.item]) });
 	if (fields.nature) rows.push({ view: 'nature', label: 'Nature', value: member.nature, empty: 'Neutral', flag: [] });
 	if (fields.tera) rows.push({ view: 'tera', label: 'Tera', value: member.teraType, empty: species?.types[0] ?? 'Choose a type', flag: problemsFor(problems, ['tera']) });
+
+	const applySet = (name: string, set: SmogonSet) => {
+		updateSet(member.uid, smogonPatch(set));
+		setSets(null);
+		toast('success', `Loaded the Smogon ${name} set`);
+	};
+	const loadSmogon = async () => {
+		const format = team.mode === 'casual' ? `gen${team.gen}ou` : team.format;
+		try {
+			const res = await fetch(`/api/sets?format=${format}&species=${encodeURIComponent(member.species)}`);
+			const found = ((await res.json()).sets ?? {}) as Record<string, SmogonSet>;
+			const names = Object.keys(found);
+			if (!names.length) return toast('error', `No Smogon set for ${member.species} in this format`);
+			if (names.length === 1) applySet(names[0], found[names[0]]);
+			else setSets(found);
+		} catch {
+			toast('error', "Couldn't load Smogon sets");
+		}
+	};
 
 	const copy = async () => {
 		try {
@@ -69,6 +92,9 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 						{(species?.types ?? []).map((t) => (
 							<TypeBadge key={t} type={t} onClick={() => setMatchupType(t)} />
 						))}
+						{fields.shiny && (
+							<IconButton icon='shiny' label={member.shiny ? 'Shiny' : 'Not shiny'} selected={member.shiny} onClick={() => updateSet(member.uid, { shiny: !member.shiny })} className='-my-1.5 !size-6' />
+						)}
 					</div>
 					<div className='flex items-start gap-3 pt-1'>
 						{line.map((name) => {
@@ -79,12 +105,9 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 									type='button'
 									disabled={current}
 									onClick={() =>
-										hopAndSwap(document.querySelector('[data-card-sprite]'), () => {
-											changeSpecies(member.uid, name);
-											toast('success', `Now ${name}. The set was kept; anything it can't use is flagged.`);
-										})
+										hopAndSwap(document.querySelector('[data-card-sprite]'), () => changeSpecies(member.uid, name))
 									}
-									className='bounce-host group flex flex-col items-center gap-1 disabled:cursor-default'
+									className='bounce-host group flex cursor-pointer flex-col items-center gap-1 disabled:cursor-default'
 									title={current ? name : `Switch to ${name}`}
 								>
 									<PokemonIcon species={name} className='bounce-glyph' />
@@ -129,6 +152,9 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 			<div className='flex flex-col gap-2'>
 				<div className='flex items-center pl-2'>
 					<span className='text-xs text-muted'>Moves</span>
+					<button type='button' onClick={loadSmogon} className='ml-3 text-xs font-medium text-muted hover:text-fg'>
+						Load Smogon set
+					</button>
 					<span className='flex-1' />
 					<IconButton
 						icon='stats'
@@ -137,6 +163,15 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 						onClick={() => setInspector(team.mode === 'casual' ? 'pokedex' : 'stats')}
 					/>
 				</div>
+				{sets && (
+					<div className='flex flex-wrap gap-1.5 pl-2'>
+						{Object.entries(sets).map(([name, set]) => (
+							<Button key={name} className='!h-7 !px-2 !text-xs' onClick={() => applySet(name, set)}>
+								{name}
+							</Button>
+						))}
+					</div>
+				)}
 				<div className='grid grid-cols-2 gap-2'>
 					{Array.from({ length: MAX_MOVES }, (_, i) => (
 						<MoveCell

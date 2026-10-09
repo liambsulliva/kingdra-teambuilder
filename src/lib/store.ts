@@ -335,12 +335,17 @@ export const useStore = create<Store>()((set, get) => {
 			if (!selectedUid) return;
 			const member = openTeam().members.find((m) => m.uid === selectedUid);
 			if (!member) return;
+			// Picking a move that is already set takes it off.
+			if (member.moves.includes(move)) {
+				const slot = member.moves.indexOf(move);
+				updateMember(selectedUid, (m) => ({ ...m, moves: m.moves.map((x, i) => (i === slot ? '' : x)) }));
+				return;
+			}
 			if (activeMoveSlot !== null) {
 				get().setMove(selectedUid, activeMoveSlot, move);
 				set({ activeMoveSlot: null });
 				return;
 			}
-			if (member.moves.includes(move)) return;
 			const padded = [...member.moves, '', '', '', ''].slice(0, MAX_MOVES);
 			const empty = padded.findIndex((m) => !m);
 			if (empty < 0) {

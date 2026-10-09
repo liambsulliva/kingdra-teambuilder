@@ -13,6 +13,8 @@ import { NatureText } from './StatsView';
 function useApply(member: PokemonSet) {
 	const updateSet = useStore((s) => s.updateSet);
 	return (view: InspectorView, patch: Partial<PokemonSet>, el?: HTMLElement, label?: string, swatch?: string) => {
+		// Choosing what is already chosen is a no-op: no change, no animation.
+		if ((Object.keys(patch) as (keyof PokemonSet)[]).every((k) => member[k] === patch[k])) return;
 		updateSet(member.uid, patch);
 		if (el && label) requestAnimationFrame(() => flyValue(el, `[data-key-row="${view}"]`, label, swatch));
 	};
@@ -200,14 +202,6 @@ export function DetailsView({ team, member }: { team: Team; member: PokemonSet }
 								</button>
 							))
 						)}
-					</Field>
-				)}
-				{f.shiny && (
-					<Field label='Shiny'>
-						<button type='button' role='switch' aria-checked={member.shiny} onClick={() => set({ shiny: !member.shiny })} className={`squishy inline-flex h-7 items-center gap-1.5 rounded px-2 text-base ${member.shiny ? 'bg-accent-soft font-medium text-accent' : 'text-muted hover:bg-hover'}`}>
-							<Icon name='shiny' />
-							{member.shiny ? 'Shiny' : 'Not shiny'}
-						</button>
 					</Field>
 				)}
 				{f.happiness && (

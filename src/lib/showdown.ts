@@ -90,3 +90,29 @@ export function importTeams(text: string, fallback: Pick<Team, 'mode' | 'gen' | 
 	}
 	return { teams, skipped };
 }
+
+/** A Smogon set as served by pkmn: any field may list alternatives. */
+export interface SmogonSet {
+	item?: string | string[];
+	ability?: string | string[];
+	nature?: string | string[];
+	moves?: (string | string[])[];
+	teratypes?: string | string[];
+	evs?: Partial<PokemonSet['evs']>;
+	ivs?: Partial<PokemonSet['ivs']>;
+}
+
+const first = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v) ?? '';
+
+/** The first listed option of every field, as a patch for an existing set. */
+export function smogonPatch(set: SmogonSet): Partial<PokemonSet> {
+	return {
+		item: first(set.item),
+		ability: first(set.ability),
+		nature: first(set.nature),
+		moves: (set.moves ?? []).map((m) => first(m)).slice(0, 4),
+		teraType: first(set.teratypes),
+		evs: { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0, ...set.evs },
+		ivs: { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31, ...set.ivs },
+	};
+}

@@ -128,7 +128,6 @@ export function MatchupsView({ team, member }: { team: Team; member: PokemonSet 
 					</Section>
 				);
 			})}
-			<p className='text-xs text-muted'>Type chart only. Abilities, items and Tera are not counted.</p>
 		</div>
 	);
 }
