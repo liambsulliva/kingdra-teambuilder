@@ -124,8 +124,12 @@ function TeamSlot({ team, index, empty, onPick, children }: { team: Team; index:
 			ref={setNodeRef}
 			data-team-icon={`${team.id}:${index}`}
 			onClick={onPick && ((e) => { e.stopPropagation(); onPick(); })}
-className={`bounce-host size-8 rounded-md transition-colors ${onPick ? 'cursor-pointer' : ''} ${
-				isOver && species ? (ok ? 'border border-dashed border-accent bg-accent-soft' : 'border border-dashed border-danger') : empty ? 'border border-dashed border-line-strong/60' : ''
+			className={`bounce-host size-8 rounded-md border transition-colors ${onPick ? 'cursor-pointer' : ''} ${
+				species
+					? isOver
+						? ok ? 'border-dashed border-accent bg-accent-soft' : 'border-dashed border-danger'
+						: ok ? 'border-dashed border-accent/60' : 'border-dashed border-line-strong/60'
+					: empty ? 'border-dashed border-line-strong/60' : 'border-transparent'
 			}`}
 		>
 			{children}

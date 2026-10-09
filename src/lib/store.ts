@@ -66,7 +66,7 @@ interface State {
 	/** Party member picked inside the open Box. */
 	boxPartyUid: string | null;
 	boxIndex: number;
-	dialog: null | 'newTeam' | 'importTeam' | 'importSet';
+	dialog: null | 'newTeam' | 'importTeam' | 'importSet' | 'deleteMember';
 	toasts: Toast[];
 	save: SaveStatus;
 	validation: Record<string, Validation>;

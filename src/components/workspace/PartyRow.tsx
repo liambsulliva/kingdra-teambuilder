@@ -26,13 +26,13 @@ export async function selectWithLift(member: PokemonSet, from?: DOMRect) {
 function PartyCell({ index, member, occupied, onHover }: { index: number; member?: PokemonSet; occupied: boolean; onHover: (m: PokemonSet | null) => void }) {
 	const { setNodeRef: dropRef, isOver, active } = useDroppable({ id: `party:${index}`, data: { kind: 'party', index } });
 	const live = !!active && active.data.current?.kind !== 'move';
-	const dropHint = isOver && live && !(member && String(active.id).endsWith(member.uid));
+	const self = !!member && String(active?.id).endsWith(member.uid);
 	return (
 		<div
 			ref={dropRef}
 			className={`relative size-8 rounded-md border transition-colors ${
-				occupied ? 'border-transparent' : isOver && live ? 'border-dashed border-accent bg-accent-soft' : live ? 'border-dashed border-accent/60' : 'border-dashed border-line-strong/60'
-			} ${member && dropHint ? 'outline-dashed outline-1 outline-accent' : ''}`}
+				live ? (isOver && !self ? 'border-dashed border-accent bg-accent-soft' : 'border-dashed border-accent/60') : occupied ? 'border-transparent' : 'border-dashed border-line-strong/60'
+			}`}
 		>
 			{member && <MemberButton member={member} index={index} onHover={onHover} />}
 		</div>
@@ -98,14 +98,12 @@ export function PartyRow() {
 					<>
 						<span className='font-medium'>{hovered.name || hovered.species}</span>
 						<span className='flex gap-1'>{species?.types.map((t) => <TypeBadge key={t} type={t} />)}</span>
-						<span className='text-muted'>drag out to remove</span>
 					</>
 				) : (
 					<>
 						<span className='text-muted'>Party</span>
 						<span className='tabular-nums text-muted'>
 							{team.members.length}/{MAX_TEAM_SIZE}
-							{selectedUid ? ` - ${team.members.find((m) => m.uid === selectedUid)?.species} is on the card` : ''}
 						</span>
 					</>
 				)}

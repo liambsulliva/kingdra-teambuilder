@@ -80,7 +80,7 @@ export function CandidateCard({ species, types, roles, casual, wide }: { species
 			{...attributes}
 			onClick={() => addMember(species) && requestAnimationFrame(() => pop([...document.querySelectorAll('[data-party] [data-party-member]')].at(-1) ?? null))}
 			aria-label={`Add ${species} to the team`}
-			className={`${cardLook} border-line transition-colors hover:border-line-strong ${wide ? 'w-full' : 'w-[152px]'} ${isDragging ? 'border-dashed opacity-40' : ''}`}
+			className={`${cardLook} transition-colors ${wide ? 'w-full' : 'w-[152px]'} ${isDragging ? 'border-dashed border-line-strong opacity-[0.33]' : 'border-line hover:border-line-strong'}`}
 		>
 			<CandidateBody species={species} types={types} roles={roles} casual={casual} />
 		</button>

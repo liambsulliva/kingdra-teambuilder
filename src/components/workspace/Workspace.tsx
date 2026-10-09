@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { IconButton } from '@/components/ui/IconButton';
 import { Button } from '@/components/ui/controls';
@@ -40,7 +40,7 @@ export function Workspace() {
 		<div className='flex min-h-0 min-w-0 flex-1 flex-col px-4 pb-4 pt-5 md:px-10 md:pb-6 md:pt-6'>
 			<div
 				ref={setNodeRef}
-				className={`relative -m-2 min-h-0 flex-1 overflow-y-auto rounded-lg p-2 transition-colors ${candidateOver ? 'bg-accent-soft' : ''}`}
+				className={`relative -m-2 min-h-0 flex-1 ${compare ? 'overflow-hidden' : 'overflow-y-auto'} rounded-lg p-2 transition-colors ${candidateOver ? 'bg-accent-soft' : ''}`}
 				onClick={(e) => e.target === e.currentTarget && member && !preview && !compare && selectMember(null)}
 			>
 				{candidateOver && team.members.length > 0 && (
@@ -164,6 +164,31 @@ function Stage({ children, wide }: { children: React.ReactNode; wide?: boolean }
 	);
 }
 
+const SCENE_W = 560;
+const SCENE_H = 360;
+
+/** Scales the arena down to whatever room the panel has, so it never scrolls. */
+function FitScene({ children }: { children: React.ReactNode }) {
+	const ref = useRef<HTMLDivElement>(null);
+	const [scale, setScale] = useState(1);
+	useEffect(() => {
+		const el = ref.current;
+		if (!el) return;
+		const fit = () => setScale(Math.min(1, el.clientWidth / SCENE_W, el.clientHeight / SCENE_H));
+		fit();
+		const ro = new ResizeObserver(fit);
+		ro.observe(el);
+		return () => ro.disconnect();
+	}, []);
+	return (
+		<div ref={ref} className='relative min-h-0 flex-1'>
+			<div className='absolute left-1/2 top-0' style={{ width: SCENE_W, height: SCENE_H, marginLeft: -SCENE_W / 2, transform: `scale(${scale})`, transformOrigin: 'top center' }}>
+				{children}
+			</div>
+		</div>
+	);
+}
+
 function CompareScene({ team, candidate }: { team: Team; candidate: string }) {
 	const member = useSelectedMember();
 	const selectMember = useStore((s) => s.selectMember);
@@ -175,8 +200,8 @@ function CompareScene({ team, candidate }: { team: Team; candidate: string }) {
 	const mine = team.members.find((m) => m.uid === (member?.uid ?? target)) ?? team.members[0];
 	const full = team.members.length >= MAX_TEAM_SIZE;
 	return (
-		<section aria-label={`Compare ${candidate}`} className='flex w-full max-w-[700px] flex-col gap-3'>
-			<div className='relative h-[400px] w-full'>
+		<section aria-label={`Compare ${candidate}`} className='flex h-full min-h-0 w-full max-w-[700px] flex-col gap-3'>
+			<FitScene>
 					<div className='absolute right-0 top-0 flex items-start gap-4'>
 						<div className='pt-8'>
 							<Plate team={team} species={candidate} label='Candidate' align='right' />
@@ -195,12 +220,13 @@ function CompareScene({ team, candidate }: { team: Team; candidate: string }) {
 							</div>
 						</div>
 					)}
-				</div>
-				<div className='flex flex-wrap items-center gap-2'>
+				</FitScene>
+				<div className='flex shrink-0 flex-wrap items-center gap-2'>
 				{mine && (
 					<Button
 						variant='accent'
 						icon='swap'
+						className='min-w-0 max-w-full'
 						onClick={async () => {
 							const index = team.members.findIndex((m) => m.uid === mine.uid);
 							const wasOnCard = !!member;
@@ -211,7 +237,7 @@ function CompareScene({ team, candidate }: { team: Team; candidate: string }) {
 							await hopInto(candidate, `[aria-label="Preview ${candidate}"]`, `[data-party-member][data-index="${index}"]`);
 						}}
 					>
-						Swap {mine.name || mine.species} for {candidate}
+						<span className='truncate'>Swap {mine.name || mine.species} for {candidate}</span>
 					</Button>
 				)}
 				<Button icon='plus' disabled={full} onClick={() => addMember(candidate)}>
@@ -239,6 +265,7 @@ function CompareScene({ team, candidate }: { team: Team; candidate: string }) {
 				<IconButton
 					icon='close'
 					label='Close comparison'
+						tooltip='above'
 					onClick={() => {
 						compare(null);
 						if (member) selectMember(member.uid);

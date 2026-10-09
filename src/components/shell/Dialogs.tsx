@@ -242,9 +242,46 @@ function ImportDialog({ kind }: { kind: 'team' | 'set' }) {
 	);
 }
 
+function DeleteMemberDialog() {
+	const open = useStore((s) => s.dialog === 'deleteMember');
+	const setDialog = useStore((s) => s.setDialog);
+	const removeMember = useStore((s) => s.removeMember);
+	const member = useSelectedMember();
+	const name = member?.name || member?.species || 'this Pokémon';
+	return (
+		<Dialog
+			open={open && !!member}
+			onClose={() => setDialog(null)}
+			title={`Delete ${name}?`}
+			width={420}
+			footer={
+				<>
+					<span className='flex-1' />
+					<Button onClick={() => setDialog(null)}>Cancel</Button>
+					<button
+						type='button'
+						autoFocus
+						onClick={() => {
+							if (member) removeMember(member.uid);
+							setDialog(null);
+						}}
+						className='squishy inline-flex h-8 items-center gap-1.5 rounded-md bg-danger px-3 text-base font-medium text-white'
+					>
+						<Icon name='trash' />
+						Delete
+					</button>
+				</>
+			}
+		>
+			<p className='text-base text-muted'>Are you sure you want to delete {name}? Its set will be removed from the team. This cannot be undone.</p>
+		</Dialog>
+	);
+}
+
 export function Dialogs() {
 	return (
 		<>
+			<DeleteMemberDialog />
 			<NewTeamDialog />
 			<ImportDialog kind='team' />
 			<ImportDialog kind='set' />

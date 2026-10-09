@@ -86,14 +86,15 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 							<IconButton icon='export' label='Copy set as Showdown text' onClick={copy} />
 							<IconButton icon='import' label='Paste a Showdown set' onClick={() => setDialog('importSet')} />
 							{team.mode === 'competitive' && <IconButton icon='details' label='More details' selected={inspector === 'details'} onClick={() => setInspector('details')} />}
+							<IconButton icon='trash' label={`Delete ${member.name || member.species}`} tone='danger' onClick={() => setDialog('deleteMember')} />
 						</div>
 					</div>
-					<div className='flex gap-1'>
+					<div className='flex items-center gap-1'>
 						{(species?.types ?? []).map((t) => (
 							<TypeBadge key={t} type={t} onClick={() => setMatchupType(t)} />
 						))}
 						{fields.shiny && (
-							<IconButton icon='shiny' label={member.shiny ? 'Shiny' : 'Not shiny'} selected={member.shiny} onClick={() => updateSet(member.uid, { shiny: !member.shiny })} className='-my-1.5 !size-6' />
+							<IconButton icon='shiny' label={member.shiny ? 'Shiny' : 'Not shiny'} selected={member.shiny} onClick={() => updateSet(member.uid, { shiny: !member.shiny })} className='!size-5' />
 						)}
 					</div>
 					<div className='flex items-start gap-3 pt-1'>
@@ -107,7 +108,7 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 									onClick={() =>
 										hopAndSwap(document.querySelector('[data-card-sprite]'), () => changeSpecies(member.uid, name))
 									}
-									className='bounce-host group flex cursor-pointer flex-col items-center gap-1 disabled:cursor-default'
+									className='bounce-host group flex cursor-pointer flex-col items-center gap-1 disabled:cursor-pointer'
 									title={current ? name : `Switch to ${name}`}
 								>
 									<PokemonIcon species={name} className='bounce-glyph' />

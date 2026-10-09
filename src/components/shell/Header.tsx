@@ -54,7 +54,7 @@ export function Account() {
 		<>
 			<Show when='signed-out'>
 				<SignInButton mode='modal'>
-					<IconButton icon='account' label='Sign in to sync your teams' />
+					<IconButton icon='account' label='Sign in to sync your teams' tooltipAlign='end' />
 				</SignInButton>
 			</Show>
 			<Show when='signed-in'>
