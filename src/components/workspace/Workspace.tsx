@@ -65,8 +65,8 @@ function EmptyState({ team }: { team: Team }) {
 		<div className='flex flex-col gap-2'>
 			<h2 className='font-head text-[32px] font-semibold leading-9 tracking-[-0.02em]'>{team.name}</h2>
 			<p className='text-base text-muted'>
-				{formatLabel(team)} · {team.members.length} of {MAX_TEAM_SIZE}
-				{team.mode === 'competitive' && (issues ? <> · <span className='text-danger'>{issues} {issues === 1 ? 'Issue' : 'Issues'}</span></> : ' · No Issues')}
+				{formatLabel(team)} - {team.members.length}/{MAX_TEAM_SIZE}
+				{team.mode === 'competitive' && (issues ? <> - <span className='text-danger'>{issues} {issues === 1 ? 'Issue' : 'Issues'}</span></> : ' - No Issues')}
 			</p>
 			<p className='max-w-[360px] text-base text-muted'>
 				{team.members.length
@@ -116,8 +116,8 @@ function Preview({ team, species }: { team: Team; species: string }) {
 					</div>
 					<div className='flex gap-1'>{s?.types.map((t) => <TypeBadge key={t} type={t} />)}</div>
 					<p className='text-xs text-muted'>
-						{team.gen >= 3 && s ? Object.values(s.abilities).join(' · ') : ''}
-						{s && team.mode === 'competitive' ? ` · ${s.tier}` : ''}
+						{team.gen >= 3 && s ? Object.values(s.abilities).join(' / ') : ''}
+						{s && team.mode === 'competitive' ? ` - ${s.tier}` : ''}
 					</p>
 				</div>
 			</div>
@@ -216,9 +216,9 @@ function CompareScene({ team, candidate }: { team: Team; candidate: string }) {
 								aria-label={`Compare with ${m.species}`}
 								aria-pressed={m.uid === mine?.uid}
 								onClick={() => setTarget(m.uid)}
-								className={`bounce-host rounded-md p-0.5 ${m.uid === mine?.uid ? 'bg-accent-soft' : 'hover:bg-hover'}`}
+								className={`rounded-md p-0.5 ${m.uid === mine?.uid ? 'bg-accent-soft' : 'hover:bg-hover'}`}
 							>
-								<PokemonIcon species={m.species} className='bounce-glyph' />
+								<PokemonIcon species={m.species} />
 							</button>
 						))}
 					</span>

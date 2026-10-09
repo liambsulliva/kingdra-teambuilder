@@ -64,6 +64,11 @@ export function frontSprite(species: SpeciesRef) {
 	return `${POKEAPI}/${pokeapiId(species)}.png`;
 }
 
+/** Pokémon Black/White animated sprite (Gen 5 art, species through #649). */
+export function bwSprite(species: SpeciesRef, back = false, shiny = false) {
+	return `${POKEAPI}/versions/generation-v/black-white/animated/${back ? 'back/' : ''}${shiny ? 'shiny/' : ''}${pokeapiId(species)}.gif`;
+}
+
 export function animatedSprite(species: SpeciesRef, back = false, shiny = false) {
 	return `${POKEAPI}/other/showdown/${back ? 'back/' : ''}${shiny ? 'shiny/' : ''}${pokeapiId(species)}.gif`;
 }

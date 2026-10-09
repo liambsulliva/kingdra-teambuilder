@@ -13,6 +13,7 @@ import { hopAndSwap } from '@/components/motion/choreography';
 import { useIsMobile } from '@/lib/hooks';
 import { useStore, type InspectorView } from '@/lib/store';
 
+const NO_PROBLEMS: string[] = [];
 const problemsFor = (problems: string[], words: string[]) => problems.filter((p) => words.some((w) => w && p.toLowerCase().includes(w.toLowerCase())));
 
 export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet }) {
@@ -24,7 +25,7 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 	const changeSpecies = useStore((s) => s.changeSpecies);
 	const setDialog = useStore((s) => s.setDialog);
 	const toast = useStore((s) => s.toast);
-	const problems = useStore((s) => s.validation[team.id]?.byMember[member.uid] ?? []);
+	const problems = useStore((s) => s.validation[team.id]?.byMember[member.uid] ?? NO_PROBLEMS);
 	const fields = fieldsFor(team);
 	const mobile = useIsMobile();
 	const line = evolutionLine(team, member.species);
@@ -178,7 +179,7 @@ function MoveCell({ team, slot, move, active, flagged, onClick }: { team: Team; 
 					</span>
 					<span className='flex items-center gap-1.5 text-xs text-muted'>
 						{data && <TypeSwatch type={data.type} />}
-						{data ? `${data.type} · ${data.category.toLowerCase()}${data.basePower ? ` · ${data.basePower}` : ''}` : 'Unknown move'}
+						{data ? `${data.type} - ${data.category.toLowerCase()}${data.basePower ? ` - ${data.basePower}` : ''}` : 'Unknown move'}
 					</span>
 				</>
 			) : (

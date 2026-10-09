@@ -3,8 +3,8 @@ import { Stack_Sans_Text, Stack_Sans_Headline, IBM_Plex_Mono } from 'next/font/g
 import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 
-const text = Stack_Sans_Text({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-text', adjustFontFallback: false });
-const head = Stack_Sans_Headline({ subsets: ['latin'], weight: ['600', '700'], variable: '--font-head', adjustFontFallback: false });
+const text = Stack_Sans_Text({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-text', fallback: ['system-ui', 'sans-serif'], adjustFontFallback: false });
+const head = Stack_Sans_Headline({ subsets: ['latin'], weight: ['600', '700'], variable: '--font-head', fallback: ['system-ui', 'sans-serif'], adjustFontFallback: false });
 const mono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-mono' });
 
 export const metadata: Metadata = {

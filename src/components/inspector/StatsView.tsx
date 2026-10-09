@@ -123,7 +123,7 @@ export function StatsView({ team, member }: { team: Team; member: PokemonSet }) 
 				)}
 				<span className='flex-1' />
 				<span className='tabular-nums' title='Speed at +1 (also Choice Scarf), +2 and +3'>
-					Spe +1 {Math.floor(spe * 1.5)} · +2 {spe * 2} · +3 {Math.floor(spe * 2.5)}
+					Spe +1 {Math.floor(spe * 1.5)} / +2 {spe * 2} / +3 {Math.floor(spe * 2.5)}
 				</span>
 			</div>
 			{!dv && (

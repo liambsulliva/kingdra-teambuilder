@@ -9,22 +9,6 @@ import { AbilityView, DetailsView, ItemView, LevelView, NatureView, TeraView } f
 import { CompareView, MatchupsView, TeamView } from './AnalysisViews';
 import { LocationsView, PokedexView } from './PokedexViews';
 
-const NAMES: Record<InspectorView, string> = {
-	team: 'Team',
-	stats: 'Stats',
-	moves: 'Moves',
-	ability: 'Ability',
-	item: 'Item',
-	nature: 'Nature',
-	tera: 'Tera',
-	level: 'Level',
-	details: 'Details',
-	matchups: 'Matchups',
-	pokedex: 'Pokédex',
-	locations: 'Locations',
-	compare: 'Compare',
-};
-
 /** Right panel. Views swap instantly by design: no transition here. */
 export function Inspector() {
 	const team = useOpenTeam();
@@ -66,9 +50,7 @@ export function Inspector() {
 				{tabs.map(([v, icon, label]) => (
 					<IconButton key={v} icon={icon} label={label} selected={current === v} disabled={needsMember(v) && !member} onClick={() => setInspector(v)} />
 				))}
-				<span className='flex-1' />
-				<span className='text-xs font-medium'>{current === 'moves' && activeSlot !== null ? `Move ${activeSlot + 1}` : NAMES[current]}</span>
-			</div>
+</div>
 			<div className='min-h-0 flex-1 overflow-y-auto px-6 py-5'>{body}</div>
 		</aside>
 	);

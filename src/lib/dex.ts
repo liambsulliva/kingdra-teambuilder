@@ -68,9 +68,9 @@ export function formatInfo(id: string, gen: number): FormatInfo | undefined {
 }
 
 export function formatLabel(team: Pick<Team, 'mode' | 'gen' | 'format'>) {
-	if (team.mode === 'casual') return `gen ${team.gen} · casual`;
+	if (team.mode === 'casual') return `gen ${team.gen} - casual`;
 	const f = formatInfo(team.format, team.gen);
-	return `gen ${team.gen} · ${f?.name ?? team.format}`;
+	return `gen ${team.gen} - ${f?.name ?? team.format}`;
 }
 
 export function generationFor(team: Pick<Team, 'mode' | 'gen' | 'format'>): Generation {
@@ -82,6 +82,12 @@ export function generationFor(team: Pick<Team, 'mode' | 'gen' | 'format'>): Gene
 export function speciesFor(team: Pick<Team, 'mode' | 'gen' | 'format'>): Specie[] {
 	const gen = generationFor(team);
 	return [...gen.species].filter((s) => s.gen <= team.gen && !s.battleOnly && !s.isMega && !s.isPrimal && s.forme !== 'Gmax');
+}
+
+/** Can this team's generation and format field the species at all? Legality beyond that is flagged, not blocked. */
+export function canUseSpecies(team: Pick<Team, 'mode' | 'gen' | 'format'>, species: string) {
+	const s = generationFor(team).species.get(species);
+	return !!s && s.gen <= team.gen && !s.battleOnly && !s.isMega && !s.isPrimal && s.forme !== 'Gmax';
 }
 
 const tierRank = (tier: string) => {

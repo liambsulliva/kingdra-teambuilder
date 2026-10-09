@@ -13,14 +13,14 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 /**
  * personal-website-v3 IconButton: 16 px glyph in a 32 px hit, 80% → 100%
- * on hover with a hover fill, tooltip below, scare-bounce on hover.
+ * on hover with a hover fill, tooltip below.
  */
 export const IconButton = forwardRef<HTMLButtonElement, Props>(function IconButton(
 	{ icon, label, selected, tone = 'default', tooltip = 'below', className = '', ...rest },
 	ref
 ) {
 	return (
-		<span className='group/ib bounce-host relative inline-flex'>
+		<span className='group/ib relative inline-flex'>
 			<button
 				ref={ref}
 				type='button'
@@ -31,9 +31,7 @@ export const IconButton = forwardRef<HTMLButtonElement, Props>(function IconButt
 				} ${className}`}
 				{...rest}
 			>
-				<span className='bounce-glyph inline-flex'>
-					<Icon name={icon} />
-				</span>
+				<Icon name={icon} />
 			</button>
 			{tooltip !== 'none' && (
 				<span

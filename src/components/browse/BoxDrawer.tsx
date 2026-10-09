@@ -28,9 +28,9 @@ function BoxCell({ box, slot, set, selected, onSelect }: { box: number; slot: nu
 					{...attributes}
 					onClick={onSelect}
 					aria-label={`${set.name || set.species}, box slot ${slot + 1}`}
-					className={`bounce-host rounded-md p-1 ${selected ? 'bg-accent-soft' : 'hover:bg-hover'} ${isDragging ? 'opacity-30' : ''}`}
+					className={`rounded-md p-1 ${selected ? 'bg-accent-soft' : 'hover:bg-hover'} ${isDragging ? 'opacity-30' : ''}`}
 				>
-					<PokemonIcon species={set.species} className='bounce-glyph' />
+					<PokemonIcon species={set.species} />
 				</button>
 			) : (
 				<span className='size-8 rounded-md border border-dashed border-line-strong/60' />
@@ -47,10 +47,12 @@ export function BoxDrawer() {
 	const setIndex = useStore((s) => s.setBoxIndex);
 	const addBox = useStore((s) => s.addBox);
 	const renameBox = useStore((s) => s.renameBox);
+	const deleteBox = useStore((s) => s.deleteBox);
 	const takeFromBox = useStore((s) => s.takeFromBox);
 	const team = useOpenTeam();
 	const [selected, setSelected] = useState<number | null>(null);
 	const [renaming, setRenaming] = useState(false);
+	const [confirmingDelete, setConfirmingDelete] = useState(false);
 	const box = boxes[index];
 	const stored = selected !== null ? box.slots[selected] : null;
 	const species = stored ? getSpecies(team, stored.species) : null;
@@ -114,9 +116,21 @@ export function BoxDrawer() {
 							</div>
 							<IconButton icon='chevron-right' label='Next box' disabled={index === boxes.length - 1} onClick={() => { setIndex(index + 1); setSelected(null); }} />
 							<IconButton icon='plus' label='New box' onClick={addBox} />
+							{confirmingDelete ? (
+								<button
+									type='button'
+									autoFocus
+									onBlur={() => setConfirmingDelete(false)}
+									onClick={() => { deleteBox(index); setSelected(null); setConfirmingDelete(false); }}
+									className='squishy h-8 rounded-md bg-danger px-2 text-xs font-medium text-white'
+								>
+									{count ? `Delete ${box.name} and ${count} stored?` : `Delete ${box.name}?`}
+								</button>
+							) : (
+								<IconButton icon='trash' label='Delete box' disabled={boxes.length <= 1} onClick={() => setConfirmingDelete(true)} />
+							)}
 							<span className='text-xs tabular-nums text-muted'>{count} / {BOX_SIZE}</span>
 							<span className='flex-1' />
-							<span className='text-xs text-muted'>Esc To Close</span>
 							<IconButton icon='close' label='Close box' onClick={() => setOpen(false)} />
 						</div>
 						<div className='flex gap-12'>

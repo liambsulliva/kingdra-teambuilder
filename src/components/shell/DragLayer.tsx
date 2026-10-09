@@ -17,11 +17,12 @@ import {
 import { PokemonIcon } from '@/components/pokemon/PokemonIcon';
 import { TYPE_COLORS } from '@/components/ui/TypeBadge';
 import { MAX_TEAM_SIZE } from '@/lib/model';
+import { canUseSpecies } from '@/lib/dex';
 import { useStore } from '@/lib/store';
 import { poof, pop } from '@/components/motion/choreography';
 
 type Data = { kind: 'candidate' | 'member' | 'boxset' | 'move'; species?: string; uid?: string; box?: number; slot?: number; move?: string; type?: string };
-type Target = { kind: 'party' | 'moveslot' | 'boxcell' | 'card'; index?: number; slot?: number; box?: number } | undefined;
+type Target = { kind: 'party' | 'moveslot' | 'boxcell' | 'card' | 'teamslot'; index?: number; slot?: number; box?: number; teamId?: string } | undefined;
 
 /** Would dropping `drag` on `over` be accepted? Rejected drops spring back. */
 function accepts(drag: Data, over: Target) {
@@ -30,9 +31,13 @@ function accepts(drag: Data, over: Target) {
 	if (!over) return drag.kind === 'member'; // released outside: remove (poof)
 	switch (drag.kind) {
 		case 'candidate':
+			if (over.kind === 'teamslot') {
+				const target = s.library.teams.find((t) => t.id === over.teamId);
+				return !!target && target.members.length < MAX_TEAM_SIZE && canUseSpecies(target, drag.species!);
+			}
 			return (over.kind === 'party' && team.members.length < MAX_TEAM_SIZE) || over.kind === 'card';
 		case 'member':
-			return true;
+			return over.kind !== 'teamslot';
 		case 'boxset':
 			return (over.kind === 'party' && (over.index! < team.members.length || team.members.length < MAX_TEAM_SIZE)) || over.kind === 'boxcell';
 		case 'move':
@@ -67,6 +72,7 @@ export function DragLayer({ children }: { children: React.ReactNode }) {
 
 		if (drag.kind === 'candidate') {
 			if (over?.kind === 'card') return s.compare(drag.species!);
+			if (over?.kind === 'teamslot') return void s.addMemberToTeam(over.teamId!, drag.species!, over.index);
 			// addMember rejects a seventh member itself (toast + party shake).
 			if (over?.kind === 'party' && s.addMember(drag.species!, over.index)) landed('[data-party] [data-party-member]:last-of-type');
 			return;
@@ -77,8 +83,9 @@ export function DragLayer({ children }: { children: React.ReactNode }) {
 			return;
 		}
 		if (drag.kind === 'member') {
+			if (over?.kind === 'teamslot') return;
 			// Released anywhere that isn't the party or the Box: poof.
-			if (!over || (over.kind !== 'party' && over.kind !== 'boxcell')) {
+if (!over || (over.kind !== 'party' && over.kind !== 'boxcell')) {
 				s.removeMember(drag.uid!);
 				if (point) poof(point.x, point.y);
 				return;

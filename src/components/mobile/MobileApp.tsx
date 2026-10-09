@@ -189,7 +189,7 @@ export function MobileApp() {
 				<button type='button' onClick={() => setTab('teams')} className='flex h-11 shrink-0 items-center gap-2 border-b border-line px-4 text-left'>
 					<span className='size-1.5 rounded-full bg-accent' />
 					<span className='text-base font-semibold'>{team.name}</span>
-					<span className='text-xs text-muted'>{formatLabel(team)} · {team.members.length}/6</span>
+					<span className='text-xs text-muted'>{formatLabel(team)} - {team.members.length}/6</span>
 					<span className='flex-1' />
 					<Icon name='chevron-down' className='text-muted' />
 				</button>

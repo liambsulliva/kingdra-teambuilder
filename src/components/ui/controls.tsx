@@ -91,7 +91,7 @@ export const SearchField = forwardRef<
 	React.InputHTMLAttributes<HTMLInputElement> & { onClear?: () => void }
 >(function SearchField({ className = '', onClear, value, ...rest }, ref) {
 	return (
-		<label className={`flex h-8 items-center gap-2 rounded-md border border-line px-2.5 focus-within:border-accent focus-within:outline focus-within:outline-1 focus-within:outline-accent ${className}`}>
+		<label className={`flex h-8 items-center gap-2 rounded-md bg-hover px-2.5 transition-colors focus-within:outline focus-within:outline-1 focus-within:outline-accent ${className}`}>
 			<Icon name='search' className='text-muted' />
 			<input
 				ref={ref}

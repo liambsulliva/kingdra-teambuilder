@@ -14,7 +14,7 @@ import {
 	type PokemonSet,
 	type Team,
 } from './model';
-import { defaultAbility, formatsForGen, getSpecies } from './dex';
+import { canUseSpecies, defaultAbility, formatLabel, formatsForGen, getSpecies } from './dex';
 
 export type InspectorView =
 	| 'team'
@@ -90,6 +90,7 @@ interface Actions {
 
 	selectMember(uid: string | null): void;
 	addMember(species: string, index?: number): boolean;
+	addMemberToTeam(teamId: string, species: string, index?: number): boolean;
 	removeMember(uid: string): void;
 	reorderMember(uid: string, index: number): void;
 	updateSet(uid: string, patch: Partial<PokemonSet>): void;
@@ -110,6 +111,7 @@ interface Actions {
 	setBoxIndex(index: number): void;
 	addBox(): void;
 	renameBox(index: number, name: string): void;
+	deleteBox(index: number): void;
 	storeInBox(uid: string, boxIndex?: number, slot?: number): void;
 	takeFromBox(boxIndex: number, slot: number, partyIndex?: number): void;
 	moveInBox(fromBox: number, fromSlot: number, toBox: number, toSlot: number): void;
@@ -273,6 +275,27 @@ export const useStore = create<Store>()((set, get) => {
 			set({ previewSpecies: null });
 			return true;
 		},
+		addMemberToTeam: (teamId, species, index) => {
+			if (teamId === get().openTeamId) return get().addMember(species, index);
+			const team = get().library.teams.find((t) => t.id === teamId);
+			if (!team) return false;
+			if (!canUseSpecies(team, species)) {
+				get().toast('error', `${species} can't be used in ${team.name} (${formatLabel(team)})`);
+				return false;
+			}
+			if (team.members.length >= MAX_TEAM_SIZE) {
+				get().toast('error', `${team.name} is full`);
+				return false;
+			}
+			const member = freshSet(team, species);
+			updateTeam(team.id, (t) => {
+				const members = [...t.members];
+				members.splice(Math.min(index ?? members.length, members.length), 0, member);
+				return { ...t, members };
+			});
+			get().toast('success', `${species} added to ${team.name}`);
+			return true;
+		},
 		removeMember: (memberUid) => {
 			const team = openTeam();
 			updateTeam(team.id, (t) => ({ ...t, members: t.members.filter((m) => m.uid !== memberUid) }));
@@ -359,6 +382,17 @@ export const useStore = create<Store>()((set, get) => {
 					boxes: s.library.boxes.map((b, i) => (i === index ? { ...b, name: name.trim() || b.name } : b)),
 				}),
 			})),
+		deleteBox: (index) => {
+			const { library } = get();
+			if (library.boxes.length <= 1) {
+				get().toast('error', "You can't delete the last box");
+				return;
+			}
+			const name = library.boxes[index]?.name;
+			const boxes = library.boxes.filter((_, i) => i !== index);
+			set((s) => ({ library: touch({ ...library, boxes }), boxIndex: Math.min(s.boxIndex > index ? s.boxIndex - 1 : s.boxIndex, boxes.length - 1) }));
+			get().toast('success', `Deleted ${name}`);
+		},
 		storeInBox: (memberUid, boxIndex, slot) => {
 			const team = openTeam();
 			const member = team.members.find((m) => m.uid === memberUid);

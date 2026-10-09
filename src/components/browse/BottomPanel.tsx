@@ -12,6 +12,7 @@ import { useRoles } from '@/lib/hooks';
 import { ROLES } from '@/lib/roles';
 import { STATS, type Team } from '@/lib/model';
 import { useOpenTeam, useStore } from '@/lib/store';
+import { pop } from '@/components/motion/choreography';
 
 export function tierTabs(team: Team) {
 	if (team.mode === 'casual') return ['All', ...Array.from({ length: team.gen }, (_, i) => `Gen ${i + 1}`)];
@@ -38,8 +39,7 @@ export function useCandidates() {
 }
 
 export function CandidateCard({ species, types, roles, casual, wide }: { species: string; types: string[]; roles?: string[]; casual: boolean; wide?: boolean }) {
-	const preview = useStore((s) => s.preview);
-	const selected = useStore((s) => s.previewSpecies === species || s.compareSpecies === species);
+	const addMember = useStore((s) => s.addMember);
 	const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: `cand:${species}`, data: { kind: 'candidate', species } });
 	return (
 		<button
@@ -47,22 +47,18 @@ export function CandidateCard({ species, types, roles, casual, wide }: { species
 			type='button'
 			{...listeners}
 			{...attributes}
-			onClick={() => preview(species)}
-			aria-label={`Preview ${species}`}
-			className={`bounce-host flex h-[164px] shrink-0 flex-col gap-1.5 rounded-lg border bg-bg p-3 text-left transition-colors ${wide ? 'w-full' : 'w-[152px]'} ${
-				selected ? 'border-[1.5px] border-accent' : 'border-line hover:border-line-strong'
-			} ${isDragging ? 'border-dashed opacity-40' : ''}`}
+			onClick={() => addMember(species) && requestAnimationFrame(() => pop([...document.querySelectorAll('[data-party] [data-party-member]')].at(-1) ?? null))}
+			aria-label={`Add ${species} to the team`}
+			className={`flex h-[164px] shrink-0 flex-col gap-1.5 rounded-lg border border-line bg-bg p-3 text-left transition-colors hover:border-line-strong ${wide ? 'w-full' : 'w-[152px]'} ${isDragging ? 'border-dashed opacity-40' : ''}`}
 		>
-			<span className='bounce-glyph'>
-				<CardSprite species={species} />
-			</span>
+			<CardSprite species={species} />
 			<span className='truncate text-base font-semibold'>{species}</span>
 			<span className='flex gap-1'>
 				{types.map((t) => (
 					<TypeBadge key={t} type={t} />
 				))}
 			</span>
-			{!casual && <span className='truncate text-xs text-muted'>{roles?.length ? roles.join(' · ') : 'No Smogon sets'}</span>}
+			{!casual && <span className='truncate text-xs text-muted'>{roles?.length ? roles.join('/') : 'No Smogon sets'}</span>}
 		</button>
 	);
 }
@@ -113,11 +109,9 @@ export function BottomPanel() {
 					type='button'
 					aria-expanded={boxOpen}
 					onClick={() => setBoxOpen(!boxOpen)}
-					className={`bounce-host squishy inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-base font-medium hover:bg-hover ${boxOpen ? 'text-accent' : ''}`}
+					className={`squishy inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-base font-medium hover:bg-hover ${boxOpen ? 'text-accent' : ''}`}
 				>
-					<span className='bounce-glyph inline-flex'>
-						<Icon name='box' />
-					</span>
+					<Icon name='box' />
 					Box
 				</button>
 				<SearchField

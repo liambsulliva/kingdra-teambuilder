@@ -97,14 +97,14 @@ export function PartyRow() {
 				{hovered ? (
 					<>
 						<span className='font-medium'>{hovered.name || hovered.species}</span>
-						<span className='text-muted'>{species?.types.join(' · ').toLowerCase()} · drag out to remove</span>
+						<span className='text-muted'>{species?.types.join('/').toLowerCase()} - drag out to remove</span>
 					</>
 				) : (
 					<>
 						<span className='text-muted'>Party</span>
 						<span className='tabular-nums text-muted'>
 							{team.members.length}/{MAX_TEAM_SIZE}
-							{selectedUid ? ` · ${team.members.find((m) => m.uid === selectedUid)?.species} is on the card` : ''}
+							{selectedUid ? ` - ${team.members.find((m) => m.uid === selectedUid)?.species} is on the card` : ''}
 						</span>
 					</>
 				)}

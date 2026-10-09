@@ -2,7 +2,7 @@
 
 import { memo, useState } from 'react';
 import { Dex } from '@pkmn/dex';
-import { iconSprite, iconStyle, frontSprite, animatedSprite, staticSprite } from '@/lib/sprites';
+import { iconSprite, iconStyle, frontSprite, animatedSprite, bwSprite, staticSprite } from '@/lib/sprites';
 
 export const speciesRef = (name: string) => {
 	const s = Dex.species.get(name);
@@ -27,8 +27,9 @@ export function Pokeball({ size = 32, className = '' }: { size?: number; classNa
 }
 
 /**
- * Card art: Showdown's animated sprite from PokeAPI, falling back to the
- * static sprite and finally a Poké Ball.
+ * Card art: the Black/White animated sprite, falling back to Showdown's
+ * animated sprite (newer species and formes), the static sprite and finally a
+ * Poké Ball.
  */
 export function PokemonSprite({
 	species,
@@ -44,7 +45,7 @@ export function PokemonSprite({
 	className?: string;
 }) {
 	const ref = speciesRef(species);
-	const sources = [animatedSprite(ref, back, shiny), staticSprite(ref, back, shiny), back ? null : frontSprite(ref)].filter(Boolean) as string[];
+	const sources = [bwSprite(ref, back, shiny), animatedSprite(ref, back, shiny), staticSprite(ref, back, shiny), back ? null : frontSprite(ref)].filter(Boolean) as string[];
 	const [index, setIndex] = useState(0);
 	const [key, setKey] = useState(species);
 	if (key !== species) {

@@ -5,15 +5,12 @@ import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icon';
 import { SearchField } from '@/components/ui/controls';
 import { PokemonIcon } from '@/components/pokemon/PokemonIcon';
-import { formatLabel, formatsForGen } from '@/lib/dex';
+import { useDroppable } from '@dnd-kit/core';
+import { canUseSpecies, formatLabel, formatsForGen } from '@/lib/dex';
 import { exportTeam } from '@/lib/showdown';
 import { MAX_TEAM_SIZE, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { openTeamWithMotion } from '@/components/motion/choreography';
-
-const LINKS = [
-	['Liam Sullivan', 'https://liambsullivan.com/'],
-];
 
 export function TeamLibrary() {
 	const teams = useStore((s) => s.library.teams);
@@ -45,14 +42,7 @@ export function TeamLibrary() {
 				))}
 				{!shown.length && <li className='px-3 py-6 text-base text-muted'>No teams match “{query}”.</li>}
 			</ol>
-			<footer className='flex shrink-0 flex-wrap gap-x-3 gap-y-1 border-t border-line px-6 py-3 text-xs text-muted'>
-				{LINKS.map(([label, href]) => (
-					<a key={href} href={href} target='_blank' rel='noreferrer' className='hover:text-fg'>
-						{label}
-					</a>
-				))}
-			</footer>
-		</aside>
+</aside>
 	);
 }
 
@@ -62,7 +52,7 @@ function TeamCard({ team, open }: { team: Team; open: boolean }) {
 	const slots = Array.from({ length: MAX_TEAM_SIZE }, (_, i) => team.members[i]);
 	return (
 		<div
-			className={`group my-1 flex flex-col gap-2 rounded-md p-3 transition-colors ${open ? '' : 'cursor-pointer hover:bg-hover'}`}
+			className={`group my-1 flex flex-col gap-2 rounded-md p-3 transition-colors ${open ? 'bg-hover' : 'cursor-pointer hover:bg-hover'}`}
 			onClick={() => !open && openTeamWithMotion(team.id)}
 			onKeyDown={(e) => {
 				if (!open && (e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
@@ -77,14 +67,13 @@ function TeamCard({ team, open }: { team: Team; open: boolean }) {
 		>
 			<div className='flex gap-1'>
 				{slots.map((m, i) => (
-					<span key={i} data-team-icon={`${team.id}:${i}`} className={`bounce-host size-8 rounded-md ${open || !m ? 'border border-dashed border-line-strong/60' : ''}`}>
+					<TeamSlot key={i} team={team} index={i} empty={open || !m}>
 						{m && !open && <PokemonIcon species={m.species} className='bounce-glyph' />}
-					</span>
+					</TeamSlot>
 				))}
 			</div>
 			<div className='flex items-center gap-1.5'>
-				{open && <span aria-label='Open team' className='size-1.5 shrink-0 rounded-full bg-accent' />}
-				{open ? (
+{open ? (
 					<input
 						aria-label='Team name'
 						defaultValue={team.name}
@@ -111,11 +100,29 @@ function TeamCard({ team, open }: { team: Team; open: boolean }) {
 			</div>
 			{!open && (
 				<span className='text-xs text-muted'>
-					{formatLabel(team)} · {team.members.length}/{MAX_TEAM_SIZE}
+					{formatLabel(team)} - {team.members.length}/{MAX_TEAM_SIZE}
 				</span>
 			)}
 			{open && <TeamControls team={team} />}
 		</div>
+	);
+}
+
+/** A slot on a team card. Dropping a suggestion here adds it to that team if its format can field it. */
+function TeamSlot({ team, index, empty, children }: { team: Team; index: number; empty: boolean; children?: React.ReactNode }) {
+	const { setNodeRef, isOver, active } = useDroppable({ id: `teamslot:${team.id}:${index}`, data: { kind: 'teamslot', teamId: team.id, index } });
+	const species = active?.data.current?.kind === 'candidate' ? (active.data.current.species as string) : null;
+	const ok = !!species && canUseSpecies(team, species);
+	return (
+		<span
+			ref={setNodeRef}
+			data-team-icon={`${team.id}:${index}`}
+			className={`bounce-host size-8 rounded-md transition-colors ${
+				isOver && species ? (ok ? 'border border-dashed border-accent bg-accent-soft' : 'border border-dashed border-danger') : empty ? 'border border-dashed border-line-strong/60' : ''
+			}`}
+		>
+			{children}
+		</span>
 	);
 }
 
