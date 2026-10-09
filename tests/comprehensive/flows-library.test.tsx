@@ -74,6 +74,15 @@ describe('team list', () => {
 		expect(s().selectedUid).toBe(t.members[1].uid);
 	});
 
+	it('leaves the open team card without skeleton slots, so an empty-looking slot is empty', async () => {
+		const t = lib.teams[4];
+		await click(byLabel(`Open ${t.name}`));
+		expect(open().id).toBe(t.id);
+		const slots = [...document.querySelectorAll<HTMLElement>(`[data-team-icon^="${t.id}:"]`)];
+		expect(slots).toHaveLength(6);
+		expect(slots.some((el) => el.className.includes('border-dashed'))).toBe(false);
+	});
+
 	it('searches teams by name, species and nickname', async () => {
 		await click(byLabel('Search teams'));
 		const input = byLabel('Teams').querySelector<HTMLInputElement>('input[type="search"]')!;

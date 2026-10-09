@@ -77,7 +77,7 @@ function TeamCard({ team, open }: { team: Team; open: boolean }) {
 						key={i}
 						team={team}
 						index={i}
-						empty={open || !m}
+						empty={!open && !m}
 						onPick={m && !open ? () => openTeamWithMotion(team.id, m.uid) : undefined}
 					>
 						{m && !open && (

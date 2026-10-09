@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import {
+	MAX_BOXES,
 	MAX_MOVES,
 	MAX_TEAM_SIZE,
 	emptyLibrary,
@@ -513,11 +514,16 @@ export const useStore = create<Store>()((set, get) => {
 		setBoxOpen: (boxOpen) => set({ boxOpen, boxPartyUid: null }),
 		setBoxPartyUid: (boxPartyUid) => set({ boxPartyUid }),
 		setBoxIndex: (boxIndex) => set({ boxIndex }),
-		addBox: () =>
+		addBox: () => {
+			if (get().library.boxes.length >= MAX_BOXES) {
+				get().toast('error', `Your PC is full: ${MAX_BOXES} boxes`);
+				return;
+			}
 			set((s) => ({
 				library: touch({ ...s.library, boxes: [...s.library.boxes, newBox(`Box ${s.library.boxes.length + 1}`)] }),
 				boxIndex: s.library.boxes.length,
-			})),
+			}));
+		},
 		renameBox: (index, name) =>
 			set((s) => ({
 				library: touch({
@@ -548,6 +554,11 @@ export const useStore = create<Store>()((set, get) => {
 			if (target < 0) {
 				useBox = boxes.findIndex((b) => b.slots.some((x) => !x));
 				if (useBox < 0) {
+					if (boxes.length >= MAX_BOXES) {
+						set({ rejectedAt: Date.now() });
+						get().toast('error', `Your PC is full: ${MAX_BOXES} boxes. Free a slot first`);
+						return;
+					}
 					boxes = [...boxes, newBox(`Box ${boxes.length + 1}`)];
 					useBox = boxes.length - 1;
 				}

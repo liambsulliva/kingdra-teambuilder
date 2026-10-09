@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BOX_SIZE, emptyLibrary, newBox, newSet, newTeam, type Library } from '@/lib/model';
+import { BOX_SIZE, MAX_BOXES, emptyLibrary, newBox, newSet, newTeam, type Library } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { resetStore } from '../helpers/env';
 
@@ -400,6 +400,29 @@ describe('the Box', () => {
 		s().storeInBox(open().members[0].uid);
 		expect(s().library.boxes.map((b) => b.name)).toEqual(['Full', 'Box 2']);
 		expect(box(1).slots[0]?.species).toBe('Pikachu');
+	});
+
+	it('holds 32 boxes at most, as the games do', () => {
+		const full = (n: number) =>
+			Array.from({ length: n }, (_, i) => {
+				const b = newBox(`Box ${i + 1}`);
+				b.slots = b.slots.map(() => newSet('Magikarp'));
+				return b;
+			});
+		// The 32nd box can still be made.
+		resetStore(library({ boxes: full(MAX_BOXES - 1) }));
+		s().addBox();
+		expect(s().library.boxes).toHaveLength(MAX_BOXES);
+		// Once there are 32 boxes, neither a new box nor a store into full boxes goes through.
+		resetStore(library({ boxes: full(MAX_BOXES) }));
+		s().addBox();
+		expect(s().library.boxes).toHaveLength(MAX_BOXES);
+		expect(lastToast()?.message).toBe('Your PC is full: 32 boxes');
+		s().addMember('Pikachu');
+		s().storeInBox(open().members[0].uid);
+		expect(s().library.boxes).toHaveLength(MAX_BOXES);
+		expect(open().members).toHaveLength(1);
+		expect(lastToast()?.message).toBe('Your PC is full: 32 boxes. Free a slot first');
 	});
 
 	it('takes into a full party only by swapping', () => {

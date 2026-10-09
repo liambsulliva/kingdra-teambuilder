@@ -34,7 +34,7 @@ The seed is printed by `stress-data.test.ts`. Replay a run with `STRESS_SEED=<n>
 
 | Area | Flows | File |
 | --- | --- | --- |
-| Team library | list, open by click/keyboard/member icon, search by name/species/nickname, rename (blur, Enter, Escape, blank), mode toggle, generation and format select, duplicate, copy as Showdown text (empty team, blocked clipboard), two-step delete, legality badge | `flows-library` |
+| Team library | list, open by click/keyboard/member icon, open team with no skeleton slots, search by name/species/nickname, rename (blur, Enter, Escape, blank), mode toggle, generation and format select, duplicate, copy as Showdown text (empty team, blocked clipboard), two-step delete, legality badge | `flows-library` |
 | Dialogs | new team (name, default name, Enter, casual, generation resets format, cancel, close), import team (disabled, no Pokémon, full backup, skipped species, casual fallback format), paste set, delete member, apply fix | `flows-library`, `flows-card`, `flows-inspector` |
 | Header | theme, card sprites, sign in, save status (local, saving, saved, not saved), toasts | `flows-library`, `stress-persistence` |
 | Card | every member of every team (name, dex number, types, format-specific key rows, four move slots), key rows and move slots open editors, type badge to matchups, shiny, copy, paste, delete, Escape, empty desk, evolution line and branching evolutions, Details, Smogon sets (one, several, none, failure, casual format), support moves | `flows-card` |

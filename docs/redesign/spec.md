@@ -45,7 +45,7 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
 
 - **Stat colors.** HP green, Atk yellow, Def orange, SpA cyan, SpD purple, Spe pink. Exact values are set in Figma and checked for contrast on both themes.
 - **Type colors.** Keep `src/lib/typeColors.json`, re-checked on dark.
-- **Icons.** Majesticons (line variant) everywhere possible. Key-row tabs use trending-up (Level), lightning-bolt (Ability), shopping-bag (Item), heart (Nature), sparkles (Tera) and clipboard (Moves), rendered at **16×16** in a stable hit target. Fallback set: Lucide. Icon buttons copy personal-website-v3's IconButton: glyph at 80% opacity rising to 100%, a hover fill, and a 13px tooltip below.
+- **Icons.** Majesticons (line variant) everywhere possible. Key-row tabs use trending-up (Level), lightning-bolt (Ability), shopping-bag (Item), heart (Nature), cube (Tera) and clipboard (Moves), rendered at **16×16** in a stable hit target. Fallback set: Lucide. Icon buttons copy personal-website-v3's IconButton: glyph at 80% opacity rising to 100%, a hover fill, and a 13px tooltip below.
 - **Light/dark toggle.** 16px sun/moon icon in the header.
 
 ## 2. Pokémon imagery
@@ -86,7 +86,7 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
 - **Header.** The Kingdra logo (PokeAPI's front sprite, mirrored, cropped 38×38 around the head; `public/brand/kingdra.png`, also the favicon), vertically centered, plus the "Kingdra" wordmark on the left. On the right, the B/W | X/Y sprite toggle (saved per viewer), then 16px icon buttons: about (personal site, Instagram, LinkedIn, GitHub links), theme, account (Clerk sign-in or user button).
 - **Left panel, team list.** Scrolls independently. The panel head reads "Teams" with icons for search team names, import team (paste Showdown text, which creates a new team), and new team.
   - **Team card.** Six 32×32 icon slots in a row at the top-left, then the team name, then a muted label such as "gen 9 · OU" or "gen 5 · casual".
-  - **Open team.** Its icon slots show **dashed skeletons** because its members are down in the party, and a red marker sits by its name. Only the open team shows its **control row** beneath the card: mode (casual/competitive), generation and format, legality issue count, duplicate, export, delete. The row slides open as the party walks down.
+  - **Open team.** Its icon slots stay empty, with no dashed skeletons: the members are down in the party, and a dashed slot read as an empty one. A red marker sits by its name. Only the open team shows its **control row** beneath the card: mode (casual/competitive), generation and format, legality issue count, duplicate, export, delete. The row slides open as the party walks down.
   - **Rename.** The team name is a ghost text input.
 - **Center workspace.**
   - **Expanded card.** Top-right icons: export set, import set, details.
@@ -97,7 +97,7 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
   - **Toolbar right.** The **Box** icon, then search across the full catalogue (not only loaded cards).
 - **Box drawer.** The Box icon slides a drawer up from the screen's bottom edge over the carousel, to about 50% of the viewport. The party row stays visible above it so drags between the two are short. Esc, the icon, or a click outside closes it.
 
-**Tablet, 626–1100px.** The workspace folds into the right panel as its first tab (the party icon), so the team list stays on the left and the panel takes the space the center and right panels shared. The card tab is the default there: selecting, adding a Pokémon or picking a move brings it forward. Drop targets on the card (the party row, move cells) exist only while that tab is open. At 625px and below the mobile layout applies (section 10).
+**Tablet, 651–1100px.** The workspace folds into the right panel as its first tab (the party icon), so the team list stays on the left and the panel takes the space the center and right panels shared. The card tab is the default there: selecting, adding a Pokémon or picking a move brings it forward. Drop targets on the card (the party row, move cells) exist only while that tab is open. At 650px and below the mobile layout applies (section 10).
 
 ## 4. Expanded card
 
@@ -138,7 +138,7 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
 - **Comparison.** Starts from the Compare icon on a carousel card or preview.
   - The card becomes a battle scene: your selected member's back sprite at bottom-left, the candidate's front sprite at top-right, each on a name plate. The right panel shows the Compare view.
   - Actions: swap in, add, close. Swap gives the candidate a fresh set.
-- **Box.** One global PC shared by all teams. 30-slot boxes (6×5), add and rename boxes, page with arrows. Stored Pokémon keep their full sets.
+- **Box.** One global PC shared by all teams. 30-slot boxes (6×5), up to 32 boxes as in the games, add and rename boxes, page with arrows. Stored Pokémon keep their full sets.
   - Drag party ↔ box both ways.
   - A box Pokémon moved into a team of a different generation or format keeps its set, and anything illegal is flagged.
 
@@ -183,13 +183,13 @@ All motion respects `prefers-reduced-motion`; with it on, everything becomes a c
 | Press | Squishy: scale 0.95 over 90ms, release over 460ms `cubic-bezier(.34,2.1,.5,1)`. |
 | Open team | Members walk off the team card toward the workspace, rocking ±30° about the bottom-center at about 140ms per step with a 2px bob, staggered 60ms. Each then jumps in an arc down to its party slot and lands with a squash. |
 | Switch team | Reverse first: the open party hops up and walks home into its card. Then the new team walks off and drops in. Rapid clicks redirect to the latest team. |
-| Select member | It jumps up into the card (the icon morphs into the card sprite) and the members to its right shift one slot left. Selecting another member returns the old one: members shift right to reopen its slot, it drops back, then the new one jumps up. |
+| Select member | It jumps up into the card (the icon morphs into the card sprite) and the members to its right shift one slot left. The icon is cloned where it sits, bounce included, before the selection renders, so it never leaves the screen; it is teleported to the cell's settled height before it moves, and the card sprite takes over once its art has decoded, in the same frame the clone is removed. Selecting another member returns the old one: members shift right to reopen its slot, it drops back, then the new one jumps up. |
 | Add (drag) | A ghost icon follows the pointer. Valid slots switch from dashed to red. On drop the icon lands with a squash. A full team bounces the card back. |
 | Remove | Release a party icon outside the party and the Box and it disappears in a poof. Release it on the Box and it is stored. |
 | Box drawer | Slides up with a spring and slides back down. |
 | Theme | 200ms color crossfade. |
 
-## 10. Mobile, 625px and below
+## 10. Mobile, 650px and below
 
 - **Tabs.** A bottom bar with Teams, Party and Browse.
   - **Teams:** the list with controls.

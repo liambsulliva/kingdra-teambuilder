@@ -9,7 +9,7 @@ import { Button, Tab } from '@/components/ui/controls';
 import { TypeBadge } from '@/components/ui/TypeBadge';
 import { PokemonIcon } from '@/components/pokemon/PokemonIcon';
 import { getSpecies } from '@/lib/dex';
-import { BOX_SIZE, type PokemonSet } from '@/lib/model';
+import { BOX_SIZE, MAX_BOXES, type PokemonSet } from '@/lib/model';
 import { useOpenTeam, useStore } from '@/lib/store';
 import { PartyRow } from '@/components/workspace/PartyRow';
 import { NatureText } from '@/components/inspector/StatsView';
@@ -128,7 +128,12 @@ export function BoxDrawer() {
 								)}
 							</div>
 							<IconButton icon='chevron-right' label='Next box' disabled={index === boxes.length - 1} onClick={() => { setIndex(index + 1); setSelected(null); }} />
-							<IconButton icon='plus' label='New box' onClick={addBox} />
+							<IconButton
+								icon='plus'
+								label={boxes.length >= MAX_BOXES ? `PC full: ${MAX_BOXES} boxes` : 'New box'}
+								disabled={boxes.length >= MAX_BOXES}
+								onClick={addBox}
+							/>
 							{confirmingDelete ? (
 								<button
 									type='button'

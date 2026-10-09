@@ -15,9 +15,9 @@ function matchMedia(query: string): MediaQueryList {
 	const matches = () =>
 		query.includes('prefers-reduced-motion')
 			? viewport.reducedMotion
-			: query.includes('max-width: 625px')
+			: query.includes('max-width: 650px')
 				? viewport.mobile
-				: query.includes('min-width: 626px')
+				: query.includes('min-width: 651px')
 					? viewport.merged
 					: false;
 	return {

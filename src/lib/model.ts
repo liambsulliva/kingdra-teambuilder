@@ -17,6 +17,8 @@ export const STAT_LABELS: Record<StatID, string> = {
 export const MAX_TEAM_SIZE = 6;
 export const MAX_MOVES = 4;
 export const BOX_SIZE = 30;
+/** The PC holds 32 boxes, as in the games. Adding and storing stop at this count. */
+export const MAX_BOXES = 32;
 
 /** One Pokémon set. Mirrors Showdown's PokemonSet plus a stable uid. */
 export interface PokemonSet {
