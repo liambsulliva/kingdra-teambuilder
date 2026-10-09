@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { TeamValidator } from '@pkmn/sim';
+// Upstream Pokémon Showdown: newer than @pkmn/sim and the only build with
+// the Pokémon Champions formats.
+import { TeamValidator } from 'pokemon-showdown';
 import type { PokemonSet } from '@/lib/model';
 
 interface Body {
@@ -13,7 +15,7 @@ export async function POST(request: Request) {
 	if (!/^gen\d[a-z0-9]+$/.test(format) || !Array.isArray(members)) {
 		return NextResponse.json({ error: 'Bad request' }, { status: 400 });
 	}
-	let validator: TeamValidator;
+	let validator: ReturnType<typeof TeamValidator.get>;
 	try {
 		validator = TeamValidator.get(format);
 	} catch {

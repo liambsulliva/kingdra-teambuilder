@@ -303,7 +303,7 @@ function FixDialog() {
 				<p className='text-muted'>This may be a breaking change. It edits the set, so the Pokémon may no longer play the way it was built.</p>
 				<ul className='flex flex-col gap-1.5 rounded-md border border-line p-3'>
 					{fix?.changes.map((c) => (
-						<li key={c} className='font-medium'>
+						<li key={c} className='font-mono text-sm'>
 							{c}
 						</li>
 					))}

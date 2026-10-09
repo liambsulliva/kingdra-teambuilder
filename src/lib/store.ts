@@ -14,7 +14,7 @@ import {
 	type PokemonSet,
 	type Team,
 } from './model';
-import { abilitiesFor, canUseSpecies, defaultAbility, formatLabel, formatsForGen, getSpecies } from './dex';
+import { abilitiesFor, canUseSpecies, defaultAbility, formatLabel, formatsForGen, getSpecies, isChampions } from './dex';
 
 export type InspectorView =
 	| 'team'
@@ -153,7 +153,7 @@ export const useStore = create<Store>()((set, get) => {
 
 	const freshSet = (team: Team, species: string) => {
 		const s = getSpecies(team, species);
-		const level = team.format.endsWith('lc') ? 5 : team.format.includes('vgc') ? 50 : 100;
+		const level = team.format.endsWith('lc') ? 5 : team.format.includes('vgc') || isChampions(team) ? 50 : 100;
 		return newSet(s?.name ?? species, { ability: defaultAbility(team, species), level });
 	};
 

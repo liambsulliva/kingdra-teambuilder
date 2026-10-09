@@ -19,10 +19,10 @@
 		"@pkmn/dex": "^0.10.11",
 		"@pkmn/img": "^0.3.4",
 		"@pkmn/sets": "^5.2.0",
-		"@pkmn/sim": "^0.10.11",
 		"mongoose": "^8.4.3",
 		"motion": "^14.0.0",
 		"next": "^16.3.1",
+		"pokemon-showdown": "^0.11.11",
 		"react": "^19.2.8",
 		"react-dom": "^19.2.8",
 		"zustand": "^5.0.15"
