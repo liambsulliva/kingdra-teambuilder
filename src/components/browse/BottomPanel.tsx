@@ -165,7 +165,7 @@ export function BottomPanel() {
 					{list.slice(0, limit).map((s) => (
 						<CandidateCard key={s.name} species={s.name} types={s.types} roles={roles[s.name]} casual={casual} />
 					))}
-					{!list.length && <p className='self-center text-base text-muted'>{search ? `No Pokémon named “${search}” in gen ${team.gen}.` : 'Nothing in this tier yet.'}</p>}
+					{!list.length && <p className='self-center text-base text-muted'>{search ? `No Pokémon named “${search}” in Gen ${team.gen}.` : 'Nothing in this tier yet.'}</p>}
 				</motion.div>
 			</AnimatePresence>
 		</section>

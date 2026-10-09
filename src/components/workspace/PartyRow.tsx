@@ -23,7 +23,7 @@ export async function selectWithLift(member: PokemonSet, from?: DOMRect) {
 }
 
 /** One fixed cell of the party row. Cells never move, so the skeletons stay put as members come and go. */
-function PartyCell({ index, member, occupied, onHover }: { index: number; member?: PokemonSet; occupied: boolean; onHover: (m: PokemonSet | null) => void }) {
+function PartyCell({ teamId, index, member, occupied, onHover }: { teamId: string; index: number; member?: PokemonSet; occupied: boolean; onHover: (m: PokemonSet | null) => void }) {
 	const { setNodeRef: dropRef, isOver, active } = useDroppable({ id: `party:${index}`, data: { kind: 'party', index } });
 	const live = !!active && active.data.current?.kind !== 'move';
 	const self = !!member && String(active?.id).endsWith(member.uid);
@@ -34,13 +34,13 @@ function PartyCell({ index, member, occupied, onHover }: { index: number; member
 				live ? (isOver && !self ? 'border-dashed border-accent bg-accent-soft' : 'border-dashed border-accent/60') : occupied ? 'border-transparent' : 'border-dashed border-line-strong/60'
 			}`}
 		>
-			{member && <MemberButton member={member} index={index} onHover={onHover} />}
+			{member && <MemberButton teamId={teamId} member={member} index={index} onHover={onHover} />}
 		</div>
 	);
 }
 
-function MemberButton({ member, index, onHover }: { member: PokemonSet; index: number; onHover: (m: PokemonSet | null) => void }) {
-	const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: `member:${member.uid}`, data: { kind: 'member', uid: member.uid, species: member.species } });
+function MemberButton({ teamId, member, index, onHover }: { teamId: string; member: PokemonSet; index: number; onHover: (m: PokemonSet | null) => void }) {
+	const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: `member:${member.uid}`, data: { kind: 'member', uid: member.uid, species: member.species, teamId } });
 	const picked = useStore((s) => s.boxOpen && s.boxPartyUid === member.uid);
 	const flagged = useStore((s) => (s.validation[s.openTeamId]?.byMember[member.uid]?.length ?? 0) > 0);
 	return (
@@ -90,7 +90,7 @@ export function PartyRow() {
 				{Array.from({ length: MAX_TEAM_SIZE }, (_, i) => {
 					const m = team.members[i];
 					// The member on the card leaves its cell blank: no skeleton, so it never reads as a free slot.
-					return <PartyCell key={i} index={i} occupied={!!m} member={m && m.uid !== selectedUid ? m : undefined} onHover={setHovered} />;
+					return <PartyCell key={i} teamId={team.id} index={i} occupied={!!m} member={m && m.uid !== selectedUid ? m : undefined} onHover={setHovered} />;
 				})}
 			</motion.div>
 			<p className='flex h-4 items-center gap-2 text-xs' aria-live='polite'>

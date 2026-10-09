@@ -68,9 +68,9 @@ export function formatInfo(id: string, gen: number): FormatInfo | undefined {
 }
 
 export function formatLabel(team: Pick<Team, 'mode' | 'gen' | 'format'>) {
-	if (team.mode === 'casual') return `gen ${team.gen} - casual`;
+	if (team.mode === 'casual') return `Gen ${team.gen} - casual`;
 	const f = formatInfo(team.format, team.gen);
-	return `gen ${team.gen} - ${f?.name ?? team.format}`;
+	return `Gen ${team.gen} - ${f?.name ?? team.format}`;
 }
 
 export function generationFor(team: Pick<Team, 'mode' | 'gen' | 'format'>): Generation {

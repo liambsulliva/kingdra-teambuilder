@@ -97,6 +97,7 @@ interface Actions {
 	addMemberToTeam(teamId: string, species: string, index?: number): boolean;
 	removeMember(uid: string): void;
 	reorderMember(uid: string, index: number): void;
+	moveMemberToTeam(uid: string, fromTeamId: string, toTeamId: string, index?: number): boolean;
 	updateSet(uid: string, patch: Partial<PokemonSet>): void;
 	replaceSet(uid: string, set: PokemonSet): void;
 	changeSpecies(uid: string, species: string): void;
@@ -339,6 +340,30 @@ export const useStore = create<Store>()((set, get) => {
 				members.splice(Math.min(index, members.length), 0, m);
 				return { ...t, members };
 			});
+		},
+		/** Moves a member to another team, keeping its set. Full teams reject it. */
+		moveMemberToTeam: (memberUid, fromTeamId, toTeamId, index) => {
+			const { library } = get();
+			const from = library.teams.find((t) => t.id === fromTeamId);
+			const to = library.teams.find((t) => t.id === toTeamId);
+			const member = from?.members.find((m) => m.uid === memberUid);
+			if (!from || !to || !member || from.id === to.id) return false;
+			if (to.members.length >= MAX_TEAM_SIZE) {
+				set({ rejectedAt: Date.now() });
+				get().toast('error', `${to.name} is full: remove a member first`);
+				return false;
+			}
+			const teams = library.teams.map((t) => {
+				if (t.id === from.id) return { ...t, members: t.members.filter((m) => m.uid !== memberUid) };
+				if (t.id !== to.id) return t;
+				const members = [...t.members];
+				members.splice(Math.min(index ?? members.length, members.length), 0, member);
+				return { ...t, members };
+			});
+			set({ library: touch({ ...library, teams }) });
+			if (get().selectedUid === memberUid) get().selectMember(null);
+			get().toast('success', `${member.name || member.species} moved to ${to.name}`);
+			return true;
 		},
 		updateSet: (memberUid, patch) => updateMember(memberUid, (m) => ({ ...m, ...patch })),
 		replaceSet: (memberUid, next) => updateMember(memberUid, () => ({ ...next, uid: memberUid })),

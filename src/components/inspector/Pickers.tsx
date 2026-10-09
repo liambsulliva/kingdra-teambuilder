@@ -48,7 +48,7 @@ export function AbilityView({ team, member }: { team: Team; member: PokemonSet }
 	const abilities = abilitiesFor(team, member.species);
 	return (
 		<div className='flex flex-col gap-3'>
-			<Heading title='Ability' hint={`What ${member.species} can have in gen ${team.gen}`} />
+			<Heading title='Ability' hint={`What ${member.species} can have in Gen ${team.gen}`} />
 			<div className='flex flex-col'>
 				{abilities.map(({ ability, hidden, special }) => (
 					<Row key={ability.id} selected={member.ability === ability.name} onClick={(el) => apply('ability', { ability: ability.name }, el, ability.name)}>
@@ -62,7 +62,7 @@ export function AbilityView({ team, member }: { team: Team; member: PokemonSet }
 						</span>
 					</Row>
 				))}
-				{!abilities.length && <p className='px-2 text-base text-muted'>Abilities arrived in gen 3.</p>}
+				{!abilities.length && <p className='px-2 text-base text-muted'>Abilities arrived in Gen 3.</p>}
 			</div>
 		</div>
 	);
@@ -78,7 +78,7 @@ export function ItemView({ team, member }: { team: Team; member: PokemonSet }) {
 	}, [items, query]);
 	return (
 		<div className='flex flex-col gap-3'>
-			<Heading title='Item' hint={`${items.length} held items in gen ${team.gen}`} />
+			<Heading title='Item' hint={`${items.length} held items in Gen ${team.gen}`} />
 			<SearchField autoFocus placeholder='Search items' value={query} onChange={(e) => setQuery(e.target.value)} onClear={() => setQuery('')} />
 			<div className='flex flex-col'>
 				{member.item && (
@@ -179,7 +179,7 @@ export function DetailsView({ team, member }: { team: Team; member: PokemonSet }
 	const set = (patch: Partial<PokemonSet>) => updateSet(member.uid, patch);
 	return (
 		<div className='flex flex-col gap-3'>
-			<Heading title='Details' hint={`Fields that exist in gen ${team.gen}`} />
+			<Heading title='Details' hint={`Fields that exist in Gen ${team.gen}`} />
 			<div className='flex flex-col'>
 				<Field label='Nickname'>
 					<input

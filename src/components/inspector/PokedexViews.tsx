@@ -107,7 +107,7 @@ export function PokedexView({ team, member }: { team: Team; member: PokemonSet }
 			</div>
 			{forms.length > 0 && <Fact label='Forms' value={forms.map(title).join(', ')} />}
 			<a href={serebiiUrl(team.gen, num, s.baseSpecies)} target='_blank' rel='noreferrer' className='inline-flex items-center gap-1.5 self-start text-xs font-medium hover:text-accent'>
-				Serebii, gen {team.gen}
+				Serebii, Gen {team.gen}
 				<Icon name='external' className='text-muted' />
 			</a>
 		</div>
@@ -142,11 +142,11 @@ export function LocationsView({ team, member }: { team: Team; member: PokemonSet
 		<div className='flex flex-col gap-3'>
 			<div className='flex flex-col'>
 				<span className='text-base font-semibold'>Where To Find {member.species}</span>
-				<span className='text-xs text-muted'>Wild encounters in gen {team.gen} games</span>
+				<span className='text-xs text-muted'>Wild encounters in Gen {team.gen} games</span>
 			</div>
 			{loading && <p className='text-base text-muted'>Loading locations…</p>}
 			{error && <p className='flex items-center gap-1.5 text-base text-danger'><Icon name='warning' />Couldn&apos;t reach PokeAPI. Try again later.</p>}
-			{!loading && !error && !rows.length && <p className='text-base text-muted'>No wild encounters in gen {team.gen}. It may be an evolution, gift or event Pokémon.</p>}
+			{!loading && !error && !rows.length && <p className='text-base text-muted'>No wild encounters in Gen {team.gen}. It may be an evolution, gift or event Pokémon.</p>}
 			<ul className='flex flex-col'>
 				{rows.map((r) => (
 					<li key={r.area} className='flex flex-col gap-1 border-b border-line py-2.5'>

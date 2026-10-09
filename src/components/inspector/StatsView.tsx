@@ -59,7 +59,7 @@ export function StatsView({ team, member }: { team: Team; member: PokemonSet }) 
 	const nature = getNature(team, member.nature);
 	const total = evTotal(member);
 	const dv = fields.dv;
-	if (!species || !stats) return <p className='text-base text-muted'>No stat data for {member.species} in gen {team.gen}.</p>;
+	if (!species || !stats) return <p className='text-base text-muted'>No stat data for {member.species} in Gen {team.gen}.</p>;
 
 	const setEv = (s: StatID, v: number) => {
 		const others = total - member.evs[s];
@@ -140,7 +140,7 @@ export function StatsView({ team, member }: { team: Team; member: PokemonSet }) 
 				</div>
 			)}
 			<a href={smogonUrl(team.gen, member.species)} target='_blank' rel='noreferrer' className='inline-flex items-center gap-1.5 self-start text-xs font-medium hover:text-accent'>
-				Smogon analysis, gen {team.gen}
+				Smogon Analysis, Gen {team.gen}
 				<Icon name='external' className='text-muted' />
 			</a>
 		</div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { flushSync } from 'react-dom';
 import { Dex } from '@pkmn/dex';
 import { iconSprite, iconStyle } from '@/lib/sprites';
 import { useStore } from '@/lib/store';
@@ -19,9 +20,10 @@ export const MOTION = {
 
 let generation = 0;
 const live = new Set<Animation>();
+/** Elements hidden while a Pokémon walks toward them, so a stale run can be cleared. */
+const hidden = new Set<HTMLElement>();
 
 const reduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const frame = () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
 const visible = (el: Element | null): el is HTMLElement => {
 	if (!el) return false;
 	const r = el.getBoundingClientRect();
@@ -118,21 +120,34 @@ function fly({ species, from, to, edgeX, delay, reverse }: Flight) {
 		});
 }
 
-const hide = (els: HTMLElement[]) => els.forEach((el) => (el.style.opacity = '0'));
-const show = (els: HTMLElement[]) => els.forEach((el) => (el.style.opacity = ''));
+const hide = (els: HTMLElement[]) =>
+	els.forEach((el) => {
+		el.style.opacity = '0';
+		hidden.add(el);
+	});
+const show = (els: HTMLElement[]) =>
+	els.forEach((el) => {
+		el.style.opacity = '';
+		hidden.delete(el);
+	});
+const showAllHidden = () => show([...hidden]);
 
 /**
- * Switch teams: the open party hops up and walks home into its card, then the
- * new team walks off its card and jumps down into the party. Rapid clicks
- * cancel in-flight animations and jump straight to the latest team.
+ * Switch teams. The middle panel changes at once; the walk runs over it. The
+ * open party walks home into its card, then the new team walks off its card
+ * and drops into the party, Pokémon hidden until they land. Rapid clicks
+ * cancel in-flight animations and jump straight to the latest team. `select`
+ * puts that member on the card in the same commit, so it never walks.
  */
-export async function openTeamWithMotion(id: string) {
+export async function openTeamWithMotion(id: string, select?: string) {
 	const store = useStore.getState();
 	if (store.openTeamId === id) return;
 	const mine = ++generation;
 	live.forEach((a) => a.finish());
+	showAllHidden();
 	if (reduced() || window.matchMedia('(max-width: 767px)').matches) {
 		store.openTeam(id);
+		if (select) useStore.getState().selectMember(select);
 		return;
 	}
 	// Any click or keypress mid-flight skips straight to the end.
@@ -141,50 +156,60 @@ export async function openTeamWithMotion(id: string) {
 	window.addEventListener('keydown', skip, { once: true, capture: true });
 	const panel = document.querySelector('[data-team-panel]')?.getBoundingClientRect();
 	const edgeX = panel ? panel.right - 40 : 260;
+	// Only the latest switch may reveal anything; an older run's arrivals stay hidden.
+	const reveal = (els: HTMLElement[]) => mine === generation && show(els);
 
-	// 1. Old party goes home.
-	const oldId = store.openTeamId;
-	const partyEls = [...document.querySelectorAll<HTMLElement>('[data-party-member]')];
-	const homeward = partyEls
-		.map((el) => {
+	try {
+		const oldId = store.openTeamId;
+		// Measure before the switch moves anything: the old party, and the new team's icons on its card.
+		const leaving = [...document.querySelectorAll<HTMLElement>('[data-party-member]')]
+			.filter(visible)
+			.map((el) => ({ species: el.dataset.species!, index: Number(el.dataset.index), from: el.getBoundingClientRect() }));
+		const sources = [...document.querySelectorAll<HTMLElement>(`[data-team-icon^="${id}:"]`)].map((el) => ({
+			index: Number(el.dataset.teamIcon!.split(':')[1]),
+			rect: el.getBoundingClientRect(),
+			ok: visible(el),
+		}));
+
+		// The switch commits synchronously so the new party is in place before anything is painted.
+		flushSync(() => {
+			useStore.getState().openTeam(id);
+			if (select) useStore.getState().selectMember(select);
+		});
+
+		const arrivals = [...document.querySelectorAll<HTMLElement>('[data-party-member]')].flatMap((el) => {
 			const index = Number(el.dataset.index);
-			const target = document.querySelector(`[data-team-icon="${oldId}:${index}"]`);
-			return visible(el) && visible(target) ? { el, species: el.dataset.species!, from: el.getBoundingClientRect(), to: target.getBoundingClientRect(), index } : null;
-		})
-		.filter((x): x is NonNullable<typeof x> => !!x);
-	if (homeward.length) {
-		hide(homeward.map((h) => h.el));
-		await Promise.all(
-			homeward.map((h, i) => fly({ species: h.species, from: h.from, to: h.to, edgeX, delay: i * MOTION.staggerMs, reverse: true }))
-		);
-	}
-	if (mine !== generation) return;
+			const src = sources.find((s) => s.index === index);
+			return src?.ok ? [{ el, species: el.dataset.species!, from: src.rect, to: el.getBoundingClientRect(), index }] : [];
+		});
+		hide(arrivals.map((a) => a.el));
+		const homeward = leaving.flatMap((h) => {
+			const target = document.querySelector<HTMLElement>(`[data-team-icon="${oldId}:${h.index}"]`);
+			return target && visible(target) ? [{ ...h, target, to: target.getBoundingClientRect() }] : [];
+		});
+		hide(homeward.map((h) => h.target));
 
-	// 2. Switch, then the new team walks down.
-	const sources = [...document.querySelectorAll<HTMLElement>(`[data-team-icon^="${id}:"]`)].map((el) => ({
-		index: Number(el.dataset.teamIcon!.split(':')[1]),
-		rect: el.getBoundingClientRect(),
-		ok: visible(el),
-	}));
-	useStore.getState().openTeam(id);
-	await frame();
-	if (mine !== generation) return;
-	const arrivals = [...document.querySelectorAll<HTMLElement>('[data-party-member]')]
-		.map((el) => {
-			const src = sources.find((s) => s.index === Number(el.dataset.index));
-			return src?.ok ? { el, species: el.dataset.species!, from: src.rect, to: el.getBoundingClientRect(), index: src.index } : null;
-		})
-		.filter((x): x is NonNullable<typeof x> => !!x);
-	hide(arrivals.map((a) => a.el));
-	const last = arrivals.length - 1;
-	await Promise.all(
-		arrivals.map((a, i) =>
-			fly({ species: a.species, from: a.from, to: a.to, edgeX, delay: (last - i) * MOTION.staggerMs }).then(() => show([a.el]))
-		)
-	);
-	show(arrivals.map((a) => a.el));
-	window.removeEventListener('pointerdown', skip, { capture: true });
-	window.removeEventListener('keydown', skip, { capture: true });
+		// 1. The old party walks home. Its icons come back on the card as each one lands.
+		if (homeward.length) {
+			await Promise.all(
+				homeward.map((h, i) =>
+					fly({ species: h.species, from: h.from, to: h.to, edgeX, delay: i * MOTION.staggerMs, reverse: true }).then(() => reveal([h.target]))
+				)
+			);
+		}
+		if (mine !== generation) return;
+
+		// 2. The new team walks down into its party.
+		const last = arrivals.length - 1;
+		await Promise.all(
+			arrivals.map((a, i) =>
+				fly({ species: a.species, from: a.from, to: a.to, edgeX, delay: (last - i) * MOTION.staggerMs }).then(() => reveal([a.el]))
+			)
+		);
+	} finally {
+		window.removeEventListener('pointerdown', skip, { capture: true });
+		window.removeEventListener('keydown', skip, { capture: true });
+	}
 }
 
 /** A party member jumps up onto the card along an arc, growing to card size. */

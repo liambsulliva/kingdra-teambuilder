@@ -17,37 +17,12 @@ import {
 import { CandidateOverlay } from '@/components/browse/BottomPanel';
 import { PokemonIcon } from '@/components/pokemon/PokemonIcon';
 import { TYPE_COLORS } from '@/components/ui/TypeBadge';
-import { MAX_TEAM_SIZE } from '@/lib/model';
-import { canUseSpecies } from '@/lib/dex';
+import { accepts, type DragData, type DropTarget } from '@/lib/drag';
 import { useStore } from '@/lib/store';
 import { poof, pop } from '@/components/motion/choreography';
 
-type Data = { kind: 'candidate' | 'member' | 'boxset' | 'move'; species?: string; uid?: string; box?: number; slot?: number; move?: string; type?: string };
-type Target = { kind: 'party' | 'moveslot' | 'boxcell' | 'card' | 'teamslot'; index?: number; slot?: number; box?: number; teamId?: string } | undefined;
-
-/** Would dropping `drag` on `over` be accepted? Rejected drops spring back. */
-function accepts(drag: Data, over: Target) {
-	const s = useStore.getState();
-	const team = s.library.teams.find((t) => t.id === s.openTeamId)!;
-	if (!over) return drag.kind === 'member'; // released outside: remove (poof)
-	switch (drag.kind) {
-		case 'candidate':
-			if (over.kind === 'teamslot') {
-				const target = s.library.teams.find((t) => t.id === over.teamId);
-				return !!target && (target.members.length < MAX_TEAM_SIZE || over.index! < target.members.length) && canUseSpecies(target, drag.species!);
-			}
-			return (over.kind === 'party' && (team.members.length < MAX_TEAM_SIZE || over.index! < team.members.length)) || over.kind === 'card';
-		case 'member':
-			return over.kind !== 'teamslot';
-		case 'boxset':
-			return (over.kind === 'party' && (over.index! < team.members.length || team.members.length < MAX_TEAM_SIZE)) || over.kind === 'boxcell';
-		case 'move':
-			return over.kind === 'moveslot';
-	}
-}
-
 export function DragLayer({ children }: { children: React.ReactNode }) {
-	const [active, setActive] = useState<Data | null>(null);
+	const [active, setActive] = useState<DragData | null>(null);
 	const [ok, setOk] = useState(true);
 	const sensors = useSensors(
 		useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -56,37 +31,61 @@ export function DragLayer({ children }: { children: React.ReactNode }) {
 	);
 
 	const onStart = (e: DragStartEvent) => {
-		setActive(e.active.data.current as Data);
+		setActive(e.active.data.current as DragData);
 		setOk(true);
 	};
-	const onOver = (e: DragOverEvent) => setOk(accepts(e.active.data.current as Data, e.over?.data.current as Target));
+	const onOver = (e: DragOverEvent) => setOk(accepts(e.active.data.current as DragData, e.over?.data.current as DropTarget));
 
 	const onEnd = (e: DragEndEvent) => {
-		const drag = e.active.data.current as Data;
-		const over = e.over?.data.current as Target;
+		const drag = e.active.data.current as DragData;
+		const over = e.over?.data.current as DropTarget;
 		const s = useStore.getState();
+		const open = s.library.teams.find((t) => t.id === s.openTeamId)!;
 		setActive(null);
 		const point = (e.activatorEvent as PointerEvent | undefined) && 'clientX' in (e.activatorEvent as PointerEvent)
 			? { x: (e.activatorEvent as PointerEvent).clientX + e.delta.x, y: (e.activatorEvent as PointerEvent).clientY + e.delta.y }
 			: null;
 		const landed = (selector: string) => requestAnimationFrame(() => pop(document.querySelector(selector)));
+		const partyCell = (index: number) => `[data-party-member][data-index="${index}"]`;
 
 		if (drag.kind === 'candidate') {
-			if (over?.kind === 'card') return s.compare(drag.species!);
-			if (over?.kind === 'teamslot') return void s.addMemberToTeam(over.teamId!, drag.species!, over.index);
+			if (over?.kind === 'card') {
+				// Nothing to compare against on an empty team, so the drop adds the first member.
+				if (!open.members.length) {
+					if (s.addMember(drag.species!)) landed(partyCell(0));
+					return;
+				}
+				return s.compare(drag.species!);
+			}
+			if (over?.kind === 'teamslot') return void s.addMemberToTeam(over.teamId, drag.species!, over.index);
 			// addMember rejects a seventh member itself (toast + party shake).
-			if (over?.kind === 'party' && s.addMember(drag.species!, over.index)) landed('[data-party] [data-party-member]:last-of-type');
-			return;
-		}
-		// A long-press that never moved is a request for the action sheet (touch).
-		if (drag.kind === 'member' && Math.hypot(e.delta.x, e.delta.y) < 6) {
-			if (window.matchMedia('(max-width: 767px)').matches) useStore.setState({ mobileActionUid: drag.uid });
+			if (over?.kind === 'party') {
+				const at = Math.min(over.index!, open.members.length);
+				if (s.addMember(drag.species!, over.index)) landed(partyCell(at));
+			}
 			return;
 		}
 		if (drag.kind === 'member') {
-			if (over?.kind === 'teamslot') return;
+			const own = drag.teamId === open.id;
+			// A long-press that never moved is a request for the action sheet (touch).
+			if (Math.hypot(e.delta.x, e.delta.y) < 6) {
+				if (own && window.matchMedia('(max-width: 767px)').matches) useStore.setState({ mobileActionUid: drag.uid });
+				return;
+			}
+			if (over?.kind === 'teamslot') {
+				if (over.teamId !== drag.teamId) s.moveMemberToTeam(drag.uid!, drag.teamId!, over.teamId, over.index);
+				return;
+			}
+			if (!own) {
+				// Another team's member can only be dropped into the open party.
+				if (over?.kind === 'party') {
+					const at = Math.min(over.index!, open.members.length);
+					if (s.moveMemberToTeam(drag.uid!, drag.teamId!, open.id, over.index)) landed(partyCell(at));
+				}
+				return;
+			}
 			// Released anywhere that isn't the party or the Box: poof.
-if (!over || (over.kind !== 'party' && over.kind !== 'boxcell')) {
+			if (!over || (over.kind !== 'party' && over.kind !== 'boxcell')) {
 				s.removeMember(drag.uid!);
 				if (point) poof(point.x, point.y);
 				return;
@@ -96,7 +95,7 @@ if (!over || (over.kind !== 'party' && over.kind !== 'boxcell')) {
 			return;
 		}
 		if (drag.kind === 'boxset') {
-			if (over?.kind === 'party') return s.takeFromBox(drag.box!, drag.slot!, over.index! < (s.library.teams.find((t) => t.id === s.openTeamId)?.members.length ?? 0) ? over.index : undefined);
+			if (over?.kind === 'party') return s.takeFromBox(drag.box!, drag.slot!, over.index! < open.members.length ? over.index : undefined);
 			if (over?.kind === 'boxcell') return s.moveInBox(drag.box!, drag.slot!, over.box!, over.slot!);
 			return;
 		}

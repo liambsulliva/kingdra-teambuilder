@@ -1,7 +1,7 @@
 'use client';
 
 import { useDraggable, useDroppable } from '@dnd-kit/core';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icon';
 import { Button } from '@/components/ui/controls';
@@ -9,6 +9,7 @@ import { TypeBadge, TypeSwatch } from '@/components/ui/TypeBadge';
 import { PokemonIcon, PokemonSprite } from '@/components/pokemon/PokemonIcon';
 import { evolutionLine, fieldsFor, getMove, getNature, getSpecies } from '@/lib/dex';
 import { exportSet, smogonPatch, type SmogonSet } from '@/lib/showdown';
+import { supportFor, type SupportGroup } from '@/lib/support';
 import { MAX_MOVES, type PokemonSet, type Team } from '@/lib/model';
 import { NatureText } from '@/components/inspector/StatsView';
 import { hopAndSwap } from '@/components/motion/choreography';
@@ -28,12 +29,21 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 	const setDialog = useStore((s) => s.setDialog);
 	const updateSet = useStore((s) => s.updateSet);
 	const [sets, setSets] = useState<Record<string, SmogonSet> | null>(null);
+	const [support, setSupport] = useState<SupportGroup[]>([]);
 	const toast = useStore((s) => s.toast);
 	const problems = useStore((s) => s.validation[team.id]?.byMember[member.uid] ?? NO_PROBLEMS);
 	const fields = fieldsFor(team);
 	const mobile = useIsMobile();
 	const line = evolutionLine(team, member.species);
 	const nature = getNature(team, member.nature);
+
+	useEffect(() => {
+		let live = true;
+		supportFor(team, member.species).then((groups) => live && setSupport(groups)).catch(() => live && setSupport([]));
+		return () => {
+			live = false;
+		};
+	}, [team, member.species]);
 
 	const rows: { view: InspectorView; label: string; value: string; empty: string; flag: string[] }[] = [];
 	if (fields.level) rows.push({ view: 'level', label: 'Level', value: String(member.level), empty: '', flag: problemsFor(problems, ['level']) });
@@ -86,7 +96,9 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 							<IconButton icon='export' label='Copy set as Showdown text' onClick={copy} />
 							<IconButton icon='import' label='Paste a Showdown set' onClick={() => setDialog('importSet')} />
 							{team.mode === 'competitive' && <IconButton icon='details' label='More details' selected={inspector === 'details'} onClick={() => setInspector('details')} />}
-							<IconButton icon='trash' label={`Delete ${member.name || member.species}`} tone='danger' onClick={() => setDialog('deleteMember')} />
+							<span className='ml-2 flex'>
+								<IconButton icon='trash' label={`Delete ${member.name || member.species}`} tone='danger' tooltipAlign='end' onClick={() => setDialog('deleteMember')} />
+							</span>
 						</div>
 					</div>
 					<div className='flex items-center gap-1'>
@@ -117,7 +129,6 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 								</button>
 							);
 						})}
-						{line.length === 1 && <span className='self-center text-xs text-muted'>does not evolve</span>}
 					</div>
 				</div>
 			</div>
@@ -154,7 +165,7 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 				<div className='flex items-center pl-2'>
 					<span className='text-xs text-muted'>Moves</span>
 					<button type='button' onClick={loadSmogon} className='ml-3 text-xs font-medium text-muted hover:text-fg'>
-						Load Smogon set
+						Load Smogon Set
 					</button>
 					<span className='flex-1' />
 					<IconButton
@@ -164,6 +175,26 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 						onClick={() => setInspector(team.mode === 'casual' ? 'pokedex' : 'stats')}
 					/>
 				</div>
+				{support.length > 0 && (
+					<div className='flex flex-wrap items-center gap-1.5 pl-2'>
+						<span className='mr-1 text-xs text-muted'>Support</span>
+						{support.map((g) => (
+							<span
+								key={g.name}
+								tabIndex={0}
+								className='group/support relative inline-flex h-5 items-center rounded border border-line px-1.5 text-2xs text-muted hover:text-fg'
+							>
+								{g.name}
+								<span
+									role='tooltip'
+									className='pointer-events-none absolute left-0 top-6 z-50 w-max max-w-[260px] rounded bg-fg px-2 py-1 text-xs leading-5 text-bg opacity-0 transition-opacity duration-150 group-hover/support:opacity-100 group-focus-visible/support:opacity-100 max-md:hidden'
+								>
+									{g.moves.join(', ')}
+								</span>
+							</span>
+						))}
+					</div>
+				)}
 				{sets && (
 					<div className='flex flex-wrap gap-1.5 pl-2'>
 						{Object.entries(sets).map(([name, set]) => (

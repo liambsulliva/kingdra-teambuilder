@@ -48,7 +48,7 @@ export function Inspector() {
 		<aside aria-label='Inspector' className='flex min-h-0 flex-col'>
 			<div className='flex h-12 shrink-0 items-center gap-0.5 border-b border-line px-4'>
 				{tabs.map(([v, icon, label]) => (
-					<IconButton key={v} icon={icon} label={label} selected={current === v} disabled={needsMember(v) && !member} onClick={() => setInspector(v)} />
+					<IconButton key={v} icon={icon} label={label} selected={current === v} disabled={(needsMember(v) && !member) || !!compare} onClick={() => setInspector(v)} />
 				))}
 </div>
 			<div className='min-h-0 flex-1 overflow-y-auto px-6 py-5'>{body}</div>

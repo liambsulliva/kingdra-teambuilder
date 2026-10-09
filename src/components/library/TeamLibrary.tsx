@@ -5,10 +5,11 @@ import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icon';
 import { SearchField } from '@/components/ui/controls';
 import { PokemonIcon } from '@/components/pokemon/PokemonIcon';
-import { useDroppable } from '@dnd-kit/core';
-import { canUseSpecies, formatLabel, formatsForGen } from '@/lib/dex';
+import { useDraggable, useDroppable } from '@dnd-kit/core';
+import { formatLabel, formatsForGen } from '@/lib/dex';
+import { accepts, type DragData } from '@/lib/drag';
 import { exportTeam } from '@/lib/showdown';
-import { MAX_TEAM_SIZE, type Team } from '@/lib/model';
+import { MAX_TEAM_SIZE, type PokemonSet, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { openTeamWithMotion } from '@/components/motion/choreography';
 
@@ -18,7 +19,12 @@ export function TeamLibrary() {
 	const setDialog = useStore((s) => s.setDialog);
 	const [searching, setSearching] = useState(false);
 	const [query, setQuery] = useState('');
-	const shown = useMemo(() => teams.filter((t) => t.name.toLowerCase().includes(query.trim().toLowerCase())), [teams, query]);
+	// A team matches on its name or on any Pokémon in it, so searching a species finds the team it is on.
+	const shown = useMemo(() => {
+		const q = query.trim().toLowerCase();
+		const named = (name: string) => name.toLowerCase().includes(q);
+		return teams.filter((t) => named(t.name) || t.members.some((m) => named(m.species) || named(m.name)));
+	}, [teams, query]);
 	return (
 		<aside aria-label='Teams' className='flex min-h-0 flex-col'>
 			<div className='flex h-12 shrink-0 items-center pl-6 pr-3'>
@@ -31,7 +37,7 @@ export function TeamLibrary() {
 			</div>
 			{searching && (
 				<div className='px-4 pb-2'>
-					<SearchField autoFocus placeholder='Search team names' value={query} onChange={(e) => setQuery(e.target.value)} onClear={() => setQuery('')} onKeyDown={(e) => e.key === 'Escape' && setSearching(false)} />
+					<SearchField autoFocus placeholder='Search teams or Pokémon' value={query} onChange={(e) => setQuery(e.target.value)} onClear={() => setQuery('')} onKeyDown={(e) => e.key === 'Escape' && setSearching(false)} />
 				</div>
 			)}
 			<ol className='flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-6'>
@@ -72,9 +78,13 @@ function TeamCard({ team, open }: { team: Team; open: boolean }) {
 						team={team}
 						index={i}
 						empty={open || !m}
-						onPick={m && !open ? async () => { await openTeamWithMotion(team.id); useStore.getState().selectMember(m.uid); } : undefined}
+						onPick={m && !open ? () => openTeamWithMotion(team.id, m.uid) : undefined}
 					>
-						{m && !open && <PokemonIcon species={m.species} className='bounce-glyph' />}
+						{m && !open && (
+							<DraggableMember team={team} member={m}>
+								<PokemonIcon species={m.species} className='bounce-glyph' />
+							</DraggableMember>
+						)}
 					</TeamSlot>
 				))}
 			</div>
@@ -114,18 +124,29 @@ function TeamCard({ team, open }: { team: Team; open: boolean }) {
 	);
 }
 
-/** A slot on a team card. Dropping a suggestion here adds it to that team if its format can field it. */
+/** A member on a team that isn't open. Drag it onto another team's card, or into the open party. */
+function DraggableMember({ team, member, children }: { team: Team; member: PokemonSet; children: React.ReactNode }) {
+	const { setNodeRef, listeners, isDragging } = useDraggable({ id: `member:${member.uid}`, data: { kind: 'member', uid: member.uid, species: member.species, teamId: team.id } });
+	return (
+		<span ref={setNodeRef} {...listeners} className={`block size-8 cursor-grab ${isDragging ? 'opacity-30' : ''}`}>
+			{children}
+		</span>
+	);
+}
+
+/** A slot on a team card. Dropping a suggestion adds it to that team; dropping a member moves it there. */
 function TeamSlot({ team, index, empty, onPick, children }: { team: Team; index: number; empty: boolean; onPick?: () => void; children?: React.ReactNode }) {
 	const { setNodeRef, isOver, active } = useDroppable({ id: `teamslot:${team.id}:${index}`, data: { kind: 'teamslot', teamId: team.id, index } });
-	const species = active?.data.current?.kind === 'candidate' ? (active.data.current.species as string) : null;
-	const ok = !!species && canUseSpecies(team, species);
+	const drag = active?.data.current as DragData | undefined;
+	const dragging = drag?.kind === 'candidate' || drag?.kind === 'member';
+	const ok = !!dragging && accepts(drag, { kind: 'teamslot', teamId: team.id, index });
 	return (
 		<span
 			ref={setNodeRef}
 			data-team-icon={`${team.id}:${index}`}
 			onClick={onPick && ((e) => { e.stopPropagation(); onPick(); })}
 			className={`bounce-host size-8 rounded-md border transition-colors ${onPick ? 'cursor-pointer' : ''} ${
-				species
+				dragging
 					? isOver
 						? ok ? 'border-dashed border-accent bg-accent-soft' : 'border-dashed border-danger'
 						: ok ? 'border-dashed border-accent/60' : 'border-dashed border-line-strong/60'
