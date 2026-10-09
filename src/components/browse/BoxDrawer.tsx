@@ -14,7 +14,7 @@ import { useOpenTeam, useStore } from '@/lib/store';
 import { PartyRow } from '@/components/workspace/PartyRow';
 import { NatureText } from '@/components/inspector/StatsView';
 
-function BoxCell({ box, slot, set, selected, onSelect }: { box: number; slot: number; set: PokemonSet | null; selected: boolean; onSelect: () => void }) {
+export function BoxCell({ box, slot, set, selected, onSelect }: { box: number; slot: number; set: PokemonSet | null; selected: boolean; onSelect: () => void }) {
 	const { setNodeRef: dropRef, isOver, active } = useDroppable({ id: `boxcell:${box}:${slot}`, data: { kind: 'boxcell', box, slot } });
 	const { setNodeRef: dragRef, listeners, attributes, isDragging } = useDraggable({ id: `boxset:${box}:${slot}`, data: { kind: 'boxset', box, slot, species: set?.species }, disabled: !set });
 	const over = isOver && active?.data.current?.kind !== 'move' && active?.data.current?.kind !== 'candidate';
@@ -104,7 +104,7 @@ export function BoxDrawer() {
 						<div className='flex justify-center pt-2'>
 							<span className='h-1 w-9 rounded-full bg-line' />
 						</div>
-						<PartyRow />
+						<PartyRow keepSelected />
 						<div className='h-px bg-line' />
 						<div className='flex items-center gap-3'>
 							<h2 className='text-md font-semibold'>Box</h2>

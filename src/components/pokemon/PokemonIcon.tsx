@@ -4,7 +4,7 @@ import { memo, useRef, useState } from 'react';
 import { Dex } from '@pkmn/dex';
 import { iconSprite, iconStyle, frontSprite, cardSources, POKEBALL } from '@/lib/sprites';
 import { useStore } from '@/lib/store';
-import { LazyImg, Skeleton, useNearViewport, useSheet } from '@/components/ui/Skeleton';
+import { LazyImg, Skeleton, sheetReady, useNearViewport, useSheet } from '@/components/ui/Skeleton';
 
 export const speciesRef = (name: string) => {
 	const s = Dex.species.get(name);
@@ -19,7 +19,8 @@ export const PokemonIcon = memo(function PokemonIcon({ species, size = 32, class
 	const sprite = iconSprite(speciesRef(species));
 	const ref = useRef<HTMLSpanElement>(null);
 	const near = useNearViewport(ref);
-	const state = useSheet(near && sprite ? sprite.url : null);
+	// A sheet already loaded this session draws at once: no skeleton when a tab or panel remounts the icon.
+	const state = useSheet((near || sheetReady(sprite?.url)) && sprite ? sprite.url : null);
 	if (!sprite || state === 'failed') return <Pokeball size={size} className={className} />;
 	return (
 		<span ref={ref} aria-hidden className={`relative block shrink-0 overflow-hidden rounded-md ${className}`} style={{ width: size, height: size }}>

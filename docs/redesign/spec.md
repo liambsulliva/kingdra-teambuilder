@@ -9,7 +9,7 @@ Status: decisions locked through the UI interview on 2026-10-08. Design lives in
 | Cover | Index |
 | Components | Icons (39 Majesticons, 16 px), IconButton, Tooltip, PokemonSlot, TypeBadge, StatRow, MoveCell, KeyRow, Tab, Select, SearchField, Button, CarouselCard, TeamCard, MoveListRow, Toast, ModeToggle, EvolutionStep |
 | Desktop (1440×900) | Competitive / Stats (`9:2`), Move editing (`12:421`), Team analysis (`13:840`), Compare (`14:1149`), Box drawer (`15:1435`), Casual / Pokédex (`18:1874`), New team dialog (`20:2193`), Drag to add (`21:2540`), Stats / Dark (`21:3176`) |
-| Mobile (390×844) | Party (`23:2`), Editor sheet (`23:190`), Teams (`24:252`), Browse (`24:505`), Long-press action sheet (`24:691`) |
+| Mobile (390×844) | Party (`23:2`), Editor sheet (`23:190`), Teams (`24:252`), Browse (`24:505`), Browse › Box (`47:3934`), Empty team (`47:4123`), Long-press action sheet (`24:691`), Support badge tapped (`48:773`) |
 | Motion | Storyboards with timings (`25:2`) |
 
 Variables: `Primitives`, `Color` (Light/Dark modes), `Layout`. Dark mode is the same frames with the `Color` collection switched to Dark.
@@ -90,7 +90,8 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
   - **Rename.** The team name is a ghost text input.
 - **Center workspace.**
   - **Expanded card.** Top-right icons: export set, import set, details.
-  - **Party row.** Pinned to the **bottom-left** of the workspace, directly above the carousel. It holds 32×32 slots with dashed skeletons for empty team spots. While a member is on the card the row shows **5 positions**, because the lifted member's slot lives in the card.
+  - **Party row.** Pinned to the **bottom-left** of the workspace, directly above the carousel. It holds 32×32 slots with dashed skeletons for empty team spots. While a member is on the card the row shows **5 positions**, because the lifted member's slot lives in the card. Inside the Box drawer, and on the phone's Browse tab, it shows all six, so the member on the card can still be dragged into the Box.
+  - **Always a member on the card.** Once a team has members, one of them is always on the card: the first add puts it there, opening a team brings back the member that was last on its card (remembered per team in this browser, else the first), and removing, boxing or moving the member on the card puts its neighbor there (the member that slides into its slot, else the one before). Esc and clicking the empty workspace no longer clear the card. The empty state appears only while the team has no members.
 - **Right panel (inspector).** Scrolls independently and shows one view at a time. With no member on the card it shows **Team analysis**. A tab strip of 16px icons switches between views.
 - **Bottom panel.** Full width. The toolbar sits above a horizontally scrolling carousel.
   - **Toolbar left.** Generation select. In Competitive: format tiers plus a role filter. In Casual: generations only, no roles.
@@ -101,7 +102,7 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
 
 ## 4. Expanded card
 
-- **Identity.** Animated sprite, nickname or species name (Stack Sans Headline), type badges. Clicking a type badge opens that member's matchups in the right panel. The sprite is vertically centered on the name, type and evolution rows beside it.
+- **Identity.** Animated sprite, nickname or species name (Stack Sans Headline), type badges. Clicking a type badge opens that member's matchups in the right panel. The sprite is top-aligned with the name beside it and left-aligned with the key row labels, on every device.
 - **Evolution row.** 32×32 icons for the whole line (branches included) under the name, with the current stage underlined in red. Clicking another stage switches species and **keeps the whole set**. Anything the new species can't legally use is flagged, not deleted.
 - **Key rows.** Two-column label/value list. Clicking a row opens its editor in the right panel.
   - Competitive: Level, Ability, Item, Nature (with +/− stats), Tera.
@@ -110,7 +111,8 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
 - **Moves.** A **2×2 grid aligned to the bottom of the card**. Each cell shows type color, move name, and category glyph with power. A **Stats icon** sits at the grid's top-right and opens Stats on the right.
   - Clicking a cell opens the move list on the right with that slot active.
   - Moves dragged from the list onto a cell replace it.
-- **Preview state.** Clicking a carousel card puts that candidate on the card read-only, with Add and Compare icons. Nothing changes until one is chosen.
+- **Preview state.** A candidate is previewed on the card read-only, with Add and Compare icons. Clicking a carousel card adds it directly; it does not preview.
+- **Empty state copy.** "Drag a suggestion onto the party, or click one to add it." ("tap" on phones).
 
 ## 5. Right panel views
 
@@ -133,7 +135,7 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
 - **Carousel card.**
   - Sprite, name, color-coded type badges.
   - In Competitive, the broad roles (wallbreaker, pivot, revenge killer, lead, setup sweeper, wall, hazard setter, hazard removal, support, Trick Room). Roles come from Smogon set names for the team's format and are labeled as heuristics.
-  - Click previews on the card. Drag onto a party slot adds.
+  - Click adds to the party. Drag onto a party slot adds there.
   - A full team rejects the add: the card bounces back and nothing is replaced.
 - **Comparison.** Starts from the Compare icon on a carousel card or preview.
   - The card becomes a battle scene: your selected member's back sprite at bottom-left, the candidate's front sprite at top-right, each on a name plate. The right panel shows the Compare view.
@@ -199,7 +201,14 @@ All motion respects `prefers-reduced-motion`; with it on, everything becomes a c
 - **Touch.**
   - Long-press picks up an icon for dragging, with the same rules as desktop.
   - Long-press without moving opens an action sheet: move to Box, remove.
-  - Tapping a carousel card opens its preview with Add and Compare.
+  - Tapping a carousel card adds it.
+  - Tapping a party member on the Party tab hops it up onto the card, as on desktop, and its icon leaves the row. No selection tile. Nothing animates across tabs: tapping a member on Browse switches to Party with the member already on the card.
+  - The caption under the party row shows the member on the card (name and types), or "Party n/6" when the team is empty. Touch never leaves a hover label behind.
+  - The editor sheet opens only when a key row, move cell or Stats is tapped. Selecting a member, or opening a team, never opens it.
+  - Support badges show their moves on tap; tapping the badge again or anywhere else hides them.
+- **Party row on Browse.** The party row sits left-aligned directly under the Suggestions | Box tabs and stays put across both. Long-press drags work both ways: a suggestion or a Box Pokémon onto a slot, a member onto a Box cell. In Suggestions, tapping a member puts it on the card and switches to Party. In Box, tapping a member moves it to the current box, and tapping a Box Pokémon moves it into the party.
+- **Empty team.** Under the empty-state message the top four suggestions for the team's tier sit in a 2×2 grid, followed by "See all suggestions", which opens Browse. They disappear once the first member is added.
+- **Icons stay loaded.** An icon whose sheet is already cached renders immediately on remount (tab switches), with no skeleton.
   - Tapping a move in the sheet follows the same replace-or-fill rule.
 
 ## 11. Persistence

@@ -54,7 +54,10 @@ describe('team list', () => {
 		for (const t of lib.teams.slice(1)) {
 			await click(byLabel(`Open ${t.name}`));
 			expect(open().id).toBe(t.id);
-			for (const m of t.members) expect(queryByLabel(`${m.name || m.species}. Put on the card`), `${t.name}: ${m.species}`).toBeTruthy();
+			// It opens with its first member on the card and the rest in the party.
+			const [first, ...rest] = t.members;
+			if (first) expect(s().selectedUid, t.name).toBe(first.uid);
+			for (const m of rest) expect(queryByLabel(`${m.name || m.species}. Put on the card`), `${t.name}: ${m.species}`).toBeTruthy();
 		}
 	});
 

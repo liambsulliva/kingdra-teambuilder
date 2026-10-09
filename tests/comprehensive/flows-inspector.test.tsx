@@ -46,8 +46,11 @@ async function start(extra: Team[] = []) {
 
 async function putOnCard(t: Team, index: number) {
 	if (open().id !== t.id) await click(byLabel(`Open ${t.name}`));
-	if (s().selectedUid) await key(window, 'Escape');
-	await click(document.querySelector(`[data-party-member][data-index="${index}"]`)!);
+	// A member is always on the card once the team has one; its party icon is hidden on desktop.
+	const uid = open().members[index].uid;
+	// Already on the card, its party icon is hidden on desktop: select it the way a click would.
+	if (s().selectedUid === uid) await act(() => s().selectMember(uid));
+	else await click(document.querySelector(`[data-party-member][data-index="${index}"]`)!);
 	await flush(2);
 }
 
@@ -76,7 +79,8 @@ describe('stats for every competitive member in the library', () => {
 					const ev = inspector().querySelector<HTMLInputElement>(`input[aria-label="${STAT_LABELS[stat]} ${limits.name}"]`)!;
 					expect(ev.value, `${t.name} ${m.species} ${stat} EV`).toBe(String(m.evs[stat]));
 					const row = ev.closest('.flex-col')!.firstElementChild!;
-					expect(row.lastElementChild!.textContent, `${t.name} ${m.species} ${stat}`).toBe(String(stats[stat]));
+					// Final stats tick to a new member's values over 300 ms while the view stays open.
+					await waitFor(() => expect(row.lastElementChild!.textContent, `${t.name} ${m.species} ${stat}`).toBe(String(stats[stat])));
 					if (f.ivs && !(f.dv && stat === 'hp')) {
 						const iv = inspector().querySelector<HTMLInputElement>(`input[aria-label="${STAT_LABELS[stat]} ${f.dv ? 'DVs' : 'IVs'}"]`)!;
 						expect(iv.value).toBe(String(f.dv ? Math.floor(m.ivs[stat] / 2) : m.ivs[stat]));
@@ -180,7 +184,8 @@ describe('the tab strip', () => {
 	beforeEach(() => start(KNOWN));
 
 	it('disables member tabs until a member is on the card', async () => {
-		await click(byLabel(`Open ${ou.name}`));
+		// Only an empty team has nobody on the card.
+		await act(() => s().createTeam({ name: 'Empty OU', format: ou.format }));
 		expect(tabs()).toEqual([
 			['Team analysis', false],
 			['Stats', true],
@@ -193,7 +198,8 @@ describe('the tab strip', () => {
 			['Matchups', true],
 			['Details', true],
 		]);
-		await putOnCard(ou, 0);
+		// Opening a team with members puts one on the card, so every tab is live.
+		await click(byLabel(`Open ${ou.name}`));
 		expect(tabs().every(([, disabled]) => !disabled)).toBe(true);
 	});
 
@@ -448,13 +454,14 @@ describe('analysis', () => {
 	});
 
 	it('flags the member and its rows on the card', async () => {
-		const g = ou.members[0];
+		// The second member: the first opens on the card, out of the party row.
+		const g = ou.members[1];
 		mockApi({ '/api/validate': () => ({ byMember: { [g.uid]: ['Garchomp item Rocky Helmet is banned'] }, team: [], count: 1 }) });
 		await click(byLabel(`Open ${ou.name}`));
 		act(() => s().updateSet(g.uid, { item: 'Rocky Helmet' }));
 		await wait(700);
-		expect(document.querySelector('[data-party-member][data-index="0"] [aria-label="Has legality issues"]')).toBeTruthy();
-		await putOnCard(ou, 0);
+		expect(document.querySelector('[data-party-member][data-index="1"] [aria-label="Has legality issues"]')).toBeTruthy();
+		await putOnCard(ou, 1);
 		expect(document.querySelector('[data-key-row="item"] .text-danger')).toBeTruthy();
 	});
 

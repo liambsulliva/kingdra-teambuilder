@@ -58,6 +58,9 @@ export function LazyImg({
 /** Background images (the icon sheets) that have finished loading this session, by URL. */
 const sheets = new Map<string, 'ready' | 'failed'>();
 
+/** True when this session already has the image decoded, so a remount can draw it at once. */
+export const sheetReady = (src: string | null | undefined) => !!src && sheets.get(src) === 'ready';
+
 /**
  * How a background image is doing: 'loading' until it has decoded, then 'ready'
  * or 'failed'. The first use of a URL preloads it; later uses read the answer.

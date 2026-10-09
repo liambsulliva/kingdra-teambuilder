@@ -253,7 +253,8 @@ describe('the PC Box', () => {
 		const m = lib.teams[0].members[1];
 		await click(drawer()!.querySelector('[data-party-member][data-index="1"]')!);
 		expect(s().boxPartyUid).toBe(m.uid);
-		expect(s().selectedUid).toBeNull();
+		// Picking in the drawer leaves the card alone.
+		expect(s().selectedUid).toBe(lib.teams[0].members[0].uid);
 		await click(button('Move to box', drawer()!));
 		expect(open().members.map((x) => x.uid)).not.toContain(m.uid);
 		expect(s().library.boxes[0].slots.some((x) => x?.uid === m.uid)).toBe(true);

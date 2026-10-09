@@ -87,7 +87,9 @@ describe('switching teams with the walk', () => {
 		await flush();
 		expect(open().id).toBe(target.id);
 		const party = [...document.querySelectorAll('[data-party-member]')];
-		expect(party).toHaveLength(open().members.length);
+		// The team opens with a member on the card, so its party icon is not in the row.
+		expect(s().selectedUid).toBe(open().members[0].uid);
+		expect(party).toHaveLength(open().members.length - 1);
 		// Each member pops where it stands. Nothing is flown, so no clone is left in the body.
 		expect(party.every((el) => animated.includes(el))).toBe(true);
 		expect(clones()).toHaveLength(0);
@@ -105,16 +107,17 @@ describe('switching teams with the walk', () => {
 
 describe('the smaller moments', () => {
 	it('lifts a party member onto the card and shows the card sprite afterwards', async () => {
-		await click(document.querySelector('[data-party-member][data-index="0"]')!);
+		// The first member opens on the card; lift the second.
+		await click(document.querySelector('[data-party-member][data-index="1"]')!);
 		await flush();
-		expect(s().selectedUid).toBe(open().members[0].uid);
+		expect(s().selectedUid).toBe(open().members[1].uid);
 		expect(document.querySelector<HTMLElement>('[data-card-sprite]')!.style.opacity).toBe('');
 		expect(clones()).toHaveLength(0);
 	});
 
 	it('hops the sprite when evolving and swaps species mid-air', async () => {
-		await click(document.querySelector('[data-party-member][data-index="0"]')!);
-		await flush();
+		// The first member is already on the card.
+		expect(s().selectedUid).toBe(open().members[0].uid);
 		await click(button('Charmeleon'));
 		await flush();
 		expect(open().members[0].species).toBe('Charmeleon');

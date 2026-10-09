@@ -12,15 +12,16 @@ import { useOpenTeam, useSelectedMember, useStore } from '@/lib/store';
 import { ExpandedCard } from './ExpandedCard';
 import { PartyRow } from './PartyRow';
 import { addAndLand, hopInto } from '@/components/motion/choreography';
+import { useIsMobile } from '@/lib/hooks';
 
 const STAT_COLOR: Record<string, string> = { hp: 'bg-stat-hp', atk: 'bg-stat-atk', def: 'bg-stat-def', spa: 'bg-stat-spa', spd: 'bg-stat-spd', spe: 'bg-stat-spe' };
 
-export function Workspace() {
+/** `empty` adds to the empty state (mobile: starter suggestions). */
+export function Workspace({ empty }: { empty?: React.ReactNode } = {}) {
 	const team = useOpenTeam();
 	const member = useSelectedMember();
 	const preview = useStore((s) => s.previewSpecies);
 	const compare = useStore((s) => s.compareSpecies);
-	const selectMember = useStore((s) => s.selectMember);
 	const closePreview = useStore((s) => s.preview);
 	const boxOpen = useStore((s) => s.boxOpen);
 	const { setNodeRef, isOver, active } = useDroppable({ id: 'card', data: { kind: 'card' } });
@@ -29,19 +30,18 @@ export function Workspace() {
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
 			if (e.key !== 'Escape' || document.querySelector('dialog[open]')) return;
+			// Once a team has members one stays on the card, so Esc only closes a preview or comparison.
 			if (compare || preview) closePreview(null);
-			else if (member) selectMember(null);
 		};
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);
-	}, [compare, preview, member, closePreview, selectMember]);
+	}, [compare, preview, closePreview]);
 
 	return (
 		<div className='flex min-h-0 min-w-0 flex-1 flex-col px-4 pb-4 pt-5 md:px-10 md:pb-6 md:pt-6'>
 			<div
 				ref={setNodeRef}
 				className={`relative -m-2 min-h-0 flex-1 ${compare ? 'overflow-hidden' : 'overflow-y-auto'} rounded-lg p-2 transition-colors ${candidateOver ? 'bg-accent-soft' : ''}`}
-				onClick={(e) => e.target === e.currentTarget && member && !preview && !compare && selectMember(null)}
 			>
 				{candidateOver && team.members.length > 0 && (
 					<span className='pointer-events-none absolute inset-0 z-10 flex items-center justify-center text-md font-semibold uppercase tracking-[0.2em] text-accent'>Compare</span>
@@ -53,7 +53,7 @@ export function Workspace() {
 				) : member ? (
 					<ExpandedCard key={member.uid} team={team} member={member} />
 				) : (
-					<EmptyState team={team} />
+					<EmptyState team={team}>{!team.members.length && empty}</EmptyState>
 				)}
 			</div>
 			{/* While the Box is open the party rides on the drawer instead. */}
@@ -62,7 +62,8 @@ export function Workspace() {
 	);
 }
 
-function EmptyState({ team }: { team: Team }) {
+function EmptyState({ team, children }: { team: Team; children?: React.ReactNode }) {
+	const mobile = useIsMobile();
 	const issues = useStore((s) => s.validation[team.id]?.count ?? 0);
 	return (
 		<div className='flex flex-col gap-2'>
@@ -74,8 +75,9 @@ function EmptyState({ team }: { team: Team }) {
 			<p className='max-w-[360px] text-base text-muted'>
 				{team.members.length
 					? 'Pick a party member to put it on the card. Drag a suggestion onto the party to add it.'
-					: 'Drag a suggestion onto the party, or pick one to preview it first.'}
+					: `Drag a suggestion onto the party, or ${mobile ? 'tap' : 'click'} one to add it.`}
 			</p>
+			{children}
 		</div>
 	);
 }
@@ -107,7 +109,7 @@ function Preview({ team, species }: { team: Team; species: string }) {
 	return (
 		<section aria-label={`Preview ${species}`} className='flex w-full max-w-[580px] flex-col gap-5'>
 			<div className='flex gap-6'>
-				<div className='flex size-24 shrink-0 items-end justify-center self-center'>
+				<div className='flex size-[96px] shrink-0 items-end justify-center self-center'>
 					<PokemonSprite species={species} size={96} />
 				</div>
 				<div className='flex min-w-0 flex-1 flex-col gap-2.5'>
@@ -230,11 +232,10 @@ function CompareScene({ team, candidate }: { team: Team; candidate: string }) {
 						onClick={async () => {
 							const index = team.members.findIndex((m) => m.uid === mine.uid);
 							const wasOnCard = !!member;
-							// Show the party slot so the candidate has somewhere to land.
-							if (wasOnCard) selectMember(null);
+							// It keeps the uid, so it stays on the card: the candidate hops onto the card, or into its party slot.
 							swapIn(mine.uid, candidate);
 							await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-							await hopInto(candidate, `[aria-label="Preview ${candidate}"]`, `[data-party-member][data-index="${index}"]`);
+							await hopInto(candidate, `[aria-label="Preview ${candidate}"]`, wasOnCard ? '[data-card-sprite]' : `[data-party-member][data-index="${index}"]`);
 						}}
 					>
 						<span className='truncate'>Swap {mine.name || mine.species} for {candidate}</span>

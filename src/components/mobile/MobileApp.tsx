@@ -12,6 +12,8 @@ import { TeamLibrary } from '@/components/library/TeamLibrary';
 import { Workspace } from '@/components/workspace/Workspace';
 import { Inspector } from '@/components/inspector/Inspector';
 import { CandidateCard, tierTabs, useCandidates } from '@/components/browse/BottomPanel';
+import { BoxCell } from '@/components/browse/BoxDrawer';
+import { PartyRow } from '@/components/workspace/PartyRow';
 import { formatLabel, getSpecies } from '@/lib/dex';
 import { useOpenTeam, useSelectedMember, useStore } from '@/lib/store';
 
@@ -94,23 +96,35 @@ function BoxGrid() {
 					<Tab key={b.id} selected={i === index} onClick={() => setIndex(i)}>{b.name}</Tab>
 				))}
 			</div>
-			<div className='grid grid-cols-6 gap-1'>
-				{boxes[index].slots.map((set, i) =>
-					set ? (
-						<button key={i} type='button' onClick={() => takeFromBox(index, i)} aria-label={`Move ${set.species} to the party`} className='flex aspect-square items-center justify-center rounded-md hover:bg-hover'>
-							<PokemonIcon species={set.species} />
-						</button>
-					) : (
-						<span key={i} className='flex aspect-square items-center justify-center'><span className='size-8 rounded-md border border-dashed border-line-strong/60' /></span>
-					)
-				)}
+			{/* The same cells as the desktop drawer: long-press drags to and from the party row above. */}
+			<div className='grid grid-cols-6 justify-items-center gap-1'>
+				{boxes[index].slots.map((set, i) => (
+					<BoxCell key={i} box={index} slot={i} set={set} selected={false} onSelect={() => takeFromBox(index, i)} />
+				))}
 			</div>
-			<p className='text-xs text-muted'>Tap a Pokémon to move it into the party. Long-press a party member for Move to Box.</p>
+			<p className='text-xs text-muted'>Tap a Pokémon to move it between the Box and the party. Long-press to drag; drop on a member to swap.</p>
 		</div>
 	);
 }
 
-function Browse({ onPreview }: { onPreview: () => void }) {
+/** Before the first add: the top four suggestions under the empty state, then a way into Browse. */
+function StarterSuggestions({ onSeeAll }: { onSeeAll: () => void }) {
+	const { team, list, roles } = useCandidates();
+	return (
+		<div className='flex flex-col gap-3 pt-2'>
+			<div className='grid grid-cols-2 gap-3'>
+				{list.slice(0, 4).map((s) => (
+					<CandidateCard key={s.name} species={s.name} types={s.types} roles={roles[s.name]} casual={team.mode === 'casual'} wide />
+				))}
+			</div>
+			<button type='button' onClick={onSeeAll} className='self-start text-base font-medium text-accent'>
+				See all suggestions
+			</button>
+		</div>
+	);
+}
+
+function Browse({ onPreview, onParty }: { onPreview: () => void; onParty: () => void }) {
 	const { team, list, roles } = useCandidates();
 	const tab = useStore((s) => s.carouselTab);
 	const search = useStore((s) => s.carouselSearch);
@@ -128,6 +142,17 @@ function Browse({ onPreview }: { onPreview: () => void }) {
 				<Tab selected={mode === 'suggestions'} onClick={() => setMode('suggestions')}>Suggestions</Tab>
 				<Tab selected={mode === 'box'} onClick={() => setMode('box')}>Box</Tab>
 			</div>
+			{/* Left-aligned under the tabs and put across both, so drags to and from it stay short. */}
+			<PartyRow
+				keepSelected
+				className='border-t border-line px-4 pt-3'
+				onTap={(m) => {
+					const s = useStore.getState();
+					if (mode === 'box') return s.storeInBox(m.uid);
+					s.selectMember(m.uid);
+					onParty();
+				}}
+			/>
 			{mode === 'box' ? (
 				<BoxGrid />
 			) : (
@@ -168,12 +193,17 @@ export function MobileApp() {
 		if (openTeamId !== firstTeam.current) setTab('party');
 		firstTeam.current = openTeamId;
 	}, [openTeamId]);
-	// Tapping a key row, move or stats opens the editor sheet.
+	// Tapping a key row, move or stats opens the editor sheet. Selecting a member or opening a team also
+	// changes the view, but those never open it: only a view change for the same member does.
+	const memberUid = member?.uid ?? null;
+	const firstMember = useRef(memberUid);
 	useEffect(() => {
 		const key = `${inspector}:${slot}`;
-		if (key !== firstView.current && member && inspector !== 'team') setSheet(true);
+		const same = memberUid === firstMember.current;
+		if (same && key !== firstView.current && memberUid && inspector !== 'team') setSheet(true);
 		firstView.current = key;
-	}, [inspector, slot, member]);
+		firstMember.current = memberUid;
+	}, [inspector, slot, memberUid]);
 
 	const tabs: [TabId, IconName, string][] = [['teams', 'teams', 'Teams'], ['party', 'party', 'Party'], ['browse', 'browse', 'Browse']];
 	return (
@@ -197,8 +227,8 @@ export function MobileApp() {
 			)}
 			<div className='flex min-h-0 flex-1 flex-col'>
 				{tab === 'teams' && <div className='min-h-0 flex-1 overflow-y-auto'><TeamLibrary /></div>}
-				{tab === 'party' && <Workspace />}
-				{tab === 'browse' && <Browse onPreview={() => setTab('party')} />}
+				{tab === 'party' && <Workspace empty={<StarterSuggestions onSeeAll={() => setTab('browse')} />} />}
+				{tab === 'browse' && <Browse onPreview={() => setTab('party')} onParty={() => setTab('party')} />}
 			</div>
 			<nav className='flex h-[72px] shrink-0 border-t border-line pb-[env(safe-area-inset-bottom)]'>
 				{tabs.map(([id, icon, label]) => (

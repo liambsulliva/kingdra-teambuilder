@@ -21,8 +21,10 @@ describe('desktop app, everyday flows', () => {
 	it('restores a guest library saved in this browser', async () => {
 		seedLocalLibrary({ ...emptyLibrary(), teams: [newTeam({ name: 'Saved Rain', members: [newSet('Kingdra')] })] });
 		await renderApp();
-		expect(hasText('Saved Rain')).toBe(true);
+		expect((document.querySelector('input[aria-label="Team name"]') as HTMLInputElement | null)?.value).toBe('Saved Rain');
 		expect(open().members[0].species).toBe('Kingdra');
+		// The returning team opens with a member on the card.
+		expect(byLabel('Kingdra set')).toBeTruthy();
 	});
 
 	it('creates a team from the dialog', async () => {
@@ -39,7 +41,7 @@ describe('desktop app, everyday flows', () => {
 		await renderApp();
 		await click(byLabel('Add Garchomp to the team'));
 		expect(open().members.map((m) => m.species)).toEqual(['Garchomp']);
-		await click(byLabel('Garchomp. Put on the card'));
+		// The first member goes straight onto the card.
 		expect(byLabel('Garchomp set')).toBeTruthy();
 		await click(byLabel('Move 1: empty. Add a move'));
 		const eq = await waitFor(() => button(/^GroundEarthquake/));
@@ -51,7 +53,6 @@ describe('desktop app, everyday flows', () => {
 	it('deletes a member after confirming', async () => {
 		await renderApp();
 		await click(byLabel('Add Garchomp to the team'));
-		await click(byLabel('Garchomp. Put on the card'));
 		await click(byLabel('Delete Garchomp'));
 		expect(hasText('Delete Garchomp?', openDialog()!)).toBe(true);
 		await click(button('Delete', openDialog()!));
@@ -85,13 +86,12 @@ describe('desktop app, everyday flows', () => {
 		expect(s().spriteSet).toBe('xy');
 	});
 
-	it('closes the card with Escape', async () => {
+	it('keeps a member on the card: Escape does not clear it', async () => {
 		await renderApp();
 		await click(byLabel('Add Garchomp to the team'));
-		await click(byLabel('Garchomp. Put on the card'));
 		await key(window, 'Escape');
-		expect(s().selectedUid).toBeNull();
-		expect(queryByLabel('Garchomp set')).toBeNull();
+		expect(s().selectedUid).toBe(open().members[0].uid);
+		expect(byLabel('Garchomp set')).toBeTruthy();
 	});
 });
 

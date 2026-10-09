@@ -90,6 +90,8 @@ interface State {
 	mobileActionUid: string | null;
 	/** Bumped when an add is rejected so the dragged card can bounce back. */
 	rejectedAt: number;
+	/** The member last on each team's card, by team id, saved per viewer. */
+	lastSelected: Record<string, string>;
 }
 
 interface Actions {
@@ -158,6 +160,22 @@ export function readSpriteSet(): SpriteSet {
 	}
 }
 
+const LAST_KEY = 'kingdra.lastSelected';
+
+/** The member last on each team's card. Empty when nothing is saved or storage is blocked. */
+export function readLastSelected(): Record<string, string> {
+	try {
+		const parsed = JSON.parse(localStorage.getItem(LAST_KEY) ?? '{}');
+		return parsed && typeof parsed === 'object' ? parsed : {};
+	} catch {
+		return {};
+	}
+}
+
+/** The member a team opens on: the one last on its card, else its first. */
+const pickFor = (team: Team | undefined, last: Record<string, string>) =>
+	team ? (team.members.find((m) => m.uid === last[team.id]) ?? team.members[0])?.uid ?? null : null;
+
 /** Where the right panel rests: the team analysis, or the card when the workspace is merged into it. */
 const restView = (s: Pick<State, 'merged'>): InspectorView => (s.merged ? 'card' : 'team');
 
@@ -177,6 +195,33 @@ export const useStore = create<Store>()((set, get) => {
 		const team = openTeam();
 		updateTeam(team.id, (t) => ({ ...t, members: t.members.map((m) => (m.uid === memberUid ? fn(m) : m)) }));
 	};
+
+	/** Puts a member on the card without changing the right panel, and remembers it for the team. */
+	const focus = (memberUid: string) => {
+		const team = openTeam();
+		const lastSelected = { ...get().lastSelected, [team.id]: memberUid };
+		try {
+			localStorage.setItem(LAST_KEY, JSON.stringify(lastSelected));
+		} catch {
+			// Storage can be full or blocked; the selection still applies for this visit.
+		}
+		set({ selectedUid: memberUid, activeMoveSlot: null, lastSelected });
+	};
+
+	/**
+	 * Once a team has members one is always on the card. When the member on the
+	 * card has left the team, its neighbor takes over: the member now at `index`,
+	 * else the one before it.
+	 */
+	const settle = (index = 0) => {
+		const team = openTeam();
+		const { selectedUid } = get();
+		if (selectedUid && team.members.some((m) => m.uid === selectedUid)) return;
+		const next = team.members[index] ?? team.members[index - 1] ?? team.members[0];
+		if (next) focus(next.uid);
+		else if (selectedUid) get().selectMember(null);
+	};
+	const indexOf = (memberUid: string) => openTeam().members.findIndex((m) => m.uid === memberUid);
 
 	const freshSet = (team: Team, species: string) => {
 		const s = getSpecies(team, species);
@@ -211,12 +256,13 @@ export const useStore = create<Store>()((set, get) => {
 		validation: {},
 		rejectedAt: 0,
 		mobileActionUid: null,
+		lastSelected: readLastSelected(),
 
 		hydrate: (library) =>
 			set((s) => {
 				const open = library.teams.find((t) => t.id === s.openTeamId) ?? library.teams[0];
 				// The carousel opens on a tab the open team has: a casual team has no OU tab.
-				return { library, hydrated: true, openTeamId: open.id, carouselTab: getTiersDefault(open) ?? s.carouselTab };
+				return { library, hydrated: true, openTeamId: open.id, selectedUid: pickFor(open, s.lastSelected), carouselTab: getTiersDefault(open) ?? s.carouselTab };
 			}),
 		toast: (kind, message) => {
 			const id = uid();
@@ -261,7 +307,7 @@ export const useStore = create<Store>()((set, get) => {
 				const tab = team?.mode === 'casual' ? 'All' : (getTiersDefault(team) ?? s.carouselTab);
 				return {
 					openTeamId: id,
-					selectedUid: null,
+					selectedUid: pickFor(team, s.lastSelected),
 					previewSpecies: null,
 					compareSpecies: null,
 					inspector: restView(s),
@@ -324,6 +370,7 @@ export const useStore = create<Store>()((set, get) => {
 				const ability = defaultAbility(openTeam(), picked.species);
 				if (ability) updateMember(picked.uid, (m) => ({ ...m, ability }));
 			}
+			if (memberUid) focus(memberUid);
 			set((s) => ({
 				selectedUid: memberUid,
 				previewSpecies: null,
@@ -360,6 +407,7 @@ export const useStore = create<Store>()((set, get) => {
 				return { ...t, members };
 			});
 			set({ previewSpecies: null });
+			if (!get().selectedUid) focus(member.uid);
 			cardIfMerged();
 			return true;
 		},
@@ -392,8 +440,9 @@ export const useStore = create<Store>()((set, get) => {
 		},
 		removeMember: (memberUid) => {
 			const team = openTeam();
+			const at = indexOf(memberUid);
 			updateTeam(team.id, (t) => ({ ...t, members: t.members.filter((m) => m.uid !== memberUid) }));
-			if (get().selectedUid === memberUid) get().selectMember(null);
+			settle(at);
 		},
 		reorderMember: (memberUid, index) => {
 			const team = openTeam();
@@ -432,6 +481,7 @@ export const useStore = create<Store>()((set, get) => {
 				return false;
 			}
 			const moved = evolves ? asSpecies(to, member, species) : member;
+			const at = indexOf(memberUid);
 			const teams = library.teams.map((t) => {
 				if (t.id === from.id)
 					return { ...t, members: displaced ? t.members.map((m) => (m.uid === memberUid ? displaced : m)) : t.members.filter((m) => m.uid !== memberUid) };
@@ -442,8 +492,9 @@ export const useStore = create<Store>()((set, get) => {
 				return { ...t, members };
 			});
 			set({ library: touch({ ...library, teams }) });
-			const selected = get().selectedUid;
-			if (selected === memberUid || (displaced && selected === displaced.uid)) get().selectMember(null);
+			// A member swapped into the open team takes the card when the one on it left.
+			if (displaced && from.id === get().openTeamId && get().selectedUid === memberUid) focus(displaced.uid);
+			settle(Math.max(0, at));
 			const name = (m: PokemonSet) => m.name || m.species;
 			get().toast('success', displaced ? `${name(moved)} swapped with ${name(displaced)}` : `${name(moved)} moved to ${to.name}`);
 			return true;
@@ -573,8 +624,10 @@ export const useStore = create<Store>()((set, get) => {
 					? { ...t, members: displaced ? t.members.map((m) => (m.uid === memberUid ? displaced : m)) : t.members.filter((m) => m.uid !== memberUid) }
 					: t
 			);
+			const at = indexOf(memberUid);
 			set({ library: touch({ ...library, teams, boxes }) });
-			if (get().selectedUid === memberUid) get().selectMember(null);
+			if (displaced && get().selectedUid === memberUid) focus(displaced.uid);
+			settle(at);
 			get().toast('success', `${member.name || member.species} moved to ${boxes[useBox].name}`);
 		},
 		takeFromBox: (boxIndex, slot, partyIndex) => {
@@ -599,6 +652,8 @@ export const useStore = create<Store>()((set, get) => {
 				return { ...t, members };
 			});
 			set({ library: touch({ ...library, teams, boxes }) });
+			if (target && get().selectedUid === target.uid) focus(stored.uid);
+			settle();
 		},
 		moveInBox: (fromBox, fromSlot, toBox, toSlot) =>
 			set((s) => {

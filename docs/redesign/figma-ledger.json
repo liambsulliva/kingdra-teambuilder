@@ -163,7 +163,10 @@
    "editor": "23:190",
    "teams": "24:252",
    "browse": "24:505",
-   "actions": "24:691"
+   "actions": "24:691",
+   "browseBox": "47:3934",
+   "partyEmpty": "47:4123",
+   "supportTapped": "48:773"
   },
   "motion": "25:2",
   "cover": "26:2"

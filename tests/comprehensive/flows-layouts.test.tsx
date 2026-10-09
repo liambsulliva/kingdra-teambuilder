@@ -81,7 +81,7 @@ describe('phone layout', () => {
 		await click(button('Box'));
 		const slot = lib.boxes[0].slots.findIndex(Boolean);
 		const stored = lib.boxes[0].slots[slot]!;
-		await click(byLabel(`Move ${stored.species} to the party`));
+		await click(byLabel(`${stored.name || stored.species}, box slot ${slot + 1}`));
 		expect(open().members.at(-1)!.uid).toBe(stored.uid);
 		await click(button('Box 2'));
 		expect(s().boxIndex).toBe(1);
@@ -90,11 +90,7 @@ describe('phone layout', () => {
 	it('opens the editor sheet from a key row or move, and closes it from the backdrop', async () => {
 		await tapMember(1);
 		expect(byLabel('Garchomp set')).toBeTruthy();
-		// Current behaviour: picking a member moves the inspector to Stats, which opens the sheet straight away.
-		expect(s().inspector).toBe('stats');
-		expect(sheet('Editor')).toBeTruthy();
-		await click(document.querySelector('.fixed.inset-0.z-40')!);
-		await flush();
+		// Picking a member only puts it on the card: the editor waits for a row, move or Stats.
 		expect(sheet('Editor')).toBeNull();
 		await click(document.querySelector('[data-key-row="item"]')!);
 		await flush();
@@ -132,10 +128,10 @@ describe('phone layout', () => {
 		expect(open().members).toHaveLength(0);
 	});
 
-	it('closes the card with Escape on the party tab', async () => {
-		await tapMember(0);
+	it('keeps a member on the card when Escape is pressed on the party tab', async () => {
+		await tapMember(1);
 		await key(window, 'Escape');
-		expect(s().selectedUid).toBeNull();
+		expect(s().selectedUid).toBe(open().members[1].uid);
 	});
 });
 

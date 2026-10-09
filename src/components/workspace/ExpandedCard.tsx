@@ -29,6 +29,14 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 	const updateSet = useStore((s) => s.updateSet);
 	const [sets, setSets] = useState<Record<string, SmogonSet> | null>(null);
 	const [support, setSupport] = useState<SupportGroup[]>([]);
+	// Touch has no hover: a tap shows a support group's moves, and any other tap hides them.
+	const [tapped, setTapped] = useState<string | null>(null);
+	useEffect(() => {
+		if (!tapped) return;
+		const close = (e: PointerEvent) => !(e.target as Element).closest?.('[data-support]') && setTapped(null);
+		window.addEventListener('pointerdown', close);
+		return () => window.removeEventListener('pointerdown', close);
+	}, [tapped]);
 	const toast = useStore((s) => s.toast);
 	const problems = useStore((s) => s.validation[team.id]?.byMember[member.uid] ?? NO_PROBLEMS);
 	const fields = fieldsFor(team);
@@ -86,8 +94,10 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 	return (
 		<div className='relative w-full'>
 		<section aria-label={`${member.name || member.species} set`} className='flex w-full max-w-[580px] flex-col gap-4'>
-			<div className='flex gap-4 md:gap-6'>
-				<div data-card-sprite className='flex size-[72px] shrink-0 items-end justify-center self-center md:size-24'>
+			{/* pl-2: the sprite lines up with the key row labels below. */}
+			<div className='flex gap-4 pl-2 md:gap-6'>
+				{/* Top-aligned: the sprite's top edge lines up with the name's. */}
+				<div data-card-sprite className='flex size-[72px] shrink-0 items-start justify-center self-start md:size-[96px]'>
 					<PokemonSprite species={member.species} shiny={member.shiny} size={mobile ? 72 : 96} />
 				</div>
 				<div className='flex min-w-0 flex-1 flex-col gap-2.5'>
@@ -163,18 +173,22 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 						))}
 				</div>
 				{support.length > 0 && (
-					<div className='flex flex-wrap items-center gap-1.5 pl-2'>
+					<div className='relative z-20 flex flex-wrap items-center gap-1.5 pl-2'>
+						{/* The row is its own layer (z-20), so an open tooltip sits above the move cells. */}
 						<span className='mr-1 text-xs text-muted'>Support</span>
 						{support.map((g) => (
 							<span
 								key={g.name}
 								tabIndex={0}
+								data-support
+								aria-expanded={mobile ? tapped === g.name : undefined}
+								onClick={mobile ? () => setTapped((t) => (t === g.name ? null : g.name)) : undefined}
 								className='group/support relative inline-flex h-5 items-center rounded border border-line px-1.5 text-2xs text-muted hover:text-fg'
 							>
 								{g.name}
 								<span
 									role='tooltip'
-									className='pointer-events-none absolute left-0 top-6 z-50 w-max max-w-[260px] rounded bg-fg px-2 py-1 text-xs leading-5 text-bg opacity-0 transition-opacity duration-150 group-hover/support:opacity-100 group-focus-visible/support:opacity-100 max-md:hidden'
+									className={`pointer-events-none absolute left-0 top-6 z-50 w-max max-w-[260px] rounded bg-fg px-2 py-1 text-xs leading-5 text-bg opacity-0 transition-opacity duration-150 group-hover/support:opacity-100 group-focus-visible/support:opacity-100 ${mobile ? (tapped === g.name ? 'opacity-100' : 'hidden') : 'max-md:hidden'}`}
 								>
 									{g.moves.join(', ')}
 								</span>

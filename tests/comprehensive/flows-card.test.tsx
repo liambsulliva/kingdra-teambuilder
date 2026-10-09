@@ -36,7 +36,8 @@ async function openTeam(t: Team) {
 async function putOnCard(t: Team, m: PokemonSet) {
 	await openTeam(t);
 	const index = open().members.findIndex((x) => x.uid === m.uid);
-	await click(document.querySelector(`[data-party-member][data-index="${index}"]`)!);
+	// Opening a team puts a member on the card already; its party icon is hidden on desktop.
+	if (s().selectedUid !== m.uid) await click(document.querySelector(`[data-party-member][data-index="${index}"]`)!);
 	await flush(2);
 	expect(s().selectedUid).toBe(m.uid);
 }
@@ -153,18 +154,18 @@ describe('the card for every member of every team', () => {
 		await click(byLabel(`Delete ${label(m)}`));
 		await click(button('Delete', openDialog()!));
 		expect(open().members.map((x) => x.uid)).not.toContain(m.uid);
-		expect(s().selectedUid).toBeNull();
+		// Its neighbor takes the card.
+		expect(s().selectedUid).toBe(t.members[1].uid);
 	});
 
-	it('closes the card with Escape or a click on the empty desk', async () => {
+	it('keeps a member on the card through Escape and clicks on the empty desk', async () => {
 		const t = lib.teams[0];
 		await putOnCard(t, t.members[0]);
 		await key(window, 'Escape');
-		expect(s().selectedUid).toBeNull();
-		await putOnCard(t, t.members[0]);
+		expect(s().selectedUid).toBe(t.members[0].uid);
 		const desk = byLabel(`${label(t.members[0])} set`).parentElement!.parentElement!;
 		await click(desk);
-		expect(s().selectedUid).toBeNull();
+		expect(s().selectedUid).toBe(t.members[0].uid);
 	});
 
 	it('lets Escape close a dialog without closing the card', async () => {
@@ -175,11 +176,13 @@ describe('the card for every member of every team', () => {
 		expect(s().selectedUid).toBe(t.members[0].uid);
 	});
 
-	it('shows the team summary when nothing is on the card', async () => {
-		await key(window, 'Escape');
-		expect(hasText(lib.teams[0].name)).toBe(true);
-		expect(hasText(`${lib.teams[0].members.length}/6`)).toBe(true);
-		expect(hasText('No Issues')).toBe(true);
+	it('shows the team summary only while the team is empty', async () => {
+		await act(() => s().createTeam({ name: 'Blank Slate' }));
+		expect(s().selectedUid).toBeNull();
+		expect(hasText('Blank Slate')).toBe(true);
+		expect(hasText('0/6')).toBe(true);
+		expect(hasText('Drag a suggestion onto the party, or click one to add it.')).toBe(true);
+		expect(hasText('preview')).toBe(false);
 	});
 });
 
@@ -291,18 +294,18 @@ describe('preview and comparison', () => {
 		expect(s().compareSpecies).toBe('Mew');
 	});
 
-	it('compares against a chosen party member and swaps the candidate in as a fresh set', async () => {
+	it('swaps the candidate in for the member on the card as a fresh set, and keeps it on the card', async () => {
 		const t = lib.teams[0];
+		await putOnCard(t, t.members[3]);
 		act(() => s().compare('Mew'));
 		const scene = byLabel('Compare Mew');
 		expect(hasText('Candidate', scene)).toBe(true);
-		expect(hasText('From your party', scene)).toBe(true);
-		await click(byLabel(`Compare with ${t.members[3].species}`));
-		expect(s().compareTarget).toBe(t.members[3].uid);
+		expect(hasText('On your card', scene)).toBe(true);
 		await click(button(`Swap ${label(t.members[3])} for Mew`));
-		await flush();
+		await flush(4);
 		expect(open().members[3]).toMatchObject({ uid: t.members[3].uid, species: 'Mew', moves: [], item: '' });
 		expect(s().compareSpecies).toBeNull();
+		expect(s().selectedUid).toBe(t.members[3].uid);
 	});
 
 	it('compares against the member on the card, and returns to it on close', async () => {

@@ -6,7 +6,7 @@ import { App } from '@/components/shell/App';
 import { useStore } from '@/lib/store';
 import { emptyLibrary, newSet, newTeam } from '@/lib/model';
 import { auth, seedLocalLibrary } from '../helpers/env';
-import { flush, hasText } from '../helpers/render';
+import { flush } from '../helpers/render';
 
 describe('startup', () => {
 	it('server-renders the app frame, not an empty page', () => {
@@ -26,7 +26,9 @@ describe('startup', () => {
 		await flush();
 		expect(errors).toEqual([]);
 		expect(useStore.getState().hydrated).toBe(true);
-		expect(hasText('Before Clerk')).toBe(true);
+		// The team opens with its member on the card; its name sits in the team list.
+		expect((document.querySelector('input[aria-label="Team name"]') as HTMLInputElement | null)?.value).toBe('Before Clerk');
+		expect(document.querySelector('[aria-label="Kingdra set"]')).toBeTruthy();
 		act(() => root.unmount());
 		container.remove();
 	});
