@@ -1,27 +1,57 @@
 import type { Config } from 'tailwindcss';
-import flowbiteReact from 'flowbite-react/plugin/tailwindcss';
+
+// Colors mirror the Figma variables (Primitives + Color light/dark) through
+// CSS custom properties defined in globals.css. Accent is blue; danger (red)
+// is reserved for errors and destructive actions.
+const token = (name: string) => `rgb(var(--${name}) / <alpha-value>)`;
 
 const config: Config = {
-	content: [
-		'./pages/**/*.{ts,tsx}',
-		'./public/**/*.html',
-		'./src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-		'./src/components/**/*.{js,ts,jsx,tsx,mdx}',
-		'./src/app/**/*.{js,ts,jsx,tsx,mdx}',
-		'.flowbite-react/class-list.json',
-	],
+	content: ['./src/**/*.{ts,tsx}'],
+	darkMode: ['selector', '[data-theme="dark"]'],
 	theme: {
 		extend: {
-			backgroundImage: {
-				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-				'gradient-conic':
-					'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+			colors: {
+				bg: token('bg'),
+				fg: token('fg'),
+				muted: token('muted'),
+				line: token('line'),
+				'line-strong': token('line-strong'),
+				hover: token('hover'),
+				track: token('track'),
+				accent: token('accent'),
+				'accent-soft': token('accent-soft'),
+				danger: token('danger'),
+				'danger-soft': token('danger-soft'),
+				// In-game nature colors: raised stat red, lowered stat blue.
+				'nature-up': '#DC2626',
+				'nature-down': '#2563EB',
+				stat: {
+					hp: '#80C743',
+					atk: '#DFC847',
+					def: '#DA7F3D',
+					spa: '#58B7D2',
+					spd: '#576DD3',
+					spe: '#C84EB6',
+				},
+			},
+			fontFamily: {
+				sans: ['var(--font-text)', 'system-ui', 'sans-serif'],
+				head: ['var(--font-head)', 'var(--font-text)', 'system-ui', 'sans-serif'],
+				mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
+			},
+			fontSize: {
+				'2xs': ['11px', '14px'],
+				xs: ['12px', '16px'],
+				sm: ['13px', '17px'],
+				base: ['14px', '20px'],
+				md: ['15px', '20px'],
+			},
+			transitionTimingFunction: {
+				out: 'cubic-bezier(0.22, 1, 0.36, 1)',
+				spring: 'cubic-bezier(0.34, 2.1, 0.5, 1)',
 			},
 		},
-		fontFamily: {
-			sans: ['Montserrat', 'Helvetica', 'Arial', 'sans-serif'],
-		},
 	},
-	plugins: [flowbiteReact],
+	plugins: [],
 };
 export default config;

@@ -1,27 +1,15 @@
-import '@/app/globals.css';
-import Footer from '@/components/layouts/footer';
 import Link from 'next/link';
 
-const notFound = () => {
+export default function NotFound() {
 	return (
-		<html lang='en'>
-			<head>
-				<link rel='icon' href='/favicon.ico' />
-			</head>
-			<body className='flex flex-col items-center gap-2 p-32'>
-				<Link href='/' className='mb-8 text-black hover:underline'>
-					Home
-				</Link>
-				<h1 className='text-5xl font-bold'>
-					You&apos;re lost aren&apos;t you...
-				</h1>
-				<h2 className='text-2xl font-light'>404: Page Not Found.</h2>
-				<div className='absolute bottom-0 w-full'>
-					<Footer />
-				</div>
-			</body>
-		</html>
+		<main className='flex h-dvh flex-col justify-center gap-3 px-6 md:px-16'>
+			{/* eslint-disable-next-line @next/next/no-img-element */}
+			<img src='/brand/kingdra@2x.png' alt='' width={76} height={76} className='pixelated' />
+			<h1 className='font-head text-[32px] font-semibold leading-9 tracking-[-0.02em]'>This route doesn&apos;t exist.</h1>
+			<p className='text-base text-muted'>404, page not found.</p>
+			<Link href='/' className='text-base font-medium text-accent hover:underline'>
+				Back to your teams
+			</Link>
+		</main>
 	);
-};
-
-export default notFound;
+}

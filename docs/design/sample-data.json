@@ -1,0 +1,87 @@
+{
+  "verifiedOn": "2026-10-08",
+  "purpose": "Authoritative Ditto sample for the Casual Figma design; encounter data limited to Generation V.",
+  "sources": {
+    "pokemon": "https://pokeapi.co/api/v2/pokemon/132/",
+    "species": "https://pokeapi.co/api/v2/pokemon-species/132/",
+    "encounters": "https://pokeapi.co/api/v2/pokemon/132/encounters",
+    "evolution": "https://pokeapi.co/api/v2/evolution-chain/66/",
+    "form": "https://pokeapi.co/api/v2/pokemon-form/132/",
+    "unitsAndSemantics": "https://pokeapi.co/docs/v2"
+  },
+  "ditto": {
+    "id": 132,
+    "name": "Ditto",
+    "genus": "Transform Pokémon",
+    "types": ["Normal"],
+    "introducedGeneration": "I",
+    "height": {"rawDecimetres": 3, "metres": 0.3, "display": "0.3 m"},
+    "weight": {"rawHectograms": 40, "kilograms": 4.0, "display": "4.0 kg"},
+    "captureRate": {"value": 35, "scaleMaximum": 255, "display": "35", "note": "Base capture rate, not a 35% catch probability."},
+    "gender": {"rawRate": -1, "display": "Genderless"},
+    "eggGroups": ["Ditto"],
+    "abilities": [{"name": "Limber", "hidden": false, "slot": 1}, {"name": "Imposter", "hidden": true, "slot": 3}],
+    "abilityGenerationNote": "PokeAPI past_abilities records no hidden ability through Generation IV; current hidden Imposter is applicable to this Generation V sample.",
+    "baseStats": {"hp": 48, "attack": 48, "defense": 48, "specialAttack": 48, "specialDefense": 48, "speed": 48, "total": 288},
+    "evYield": {"hp": 1, "attack": 0, "defense": 0, "specialAttack": 0, "specialDefense": 0, "speed": 0},
+    "baseHappiness": 70,
+    "hatchCounter": 20,
+    "moves": ["Transform"],
+    "forms": [{"name": "Ditto", "default": true, "battleOnly": false, "mega": false}],
+    "varieties": ["Ditto"],
+    "evolution": {"chainId": 66, "evolvesFrom": null, "evolvesTo": [], "display": "Does not evolve"},
+    "legendary": false,
+    "mythical": false
+  },
+  "generationVEncounters": [
+    {
+      "location": "Giant Chasm (forest)",
+      "locationSlug": "giant-chasm-forest",
+      "locationSource": "https://pokeapi.co/api/v2/location-area/616/",
+      "versions": ["Black", "White"],
+      "rawMaxChancePerVersion": 30,
+      "methods": [
+        {"method": "walk", "display": "Walking", "chancePercent": 15, "levelSlots": [{"min": 53, "max": 53, "chancePercent": 10}, {"min": 55, "max": 55, "chancePercent": 5}], "conditions": []},
+        {"method": "dark-grass", "display": "Dark grass", "chancePercent": 15, "levelSlots": [{"min": 63, "max": 63, "chancePercent": 10}, {"min": 65, "max": 65, "chancePercent": 5}], "conditions": []}
+      ]
+    },
+    {
+      "location": "Giant Chasm (forest)",
+      "locationSlug": "giant-chasm-forest",
+      "locationSource": "https://pokeapi.co/api/v2/location-area/616/",
+      "versions": ["Black 2", "White 2"],
+      "rawMaxChancePerVersion": 30,
+      "methods": [
+        {"method": "walk", "display": "Walking", "chancePercent": 15, "levelSlots": [{"min": 45, "max": 45, "chancePercent": 10}, {"min": 47, "max": 47, "chancePercent": 5}], "conditions": []},
+        {"method": "dark-grass", "display": "Dark grass", "chancePercent": 15, "levelSlots": [{"min": 50, "max": 50, "chancePercent": 10}, {"min": 52, "max": 52, "chancePercent": 5}], "conditions": []}
+      ]
+    },
+    {
+      "location": "Giant Chasm (forest cave)",
+      "locationSlug": "giant-chasm-forest-cave",
+      "locationSource": "https://pokeapi.co/api/v2/location-area/617/",
+      "versions": ["Black 2", "White 2"],
+      "rawMaxChancePerVersion": 30,
+      "methods": [
+        {"method": "walk", "display": "Walking", "chancePercent": 15, "levelSlots": [{"min": 45, "max": 45, "chancePercent": 10}, {"min": 47, "max": 47, "chancePercent": 5}], "conditions": []},
+        {"method": "dark-grass", "display": "Dark grass", "chancePercent": 15, "levelSlots": [{"min": 50, "max": 50, "chancePercent": 10}, {"min": 52, "max": 52, "chancePercent": 5}], "conditions": []}
+      ]
+    },
+    {
+      "location": "Giant Chasm (Hidden Grotto)",
+      "locationSlug": "giant-chasm-hidden-grotto",
+      "locationSource": "https://pokeapi.co/api/v2/location-area/1355/",
+      "versions": ["Black 2", "White 2"],
+      "rawMaxChancePerVersion": 5,
+      "methods": [
+        {"method": "hidden-grotto", "display": "Hidden Grotto", "chancePercent": 5, "levelSlots": [{"min": 45, "max": 49, "chancePercent": 5}], "conditions": []}
+      ]
+    }
+  ],
+  "encounterNotes": [
+    "All values come from Ditto's PokeAPI encounter response fetched on the verified date; grouped versions have identical method/level/chance data.",
+    "Per-method 15% is calculated from its mutually exclusive 10% and 5% level slots. Raw max_chance 30 sums both walking and dark-grass slots; do not show 30% for either individual method.",
+    "The Hidden Grotto 5% is PokeAPI's encounter-table value, not a claimed chance per world step or per grotto regeneration.",
+    "No encounter condition_values were supplied for these Generation V rows. Do not invent time-of-day restrictions or inferred hidden-ability values per encounter."
+  ]
+}

@@ -2,7 +2,168 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Set Font Defaults to Poppins */
-html {
-	font-family: 'Figtree', system-ui, sans-serif;
+/* Tokens from the Figma "Color" collection, as RGB triplets so Tailwind
+   opacity modifiers work. */
+:root {
+	--bg: 255 255 255;
+	--fg: 10 10 10;
+	--muted: 107 107 112;
+	--line: 228 228 229;
+	--line-strong: 154 154 160;
+	--hover: 244 244 245;
+	--track: 244 245 247;
+	--accent: 37 99 235;
+	--accent-soft: 234 241 254;
+	--danger: 238 21 21;
+	--danger-soft: 253 236 236;
+	color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme='light']) {
+		--bg: 15 15 16;
+		--fg: 245 245 245;
+		--muted: 154 154 160;
+		--line: 38 38 42;
+		--line-strong: 107 107 112;
+		--hover: 26 26 29;
+		--track: 30 30 34;
+		--accent: 110 168 255;
+		--accent-soft: 20 32 54;
+		--danger: 255 74 74;
+		--danger-soft: 42 20 20;
+		color-scheme: dark;
+	}
+}
+
+:root[data-theme='dark'] {
+	--bg: 15 15 16;
+	--fg: 245 245 245;
+	--muted: 154 154 160;
+	--line: 38 38 42;
+	--line-strong: 107 107 112;
+	--hover: 26 26 29;
+	--track: 30 30 34;
+	--accent: 110 168 255;
+	--accent-soft: 20 32 54;
+	--danger: 255 74 74;
+	--danger-soft: 42 20 20;
+	color-scheme: dark;
+}
+
+html,
+body {
+	height: 100%;
+	background: rgb(var(--bg));
+	color: rgb(var(--fg));
+	font-family: var(--font-text), system-ui, sans-serif;
+	font-size: 14px;
+	line-height: 20px;
+	-webkit-font-smoothing: antialiased;
+}
+
+body {
+	transition:
+		background-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
+		color 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+button:not(:disabled),
+[role='button'] {
+	cursor: pointer;
+}
+
+:focus-visible {
+	outline: 1.5px solid rgb(var(--accent));
+	outline-offset: 2px;
+	border-radius: 4px;
+}
+
+::selection {
+	background: rgb(var(--accent-soft));
+}
+
+.pixelated {
+	image-rendering: pixelated;
+}
+
+/* personal-website-v3 press: shrink while held, spring past rest on release */
+.squishy {
+	--press-scale: 0.95;
+	transition:
+		transform 460ms cubic-bezier(0.34, 2.1, 0.5, 1),
+		background-color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+		opacity 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.squishy:not(:disabled):active {
+	transform: scale(var(--press-scale));
+	transition-duration: 90ms;
+	transition-timing-function: ease-out;
+}
+
+/* personal-website-v3 CompactNavIcon scare-bounce: the glyph moves, the hit
+   area never does. */
+@keyframes scare-bounce {
+	0% {
+		transform: translateY(0);
+		animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	28% {
+		transform: translateY(-7px);
+		animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+	}
+	62% {
+		transform: translateY(1.5px);
+		animation-timing-function: ease-out;
+	}
+	80% {
+		transform: translateY(-1px);
+	}
+	100% {
+		transform: translateY(0);
+	}
+}
+@media (hover: hover) and (pointer: fine) and (min-width: 768px) {
+	.bounce-host:hover .bounce-glyph {
+		animation: scare-bounce 420ms both;
+	}
+}
+
+@keyframes poof {
+	0% {
+		transform: translate(-50%, -50%) scale(0.2);
+		opacity: 0.9;
+	}
+	100% {
+		transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.4);
+		opacity: 0;
+	}
+}
+
+@keyframes rise {
+	from {
+		transform: translateY(8px);
+		opacity: 0;
+	}
+	to {
+		transform: none;
+		opacity: 1;
+	}
+}
+
+.scrollbar-none {
+	scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+	display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 1ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 1ms !important;
+	}
 }

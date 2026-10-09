@@ -1,40 +1,45 @@
-import type { Metadata } from 'next';
-import Script from 'next/script';
+import type { Metadata, Viewport } from 'next';
+import { Stack_Sans_Text, Stack_Sans_Headline, IBM_Plex_Mono } from 'next/font/google';
+import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
-import { ThemeInit } from '../../.flowbite-react/init';
+
+const text = Stack_Sans_Text({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-text', adjustFontFallback: false });
+const head = Stack_Sans_Headline({ subsets: ['latin'], weight: ['600', '700'], variable: '--font-head', adjustFontFallback: false });
+const mono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-mono' });
 
 export const metadata: Metadata = {
-	title: 'Kingdra - A Pokémon Teambuilder',
-	description: 'Designed and Developed by Liam Sullivan',
+	title: 'Kingdra',
+	description: 'A Pokémon teambuilder for casual and competitive teams. Designed and developed by Liam Sullivan.',
+	applicationName: 'Kingdra',
+	appleWebApp: { capable: true, title: 'Kingdra', statusBarStyle: 'default' },
+	formatDetection: { telephone: false },
 };
 
-const RootLayout = ({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) => {
-	return (
-		<html lang='en'>
+export const viewport: Viewport = {
+	width: 'device-width',
+	initialScale: 1,
+	viewportFit: 'cover',
+	themeColor: [
+		{ media: '(prefers-color-scheme: light)', color: '#ffffff' },
+		{ media: '(prefers-color-scheme: dark)', color: '#0f0f10' },
+	],
+};
+
+// Applies the saved theme before paint so there is no flash.
+// Also unregisters the retired service worker for returning visitors.
+const themeScript = `try{var t=localStorage.getItem('kingdra.theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}try{navigator.serviceWorker&&navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(x){x.unregister()})})}catch(e){}`;
+
+const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => (
+	<ClerkProvider>
+		<html lang='en' className={`${text.variable} ${head.variable} ${mono.variable}`} suppressHydrationWarning>
 			<head>
-				<link rel='icon' href='/favicon.ico' />
-				<link rel='preconnect' href='https://fonts.googleapis.com' />
-				<link
-					rel='preconnect'
-					href='https://fonts.gstatic.com'
-					crossOrigin={'anonymous'}
-				/>
-				<link
-					href='https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap'
-					rel='stylesheet'
-				/>
+				<script dangerouslySetInnerHTML={{ __html: themeScript }} />
 			</head>
 			<body>
-				<ThemeInit />
 				{children}
-				<Script src='/service-worker.js' />
 			</body>
 		</html>
-	);
-};
+	</ClerkProvider>
+);
 
 export default RootLayout;

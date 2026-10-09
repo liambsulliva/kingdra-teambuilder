@@ -1,17 +1,13 @@
-const CACHE_NAME = 'my-cache';
-
-self.addEventListener('install', (event) => {
+// Kingdra no longer uses a service worker (the app is always online).
+// Browsers that installed the old cache-first worker re-check this file and
+// pick up this version, which clears its caches and unregisters itself.
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (event) => {
 	event.waitUntil(
-		caches.open(CACHE_NAME).then((cache) => {
-			return cache.addAll(['/']);
-		})
-	);
-});
-
-self.addEventListener('fetch', (event) => {
-	event.respondWith(
-		caches.match(event.request).then((response) => {
-			return response || fetch(event.request);
-		})
+		(async () => {
+			for (const key of await caches.keys()) await caches.delete(key);
+			await self.registration.unregister();
+			for (const client of await self.clients.matchAll({ type: 'window' })) client.navigate(client.url);
+		})()
 	);
 });

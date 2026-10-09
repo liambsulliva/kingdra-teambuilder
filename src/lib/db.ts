@@ -8,23 +8,12 @@ if (!MONGODB_URI) {
 	);
 }
 
-const PokemonSchema = new mongoose.Schema({
-	name: String,
-	id: Number,
-	sprite: String,
-	level: Number,
-	ability: String,
-	nature: String,
-	item: String,
-	tera_type: String,
-	moves: [String],
-	iv: [Number],
-	ev: [Number],
-});
-
 const UserSchema = new mongoose.Schema({
 	clerkUserId: { type: String, unique: true },
-	pokemonParty: [[PokemonSchema]],
+	// Redesign: the whole library (teams with mode/format, boxes) as one document.
+	library: { type: mongoose.Schema.Types.Mixed, default: null },
+	// Pre-redesign fields, read once for migration.
+	pokemonParty: { type: mongoose.Schema.Types.Mixed, default: undefined },
 	teamNames: [String],
 });
 
