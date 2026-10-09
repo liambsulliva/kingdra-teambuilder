@@ -107,7 +107,7 @@ function Preview({ team, species }: { team: Team; species: string }) {
 	return (
 		<section aria-label={`Preview ${species}`} className='flex w-full max-w-[580px] flex-col gap-5'>
 			<div className='flex gap-6'>
-				<div className='flex size-24 shrink-0 items-end justify-center'>
+				<div className='flex size-24 shrink-0 items-end justify-center self-center'>
 					<PokemonSprite species={species} size={96} />
 				</div>
 				<div className='flex min-w-0 flex-1 flex-col gap-2.5'>

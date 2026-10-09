@@ -11,12 +11,14 @@ import {
 	uid,
 	type Library,
 	type Mode,
+	type SpriteSet,
 	type PokemonSet,
 	type Team,
 } from './model';
 import { abilitiesFor, canUseSpecies, defaultAbility, formatLabel, formatsForGen, getSpecies, isChampions } from './dex';
 
 export type InspectorView =
+	| 'card'
 	| 'team'
 	| 'stats'
 	| 'moves'
@@ -63,6 +65,10 @@ interface State {
 	/** Party member the comparison is against when nothing is on the card. */
 	compareTarget: string | null;
 	inspector: InspectorView;
+	/** Tablet width: the workspace is merged into the right panel as its first tab. */
+	merged: boolean;
+	/** Card art style, saved per viewer. */
+	spriteSet: SpriteSet;
 	activeMoveSlot: number | null;
 	matchupType: string | null;
 	carouselTab: string;
@@ -91,6 +97,8 @@ interface Actions {
 	dismissToast(id: string): void;
 	setSave(status: SaveStatus): void;
 	setDialog(dialog: State['dialog']): void;
+	setMerged(merged: boolean): void;
+	setSpriteSet(spriteSet: SpriteSet): void;
 	proposeFix(fix: PendingFix): void;
 	applyFix(): void;
 	setValidation(teamId: string, v: Validation): void;
@@ -138,10 +146,28 @@ export type Store = State & Actions;
 
 const first = emptyLibrary();
 
+const SPRITE_KEY = 'kingdra.sprites';
+
+/** The saved card-art style. Black/White when nothing is saved or storage is blocked. */
+export function readSpriteSet(): SpriteSet {
+	try {
+		return localStorage.getItem(SPRITE_KEY) === 'xy' ? 'xy' : 'bw';
+	} catch {
+		return 'bw';
+	}
+}
+
+/** Where the right panel rests: the team analysis, or the card when the workspace is merged into it. */
+const restView = (s: Pick<State, 'merged'>): InspectorView => (s.merged ? 'card' : 'team');
+
 const touch = (library: Library): Library => ({ ...library, updatedAt: Date.now() });
 
 export const useStore = create<Store>()((set, get) => {
 	const openTeam = () => get().library.teams.find((t) => t.id === get().openTeamId) ?? get().library.teams[0];
+	// In the merged panel the move list would hide the card a move just landed on, so the card comes back.
+	const cardIfMerged = () => {
+		if (get().merged) set({ inspector: 'card' });
+	};
 
 	const updateTeam = (id: string, fn: (team: Team) => Team) =>
 		set((s) => ({ library: touch({ ...s.library, teams: s.library.teams.map((t) => (t.id === id ? fn(t) : t)) }) }));
@@ -166,6 +192,8 @@ export const useStore = create<Store>()((set, get) => {
 		compareSpecies: null,
 		compareTarget: null,
 		inspector: 'team',
+		merged: false,
+		spriteSet: readSpriteSet(),
 		activeMoveSlot: null,
 		matchupType: null,
 		carouselTab: 'OU',
@@ -197,6 +225,20 @@ export const useStore = create<Store>()((set, get) => {
 		dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 		setSave: (save) => set({ save }),
 		setDialog: (dialog) => set({ dialog }),
+		setSpriteSet: (spriteSet) => {
+			try {
+				localStorage.setItem(SPRITE_KEY, spriteSet);
+			} catch {
+				// Storage can be full or blocked; the choice still applies for this visit.
+			}
+			set({ spriteSet });
+		},
+		// Entering the merged layout from its rest view lands on the card; leaving it returns the card to the team view.
+		setMerged: (merged) =>
+			set((s) => ({
+				merged,
+				inspector: merged && s.inspector === 'team' ? 'card' : !merged && s.inspector === 'card' ? 'team' : s.inspector,
+			})),
 		proposeFix: (fix) => set({ pendingFix: fix, dialog: 'fix' }),
 		applyFix: () => {
 			const fix = get().pendingFix;
@@ -221,7 +263,7 @@ export const useStore = create<Store>()((set, get) => {
 					selectedUid: null,
 					previewSpecies: null,
 					compareSpecies: null,
-					inspector: 'team',
+					inspector: restView(s),
 					activeMoveSlot: null,
 					carouselTab: tab,
 					carouselRole: 'All roles',
@@ -286,7 +328,7 @@ export const useStore = create<Store>()((set, get) => {
 				previewSpecies: null,
 				compareSpecies: null,
 				activeMoveSlot: null,
-				inspector: memberUid
+				inspector: s.merged ? 'card' : memberUid
 					? openTeam().mode === 'casual'
 						? 'pokedex'
 						: s.inspector === 'team' || s.inspector === 'compare' || s.inspector === 'pokedex' || s.inspector === 'locations'
@@ -303,6 +345,7 @@ export const useStore = create<Store>()((set, get) => {
 					const old = team.members[index];
 					updateTeam(team.id, (t) => ({ ...t, members: t.members.map((m) => (m.uid === old.uid ? { ...freshSet(t, species), uid: old.uid } : m)) }));
 					set({ previewSpecies: null });
+					cardIfMerged();
 					return true;
 				}
 				set({ rejectedAt: Date.now() });
@@ -316,6 +359,7 @@ export const useStore = create<Store>()((set, get) => {
 				return { ...t, members };
 			});
 			set({ previewSpecies: null });
+			cardIfMerged();
 			return true;
 		},
 		addMemberToTeam: (teamId, species, index) => {
@@ -363,8 +407,10 @@ export const useStore = create<Store>()((set, get) => {
 		},
 		/**
 		 * Moves a member to another team with its set. With `species`, it arrives as
-		 * that evolution, as if it had been switched on the card first. Refused when
-		 * the team is full or cannot field that species.
+		 * that evolution, as if it had been switched on the card first. Dropped on an
+		 * occupied slot, the two swap: the member there goes to the source team, into
+		 * the place the moved member left. Refused when the target is full and the
+		 * drop is not on one of its members, or when it cannot field that species.
 		 */
 		moveMemberToTeam: (memberUid, fromTeamId, toTeamId, index, species) => {
 			const { library } = get();
@@ -377,22 +423,28 @@ export const useStore = create<Store>()((set, get) => {
 				get().toast('error', `${species} can't be used in ${to.name} (${formatLabel(to)})`);
 				return false;
 			}
-			if (to.members.length >= MAX_TEAM_SIZE) {
+			// A drop on an occupied slot swaps the two, full team or not. Otherwise the target needs room.
+			const displaced = index !== undefined ? to.members[index] : undefined;
+			if (!displaced && to.members.length >= MAX_TEAM_SIZE) {
 				set({ rejectedAt: Date.now() });
 				get().toast('error', `${to.name} is full: remove a member first`);
 				return false;
 			}
 			const moved = evolves ? asSpecies(to, member, species) : member;
 			const teams = library.teams.map((t) => {
-				if (t.id === from.id) return { ...t, members: t.members.filter((m) => m.uid !== memberUid) };
+				if (t.id === from.id)
+					return { ...t, members: displaced ? t.members.map((m) => (m.uid === memberUid ? displaced : m)) : t.members.filter((m) => m.uid !== memberUid) };
 				if (t.id !== to.id) return t;
 				const members = [...t.members];
-				members.splice(Math.min(index ?? members.length, members.length), 0, moved);
+				if (displaced) members[index!] = moved;
+				else members.splice(Math.min(index ?? members.length, members.length), 0, moved);
 				return { ...t, members };
 			});
 			set({ library: touch({ ...library, teams }) });
-			if (get().selectedUid === memberUid) get().selectMember(null);
-			get().toast('success', `${moved.name || moved.species} moved to ${to.name}`);
+			const selected = get().selectedUid;
+			if (selected === memberUid || (displaced && selected === displaced.uid)) get().selectMember(null);
+			const name = (m: PokemonSet) => m.name || m.species;
+			get().toast('success', displaced ? `${name(moved)} swapped with ${name(displaced)}` : `${name(moved)} moved to ${to.name}`);
 			return true;
 		},
 		updateSet: (memberUid, patch) => updateMember(memberUid, (m) => ({ ...m, ...patch })),
@@ -402,7 +454,7 @@ export const useStore = create<Store>()((set, get) => {
 			const team = openTeam();
 			const fresh = freshSet(team, species);
 			updateMember(memberUid, () => ({ ...fresh, uid: memberUid }));
-			set({ compareSpecies: null, previewSpecies: null, inspector: 'stats' });
+			set((s) => ({ compareSpecies: null, previewSpecies: null, inspector: s.merged ? 'card' : 'stats' }));
 		},
 		setMove: (memberUid, slot, move) =>
 			updateMember(memberUid, (m) => {
@@ -427,6 +479,7 @@ export const useStore = create<Store>()((set, get) => {
 			if (activeMoveSlot !== null) {
 				get().setMove(selectedUid, activeMoveSlot, move);
 				set({ activeMoveSlot: null });
+				cardIfMerged();
 				return;
 			}
 			const padded = [...member.moves, '', '', '', ''].slice(0, MAX_MOVES);
@@ -436,6 +489,7 @@ export const useStore = create<Store>()((set, get) => {
 				return;
 			}
 			get().setMove(selectedUid, empty, move);
+			cardIfMerged();
 		},
 
 		setInspector: (view, slot = null) => set({ inspector: view, activeMoveSlot: view === 'moves' ? slot : null }),
@@ -444,7 +498,7 @@ export const useStore = create<Store>()((set, get) => {
 			set((s) => ({
 				previewSpecies: species,
 				compareSpecies: null,
-				inspector: species ? (s.selectedUid ? 'compare' : s.inspector) : s.selectedUid ? 'stats' : 'team',
+				inspector: s.merged ? 'card' : species ? (s.selectedUid ? 'compare' : s.inspector) : s.selectedUid ? 'stats' : 'team',
 			})),
 		setCompareTarget: (compareTarget) => set({ compareTarget }),
 		compare: (species) =>
@@ -452,7 +506,7 @@ export const useStore = create<Store>()((set, get) => {
 				compareSpecies: species,
 				compareTarget: s.selectedUid ?? openTeam().members[0]?.uid ?? null,
 				previewSpecies: null,
-				inspector: species ? 'compare' : s.selectedUid ? 'stats' : 'team',
+				inspector: s.merged ? 'card' : species ? 'compare' : s.selectedUid ? 'stats' : 'team',
 			})),
 		setCarousel: (patch) => set(patch),
 

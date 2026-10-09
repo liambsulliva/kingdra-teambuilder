@@ -124,7 +124,7 @@ button:not(:disabled),
 		transform: translateY(0);
 	}
 }
-@media (hover: hover) and (pointer: fine) and (min-width: 768px) {
+@media (hover: hover) and (pointer: fine) and (min-width: 626px) {
 	.bounce-host:hover .bounce-glyph {
 		animation: scare-bounce 420ms both;
 	}

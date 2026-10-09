@@ -1,4 +1,4 @@
-import { generationFor } from './dex';
+import { learnsetAt } from './dex';
 import type { Team } from './model';
 
 /** The support moves the card points out, grouped by the job they do. */
@@ -32,18 +32,18 @@ export interface SupportGroup {
 const toId = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 const cache = new Map<string, Promise<SupportGroup[]>>();
 
-/** Support categories a species can learn in the team's generation, each with its matching moves. */
+/** Support categories a species can know at its level in the team's generation, each with its matching moves. */
 export function supportFor(
 	team: Team,
-	species: string
+	species: string,
+	level: number
 ): Promise<SupportGroup[]> {
 	const wide = team.mode === 'casual' || team.format.includes('nationaldex');
-	const key = `${team.gen}:${wide}:${species}`;
+	const key = `${team.gen}:${wide}:${species}:${level}`;
 	let found = cache.get(key);
 	if (!found) {
 		found = (async () => {
-			const learnable: Record<string, string[]> =
-				(await generationFor(team).learnsets.learnable(species)) ?? {};
+			const learnable = await learnsetAt(team, species, level);
 			return SUPPORT.map(({ name, moves }) => ({
 				name,
 				moves: moves.filter((m) => learnable[toId(m)]),

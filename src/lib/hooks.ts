@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { emptyLibrary, normalizeLibrary, type Library, type Team } from './model';
 import { useStore } from './store';
+import { MERGED_QUERY, MOBILE_QUERY } from './breakpoints';
 
 const LOCAL_KEY = 'kingdra.library.v2';
 const GUEST_KEY = 'kingdra.guest-unsynced';
@@ -184,5 +185,6 @@ export function useMediaQuery(query: string, server = false) {
 	return useSyncExternalStore(subscribe, get, () => server);
 }
 
-export const useIsMobile = () => useMediaQuery('(max-width: 767px)');
+export const useIsMobile = () => useMediaQuery(MOBILE_QUERY);
+export const useIsMerged = () => useMediaQuery(MERGED_QUERY);
 export const useReducedMotion = () => useMediaQuery('(prefers-reduced-motion: reduce)');

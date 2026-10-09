@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { itemsFor, searchItems } from '../dex';
+import { itemsFor, learnableMoves, searchItems } from '../dex';
 import { newTeam } from '../model';
 
 const items = itemsFor(newTeam({ gen: 9, format: 'gen9ou' }));
@@ -18,5 +18,23 @@ describe('item search', () => {
 
 	it('returns every item for an empty query', () => {
 		expect(searchItems(items, '   ')).toHaveLength(items.length);
+	});
+});
+
+describe('moves by level', () => {
+	const team = newTeam({ gen: 9, format: 'gen9ou' });
+	const moves = async (species: string, level: number) => (await learnableMoves(team, species, level)).map((m) => m.name);
+
+	it('drops a level-up move the Pokémon is below the level for', async () => {
+		expect(await moves('Garchomp', 5)).not.toContain('Bite');
+		expect(await moves('Garchomp', 27)).toContain('Bite');
+	});
+
+	it('keeps level-up moves at or below the level', async () => {
+		expect(await moves('Garchomp', 5)).toContain('Sand Attack');
+	});
+
+	it('never limits TM, tutor or egg moves by level', async () => {
+		expect(await moves('Kingdra', 5)).toContain('Draco Meteor');
 	});
 });

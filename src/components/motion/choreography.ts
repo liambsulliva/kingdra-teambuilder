@@ -4,6 +4,7 @@ import { flushSync } from 'react-dom';
 import { Dex } from '@pkmn/dex';
 import { iconSprite, iconStyle } from '@/lib/sprites';
 import { useStore } from '@/lib/store';
+import { MOBILE_QUERY } from '@/lib/breakpoints';
 
 // Starting values from the Motion page in Figma; tune here.
 // Team switch is "brisk": about 0.7 s end to end (user choice).
@@ -145,7 +146,7 @@ export async function openTeamWithMotion(id: string, select?: string) {
 	const mine = ++generation;
 	live.forEach((a) => a.finish());
 	showAllHidden();
-	if (reduced() || window.matchMedia('(max-width: 767px)').matches) {
+	if (reduced() || window.matchMedia(MOBILE_QUERY).matches) {
 		store.openTeam(id);
 		if (select) useStore.getState().selectMember(select);
 		return;

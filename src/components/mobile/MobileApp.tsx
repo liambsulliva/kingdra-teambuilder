@@ -7,7 +7,7 @@ import { IconButton } from '@/components/ui/IconButton';
 import { SearchField, Tab } from '@/components/ui/controls';
 import { TypeBadge } from '@/components/ui/TypeBadge';
 import { PokemonIcon } from '@/components/pokemon/PokemonIcon';
-import { Account, Logo, useTheme } from '@/components/shell/Header';
+import { Account, Logo, SpriteToggle, useTheme } from '@/components/shell/Header';
 import { TeamLibrary } from '@/components/library/TeamLibrary';
 import { Workspace } from '@/components/workspace/Workspace';
 import { Inspector } from '@/components/inspector/Inspector';
@@ -182,6 +182,7 @@ export function MobileApp() {
 				<Logo size={32} />
 				<span className='font-head text-[20px] font-bold leading-6'>Kingdra</span>
 				<span className='flex-1' />
+				<SpriteToggle />
 				<IconButton icon={theme === 'dark' ? 'sun' : 'moon'} label={theme === 'dark' ? 'Light mode' : 'Dark mode'} onClick={toggle} tooltip='none' />
 				<Account />
 			</header>

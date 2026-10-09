@@ -52,12 +52,12 @@ export function accepts(drag: DragData, over: DropTarget): boolean {
 				over.kind === 'card'
 			);
 		case 'member':
-			// Any member can move to another team's card or to the open party.
+			// Any member can move to another team's card or to the open party. On an occupied slot the two swap, so a full team takes it too.
 			if (over.kind === 'teamslot') {
 				const target = s.library.teams.find((t) => t.id === over.teamId);
-				return !!target && over.teamId !== drag.teamId && hasRoom(target);
+				return !!target && over.teamId !== drag.teamId;
 			}
-			if (over.kind === 'party') return own || hasRoom(open);
+			if (over.kind === 'party') return own || hasRoom(open) || over.index! < open.members.length;
 			// Only the open team's members can be stored or removed.
 			return own;
 		case 'evolution': {
@@ -66,7 +66,7 @@ export function accepts(drag: DragData, over: DropTarget): boolean {
 			const target = s.library.teams.find((t) => t.id === over.teamId);
 			const source = s.library.teams.find((t) => t.id === drag.teamId)?.members.find((m) => m.uid === drag.uid);
 			const isOwnStage = source?.species === drag.species;
-			return !!target && over.teamId !== drag.teamId && hasRoom(target) && (isOwnStage || canUseSpecies(target, drag.species!));
+			return !!target && over.teamId !== drag.teamId && (hasRoom(target) || over.index < target.members.length) && (isOwnStage || canUseSpecies(target, drag.species!));
 		}
 		case 'boxset':
 			return (

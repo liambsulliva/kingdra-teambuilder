@@ -10,6 +10,10 @@ const config: Config = {
 	darkMode: ['selector', '[data-theme="dark"]'],
 	theme: {
 		extend: {
+			// `md` is the mobile switch: below it (max-md) is the phone layout, at and above it the tablet and desktop layouts. See src/lib/breakpoints.ts.
+			screens: {
+				md: '626px',
+			},
 			colors: {
 				bg: token('bg'),
 				fg: token('fg'),

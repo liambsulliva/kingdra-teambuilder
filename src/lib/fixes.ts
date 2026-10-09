@@ -43,7 +43,7 @@ export async function planFix(
 			patch: { evs: { ...member.evs, hp: 1 } },
 		};
 	if (key === 'moves') {
-		const first = (await learnableMoves(team, member.species))[0];
+		const first = (await learnableMoves(team, member.species, member.level))[0];
 		if (!first) return null;
 		const moves = Array.from({ length: MAX_MOVES }, (_, i) =>
 			i === 0 ? first.name : ''

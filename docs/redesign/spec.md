@@ -27,7 +27,7 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
 ## 1. Visual language
 
 - **Swiss design.** Strict grid, flush-left text, generous white space. No all-caps anywhere, including labels and buttons.
-- **Type.** Stack Sans Text for UI and body copy; Stack Sans Headline for the wordmark and Pokémon names. IBM Plex Mono only for flavor text such as Pokédex numbers (`#230`); every other number is Stack Sans Text with tabular figures. All three are on Google Fonts.
+- **Type.** Stack Sans Text for UI and body copy; Stack Sans Headline for the wordmark and Pokémon names. IBM Plex Mono only for flavor text such as Pokédex numbers (`#230`) and the change lines in the fix dialog; every other number is Stack Sans Text with tabular figures. All three are on Google Fonts.
 - **Lines.** 1px `#E4E4E5` hairlines are the only dividers. No cards with shadows and no filled panels.
 - **Color.** The chrome is monochrome. Blue is the single accent, used sparingly: selection markers, active tab underline, focus ring, drop-target highlight, the primary action and the open-team marker. Red (`danger`) is reserved for errors, legality warnings and destructive actions, so they stay readable. Otherwise color comes only from type badges and stat bars.
 
@@ -45,7 +45,7 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
 
 - **Stat colors.** HP green, Atk yellow, Def orange, SpA cyan, SpD purple, Spe pink. Exact values are set in Figma and checked for contrast on both themes.
 - **Type colors.** Keep `src/lib/typeColors.json`, re-checked on dark.
-- **Icons.** Majesticons (line variant) everywhere possible, rendered at **16×16** in a stable hit target. Fallback set: Lucide. Icon buttons copy personal-website-v3's IconButton: glyph at 80% opacity rising to 100%, a hover fill, and a 13px tooltip below.
+- **Icons.** Majesticons (line variant) everywhere possible. Key-row tabs use trending-up (Level), lightning-bolt (Ability), shopping-bag (Item), heart (Nature), sparkles (Tera) and clipboard (Moves), rendered at **16×16** in a stable hit target. Fallback set: Lucide. Icon buttons copy personal-website-v3's IconButton: glyph at 80% opacity rising to 100%, a hover fill, and a 13px tooltip below.
 - **Light/dark toggle.** 16px sun/moon icon in the header.
 
 ## 2. Pokémon imagery
@@ -54,7 +54,7 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
 |---|---|---|
 | Party, team list, Box, evolution row, drag ghost | PokeAPI Gen VIII icons (`versions/generation-viii/icons/{id}.png`, 68×56) | 32×32 |
 | Gen 9 species (#906+) and missing forms | Showdown icon sheet (`play.pokemonshowdown.com/sprites/pokemonicons-sheet.png`, 40×30 cells) | 32×32 |
-| Expanded card, comparison scene | PokeAPI animated Showdown GIFs (`other/showdown/{id}.gif`, `back/` for your side) | Up to 96 high, 2× pixelated |
+| Expanded card, comparison scene | The header's B/W or X/Y choice. **B/W:** Black/White animated GIFs (`versions/generation-v/black-white/animated/{id}.gif`). **X/Y:** the pixelated 3D models, Showdown's animated sprites (`other/showdown/{id}.gif`), which are also the fallback for B/W gaps (Gen 9, #650+). Then the static sprite and the front sprite. `back/` and `shiny/` follow the viewer's side and shininess. | Up to 96 high, 2× pixelated |
 | Carousel cards | PokeAPI `front_default` (96×96) | Trimmed, 64 high |
 | Fallback | Poké Ball glyph | Same slot |
 
@@ -83,7 +83,7 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Header.** The Kingdra logo (PokeAPI's front sprite, mirrored, cropped 38×38 around the head; `public/brand/kingdra.png`, also the favicon), vertically centered, plus the "Kingdra" wordmark on the left. On the right, 16px icon buttons: about (personal site, Instagram, LinkedIn, GitHub links), theme, account (Clerk sign-in or user button).
+- **Header.** The Kingdra logo (PokeAPI's front sprite, mirrored, cropped 38×38 around the head; `public/brand/kingdra.png`, also the favicon), vertically centered, plus the "Kingdra" wordmark on the left. On the right, the B/W | X/Y sprite toggle (saved per viewer), then 16px icon buttons: about (personal site, Instagram, LinkedIn, GitHub links), theme, account (Clerk sign-in or user button).
 - **Left panel, team list.** Scrolls independently. The panel head reads "Teams" with icons for search team names, import team (paste Showdown text, which creates a new team), and new team.
   - **Team card.** Six 32×32 icon slots in a row at the top-left, then the team name, then a muted label such as "gen 9 · OU" or "gen 5 · casual".
   - **Open team.** Its icon slots show **dashed skeletons** because its members are down in the party, and a red marker sits by its name. Only the open team shows its **control row** beneath the card: mode (casual/competitive), generation and format, legality issue count, duplicate, export, delete. The row slides open as the party walks down.
@@ -97,9 +97,11 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
   - **Toolbar right.** The **Box** icon, then search across the full catalogue (not only loaded cards).
 - **Box drawer.** The Box icon slides a drawer up from the screen's bottom edge over the carousel, to about 50% of the viewport. The party row stays visible above it so drags between the two are short. Esc, the icon, or a click outside closes it.
 
+**Tablet, 626–1100px.** The workspace folds into the right panel as its first tab (the party icon), so the team list stays on the left and the panel takes the space the center and right panels shared. The card tab is the default there: selecting, adding a Pokémon or picking a move brings it forward. Drop targets on the card (the party row, move cells) exist only while that tab is open. At 625px and below the mobile layout applies (section 10).
+
 ## 4. Expanded card
 
-- **Identity.** Animated sprite, nickname or species name (Stack Sans Headline), type badges. Clicking a type badge opens that member's matchups in the right panel.
+- **Identity.** Animated sprite, nickname or species name (Stack Sans Headline), type badges. Clicking a type badge opens that member's matchups in the right panel. The sprite is vertically centered on the name, type and evolution rows beside it.
 - **Evolution row.** 32×32 icons for the whole line (branches included) under the name, with the current stage underlined in red. Clicking another stage switches species and **keeps the whole set**. Anything the new species can't legally use is flagged, not deleted.
 - **Key rows.** Two-column label/value list. Clicking a row opens its editor in the right panel.
   - Competitive: Level, Ability, Item, Nature (with +/− stats), Tera.
@@ -117,8 +119,8 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
 | Team (default) | Offensive coverage and defensive weaknesses for 18 types, with the same math as today but immunity-correct. Explanations live in tooltips. Competitive teams also get the legality summary. |
 | Stats (Competitive) | Six color-coded bars: base, final, EV and IV numeric and slider controls, nature effect markers, EV budget (510 max, 508 efficient), double-click reset, Speed tier tooltip (+1/Scarf, +2, +3). Generation-aware variants: DVs and shared Special in Gen 1–2, no EVs and IVs in Let's Go formats. |
 | Base stats (Casual) | Read-only colored base stat bars and total. |
-| Moves | Learnable moves for this species in the team's generation, searchable, with type, category, power, accuracy, PP and short effect. Each row is draggable. **Click replaces the active slot if one is active, otherwise fills the next empty slot.** |
-| Ability, Item, Nature, Tera, Level | Searchable lists with descriptions. Hidden ability is marked. Items are filtered to held items valid in the generation. All 25 natures. |
+| Moves | Learnable moves for this species in the team's generation at the Pokémon's level, searchable, with type, category, power, accuracy, PP and short effect. A level-up move is listed only at or below the Pokémon's level; TMs, tutors, eggs and events always are. Each row is draggable. **Click replaces the active slot if one is active, otherwise fills the next empty slot.** |
+| Ability, Item, Nature, Tera, Level | Searchable lists with descriptions. Hidden ability is marked. Items are filtered to held items valid in the generation. All 25 natures. Each is also its own tab in the icon bar, shown where the format has that field, so the editor is one click away even without the key row. |
 | Details | Nickname, gender, shiny, happiness, Poké Ball, Hidden Power type (Gen 2–7), Dynamax level and Gigantamax (Gen 8), Tera (Gen 9). Fields appear only when the generation and format use them. |
 | Matchups | One member's weaknesses, resistances and immunities with ×4, ×2, ×½, ×¼ and ×0 shown. |
 | Pokédex (Casual) | Every field from today's species info: dex number, flavor text, generation, gender rate, capture rate, happiness, baby/legendary/mythical, hatch counter, growth rate, egg group, evolves-from. Also cosmetic forms and the Serebii link. |
@@ -168,6 +170,7 @@ Inline flags: a 16px warning glyph sits next to the offending field with the rea
   - The format drives the carousel's tier filter (that tier and the tiers below it) and the legality checks.
   - Tiers come from Showdown's data, not usage-stats scraping.
 - **Team import** creates a new team. Single-set import on the card replaces that member's set.
+- **Moving between teams.** Drop a member on another team's slot to move it there. On an occupied slot the two swap, even when the team is full.
 - **Deleting the last team** is blocked with a message, as today.
 
 ## 9. Motion
@@ -186,7 +189,7 @@ All motion respects `prefers-reduced-motion`; with it on, everything becomes a c
 | Box drawer | Slides up with a spring and slides back down. |
 | Theme | 200ms color crossfade. |
 
-## 10. Mobile, below 768px
+## 10. Mobile, 625px and below
 
 - **Tabs.** A bottom bar with Teams, Party and Browse.
   - **Teams:** the list with controls.

@@ -18,6 +18,7 @@ import { CandidateOverlay } from '@/components/browse/BottomPanel';
 import { PokemonIcon } from '@/components/pokemon/PokemonIcon';
 import { TYPE_COLORS } from '@/components/ui/TypeBadge';
 import { accepts, type DragData, type DropTarget } from '@/lib/drag';
+import { MOBILE_QUERY } from '@/lib/breakpoints';
 import { useStore } from '@/lib/store';
 import { poof, pop } from '@/components/motion/choreography';
 import { selectWithLift } from '@/components/workspace/PartyRow';
@@ -79,7 +80,7 @@ export function DragLayer({ children }: { children: React.ReactNode }) {
 			const own = drag.teamId === open.id;
 			// A long-press that never moved is a request for the action sheet (touch).
 			if (Math.hypot(e.delta.x, e.delta.y) < 6) {
-				if (own && window.matchMedia('(max-width: 767px)').matches) useStore.setState({ mobileActionUid: drag.uid });
+				if (own && window.matchMedia(MOBILE_QUERY).matches) useStore.setState({ mobileActionUid: drag.uid });
 				return;
 			}
 			if (over?.kind === 'teamslot') {

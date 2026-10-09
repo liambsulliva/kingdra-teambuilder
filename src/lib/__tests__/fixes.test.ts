@@ -79,7 +79,7 @@ describe('fix plans', () => {
 
 	it('fills the first move with the first move in the pool', async () => {
 		const set = newSet('Zamazenta');
-		const pool = await learnableMoves(team, 'Zamazenta');
+		const pool = await learnableMoves(team, 'Zamazenta', 100);
 		const plan = await planFix(team, set, 'Zamazenta has no moves');
 		expect(plan?.patch.moves?.[0]).toBe(pool[0].name);
 		expect(plan?.patch.moves?.slice(1)).toEqual(['', '', '']);

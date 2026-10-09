@@ -8,27 +8,27 @@ const group = (groups: { name: string; moves: string[] }[], name: string) =>
 
 describe('support moves', () => {
 	it('lists the hazards a species can set, by category', async () => {
-		const groups = await supportFor(team, 'Garchomp');
+		const groups = await supportFor(team, 'Garchomp', 100);
 		expect(group(groups, 'Hazards')).toEqual(
 			expect.arrayContaining(['Stealth Rock', 'Spikes'])
 		);
 	});
 
 	it('lists the status moves a species can learn', async () => {
-		const groups = await supportFor(team, 'Pikachu');
+		const groups = await supportFor(team, 'Pikachu', 100);
 		expect(group(groups, 'Status')).toContain('Thunder Wave');
 		expect(group(groups, 'Momentum')).toContain('Volt Switch');
 	});
 
 	it('drops empty categories', async () => {
-		const groups = await supportFor(team, 'Pikachu');
+		const groups = await supportFor(team, 'Pikachu', 100);
 		expect(groups.find((g) => g.name === 'Hazards')).toBeUndefined();
 		expect(groups.every((g) => g.moves.length > 0)).toBe(true);
 	});
 
 	it('only ever shows the listed moves', async () => {
 		const listed = new Set(SUPPORT.flatMap((g) => g.moves));
-		const groups = await supportFor(team, 'Dragonite');
+		const groups = await supportFor(team, 'Dragonite', 100);
 		expect(groups.flatMap((g) => g.moves).every((m) => listed.has(m))).toBe(
 			true
 		);

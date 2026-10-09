@@ -49,6 +49,29 @@ export function useTheme() {
 	return { theme, toggle };
 }
 
+/** Card art style: Black/White animated sprites or X/Y pixelated 3D models. Saved per viewer. */
+export function SpriteToggle() {
+	const value = useStore((s) => s.spriteSet);
+	const setValue = useStore((s) => s.setSpriteSet);
+	return (
+		<div role='radiogroup' aria-label='Card sprites' className='mr-1 inline-flex gap-0.5 rounded-md border border-line p-0.5'>
+			{(['bw', 'xy'] as const).map((v) => (
+				<button
+					key={v}
+					type='button'
+					role='radio'
+					aria-checked={value === v}
+					title={v === 'bw' ? 'Black/White animated sprites' : 'X/Y pixelated 3D sprites'}
+					onClick={() => setValue(v)}
+					className={`squishy rounded px-1.5 py-0.5 text-xs font-medium ${value === v ? 'bg-accent-soft text-accent' : 'text-muted hover:text-fg'}`}
+				>
+					{v === 'bw' ? 'B/W' : 'X/Y'}
+				</button>
+			))}
+		</div>
+	);
+}
+
 export function Account() {
 	return (
 		<>
@@ -76,6 +99,7 @@ export function Header() {
 			</Link>
 			<span className='flex-1' />
 			<SaveStatus />
+			<SpriteToggle />
 			<IconButton icon={theme === 'dark' ? 'sun' : 'moon'} label={theme === 'dark' ? 'Light mode' : 'Dark mode'} onClick={toggle} />
 			<Account />
 		</header>

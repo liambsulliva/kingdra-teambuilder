@@ -38,11 +38,11 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 
 	useEffect(() => {
 		let live = true;
-		supportFor(team, member.species).then((groups) => live && setSupport(groups)).catch(() => live && setSupport([]));
+		supportFor(team, member.species, member.level).then((groups) => live && setSupport(groups)).catch(() => live && setSupport([]));
 		return () => {
 			live = false;
 		};
-	}, [team, member.species]);
+	}, [team, member.species, member.level]);
 
 	const rows: { view: InspectorView; label: string; value: string; empty: string; flag: string[] }[] = [];
 	if (fields.level) rows.push({ view: 'level', label: 'Level', value: String(member.level), empty: '', flag: problemsFor(problems, ['level']) });
@@ -83,7 +83,7 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 		<div className='relative w-full'>
 		<section aria-label={`${member.name || member.species} set`} className='flex w-full max-w-[580px] flex-col gap-4'>
 			<div className='flex gap-4 md:gap-6'>
-				<div data-card-sprite className='flex size-[72px] shrink-0 items-end justify-center md:size-24'>
+				<div data-card-sprite className='flex size-[72px] shrink-0 items-end justify-center self-center md:size-24'>
 					<PokemonSprite species={member.species} shiny={member.shiny} size={mobile ? 72 : 96} />
 				</div>
 				<div className='flex min-w-0 flex-1 flex-col gap-2.5'>

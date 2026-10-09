@@ -88,14 +88,15 @@ export function MovesView({
 	const [cat, setCat] = useState<(typeof CATS)[number]>('All');
 	const [suggested, setSuggested] = useState<Map<string, number>>(new Map());
 
+	// Only moves the Pokémon can know at its level are offered; a level-up move above it is not.
 	useEffect(() => {
 		let live = true;
 		setMoves(null);
-		learnableMoves(team, member.species).then((m) => live && setMoves(m));
+		learnableMoves(team, member.species, member.level).then((m) => live && setMoves(m));
 		return () => {
 			live = false;
 		};
-	}, [team, member.species]);
+	}, [team, member.species, member.level]);
 
 	// Suggested moves, like Showdown: Smogon usage stats and curated sets for
 	// this species in the team's format (casual teams use their gen's OU).

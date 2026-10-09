@@ -1,6 +1,8 @@
 export type StatID = 'hp' | 'atk' | 'def' | 'spa' | 'spd' | 'spe';
 export type StatTable = Record<StatID, number>;
 export type Mode = 'competitive' | 'casual';
+/** Card art style: Black/White animated sprites, or X/Y pixelated 3D models (Showdown's animated sprites). */
+export type SpriteSet = 'bw' | 'xy';
 
 export const STATS: StatID[] = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
 export const STAT_LABELS: Record<StatID, string> = {

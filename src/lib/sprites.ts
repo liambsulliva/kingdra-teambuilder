@@ -1,5 +1,6 @@
 import { Icons } from '@pkmn/img';
 import data from './data/sprite-data.json';
+import type { SpriteSet } from './model';
 
 const POKEAPI = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon';
 const SHOWDOWN_SHEET = 'https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png';
@@ -75,6 +76,19 @@ export function animatedSprite(species: SpeciesRef, back = false, shiny = false)
 
 export function staticSprite(species: SpeciesRef, back = false, shiny = false) {
 	return `${POKEAPI}/${back ? 'back/' : ''}${shiny ? 'shiny/' : ''}${pokeapiId(species)}.png`;
+}
+
+/**
+ * Card art, best first, as URLs. The chosen set leads and the other follows.
+ * The pixelated 3D models (Showdown's animated sprites, from the X/Y era) are
+ * the fallback when Black/White is picked, which covers Gen 9 and any species
+ * past #649. The static sprite and the front sprite come last.
+ */
+export function cardSources(species: SpeciesRef, set: SpriteSet, back = false, shiny = false): string[] {
+	const bw = bwSprite(species, back, shiny);
+	const xy = animatedSprite(species, back, shiny);
+	const rest = [staticSprite(species, back, shiny), ...(back ? [] : [frontSprite(species)])];
+	return [...(set === 'xy' ? [xy, bw] : [bw, xy]), ...rest];
 }
 
 /** CSS for drawing an IconSprite into a square, bottom-centered, filling it. */

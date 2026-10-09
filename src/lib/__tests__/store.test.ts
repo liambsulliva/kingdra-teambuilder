@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { useStore } from '../store';
+import { readSpriteSet, useStore } from '../store';
 import { emptyLibrary } from '../model';
 
 const team = () => useStore.getState().library.teams[0];
@@ -69,6 +69,37 @@ describe('moving members between teams', () => {
 		expect(teamNamed('Second').members).toHaveLength(6);
 	});
 
+	it('swaps with the member on the slot it lands on, even when the target is full', () => {
+		const s = useStore.getState();
+		s.addMember('Garchomp');
+		const source = team();
+		const garchomp = source.members[0];
+		s.createTeam({ name: 'Second' });
+		for (const p of ['Pikachu', 'Charizard', 'Lapras', 'Snorlax', 'Gengar', 'Dragonite']) s.addMemberToTeam(teamNamed('Second').id, p);
+		const displaced = teamNamed('Second').members[2];
+		s.openTeam(source.id);
+
+		expect(useStore.getState().moveMemberToTeam(garchomp.uid, source.id, teamNamed('Second').id, 2)).toBe(true);
+		expect(teamNamed('Second').members).toHaveLength(6);
+		expect(teamNamed('Second').members[2]).toEqual(garchomp);
+		expect(teamNamed('Team 1').members).toEqual([displaced]);
+	});
+
+	it('swaps with a member on a team that still has room', () => {
+		const s = useStore.getState();
+		s.addMember('Garchomp');
+		const source = team();
+		const garchomp = source.members[0];
+		s.createTeam({ name: 'Second' });
+		s.addMemberToTeam(teamNamed('Second').id, 'Pikachu');
+		const pikachu = teamNamed('Second').members[0];
+		s.openTeam(source.id);
+
+		expect(useStore.getState().moveMemberToTeam(garchomp.uid, source.id, teamNamed('Second').id, 0)).toBe(true);
+		expect(teamNamed('Second').members).toEqual([garchomp]);
+		expect(teamNamed('Team 1').members).toEqual([pikachu]);
+	});
+
 	it('does nothing when the target is the member’s own team', () => {
 		useStore.getState().addMember('Garchomp');
 		const source = team();
@@ -118,5 +149,18 @@ describe('moving a member as an evolution', () => {
 		expect(useStore.getState().moveMemberToTeam(source.members[0].uid, source.id, teamNamed('Old').id, undefined, 'Garchomp')).toBe(false);
 		expect(team().members).toHaveLength(1);
 		expect(teamNamed('Old').members).toHaveLength(0);
+	});
+});
+
+describe('card sprite set', () => {
+	beforeEach(() => localStorage.clear());
+
+	it('defaults to Black/White, then remembers the X/Y choice', () => {
+		expect(readSpriteSet()).toBe('bw');
+		useStore.getState().setSpriteSet('xy');
+		expect(useStore.getState().spriteSet).toBe('xy');
+		expect(readSpriteSet()).toBe('xy');
+		useStore.getState().setSpriteSet('bw');
+		expect(readSpriteSet()).toBe('bw');
 	});
 });

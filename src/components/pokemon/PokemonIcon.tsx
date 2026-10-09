@@ -2,7 +2,8 @@
 
 import { memo, useState } from 'react';
 import { Dex } from '@pkmn/dex';
-import { iconSprite, iconStyle, frontSprite, animatedSprite, bwSprite, staticSprite } from '@/lib/sprites';
+import { iconSprite, iconStyle, frontSprite, cardSources } from '@/lib/sprites';
+import { useStore } from '@/lib/store';
 
 export const speciesRef = (name: string) => {
 	const s = Dex.species.get(name);
@@ -27,8 +28,8 @@ export function Pokeball({ size = 32, className = '' }: { size?: number; classNa
 }
 
 /**
- * Card art: the Black/White animated sprite, falling back to Showdown's
- * animated sprite (newer species and formes), the static sprite and finally a
+ * Card art in the style the user picked (Black/White animated or X/Y pixelated
+ * 3D), falling back through the other set, the static sprite and finally a
  * Poké Ball.
  */
 export function PokemonSprite({
@@ -44,19 +45,22 @@ export function PokemonSprite({
 	size?: number;
 	className?: string;
 }) {
-	const ref = speciesRef(species);
-	const sources = [bwSprite(ref, back, shiny), animatedSprite(ref, back, shiny), staticSprite(ref, back, shiny), back ? null : frontSprite(ref)].filter(Boolean) as string[];
+	const spriteSet = useStore((s) => s.spriteSet);
+	const sources = cardSources(speciesRef(species), spriteSet, back, shiny);
+	// A new species, side or set starts the fallback chain again from its best source.
+	const identity = `${species}|${back}|${shiny}|${spriteSet}`;
 	const [index, setIndex] = useState(0);
-	const [key, setKey] = useState(species);
-	if (key !== species) {
-		setKey(species);
+	const [key, setKey] = useState(identity);
+	if (key !== identity) {
+		setKey(identity);
 		setIndex(0);
 	}
-	if (index >= sources.length) return <Pokeball size={size} className={className} />;
+	const source = sources[index];
+	if (!source) return <Pokeball size={size} className={className} />;
 	return (
 		// eslint-disable-next-line @next/next/no-img-element
 		<img
-			src={sources[index]}
+			src={source}
 			alt={species}
 			onError={() => setIndex((i) => i + 1)}
 			className={`pixelated object-contain object-bottom ${className}`}

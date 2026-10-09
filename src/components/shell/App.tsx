@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useIsMobile, usePersistence, useValidation } from '@/lib/hooks';
+import { useIsMerged, useIsMobile, usePersistence, useValidation } from '@/lib/hooks';
 import { useOpenTeam, useStore } from '@/lib/store';
 import { Header } from './Header';
 import { Dialogs, Toasts } from './Dialogs';
@@ -19,8 +19,11 @@ export function App() {
 	useValidation(team);
 	const hydrated = useStore((s) => s.hydrated);
 	const mobile = useIsMobile();
+	const merged = useIsMerged();
+	const setMerged = useStore((s) => s.setMerged);
 	const [mounted, setMounted] = useState(false);
 	useEffect(() => setMounted(true), []);
+	useEffect(() => setMerged(merged), [merged, setMerged]);
 	if (!mounted) return <div className='h-dvh' />;
 
 	return (
@@ -34,12 +37,20 @@ export function App() {
 						<div data-team-panel className='flex w-[296px] shrink-0 flex-col border-r border-line'>
 							<TeamLibrary />
 						</div>
-						<main className='flex min-w-0 flex-1 flex-col'>
-							<Workspace />
-						</main>
-						<div className='flex w-[384px] shrink-0 flex-col border-l border-line'>
-							<Inspector />
-						</div>
+						{merged ? (
+							<div className='flex min-w-0 flex-1 flex-col'>
+								<Inspector />
+							</div>
+						) : (
+							<>
+								<main className='flex min-w-0 flex-1 flex-col'>
+									<Workspace />
+								</main>
+								<div className='flex w-[384px] shrink-0 flex-col border-l border-line'>
+									<Inspector />
+								</div>
+							</>
+						)}
 					</div>
 					<BottomPanel />
 					<BoxDrawer />

@@ -254,9 +254,48 @@ export function evolutionLine(team: Team, name: string): string[] {
 
 let championsLearnsets: Promise<Record<string, string[]>> | null = null;
 
+const LEVEL_UP = /^(\d+)L(\d+)$/;
+
+/**
+ * The lowest level each move is learned by level-up, across the species and its
+ * prevos. `learnable()` keeps one source per method, so it can hide a lower
+ * level that a prevo learned the move at.
+ */
+async function lowestLevelUp(gen: Generation, species: string) {
+	const lowest = new Map<string, number>();
+	const s = gen.species.get(species);
+	if (!s) return lowest;
+	for await (const { learnset } of gen.learnsets.all(s)) {
+		for (const [id, sources] of Object.entries(learnset ?? {})) {
+			for (const source of sources) {
+				const m = LEVEL_UP.exec(source);
+				if (m && +m[1] <= gen.num) lowest.set(id, Math.min(lowest.get(id) ?? Infinity, +m[2]));
+			}
+		}
+	}
+	return lowest;
+}
+
+/**
+ * The moves a species can know at `level`, keyed by id with their learn sources.
+ * A level-up move counts only when it is learned at or below the level. TM,
+ * tutor, egg and event moves have no level, so they always count.
+ */
+export async function learnsetAt(team: Team, species: string, level: number): Promise<Record<string, string[]>> {
+	const gen = generationFor(team);
+	const learnable = (await gen.learnsets.learnable(species)) ?? {};
+	const lowest = await lowestLevelUp(gen, species);
+	return Object.fromEntries(
+		Object.entries(learnable).filter(
+			([id, sources]) => sources.some((s) => !LEVEL_UP.test(s)) || (lowest.get(id) ?? Infinity) <= level
+		)
+	);
+}
+
 export async function learnableMoves(
 	team: Team,
-	species: string
+	species: string,
+	level: number
 ): Promise<Move[]> {
 	const gen = generationFor(team);
 	if (team.mode === 'competitive' && isChampions(team)) {
@@ -267,15 +306,15 @@ export async function learnableMoves(
 		const ids =
 			sets[species] ?? sets[gen.species.get(species)?.baseSpecies ?? ''];
 		// Not in Champions (e.g. carried over from another format): fall back to
-		// its gen 9 moves; the validator flags the species itself.
+		// its gen 9 moves; the validator flags the species itself. Champions'
+		// learnsets carry no levels, and Champions Pokémon are always level 50.
 		if (ids)
 			return ids
 				.map((id) => gen.moves.get(id))
 				.filter((m): m is Move => !!m)
 				.sort((a, b) => a.name.localeCompare(b.name));
 	}
-	const learnable = await gen.learnsets.learnable(species);
-	if (!learnable) return [];
+	const learnable = await learnsetAt(team, species, level);
 	return Object.keys(learnable)
 		.map((id) => gen.moves.get(id))
 		.filter((m): m is Move => !!m)
