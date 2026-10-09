@@ -23,7 +23,7 @@ export async function selectWithLift(member: PokemonSet, from?: DOMRect) {
 }
 
 /** One fixed cell of the party row. Cells never move, so the skeletons stay put as members come and go. */
-function PartyCell({ index, member, onHover }: { index: number; member?: PokemonSet; onHover: (m: PokemonSet | null) => void }) {
+function PartyCell({ index, member, occupied, onHover }: { index: number; member?: PokemonSet; occupied: boolean; onHover: (m: PokemonSet | null) => void }) {
 	const { setNodeRef: dropRef, isOver, active } = useDroppable({ id: `party:${index}`, data: { kind: 'party', index } });
 	const live = !!active && active.data.current?.kind !== 'move';
 	const dropHint = isOver && live && !(member && String(active.id).endsWith(member.uid));
@@ -31,7 +31,7 @@ function PartyCell({ index, member, onHover }: { index: number; member?: Pokemon
 		<div
 			ref={dropRef}
 			className={`relative size-8 rounded-md border transition-colors ${
-				member ? 'border-transparent' : isOver && live ? 'border-dashed border-accent bg-accent-soft' : live ? 'border-dashed border-accent/60' : 'border-dashed border-line-strong/60'
+				occupied ? 'border-transparent' : isOver && live ? 'border-dashed border-accent bg-accent-soft' : live ? 'border-dashed border-accent/60' : 'border-dashed border-line-strong/60'
 			} ${member && dropHint ? 'outline-dashed outline-1 outline-accent' : ''}`}
 		>
 			{member && <MemberButton member={member} index={index} onHover={onHover} />}
@@ -41,6 +41,7 @@ function PartyCell({ index, member, onHover }: { index: number; member?: Pokemon
 
 function MemberButton({ member, index, onHover }: { member: PokemonSet; index: number; onHover: (m: PokemonSet | null) => void }) {
 	const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: `member:${member.uid}`, data: { kind: 'member', uid: member.uid, species: member.species } });
+	const picked = useStore((s) => s.boxOpen && s.boxPartyUid === member.uid);
 	const flagged = useStore((s) => (s.validation[s.openTeamId]?.byMember[member.uid]?.length ?? 0) > 0);
 	return (
 		<button
@@ -52,12 +53,16 @@ function MemberButton({ member, index, onHover }: { member: PokemonSet; index: n
 			data-index={index}
 			data-species={member.species}
 			aria-label={`${member.name || member.species}. Put on the card`}
-			onClick={(e) => selectWithLift(member, e.currentTarget.getBoundingClientRect())}
+			onClick={(e) => {
+				// With the Box open, a click picks the member there instead of putting it on the card.
+				if (useStore.getState().boxOpen) useStore.getState().setBoxPartyUid(member.uid);
+				else selectWithLift(member, e.currentTarget.getBoundingClientRect());
+			}}
 			onMouseEnter={() => onHover(member)}
 			onMouseLeave={() => onHover(null)}
 			onFocus={() => onHover(member)}
 			onBlur={() => onHover(null)}
-			className={`bounce-host squishy absolute -inset-px block rounded-md ${isDragging ? 'opacity-30' : ''}`}
+			className={`bounce-host squishy absolute -inset-px block rounded-md ${isDragging ? 'opacity-30' : ''} ${picked ? 'bg-accent-soft' : ''}`}
 		>
 			<span className='absolute inset-px'>
 				<PokemonIcon species={member.species} className='bounce-glyph' />
@@ -84,8 +89,8 @@ export function PartyRow() {
 			>
 				{Array.from({ length: MAX_TEAM_SIZE }, (_, i) => {
 					const m = team.members[i];
-					// The member on the card has left its cell, which stays an empty skeleton.
-					return <PartyCell key={i} index={i} member={m && m.uid !== selectedUid ? m : undefined} onHover={setHovered} />;
+					// The member on the card leaves its cell blank: no skeleton, so it never reads as a free slot.
+					return <PartyCell key={i} index={i} occupied={!!m} member={m && m.uid !== selectedUid ? m : undefined} onHover={setHovered} />;
 				})}
 			</motion.div>
 			<p className='flex h-4 items-center gap-2 text-xs' aria-live='polite'>

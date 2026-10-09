@@ -7,7 +7,7 @@ import { Icon } from '@/components/ui/Icon';
 import { SearchField, Select, Tab } from '@/components/ui/controls';
 import { TypeBadge } from '@/components/ui/TypeBadge';
 import { CardSprite } from '@/components/pokemon/PokemonIcon';
-import { formatInfo, speciesFor, speciesInTier } from '@/lib/dex';
+import { formatInfo, getSpecies, speciesFor, speciesInTier } from '@/lib/dex';
 import { useRoles } from '@/lib/hooks';
 import { ROLES } from '@/lib/roles';
 import { STATS, type Team } from '@/lib/model';
@@ -25,6 +25,7 @@ export function useCandidates() {
 	const tab = useStore((s) => s.carouselTab);
 	const role = useStore((s) => s.carouselRole);
 	const search = useStore((s) => s.carouselSearch);
+	const gen = useStore((s) => s.carouselGen);
 	const roles = useRoles(team.mode === 'competitive' ? team.format : null);
 	const list = useMemo(() => {
 		const q = search.trim().toLowerCase();
@@ -32,10 +33,40 @@ export function useCandidates() {
 		const base = q ? speciesFor(team).filter((s) => s.name.toLowerCase().includes(q)) : speciesInTier(team, tabKey);
 		const bst = (s: (typeof base)[number]) => STATS.reduce((n, k) => n + s.baseStats[k], 0);
 		return base
+			.filter((s) => gen === null || s.gen === gen)
 			.filter((s) => role === 'All roles' || team.mode === 'casual' || roles[s.name]?.includes(role))
 			.sort((a, b) => Number(!!roles[b.name]) - Number(!!roles[a.name]) || bst(b) - bst(a));
-	}, [team, tab, role, search, roles]);
-	return { team, list, roles, filterKey: `${team.id}:${team.format}:${team.gen}:${tab}:${role}:${search}` };
+	}, [team, tab, role, search, gen, roles]);
+	return { team, list, roles, filterKey: `${team.id}:${team.format}:${team.gen}:${tab}:${role}:${search}:${gen}` };
+}
+
+const cardLook = 'flex h-[164px] shrink-0 flex-col gap-1.5 rounded-lg border bg-bg p-3 text-left';
+
+function CandidateBody({ species, types, roles, casual }: { species: string; types: string[]; roles?: string[]; casual: boolean }) {
+	return (
+		<>
+			<CardSprite species={species} />
+			<span className='truncate text-base font-semibold'>{species}</span>
+			<span className='flex gap-1'>
+				{types.map((t) => (
+					<TypeBadge key={t} type={t} />
+				))}
+			</span>
+			{!casual && <span className='truncate text-xs text-muted'>{roles?.length ? roles.join('/') : 'No Smogon sets'}</span>}
+		</>
+	);
+}
+
+/** The whole card, lifted under the pointer while a suggestion is dragged. */
+export function CandidateOverlay({ species }: { species: string }) {
+	const team = useOpenTeam();
+	const roles = useRoles(team.mode === 'competitive' ? team.format : null);
+	const types = getSpecies(team, species)?.types ?? [];
+	return (
+		<div className={`${cardLook} w-[152px] -rotate-3 border-line-strong shadow-lg`}>
+			<CandidateBody species={species} types={types} roles={roles[species]} casual={team.mode === 'casual'} />
+		</div>
+	);
 }
 
 export function CandidateCard({ species, types, roles, casual, wide }: { species: string; types: string[]; roles?: string[]; casual: boolean; wide?: boolean }) {
@@ -49,16 +80,9 @@ export function CandidateCard({ species, types, roles, casual, wide }: { species
 			{...attributes}
 			onClick={() => addMember(species) && requestAnimationFrame(() => pop([...document.querySelectorAll('[data-party] [data-party-member]')].at(-1) ?? null))}
 			aria-label={`Add ${species} to the team`}
-			className={`flex h-[164px] shrink-0 flex-col gap-1.5 rounded-lg border border-line bg-bg p-3 text-left transition-colors hover:border-line-strong ${wide ? 'w-full' : 'w-[152px]'} ${isDragging ? 'border-dashed opacity-40' : ''}`}
+			className={`${cardLook} border-line transition-colors hover:border-line-strong ${wide ? 'w-full' : 'w-[152px]'} ${isDragging ? 'border-dashed opacity-40' : ''}`}
 		>
-			<CardSprite species={species} />
-			<span className='truncate text-base font-semibold'>{species}</span>
-			<span className='flex gap-1'>
-				{types.map((t) => (
-					<TypeBadge key={t} type={t} />
-				))}
-			</span>
-			{!casual && <span className='truncate text-xs text-muted'>{roles?.length ? roles.join('/') : 'No Smogon sets'}</span>}
+			<CandidateBody species={species} types={types} roles={roles} casual={casual} />
 		</button>
 	);
 }
@@ -68,6 +92,7 @@ export function BottomPanel() {
 	const tab = useStore((s) => s.carouselTab);
 	const role = useStore((s) => s.carouselRole);
 	const search = useStore((s) => s.carouselSearch);
+	const gen = useStore((s) => s.carouselGen);
 	const setCarousel = useStore((s) => s.setCarousel);
 	const setTeamContext = useStore((s) => s.setTeamContext);
 	const boxOpen = useStore((s) => s.boxOpen);
@@ -82,16 +107,18 @@ export function BottomPanel() {
 				<h2 className='text-md font-semibold'>Suggestions</h2>
 				<Select
 					label='Generation'
-					value={String(team.gen)}
-					options={Array.from({ length: 9 }, (_, i) => 9 - i).map((g) => ({ value: String(g), label: casual ? `Up to Gen ${g}` : `Gen ${g}` }))}
+					value={String(gen ?? team.gen)}
+					options={Array.from({ length: 9 }, (_, i) => 9 - i).map((g) => ({ value: String(g), label: `Gen ${g}` }))}
 					onChange={(v) => {
 						const g = Number(v);
-						setTeamContext(team.id, casual ? { gen: g } : { gen: g, format: team.format.replace(/^gen\d/, `gen${g}`) });
+						// Higher than the team's generation moves the team up; lower only narrows what is browsed.
+						if (g > team.gen) setTeamContext(team.id, casual ? { gen: g } : { gen: g, format: team.format.replace(/^gen\d/, `gen${g}`) });
+						else setCarousel({ carouselGen: g === team.gen ? null : g, carouselSearch: '', ...(casual ? { carouselTab: 'All' } : {}) });
 					}}
 				/>
 				<div role='tablist' aria-label={casual ? 'Generations' : 'Tiers'} className='scrollbar-none flex gap-4 overflow-x-auto'>
 					{tabs.map((t) => (
-						<Tab key={t} selected={!search && tab === t} onClick={() => setCarousel({ carouselTab: t, carouselSearch: '' })}>
+						<Tab key={t} selected={!search && tab === t} onClick={() => setCarousel({ carouselTab: t, carouselSearch: '', ...(casual ? { carouselGen: null } : {}) })}>
 							{t}
 						</Tab>
 					))}
@@ -109,7 +136,7 @@ export function BottomPanel() {
 					type='button'
 					aria-expanded={boxOpen}
 					onClick={() => setBoxOpen(!boxOpen)}
-					className={`squishy inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-base font-medium hover:bg-hover ${boxOpen ? 'text-accent' : ''}`}
+					className={`squishy inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-base font-medium ${boxOpen ? 'bg-[#2D333D] text-accent' : 'hover:bg-hover'}`}
 				>
 					<Icon name='box' />
 					Box

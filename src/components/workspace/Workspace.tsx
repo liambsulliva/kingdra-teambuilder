@@ -40,9 +40,12 @@ export function Workspace() {
 		<div className='flex min-h-0 min-w-0 flex-1 flex-col px-4 pb-4 pt-5 md:px-10 md:pb-6 md:pt-6'>
 			<div
 				ref={setNodeRef}
-				className={`-m-2 min-h-0 flex-1 overflow-y-auto rounded-lg p-2 transition-colors ${candidateOver ? 'bg-accent-soft' : ''}`}
+				className={`relative -m-2 min-h-0 flex-1 overflow-y-auto rounded-lg p-2 transition-colors ${candidateOver ? 'bg-accent-soft' : ''}`}
 				onClick={(e) => e.target === e.currentTarget && member && !preview && !compare && selectMember(null)}
 			>
+				{candidateOver && team.members.length > 0 && (
+					<span className='pointer-events-none absolute inset-0 z-10 flex items-center justify-center text-md font-semibold uppercase tracking-[0.2em] text-accent'>Compare</span>
+				)}
 				{compare ? (
 					<CompareScene team={team} candidate={compare} />
 				) : preview ? (
@@ -135,18 +138,28 @@ function Preview({ team, species }: { team: Team; species: string }) {
 	);
 }
 
-function Plate({ team, species, label, total }: { team: Team; species: string; label: string; total?: number }) {
+function Plate({ team, species, label, total, align = 'left' }: { team: Team; species: string; label: string; total?: number; align?: 'left' | 'right' }) {
 	const s = getSpecies(team, species);
 	const bst = s ? STATS.reduce((n, k) => n + s.baseStats[k], 0) : 0;
+	const end = align === 'right';
 	return (
-		<div className='flex flex-col gap-1.5'>
+		<div className={`flex flex-col gap-1.5 ${end ? 'items-end text-right' : 'items-start text-left'}`}>
 			<span className='text-xs text-muted'>{label}</span>
-			<div className='flex items-end gap-2'>
-				<span className='font-head text-[20px] font-semibold leading-6'>{species}</span>
-				<span className='text-xs tabular-nums text-muted'>base {total ?? bst}</span>
+			<div className={`flex items-end gap-2 ${end ? 'flex-row-reverse' : ''}`}>
+				<span className='font-head text-[24px] font-semibold leading-7 tracking-[-0.02em]'>{species}</span>
+				<span className='pb-0.5 text-xs tabular-nums text-muted'>Base {total ?? bst}</span>
 			</div>
 			<div className='flex gap-1'>{s?.types.map((t) => <TypeBadge key={t} type={t} />)}</div>
-			<span className='mt-1 h-1 w-48 rounded-full bg-stat-hp' />
+		</div>
+	);
+}
+
+/** A sprite standing on a filled grey platform. */
+function Stage({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
+	return (
+		<div className={`relative flex shrink-0 items-end justify-center ${wide ? 'h-[190px] w-[270px]' : 'h-[165px] w-[236px]'}`}>
+			<span className={`absolute bottom-0 left-1/2 -translate-x-1/2 rounded-[50%] bg-line shadow-[inset_0_-4px_10px_rgba(0,0,0,0.06)] ${wide ? 'h-[72px] w-[270px]' : 'h-[60px] w-[236px]'}`} />
+			<span className={`relative ${wide ? 'mb-9' : 'mb-7'}`}>{children}</span>
 		</div>
 	);
 }
@@ -163,27 +176,27 @@ function CompareScene({ team, candidate }: { team: Team; candidate: string }) {
 	const full = team.members.length >= MAX_TEAM_SIZE;
 	return (
 		<section aria-label={`Compare ${candidate}`} className='flex w-full max-w-[700px] flex-col gap-3'>
-			<div className='relative h-[420px] w-full'>
-				<div className='absolute left-0 top-0'>
-					<Plate team={team} species={candidate} label='candidate' />
-				</div>
-				<div className='absolute right-6 top-4 flex flex-col items-center'>
-					<PokemonSprite species={candidate} size={144} />
-					<span className='-mt-6 h-12 w-56 rounded-[50%] border border-line' />
-				</div>
-				{mine && (
-					<>
-						<div className='absolute bottom-0 left-4 flex flex-col items-center'>
-							<PokemonSprite species={mine.species} back size={176} />
-							<span className='-mt-8 h-14 w-64 rounded-[50%] border border-line' />
+			<div className='relative h-[400px] w-full'>
+					<div className='absolute right-0 top-0 flex items-start gap-4'>
+						<div className='pt-8'>
+							<Plate team={team} species={candidate} label='Candidate' align='right' />
 						</div>
-						<div className='absolute bottom-12 right-6'>
-							<Plate team={team} species={mine.species} label={member ? 'on your card' : 'from your party'} />
+						<Stage>
+							<PokemonSprite species={candidate} size={128} />
+						</Stage>
+					</div>
+					{mine && (
+						<div className='absolute bottom-0 left-0 flex items-end gap-4'>
+							<Stage wide>
+								<PokemonSprite species={mine.species} back size={160} />
+							</Stage>
+							<div className='pb-12'>
+								<Plate team={team} species={mine.species} label={member ? 'On your card' : 'From your party'} align='left' />
+							</div>
 						</div>
-					</>
-				)}
-			</div>
-			<div className='flex flex-wrap items-center gap-2'>
+					)}
+				</div>
+				<div className='flex flex-wrap items-center gap-2'>
 				{mine && (
 					<Button
 						variant='accent'

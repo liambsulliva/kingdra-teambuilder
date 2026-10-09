@@ -191,7 +191,6 @@ export function CompareView({ team, candidate }: { team: Team; candidate: string
 					<span className='text-right text-base'>{b ? (roles[b.name] ?? []).join(', ') || '—' : ''}</span>
 				</div>
 			)}
-			<p className='text-xs text-muted'>Swapping gives {a.name} a fresh set: legal default ability, no moves or item, default stats.</p>
 		</div>
 	);
 }

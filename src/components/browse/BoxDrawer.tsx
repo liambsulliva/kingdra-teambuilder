@@ -51,17 +51,25 @@ export function BoxDrawer() {
 	const takeFromBox = useStore((s) => s.takeFromBox);
 	const team = useOpenTeam();
 	const tabsRef = useRef<HTMLDivElement>(null);
+	const partyUid = useStore((s) => s.boxPartyUid);
+	const setPartyUid = useStore((s) => s.setBoxPartyUid);
+	const storeInBox = useStore((s) => s.storeInBox);
 	const [selected, setSelected] = useState<number | null>(null);
 	const [renaming, setRenaming] = useState(false);
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
 	const box = boxes[index];
-	const stored = selected !== null ? box.slots[selected] : null;
+	const partyMember = partyUid ? team.members.find((m) => m.uid === partyUid) : undefined;
+	const stored = partyMember ?? (selected !== null ? box.slots[selected] : null);
 	const species = stored ? getSpecies(team, stored.species) : null;
 	const count = box.slots.filter(Boolean).length;
 
 	useEffect(() => {
 		tabsRef.current?.querySelector('[aria-selected=true]')?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
 	}, [index, boxes.length, open]);
+
+	useEffect(() => {
+		if (partyUid) setSelected(null);
+	}, [partyUid]);
 
 	useEffect(() => {
 		if (!open) return;
@@ -141,7 +149,7 @@ export function BoxDrawer() {
 						<div className='flex gap-12'>
 							<div className='grid grid-cols-6 gap-1'>
 								{box.slots.map((set, i) => (
-									<BoxCell key={i} box={index} slot={i} set={set} selected={selected === i} onSelect={() => setSelected(i)} />
+									<BoxCell key={i} box={index} slot={i} set={set} selected={!partyUid && selected === i} onSelect={() => { setPartyUid(null); setSelected(i); }} />
 								))}
 							</div>
 							<div className='flex w-[300px] flex-col gap-3'>
@@ -158,12 +166,18 @@ export function BoxDrawer() {
 											{stored.nature && (<><dt className='text-xs text-muted'>Nature</dt><dd className='font-medium'><NatureText name={stored.nature} {...(getNatureParts(stored.nature))} /></dd></>)}
 											{stored.moves.length > 0 && (<><dt className='text-xs text-muted'>Moves</dt><dd className='font-medium'>{stored.moves.filter(Boolean).join(', ')}</dd></>)}
 										</dl>
-										<Button icon='party' onClick={() => { takeFromBox(index, selected!); setSelected(null); }}>
-											Move to party
-										</Button>
+										{partyMember ? (
+												<Button icon='box' onClick={() => { storeInBox(partyMember.uid, index); setPartyUid(null); }}>
+													Move to box
+												</Button>
+											) : (
+												<Button icon='party' onClick={() => { takeFromBox(index, selected!); setSelected(null); }}>
+													Move to party
+												</Button>
+											)}
 									</>
 								) : (
-									<p className='text-base text-muted'>Select a Pokémon to see its stored set.</p>
+									<p className='text-base text-muted'>Select a Pokémon to see its set.</p>
 								)}
 								<p className='text-xs text-muted'>Drag between the Box and the party. Drop on a member to swap them. Moving into a team of another generation keeps the set and flags anything illegal.</p>
 							</div>

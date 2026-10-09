@@ -14,6 +14,7 @@ import {
 	type DragOverEvent,
 	type DragStartEvent,
 } from '@dnd-kit/core';
+import { CandidateOverlay } from '@/components/browse/BottomPanel';
 import { PokemonIcon } from '@/components/pokemon/PokemonIcon';
 import { TYPE_COLORS } from '@/components/ui/TypeBadge';
 import { MAX_TEAM_SIZE } from '@/lib/model';
@@ -33,9 +34,9 @@ function accepts(drag: Data, over: Target) {
 		case 'candidate':
 			if (over.kind === 'teamslot') {
 				const target = s.library.teams.find((t) => t.id === over.teamId);
-				return !!target && target.members.length < MAX_TEAM_SIZE && canUseSpecies(target, drag.species!);
+				return !!target && (target.members.length < MAX_TEAM_SIZE || over.index! < target.members.length) && canUseSpecies(target, drag.species!);
 			}
-			return (over.kind === 'party' && team.members.length < MAX_TEAM_SIZE) || over.kind === 'card';
+			return (over.kind === 'party' && (team.members.length < MAX_TEAM_SIZE || over.index! < team.members.length)) || over.kind === 'card';
 		case 'member':
 			return over.kind !== 'teamslot';
 		case 'boxset':
@@ -114,6 +115,8 @@ if (!over || (over.kind !== 'party' && over.kind !== 'boxcell')) {
 						<span className='size-2 rounded-sm' style={{ background: TYPE_COLORS[active.type!] }} />
 						{active.move}
 					</span>
+				) : active?.kind === 'candidate' ? (
+					<CandidateOverlay species={active.species!} />
 				) : active?.species ? (
 					<span className='block size-8 -rotate-12 drop-shadow-md'>
 						<PokemonIcon species={active.species} />

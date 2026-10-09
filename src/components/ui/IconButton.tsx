@@ -26,8 +26,8 @@ export const IconButton = forwardRef<HTMLButtonElement, Props>(function IconButt
 				type='button'
 				aria-label={label}
 				aria-pressed={selected}
-				className={`squishy inline-flex size-8 items-center justify-center rounded-lg transition-colors hover:bg-hover disabled:pointer-events-none disabled:opacity-30 ${
-					selected || tone === 'accent' ? 'text-accent' : 'text-fg/80 hover:text-fg'
+				className={`squishy inline-flex size-8 items-center justify-center rounded-lg transition-colors disabled:pointer-events-none disabled:opacity-30 ${
+					selected ? 'bg-[#2D333D] text-accent' : tone === 'accent' ? 'text-accent hover:bg-hover' : 'text-fg/80 hover:bg-hover hover:text-fg'
 				} ${className}`}
 				{...rest}
 			>

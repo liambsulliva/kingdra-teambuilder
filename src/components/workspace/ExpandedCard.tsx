@@ -1,6 +1,6 @@
 'use client';
 
-import { useDroppable } from '@dnd-kit/core';
+import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { useState } from 'react';
 import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icon';
@@ -192,17 +192,27 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 
 function MoveCell({ team, slot, move, active, flagged, onClick }: { team: Team; slot: number; move: string; active: boolean; flagged: boolean; onClick: () => void }) {
 	const { setNodeRef, isOver, active: dragging } = useDroppable({ id: `moveslot:${slot}`, data: { kind: 'moveslot', slot } });
+	const { setNodeRef: dragRef, listeners, attributes, isDragging } = useDraggable({
+		id: `moveslot-drag:${slot}`,
+		data: { kind: 'move', move, type: getMove(team, move)?.type },
+		disabled: !move,
+	});
 	const data = move ? getMove(team, move) : null;
 	const dropping = dragging?.data.current?.kind === 'move';
 	const over = isOver && dropping;
 	return (
 		<button
-			ref={setNodeRef}
+			ref={(el) => {
+				setNodeRef(el);
+				dragRef(el);
+			}}
 			type='button'
+			{...listeners}
+			{...attributes}
 			data-move-slot={slot}
 			onClick={onClick}
 			aria-label={move ? `Move ${slot + 1}: ${move}. Change` : `Move ${slot + 1}: empty. Add a move`}
-			className={`flex h-14 flex-col justify-center gap-1 rounded-md px-3 text-left transition-colors ${
+			className={`flex h-14 flex-col justify-center gap-1 rounded-md px-3 text-left transition-colors ${isDragging ? 'opacity-40' : ''} ${
 				over ? 'border border-dashed border-accent bg-accent-soft' : move ? (active ? 'border-[1.5px] border-accent' : 'border border-line hover:border-line-strong') : `border border-dashed ${dropping ? 'border-accent' : 'border-line-strong'} hover:bg-hover`
 			}`}
 		>

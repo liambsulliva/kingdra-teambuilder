@@ -14,7 +14,7 @@ import {
 	type PokemonSet,
 	type Team,
 } from './model';
-import { canUseSpecies, defaultAbility, formatLabel, formatsForGen, getSpecies } from './dex';
+import { abilitiesFor, canUseSpecies, defaultAbility, formatLabel, formatsForGen, getSpecies } from './dex';
 
 export type InspectorView =
 	| 'team'
@@ -60,7 +60,11 @@ interface State {
 	carouselTab: string;
 	carouselRole: string;
 	carouselSearch: string;
+	/** Browse a lower generation without changing the team's. Null browses the team's own. */
+	carouselGen: number | null;
 	boxOpen: boolean;
+	/** Party member picked inside the open Box. */
+	boxPartyUid: string | null;
 	boxIndex: number;
 	dialog: null | 'newTeam' | 'importTeam' | 'importSet';
 	toasts: Toast[];
@@ -105,9 +109,10 @@ interface Actions {
 	preview(species: string | null): void;
 	compare(species: string | null): void;
 	setCompareTarget(uid: string | null): void;
-	setCarousel(patch: Partial<Pick<State, 'carouselTab' | 'carouselRole' | 'carouselSearch'>>): void;
+	setCarousel(patch: Partial<Pick<State, 'carouselTab' | 'carouselRole' | 'carouselSearch' | 'carouselGen'>>): void;
 
 	setBoxOpen(open: boolean): void;
+	setBoxPartyUid(uid: string | null): void;
 	setBoxIndex(index: number): void;
 	addBox(): void;
 	renameBox(index: number, name: string): void;
@@ -153,8 +158,10 @@ export const useStore = create<Store>()((set, get) => {
 		matchupType: null,
 		carouselTab: 'OU',
 		carouselRole: 'All roles',
+		carouselGen: null,
 		carouselSearch: '',
 		boxOpen: false,
+		boxPartyUid: null,
 		boxIndex: 0,
 		dialog: null,
 		toasts: [],
@@ -197,6 +204,7 @@ export const useStore = create<Store>()((set, get) => {
 					activeMoveSlot: null,
 					carouselTab: tab,
 					carouselRole: 'All roles',
+					carouselGen: null,
 				};
 			}),
 		renameTeam: (id, name) => updateTeam(id, (t) => ({ ...t, name: name.trim() || t.name })),
@@ -209,7 +217,7 @@ export const useStore = create<Store>()((set, get) => {
 				return next;
 			});
 			const team = get().library.teams.find((t) => t.id === id);
-			set({ carouselTab: team?.mode === 'casual' ? 'All' : (getTiersDefault(team) ?? 'OU') });
+			set({ carouselTab: team?.mode === 'casual' ? 'All' : (getTiersDefault(team) ?? 'OU'), carouselGen: null });
 		},
 		duplicateTeam: (id) => {
 			const src = get().library.teams.find((t) => t.id === id);
@@ -245,7 +253,13 @@ export const useStore = create<Store>()((set, get) => {
 			get().openTeam(teams[teams.length - 1].id);
 		},
 
-		selectMember: (memberUid) =>
+		selectMember: (memberUid) => {
+			// A member without an ability gets the first available one.
+			const picked = memberUid ? openTeam().members.find((m) => m.uid === memberUid) : undefined;
+			if (picked && !picked.ability) {
+				const ability = defaultAbility(openTeam(), picked.species);
+				if (ability) updateMember(picked.uid, (m) => ({ ...m, ability }));
+			}
 			set((s) => ({
 				selectedUid: memberUid,
 				previewSpecies: null,
@@ -258,10 +272,18 @@ export const useStore = create<Store>()((set, get) => {
 							? 'stats'
 							: s.inspector
 					: 'team',
-			})),
+			}));
+		},
 		addMember: (species, index) => {
 			const team = openTeam();
 			if (team.members.length >= MAX_TEAM_SIZE) {
+				// Dropped on a member of a full team: take its place.
+				if (index !== undefined && team.members[index]) {
+					const old = team.members[index];
+					updateTeam(team.id, (t) => ({ ...t, members: t.members.map((m) => (m.uid === old.uid ? { ...freshSet(t, species), uid: old.uid } : m)) }));
+					set({ previewSpecies: null });
+					return true;
+				}
 				set({ rejectedAt: Date.now() });
 				get().toast('error', `${team.name} is full: remove a member first`);
 				return false;
@@ -284,8 +306,14 @@ export const useStore = create<Store>()((set, get) => {
 				return false;
 			}
 			if (team.members.length >= MAX_TEAM_SIZE) {
-				get().toast('error', `${team.name} is full`);
-				return false;
+				const old = index !== undefined ? team.members[index] : undefined;
+				if (!old) {
+					get().toast('error', `${team.name} is full`);
+					return false;
+				}
+				updateTeam(team.id, (t) => ({ ...t, members: t.members.map((m) => (m.uid === old.uid ? { ...freshSet(t, species), uid: old.uid } : m)) }));
+				get().toast('success', `${species} replaced ${old.name || old.species} in ${team.name}`);
+				return true;
 			}
 			const member = freshSet(team, species);
 			updateTeam(team.id, (t) => {
@@ -314,7 +342,13 @@ export const useStore = create<Store>()((set, get) => {
 		},
 		updateSet: (memberUid, patch) => updateMember(memberUid, (m) => ({ ...m, ...patch })),
 		replaceSet: (memberUid, next) => updateMember(memberUid, () => ({ ...next, uid: memberUid })),
-		changeSpecies: (memberUid, species) => updateMember(memberUid, (m) => ({ ...m, species })),
+		changeSpecies: (memberUid, species) =>
+			updateMember(memberUid, (m) => {
+				// Keep the ability if the new species can have it; otherwise take its first.
+				const team = openTeam();
+				const ok = abilitiesFor(team, species).some((a) => a.ability.name === m.ability);
+				return { ...m, species, ability: ok ? m.ability : defaultAbility(team, species) };
+			}),
 		swapIn: (memberUid, species) => {
 			const team = openTeam();
 			const fresh = freshSet(team, species);
@@ -373,7 +407,8 @@ export const useStore = create<Store>()((set, get) => {
 			})),
 		setCarousel: (patch) => set(patch),
 
-		setBoxOpen: (boxOpen) => set({ boxOpen }),
+		setBoxOpen: (boxOpen) => set({ boxOpen, boxPartyUid: null }),
+		setBoxPartyUid: (boxPartyUid) => set({ boxPartyUid }),
 		setBoxIndex: (boxIndex) => set({ boxIndex }),
 		addBox: () =>
 			set((s) => ({
