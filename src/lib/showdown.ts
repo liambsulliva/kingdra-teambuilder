@@ -15,7 +15,7 @@ const toShowdown = (set: PokemonSet): Partial<ShowdownSet> => ({
 	ivs: set.ivs,
 	level: set.level,
 	shiny: set.shiny || undefined,
-	happiness: set.happiness === 255 ? undefined : set.happiness,
+		happiness: set.happiness === 255 ? undefined : set.happiness,
 	pokeball: set.pokeball || undefined,
 	hpType: set.hpType || undefined,
 	dynamaxLevel: set.dynamaxLevel === 10 ? undefined : set.dynamaxLevel,
@@ -24,7 +24,14 @@ const toShowdown = (set: PokemonSet): Partial<ShowdownSet> => ({
 });
 
 export function exportSet(set: PokemonSet): string {
-	return Sets.exportSet(toShowdown(set) as ShowdownSet).trim();
+	const text = Sets.exportSet(toShowdown(set) as ShowdownSet).trim();
+	// Showdown reads a Frustration set with no happiness line as happiness 0 and never
+	// writes 255 itself, so that line is added before the moves.
+	if (set.happiness !== 255 || !set.moves.includes('Frustration')) return text;
+	const lines = text.split('\n');
+	const at = lines.findIndex((l) => l.startsWith('- '));
+	lines.splice(at < 0 ? lines.length : at, 0, 'Happiness: 255  ');
+	return lines.join('\n');
 }
 
 export function exportTeam(team: Team): string {

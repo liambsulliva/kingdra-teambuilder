@@ -98,7 +98,11 @@ export function usePersistence() {
 		// Only guest libraries live on this device. An account's library is never mirrored here, so signing out cannot show it.
 		if (!isSignedIn) {
 			writeLocal(library);
-			localStorage.setItem(GUEST_KEY, '1');
+			try {
+				localStorage.setItem(GUEST_KEY, '1');
+			} catch {
+				// Storage can be full or blocked; the library still works for this visit.
+			}
 			return;
 		}
 		clearTimeout(timer.current);

@@ -7,10 +7,12 @@
 	},
 	"scripts": {
 		"dev": "next dev",
-		"build": "npm run lint && next build",
+		"build": "npm run lint && npm run test:comprehensive && next build",
 		"start": "next start",
 		"lint": "eslint .",
-		"test": "vitest"
+		"test": "vitest --project unit --project simple",
+		"test:simple": "vitest run --project unit --project simple",
+		"test:comprehensive": "vitest run"
 	},
 	"dependencies": {
 		"@clerk/nextjs": "^7.7.6",

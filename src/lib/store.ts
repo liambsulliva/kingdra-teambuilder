@@ -610,7 +610,7 @@ function getTiersDefault(team?: Team) {
 	if (!team) return undefined;
 	if (team.mode === 'casual') return 'All';
 	const tier = team.format.replace(/^gen\d/, '');
-	const map: Record<string, string> = { ubers: 'Ubers', ou: 'OU', uu: 'UU', ru: 'RU', nu: 'NU', pu: 'PU', zu: 'ZU', lc: 'LC', doublesou: 'DOU', nationaldex: 'OU' };
+	const map: Record<string, string> = { ubers: 'Ubers', ou: 'OU', uu: 'UU', ru: 'RU', nu: 'NU', pu: 'PU', zu: 'ZU', lc: 'LC', doublesou: 'DOU', nationaldex: 'OU', championsou: 'OU', championsuu: 'UU' };
 	return map[tier] ?? 'All';
 }
 

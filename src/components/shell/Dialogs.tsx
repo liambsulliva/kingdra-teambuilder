@@ -25,6 +25,12 @@ export function Dialog({
 	width?: number;
 }) {
 	const ref = useRef<HTMLDialogElement>(null);
+	// A close this component caused (open turned false) arrives later as an event; only a close
+	// while it should be open (Escape) is the user's. Otherwise switching dialogs closes the next one.
+	const wantOpen = useRef(open);
+	useEffect(() => {
+		wantOpen.current = open;
+	}, [open]);
 	useEffect(() => {
 		const d = ref.current;
 		if (!d) return;
@@ -34,7 +40,7 @@ export function Dialog({
 	return (
 		<dialog
 			ref={ref}
-			onClose={onClose}
+			onClose={() => wantOpen.current && onClose()}
 			onClick={(e) => e.target === ref.current && onClose()}
 			className='m-auto max-h-[90vh] w-[calc(100vw-32px)] rounded-xl border border-line bg-bg p-0 text-fg shadow-[0_16px_48px_rgba(0,0,0,0.12)] backdrop:bg-fg/25 open:animate-[rise_200ms_cubic-bezier(0.22,1,0.36,1)]'
 			style={{ maxWidth: width }}
