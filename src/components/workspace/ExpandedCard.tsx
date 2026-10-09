@@ -35,6 +35,8 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 	const mobile = useIsMobile();
 	const line = evolutionLine(team, member.species);
 	const nature = getNature(team, member.nature);
+	// An unset Tera type defaults to the Pokémon's first type.
+	const teraType = member.teraType || species?.types[0];
 
 	// Keyed on the team's context, not the team object, so an edit to this member does not look it up again.
 	const { mode, gen, format } = team;
@@ -121,11 +123,18 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 								type='button'
 								data-key-row={r.view}
 								onClick={() => setInspector(r.view)}
-								className='group flex h-7 items-center gap-3 rounded px-2 text-left hover:bg-hover'
+								className='squishy group flex h-7 items-center gap-3 rounded px-2 text-left hover:bg-hover'
 							>
 								<span className='w-16 shrink-0 text-xs text-muted'>{r.label}</span>
-								<span className={`min-w-0 flex-1 truncate text-base font-medium ${active ? 'text-accent' : r.value ? 'text-fg' : 'text-muted'}`}>
-									{r.view === 'nature' && nature ? <NatureText name={nature.name} plus={nature.plus} minus={nature.minus} /> : r.value || r.empty}
+								<span className={`flex min-w-0 flex-1 items-center truncate text-base font-medium ${active ? 'text-accent' : r.value ? 'text-fg' : 'text-muted'}`}>
+									{r.view === 'nature' && nature ? (
+										<NatureText name={nature.name} plus={nature.plus} minus={nature.minus} />
+									) : r.view === 'tera' && teraType ? (
+										// Tera is shown as its type badge, the same as on the type row and in the Tera picker.
+										<TypeBadge type={teraType} />
+									) : (
+										r.value || r.empty
+									)}
 								</span>
 								{r.flag.length > 0 && (
 									<span title={r.flag.join('\n')} className='text-danger'>

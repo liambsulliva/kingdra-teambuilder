@@ -16,6 +16,9 @@
 	--accent-soft: 234 241 254;
 	--danger: 238 21 21;
 	--danger-soft: 253 236 236;
+	/* Loading placeholders: a faint gradient that pulses until the image lands. */
+	--skeleton-edge: 226 226 228;
+	--skeleton-mid: 216 216 219;
 	color-scheme: light;
 }
 
@@ -32,6 +35,8 @@
 		--accent-soft: 20 32 54;
 		--danger: 255 74 74;
 		--danger-soft: 42 20 20;
+		--skeleton-edge: 48 48 48;
+		--skeleton-mid: 56 56 56;
 		color-scheme: dark;
 	}
 }
@@ -48,6 +53,8 @@
 	--accent-soft: 20 32 54;
 	--danger: 255 74 74;
 	--danger-soft: 42 20 20;
+	--skeleton-edge: 48 48 48;
+	--skeleton-mid: 56 56 56;
 	color-scheme: dark;
 }
 

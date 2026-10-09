@@ -5,12 +5,12 @@ import { useDraggable } from '@dnd-kit/core';
 import type { Move } from '@pkmn/data';
 import { Icon } from '@/components/ui/Icon';
 import { SearchField, Tab } from '@/components/ui/controls';
-import { TYPE_COLORS, TypeBadge } from '@/components/ui/TypeBadge';
+import { TypeBadge } from '@/components/ui/TypeBadge';
 import { cachedLearnableMoves, learnableMoves } from '@/lib/dex';
 import { MAX_MOVES, type PokemonSet, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { cachedSuggestions, NO_SUGGESTIONS, suggestionsFor } from '@/lib/hooks';
-import { flyValue } from '@/components/motion/choreography';
+import { landOn } from '@/components/motion/choreography';
 
 const CATS = ['All', 'Physical', 'Special', 'Status'] as const;
 const CAT_SHORT: Record<string, string> = {
@@ -29,7 +29,7 @@ const MoveRow = memo(function MoveRow({
 	move: Move;
 	state: 'default' | 'current' | 'used';
 	usage?: number;
-	onPick: (move: Move, el: HTMLElement) => void;
+	onPick: (move: Move) => void;
 }) {
 	const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
 		id: `move:${move.name}`,
@@ -41,9 +41,9 @@ const MoveRow = memo(function MoveRow({
 			type='button'
 			{...listeners}
 			{...attributes}
-			onClick={(e) => onPick(move, e.currentTarget)}
+			onClick={() => onPick(move)}
 			title={move.shortDesc || move.desc}
-			className={`flex h-9 w-full items-center gap-2 rounded px-2 text-left transition-colors ${
+			className={`squishy flex h-9 w-full items-center gap-2 rounded px-2 text-left transition-colors ${
 				state === 'current' ? 'bg-accent-soft' : 'hover:bg-hover'
 			} ${isDragging ? 'opacity-40' : ''}`}
 		>
@@ -151,27 +151,20 @@ export function MovesView({
 	const padded = [...member.moves, '', '', '', ''].slice(0, MAX_MOVES);
 	const nextEmpty = padded.findIndex((m) => !m);
 
-	const pickNow = (move: Move, el: HTMLElement) => {
+	// The picked move lands in its slot on the card, the same pop as a drop.
+	const pickNow = (move: Move) => {
 		const target = member.moves.includes(move.name)
 			? -1
 			: activeSlot ?? nextEmpty;
 		pickMove(move.name);
-		if (target >= 0)
-			requestAnimationFrame(() =>
-				flyValue(
-					el,
-					`[data-move-slot="${target}"]`,
-					move.name,
-					TYPE_COLORS[move.type]
-				)
-			);
+		if (target >= 0) landOn(`[data-move-slot="${target}"]`);
 	};
 	// One callback for every row, so the memoized rows are not re-rendered for a new closure.
 	const latestPick = useRef(pickNow);
 	useLayoutEffect(() => {
 		latestPick.current = pickNow;
 	});
-	const pick = useCallback((move: Move, el: HTMLElement) => latestPick.current(move, el), []);
+	const pick = useCallback((move: Move) => latestPick.current(move), []);
 
 	return (
 		<div className='flex flex-col gap-3'>

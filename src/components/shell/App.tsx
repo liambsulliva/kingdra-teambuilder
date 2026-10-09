@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { OpenTeamValidation, Persistence, useIsMerged, useIsMobile } from '@/lib/hooks';
 import { useStore } from '@/lib/store';
 import { prefetchLearnsets } from '@/lib/dex';
+import { prefetchPokeballs } from '@/lib/sprites';
 import { whenIdle } from '@/lib/idle';
 import { AppShell } from './AppShell';
 import { Header } from './Header';
@@ -44,8 +45,13 @@ function Workbench() {
 	useEffect(() => {
 		if (!hydrated) return;
 		performance.mark?.('kingdra:ready');
-		// The first card opened needs the learnsets; load them while nothing else is happening.
-		return whenIdle(prefetchLearnsets, 2000);
+		// The first card opened needs the learnsets, and the fallback Poké Balls for both card sets are cheap: load them while nothing else is happening.
+		const cancelLearnsets = whenIdle(prefetchLearnsets, 2000);
+		const cancelBalls = whenIdle(prefetchPokeballs, 2000);
+		return () => {
+			cancelLearnsets();
+			cancelBalls();
+		};
 	}, [hydrated]);
 
 	return (

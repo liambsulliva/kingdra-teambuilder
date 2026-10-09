@@ -35,7 +35,7 @@ export function Tab({ selected, children, ...rest }: React.ButtonHTMLAttributes<
 			type='button'
 			role='tab'
 			aria-selected={selected}
-			className={`relative shrink-0 pb-1.5 pt-1.5 text-md transition-colors ${
+			className={`squishy relative shrink-0 pb-1.5 pt-1.5 text-md transition-colors ${
 				selected ? 'font-semibold text-fg' : 'font-medium text-muted hover:text-fg'
 			}`}
 			{...rest}
@@ -61,7 +61,7 @@ export function Select({
 }) {
 	const groups = [...new Set(options.map((o) => o.group ?? ''))];
 	return (
-		<span className={`relative inline-flex h-8 items-center ${className}`}>
+		<span className={`squishy relative inline-flex h-8 items-center ${className}`}>
 			<select
 				aria-label={label}
 				value={value}

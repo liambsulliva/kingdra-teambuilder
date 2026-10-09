@@ -25,11 +25,23 @@ const live = new Set<Animation>();
 const hidden = new Set<HTMLElement>();
 
 const reduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const visible = (el: Element | null): el is HTMLElement => {
+
+/**
+ * Fully inside the window and inside every scrolling ancestor's visible box.
+ * A card half scrolled under the team list counts as off screen.
+ */
+function onScreen(el: Element | null): el is HTMLElement {
 	if (!el) return false;
 	const r = el.getBoundingClientRect();
-	return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
-};
+	if (r.width === 0 || r.height === 0 || r.left < 0 || r.top < 0 || r.right > window.innerWidth || r.bottom > window.innerHeight) return false;
+	for (let p = el.parentElement; p; p = p.parentElement) {
+		const style = getComputedStyle(p);
+		if (!/(auto|scroll|hidden|clip)/.test(style.overflowX + style.overflowY)) continue;
+		const c = p.getBoundingClientRect();
+		if (r.left < c.left || r.top < c.top || r.right > c.right || r.bottom > c.bottom) return false;
+	}
+	return true;
+}
 
 function cloneIcon(species: string, rect: DOMRect, size = 32) {
 	const s = Dex.species.get(species);
@@ -139,6 +151,8 @@ const showAllHidden = () => show([...hidden]);
  * and drops into the party, Pokémon hidden until they land. Rapid clicks
  * cancel in-flight animations and jump straight to the latest team. `select`
  * puts that member on the card in the same commit, so it never walks.
+ * When the team's card is not fully on screen there is nothing to walk over:
+ * the new party pops in all at once, as if each member had been added by hand.
  */
 export async function openTeamWithMotion(id: string, select?: string) {
 	const store = useStore.getState();
@@ -149,6 +163,14 @@ export async function openTeamWithMotion(id: string, select?: string) {
 	if (reduced() || window.matchMedia(MOBILE_QUERY).matches) {
 		store.openTeam(id);
 		if (select) useStore.getState().selectMember(select);
+		return;
+	}
+	if (!onScreen(document.querySelector(`[data-team-card="${id}"]`))) {
+		flushSync(() => {
+			useStore.getState().openTeam(id);
+			if (select) useStore.getState().selectMember(select);
+		});
+		document.querySelectorAll<HTMLElement>('[data-party-member]').forEach((el) => pop(el));
 		return;
 	}
 	// Any click or keypress mid-flight skips straight to the end.
@@ -164,12 +186,12 @@ export async function openTeamWithMotion(id: string, select?: string) {
 		const oldId = store.openTeamId;
 		// Measure before the switch moves anything: the old party, and the new team's icons on its card.
 		const leaving = [...document.querySelectorAll<HTMLElement>('[data-party-member]')]
-			.filter(visible)
+			.filter(onScreen)
 			.map((el) => ({ species: el.dataset.species!, index: Number(el.dataset.index), from: el.getBoundingClientRect() }));
 		const sources = [...document.querySelectorAll<HTMLElement>(`[data-team-icon^="${id}:"]`)].map((el) => ({
 			index: Number(el.dataset.teamIcon!.split(':')[1]),
 			rect: el.getBoundingClientRect(),
-			ok: visible(el),
+			ok: onScreen(el),
 		}));
 
 		// The switch commits synchronously so the new party is in place before anything is painted.
@@ -178,15 +200,18 @@ export async function openTeamWithMotion(id: string, select?: string) {
 			if (select) useStore.getState().selectMember(select);
 		});
 
+		// A member flies only when both its card icon and its party slot are on screen; the rest pop.
 		const arrivals = [...document.querySelectorAll<HTMLElement>('[data-party-member]')].flatMap((el) => {
 			const index = Number(el.dataset.index);
 			const src = sources.find((s) => s.index === index);
-			return src?.ok ? [{ el, species: el.dataset.species!, from: src.rect, to: el.getBoundingClientRect(), index }] : [];
+			return src?.ok && onScreen(el) ? [{ el, species: el.dataset.species!, from: src.rect, to: el.getBoundingClientRect(), index }] : [];
 		});
+		const flying = new Set(arrivals.map((a) => a.el));
+		document.querySelectorAll<HTMLElement>('[data-party-member]').forEach((el) => !flying.has(el) && pop(el));
 		hide(arrivals.map((a) => a.el));
 		const homeward = leaving.flatMap((h) => {
 			const target = document.querySelector<HTMLElement>(`[data-team-icon="${oldId}:${h.index}"]`);
-			return target && visible(target) ? [{ ...h, target, to: target.getBoundingClientRect() }] : [];
+			return target && onScreen(target) ? [{ ...h, target, to: target.getBoundingClientRect() }] : [];
 		});
 		hide(homeward.map((h) => h.target));
 
@@ -204,7 +229,10 @@ export async function openTeamWithMotion(id: string, select?: string) {
 		const last = arrivals.length - 1;
 		await Promise.all(
 			arrivals.map((a, i) =>
-				fly({ species: a.species, from: a.from, to: a.to, edgeX, delay: (last - i) * MOTION.staggerMs }).then(() => reveal([a.el]))
+				fly({ species: a.species, from: a.from, to: a.to, edgeX, delay: (last - i) * MOTION.staggerMs }).then(() => {
+					reveal([a.el]);
+					pop(a.el);
+				})
 			)
 		);
 	} finally {
@@ -258,7 +286,7 @@ export function poof(x: number, y: number) {
 	}
 }
 
-/** A small spring pop on the element that just received a value. */
+/** The landing pop: a small spring on the element that just received a member or a value. */
 export function pop(el: Element | null) {
 	if (!el || reduced()) return;
 	(el as HTMLElement).animate([{ transform: 'scale(1)' }, { transform: 'scale(1.05)', offset: 0.35 }, { transform: 'scale(1)' }], {
@@ -267,38 +295,19 @@ export function pop(el: Element | null) {
 	});
 }
 
+/** The landing pop on whatever is at `selector`, once React has drawn it. */
+export function landOn(selector: string) {
+	requestAnimationFrame(() => pop(document.querySelector(selector)));
+}
+
 /**
- * A picked value (a move name, an item…) arcs from its row in the right panel
- * into its destination on the card, then the destination pops.
+ * Adds to the open party through `add` and lands the new member in its slot,
+ * the same pop as a drop. Clicking a suggestion, Add to team and a drop all land this way.
  */
-export async function flyValue(from: Element | null, toSelector: string, label: string, swatch?: string) {
-	const to = document.querySelector(toSelector);
-	if (!from || !to || reduced()) return pop(to);
-	const a = from.getBoundingClientRect();
-	const b = to.getBoundingClientRect();
-	const chip = document.createElement('div');
-	chip.setAttribute('aria-hidden', 'true');
-	chip.className = 'flex items-center gap-1.5 rounded-md bg-bg px-2 py-1 text-base font-medium text-fg shadow-lg ring-1 ring-line';
-	Object.assign(chip.style, { position: 'fixed', left: `${a.left}px`, top: `${a.top + a.height / 2 - 14}px`, zIndex: '80', pointerEvents: 'none' });
-	if (swatch) {
-		const s = document.createElement('span');
-		Object.assign(s.style, { width: '8px', height: '8px', borderRadius: '2px', background: swatch });
-		chip.appendChild(s);
-	}
-	chip.appendChild(document.createTextNode(label));
-	document.body.appendChild(chip);
-	const path = arc([a.left, a.top + a.height / 2 - 14], [b.left + 10, b.top + b.height / 2 - 14], 40, 12);
-	const anim = chip.animate(
-		path.map(([x, y], i) => ({
-			offset: i / (path.length - 1),
-			transform: `translate(${x - a.left}px, ${y - (a.top + a.height / 2 - 14)}px) scale(${1 - (0.08 * i) / (path.length - 1)})`,
-			opacity: i === path.length - 1 ? 0.2 : 1,
-		})),
-		{ duration: MOTION.pickMs, easing: 'cubic-bezier(0.45, 0, 0.2, 1)', fill: 'both' }
-	);
-	await anim.finished.catch(() => undefined);
-	chip.remove();
-	pop(to);
+export function addAndLand(add: () => boolean) {
+	const s = useStore.getState();
+	const at = (s.library.teams.find((t) => t.id === s.openTeamId) ?? s.library.teams[0]).members.length;
+	if (add()) landOn(`[data-party-member][data-index="${at}"]`);
 }
 
 /**

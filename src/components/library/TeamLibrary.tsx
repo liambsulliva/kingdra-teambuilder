@@ -90,7 +90,8 @@ const TeamCard = memo(function TeamCard({ team, open }: { team: Team; open: bool
 			aria-label={open ? undefined : `Open ${team.name}`}
 			data-team-card={team.id}
 		>
-			<div className='flex gap-1'>
+			{/* 32 px slots, not size-8: the root font is 14 px, so size-8 would be 28 px and the 32 px icons would overlap. */}
+			<div className='flex gap-2'>
 				{slots.map((m, i) => (
 					<TeamSlot
 						key={i}
@@ -147,7 +148,7 @@ const TeamCard = memo(function TeamCard({ team, open }: { team: Team; open: bool
 function DraggableMember({ team, member, children }: { team: Team; member: PokemonSet; children: React.ReactNode }) {
 	const { setNodeRef, listeners, isDragging } = useDraggable({ id: `member:${member.uid}`, data: { kind: 'member', uid: member.uid, species: member.species, teamId: team.id } });
 	return (
-		<span ref={setNodeRef} {...listeners} className={`block size-8 cursor-grab ${isDragging ? 'opacity-30' : ''}`}>
+		<span ref={setNodeRef} {...listeners} className={`block size-[32px] cursor-grab ${isDragging ? 'opacity-30' : ''}`}>
 			{children}
 		</span>
 	);
@@ -165,7 +166,7 @@ function TeamSlot({ team, index, empty, onPick, children }: { team: Team; index:
 			ref={setNodeRef}
 			data-team-icon={`${team.id}:${index}`}
 			onClick={onPick && ((e) => { e.stopPropagation(); onPick(); })}
-			className={`bounce-host size-8 rounded-md border transition-colors ${onPick ? 'cursor-pointer' : ''} ${
+			className={`bounce-host size-[32px] rounded-md border transition-colors ${onPick ? 'cursor-pointer' : ''} ${
 				dragging
 					? isOver
 						? ok ? 'border-dashed border-accent bg-accent-soft' : 'border-dashed border-danger'

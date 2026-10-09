@@ -26,6 +26,8 @@ const config: Config = {
 				'accent-soft': token('accent-soft'),
 				danger: token('danger'),
 				'danger-soft': token('danger-soft'),
+				'skeleton-edge': token('skeleton-edge'),
+				'skeleton-mid': token('skeleton-mid'),
 				// In-game nature colors: raised stat red, lowered stat blue.
 				'nature-up': '#DC2626',
 				'nature-down': '#2563EB',

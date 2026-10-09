@@ -1,30 +1,41 @@
 'use client';
 
-import { memo, useState } from 'react';
+import { memo, useRef, useState } from 'react';
 import { Dex } from '@pkmn/dex';
-import { iconSprite, iconStyle, frontSprite, cardSources } from '@/lib/sprites';
+import { iconSprite, iconStyle, frontSprite, cardSources, POKEBALL } from '@/lib/sprites';
 import { useStore } from '@/lib/store';
+import { LazyImg, Skeleton, useNearViewport, useSheet } from '@/components/ui/Skeleton';
 
 export const speciesRef = (name: string) => {
 	const s = Dex.species.get(name);
 	return { name: s.name || name, num: s.num, forme: s.forme, baseSpecies: s.baseSpecies };
 };
 
-/** 32×32 (by default) trimmed icon that fills its slot, bottom-centered. */
+/**
+ * 32×32 (by default) trimmed icon that fills its slot, bottom-centered. The icon
+ * sheet loads once the icon is near the screen, behind a pulsing skeleton.
+ */
 export const PokemonIcon = memo(function PokemonIcon({ species, size = 32, className = '' }: { species: string; size?: number; className?: string }) {
 	const sprite = iconSprite(speciesRef(species));
-	if (!sprite) return <Pokeball size={size} className={className} />;
-	return <span aria-hidden className={`block shrink-0 ${className}`} style={{ width: size, height: size, ...iconStyle(sprite, size) }} />;
+	const ref = useRef<HTMLSpanElement>(null);
+	const near = useNearViewport(ref);
+	const state = useSheet(near && sprite ? sprite.url : null);
+	if (!sprite || state === 'failed') return <Pokeball size={size} className={className} />;
+	return (
+		<span ref={ref} aria-hidden className={`relative block shrink-0 overflow-hidden rounded-md ${className}`} style={{ width: size, height: size }}>
+			{state === 'loading' && <Skeleton />}
+			<span className={`absolute inset-0 transition-opacity duration-300 ${state === 'ready' ? 'opacity-100' : 'opacity-0'}`} style={iconStyle(sprite, size)} />
+		</span>
+	);
 });
 
+/**
+ * The Poké Ball shown where a Pokémon has no art: the one for the card-art set
+ * on screen (Black/White or X/Y). Both are prefetched, so it is ready at once.
+ */
 export function Pokeball({ size = 32, className = '' }: { size?: number; className?: string }) {
-	return (
-		<svg width={size} height={size} viewBox='0 0 32 32' aria-hidden className={`shrink-0 text-line-strong ${className}`}>
-			<circle cx='16' cy='16' r='11' fill='none' stroke='currentColor' strokeWidth='1.5' />
-			<path d='M5 16h8m6 0h8' stroke='currentColor' strokeWidth='1.5' />
-			<circle cx='16' cy='16' r='3' fill='none' stroke='currentColor' strokeWidth='1.5' />
-		</svg>
-	);
+	const spriteSet = useStore((s) => s.spriteSet);
+	return <LazyImg src={POKEBALL[spriteSet]} alt='' size={size} className={className} />;
 }
 
 /**
@@ -57,33 +68,12 @@ export function PokemonSprite({
 	}
 	const source = sources[index];
 	if (!source) return <Pokeball size={size} className={className} />;
-	return (
-		// eslint-disable-next-line @next/next/no-img-element
-		<img
-			src={source}
-			alt={species}
-			onError={() => setIndex((i) => i + 1)}
-			className={`pixelated object-contain object-bottom ${className}`}
-			style={{ width: size, height: size }}
-			draggable={false}
-		/>
-	);
+	return <LazyImg src={source} alt={species} size={size} className={className} onError={() => setIndex((i) => i + 1)} />;
 }
 
 /** Static front sprite used on carousel cards. */
 export function CardSprite({ species, size = 56 }: { species: string; size?: number }) {
 	const [failed, setFailed] = useState(false);
 	if (failed) return <Pokeball size={size} />;
-	return (
-		// eslint-disable-next-line @next/next/no-img-element
-		<img
-			src={frontSprite(speciesRef(species))}
-			alt=''
-			loading='lazy'
-			onError={() => setFailed(true)}
-			className='pixelated object-contain object-bottom'
-			style={{ width: size, height: size }}
-			draggable={false}
-		/>
-	);
+	return <LazyImg src={frontSprite(speciesRef(species))} alt='' size={size} onError={() => setFailed(true)} />;
 }

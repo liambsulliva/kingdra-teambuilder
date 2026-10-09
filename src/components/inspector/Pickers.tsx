@@ -3,20 +3,21 @@
 import { useMemo, useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
 import { NumberBox, SearchField, Select } from '@/components/ui/controls';
-import { TypeBadge, TYPE_COLORS } from '@/components/ui/TypeBadge';
+import { TypeBadge } from '@/components/ui/TypeBadge';
 import { abilitiesFor, fieldsFor, generationFor, getSpecies, itemsFor, naturesFor, searchItems, typesForGen } from '@/lib/dex';
 import type { PokemonSet, Team } from '@/lib/model';
 import { useStore, type InspectorView } from '@/lib/store';
-import { flyValue } from '@/components/motion/choreography';
+import { landOn } from '@/components/motion/choreography';
 import { NatureText } from './StatsView';
 
+/** `picked`: a value chosen from a list lands on its key row on the card. Typed or removed values do not. */
 function useApply(member: PokemonSet) {
 	const updateSet = useStore((s) => s.updateSet);
-	return (view: InspectorView, patch: Partial<PokemonSet>, el?: HTMLElement, label?: string, swatch?: string) => {
+	return (view: InspectorView, patch: Partial<PokemonSet>, picked = false) => {
 		// Choosing what is already chosen is a no-op: no change, no animation.
 		if ((Object.keys(patch) as (keyof PokemonSet)[]).every((k) => member[k] === patch[k])) return;
 		updateSet(member.uid, patch);
-		if (el && label) requestAnimationFrame(() => flyValue(el, `[data-key-row="${view}"]`, label, swatch));
+		if (picked) landOn(`[data-key-row="${view}"]`);
 	};
 }
 
@@ -29,14 +30,14 @@ function Heading({ title, hint }: { title: string; hint?: string }) {
 	);
 }
 
-function Row({ selected, onClick, children, title }: { selected?: boolean; onClick: (el: HTMLElement) => void; children: React.ReactNode; title?: string }) {
+function Row({ selected, onClick, children, title }: { selected?: boolean; onClick: () => void; children: React.ReactNode; title?: string }) {
 	return (
 		<button
 			type='button'
 			title={title}
 			aria-pressed={selected}
-			onClick={(e) => onClick(e.currentTarget)}
-			className={`flex w-full items-start gap-3 rounded px-2 py-2 text-left transition-colors ${selected ? 'bg-accent-soft' : 'hover:bg-hover'}`}
+			onClick={onClick}
+			className={`squishy flex w-full items-start gap-3 rounded px-2 py-2 text-left transition-colors ${selected ? 'bg-accent-soft' : 'hover:bg-hover'}`}
 		>
 			{children}
 		</button>
@@ -51,7 +52,7 @@ export function AbilityView({ team, member }: { team: Team; member: PokemonSet }
 			<Heading title='Ability' hint={`What ${member.species} can have in Gen ${team.gen}`} />
 			<div className='flex flex-col'>
 				{abilities.map(({ ability, hidden, special }) => (
-					<Row key={ability.id} selected={member.ability === ability.name} onClick={(el) => apply('ability', { ability: ability.name }, el, ability.name)}>
+					<Row key={ability.id} selected={member.ability === ability.name} onClick={() => apply('ability', { ability: ability.name }, true)}>
 						<span className='flex min-w-0 flex-1 flex-col gap-0.5'>
 							<span className={`flex items-center gap-2 text-base font-medium ${member.ability === ability.name ? 'text-accent' : ''}`}>
 								{ability.name}
@@ -86,7 +87,7 @@ export function ItemView({ team, member }: { team: Team; member: PokemonSet }) {
 					</Row>
 				)}
 				{shown.map((i) => (
-					<Row key={i.id} selected={member.item === i.name} onClick={(el) => apply('item', { item: i.name }, el, i.name)}>
+					<Row key={i.id} selected={member.item === i.name} onClick={() => apply('item', { item: i.name }, true)}>
 						<span className='flex min-w-0 flex-1 flex-col gap-0.5'>
 							<span className={`text-base font-medium ${member.item === i.name ? 'text-accent' : ''}`}>{i.name}</span>
 							{/* A match in the long text shows that text, so the row says why it matched. */}
@@ -107,7 +108,7 @@ export function NatureView({ team, member }: { team: Team; member: PokemonSet })
 			<Heading title='Nature' hint='Raised stat in red, lowered stat in blue' />
 			<div className='grid grid-cols-2 gap-1'>
 				{natures.map((n) => (
-					<Row key={n.id} selected={member.nature === n.name} onClick={(el) => apply('nature', { nature: n.name }, el, n.name)}>
+					<Row key={n.id} selected={member.nature === n.name} onClick={() => apply('nature', { nature: n.name }, true)}>
 						<span className={`text-base font-medium ${member.nature === n.name ? 'text-accent' : ''}`}>
 							<NatureText name={n.name} plus={n.plus} minus={n.minus} />
 						</span>
@@ -129,7 +130,7 @@ export function TeraView({ team, member }: { team: Team; member: PokemonSet }) {
 					<button
 						key={t}
 						type='button'
-						onClick={(e) => apply('tera', { teraType: t }, e.currentTarget, t, TYPE_COLORS[t])}
+						onClick={() => apply('tera', { teraType: t }, true)}
 						className={`squishy rounded p-0.5 ${member.teraType === t ? 'ring-[1.5px] ring-accent' : ''}`}
 						aria-pressed={member.teraType === t}
 					>
@@ -149,7 +150,7 @@ export function LevelView({ team, member }: { team: Team; member: PokemonSet }) 
 			<div className='flex items-center gap-2'>
 				<NumberBox label='Level' value={member.level} min={1} max={100} width='w-16' onCommit={(v) => apply('level', { level: v })} />
 				{[100, 50, 5].map((l) => (
-					<button key={l} type='button' onClick={(e) => apply('level', { level: l }, e.currentTarget, String(l))} className='squishy h-6 rounded border border-line px-2 text-xs font-medium hover:bg-hover'>
+					<button key={l} type='button' onClick={() => apply('level', { level: l }, true)} className='squishy h-6 rounded border border-line px-2 text-xs font-medium hover:bg-hover'>
 						{l}
 					</button>
 				))}

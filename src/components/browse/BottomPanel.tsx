@@ -12,7 +12,7 @@ import { useRoles } from '@/lib/hooks';
 import { ROLES } from '@/lib/roles';
 import { STATS, type Team } from '@/lib/model';
 import { useOpenTeam, useStore } from '@/lib/store';
-import { pop } from '@/components/motion/choreography';
+import { addAndLand } from '@/components/motion/choreography';
 
 export function tierTabs(team: Team) {
 	if (team.mode === 'casual') return ['All', ...Array.from({ length: team.gen }, (_, i) => `Gen ${i + 1}`)];
@@ -85,7 +85,7 @@ export const CandidateCard = memo(function CandidateCard({ species, types, roles
 			type='button'
 			{...listeners}
 			{...attributes}
-			onClick={() => addMember(species) && requestAnimationFrame(() => pop([...document.querySelectorAll('[data-party] [data-party-member]')].at(-1) ?? null))}
+			onClick={() => addAndLand(() => addMember(species))}
 			aria-label={`Add ${species} to the team`}
 			className={`${cardLook} transition-colors ${wide ? 'w-full' : 'w-[152px]'} ${isDragging ? 'border-dashed border-line-strong opacity-[0.33]' : 'border-line hover:border-line-strong'}`}
 		>
@@ -159,6 +159,7 @@ export function BottomPanel() {
 					onClear={() => setCarousel({ carouselSearch: '' })}
 				/>
 			</div>
+			{/* A new category fades the old cards out in 100 ms, then the new ones rise in chunks. */}
 			<AnimatePresence mode='wait' initial={false}>
 				<motion.div
 					key={filterKey}
@@ -173,8 +174,10 @@ export function BottomPanel() {
 					}}
 					className='scrollbar-none flex min-h-0 flex-1 gap-3 overflow-x-auto px-6 pb-4 [mask-image:linear-gradient(to_right,black_calc(100%-96px),transparent)]'
 				>
-					{list.slice(0, limit).map((s) => (
-						<CandidateCard key={s.name} species={s.name} types={s.types} roles={roles[s.name]} casual={casual} />
+					{list.slice(0, limit).map((s, i) => (
+						<div key={s.name} className='flex shrink-0 animate-[rise_160ms_cubic-bezier(0.22,1,0.36,1)_both]' style={{ animationDelay: `${Math.min(Math.floor(i / 4), 6) * 40}ms` }}>
+							<CandidateCard species={s.name} types={s.types} roles={roles[s.name]} casual={casual} />
+						</div>
 					))}
 					{!list.length && <p className='self-center text-base text-muted'>{shownSearch ? `No Pokémon named “${shownSearch}” in Gen ${team.gen}.` : 'Nothing in this tier yet.'}</p>}
 				</motion.div>

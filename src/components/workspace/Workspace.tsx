@@ -11,7 +11,7 @@ import { MAX_TEAM_SIZE, STATS, STAT_LABELS, type Team } from '@/lib/model';
 import { useOpenTeam, useSelectedMember, useStore } from '@/lib/store';
 import { ExpandedCard } from './ExpandedCard';
 import { PartyRow } from './PartyRow';
-import { hopInto } from '@/components/motion/choreography';
+import { addAndLand, hopInto } from '@/components/motion/choreography';
 
 const STAT_COLOR: Record<string, string> = { hp: 'bg-stat-hp', atk: 'bg-stat-atk', def: 'bg-stat-def', spa: 'bg-stat-spa', spd: 'bg-stat-spd', spe: 'bg-stat-spe' };
 
@@ -126,7 +126,7 @@ function Preview({ team, species }: { team: Team; species: string }) {
 			</div>
 			<BaseStatBars team={team} species={species} />
 			<div className='flex flex-wrap items-center gap-2'>
-				<Button variant='accent' icon='plus' disabled={full} onClick={() => addMember(species)}>
+				<Button variant='accent' icon='plus' disabled={full} onClick={() => addAndLand(() => addMember(species))}>
 					Add to team
 				</Button>
 				<Button icon='compare' disabled={!team.members.length} onClick={() => compare(species)}>
@@ -240,7 +240,7 @@ function CompareScene({ team, candidate }: { team: Team; candidate: string }) {
 						<span className='truncate'>Swap {mine.name || mine.species} for {candidate}</span>
 					</Button>
 				)}
-				<Button icon='plus' disabled={full} onClick={() => addMember(candidate)}>
+				<Button icon='plus' disabled={full} onClick={() => addAndLand(() => addMember(candidate))}>
 					Add to team
 				</Button>
 				{full && <span className='text-xs text-muted'>Team is full</span>}

@@ -4,6 +4,28 @@ import type { SpriteSet } from './model';
 
 const POKEAPI = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon';
 const SHOWDOWN_SHEET = 'https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png';
+const ITEMS = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items';
+const SHOWDOWN_ITEMS = 'https://play.pokemonshowdown.com/sprites/itemicons';
+
+/**
+ * The Poké Ball for each card-art set: Gen V's item sprite for Black/White, and
+ * Showdown's for X/Y, the same source as the X/Y art. PokeAPI has no X/Y item set.
+ */
+export const POKEBALL: Record<SpriteSet, string> = {
+	bw: `${ITEMS}/gen5/poke-ball.png`,
+	xy: `${SHOWDOWN_ITEMS}/poke-ball.png`,
+};
+
+const prefetched = new Set<string>();
+/** Loads both Poké Balls into the browser cache, so a fallback is ready the moment the set is switched. */
+export function prefetchPokeballs() {
+	if (typeof Image === 'undefined') return;
+	for (const url of Object.values(POKEBALL)) {
+		if (prefetched.has(url)) continue;
+		prefetched.add(url);
+		new Image().src = url;
+	}
+}
 
 const gen8 = data.gen8 as unknown as Record<string, [number, number, number, number]>;
 const sheet = data.sheet as unknown as Record<string, [number, number, number, number]>;

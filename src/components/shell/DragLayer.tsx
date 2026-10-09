@@ -20,7 +20,7 @@ import { TYPE_COLORS } from '@/components/ui/TypeBadge';
 import { accepts, type DragData, type DropTarget } from '@/lib/drag';
 import { MOBILE_QUERY } from '@/lib/breakpoints';
 import { useStore } from '@/lib/store';
-import { poof, pop } from '@/components/motion/choreography';
+import { landOn, poof } from '@/components/motion/choreography';
 import { selectWithLift } from '@/components/workspace/PartyRow';
 
 export function DragLayer({ children }: { children: React.ReactNode }) {
@@ -47,7 +47,6 @@ export function DragLayer({ children }: { children: React.ReactNode }) {
 		const point = (e.activatorEvent as PointerEvent | undefined) && 'clientX' in (e.activatorEvent as PointerEvent)
 			? { x: (e.activatorEvent as PointerEvent).clientX + e.delta.x, y: (e.activatorEvent as PointerEvent).clientY + e.delta.y }
 			: null;
-		const landed = (selector: string) => requestAnimationFrame(() => pop(document.querySelector(selector)));
 		const partyCell = (index: number) => `[data-party-member][data-index="${index}"]`;
 
 		if (drag.kind === 'candidate') {
@@ -67,7 +66,7 @@ export function DragLayer({ children }: { children: React.ReactNode }) {
 			// addMember rejects a seventh member itself (toast + party shake).
 			if (over?.kind === 'party') {
 				const at = Math.min(over.index!, open.members.length);
-				if (s.addMember(drag.species!, over.index)) landed(partyCell(at));
+				if (s.addMember(drag.species!, over.index)) landOn(partyCell(at));
 			}
 			return;
 		}
@@ -91,7 +90,7 @@ export function DragLayer({ children }: { children: React.ReactNode }) {
 				// Another team's member can only be dropped into the open party.
 				if (over?.kind === 'party') {
 					const at = Math.min(over.index!, open.members.length);
-					if (s.moveMemberToTeam(drag.uid!, drag.teamId!, open.id, over.index)) landed(partyCell(at));
+					if (s.moveMemberToTeam(drag.uid!, drag.teamId!, open.id, over.index)) landOn(partyCell(at));
 				}
 				return;
 			}
@@ -114,7 +113,7 @@ export function DragLayer({ children }: { children: React.ReactNode }) {
 			if (!s.selectedUid) return;
 			if (over?.kind === 'moveslot') {
 				s.setMove(s.selectedUid, over.slot!, drag.move!);
-				landed(`[data-move-slot="${over.slot}"]`);
+				landOn(`[data-move-slot="${over.slot}"]`);
 			} else if (drag.slot !== undefined) {
 				// Dragged off its slot and dropped anywhere else: the move leaves the set, with the same poof as a removed Pokémon.
 				s.setMove(s.selectedUid, drag.slot, '');

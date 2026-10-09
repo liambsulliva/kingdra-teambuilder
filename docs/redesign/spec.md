@@ -270,18 +270,20 @@ Every existing capability has a new home. Defects noted in `docs/research/redesi
 
 | Flow | Animation |
 |---|---|
-| Switch team | Brisk, about 0.7 s total. The old party walks home, then the new team walks off its card and jumps into the party. A click or keypress skips to the end. |
+| Switch team | Brisk, about 0.7 s total. The old party walks home, then the new team walks off its card and jumps into the party. A click or keypress skips to the end. If the team's card is not fully on screen, nothing walks: the new party pops in all at once. |
 | Select member | It arcs up onto the card. The rest of the row slides to close the gap (spring). |
-| Pick a move or picker value | A copy of the clicked row arcs into its move cell or key row (about 320 ms), and the target springs a small pop. |
+| Pick a move or picker value | Nothing flies. The move cell or key row bounces up with the same pop as a drop. |
 | Right panel view change | **None.** |
 | Evolve | Hop and swap: the sprite hops, crossfades mid-air, and lands with a squash (about 350 ms). |
 | Swap in from comparison | Simple hop: the candidate icon arcs into the member's party slot while the old icon poofs (about 400 ms). |
+| Add by click or Add to team | The new member pops into its party slot, the same pop as a drop. |
 | Drag to add / reject / remove | The ghost follows the pointer and lands with a squash. A full team bounces the ghost back. Releasing outside the party poofs the member. |
 | Stat edits | Bars glide (300 ms) and final numbers tick. The EV bar is elastic: dragging past either end stretches up to 5 px and springs back on release. |
-| Carousel filter change | Old cards fade out and new ones fade in at 100 ms, with no stagger or wave. |
+| Carousel filter change | Old cards fade out in 100 ms. The new ones rise in chunks of four, 40 ms apart, each fading up over 160 ms. |
 | Box drawer and dialogs | The drawer rises with a soft spring, and the party row rides up onto it. Dialogs rise 8 px and fade in 200 ms. Scrims fade. |
 | Team create, duplicate, import, delete | **None.** |
 | Theme toggle | 200 ms color crossfade. |
+| Loading images (sprites and icons) | A gradient skeleton pulses in the photography pages' style until the image loads. The image then fades in over 300 ms. |
 | Hover on a Pokémon or icon | personal-website-v3 scare-bounce. |
 | Mobile | Tabs switch instantly. Sheets spring up and drag down to dismiss. Opening a team jumps to Party, where members hop into the row. |
 

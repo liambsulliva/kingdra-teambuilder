@@ -1,10 +1,10 @@
 import { act } from 'react';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { flyValue, hopAndSwap, liftToCard, openTeamWithMotion, poof, pop } from '@/components/motion/choreography';
+import { hopAndSwap, landOn, liftToCard, openTeamWithMotion, poof, pop } from '@/components/motion/choreography';
 import { newSet, newTeam, type Library } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { seedLocalLibrary, setViewport } from '../helpers/env';
-import { button, byLabel, click, flush, renderApp, wait } from '../helpers/render';
+import { allByLabel, button, byLabel, click, flush, renderApp, wait } from '../helpers/render';
 import { buildStressLibrary, clone, type StressLibrary } from '../fixtures/library';
 
 const s = () => useStore.getState();
@@ -16,6 +16,8 @@ const hiddenMembers = () => [...document.querySelectorAll<HTMLElement>('[data-pa
 let stress: StressLibrary;
 let lib: Library;
 let animations: number;
+/** Every element that was animated, in order. */
+let animated: Element[];
 
 beforeAll(async () => {
 	stress = await buildStressLibrary();
@@ -25,9 +27,11 @@ beforeEach(async () => {
 	// Real-looking boxes so the choreography measures, flies and lands things.
 	vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(() => new DOMRect(40, 40, 32, 32));
 	animations = 0;
+	animated = [];
 	const animate = Element.prototype.animate;
 	vi.spyOn(Element.prototype, 'animate').mockImplementation(function (this: Element, ...args) {
 		animations++;
+		animated.push(this);
 		return animate.apply(this, args as never);
 	});
 	setViewport({ reducedMotion: false });
@@ -73,6 +77,23 @@ describe('switching teams with the walk', () => {
 		expect(animations).toBe(before);
 	});
 
+	it('pops the whole new party in at once when the team card is off screen', async () => {
+		const target = lib.teams[3];
+		// The card sits below the window: nothing can walk over it.
+		vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+			return this.matches(`[data-team-card="${target.id}"]`) ? new DOMRect(40, 5000, 260, 80) : new DOMRect(40, 40, 32, 32);
+		});
+		await act(async () => openTeamWithMotion(target.id));
+		await flush();
+		expect(open().id).toBe(target.id);
+		const party = [...document.querySelectorAll('[data-party-member]')];
+		expect(party).toHaveLength(open().members.length);
+		// Each member pops where it stands. Nothing is flown, so no clone is left in the body.
+		expect(party.every((el) => animated.includes(el))).toBe(true);
+		expect(clones()).toHaveLength(0);
+		expect(hiddenMembers()).toHaveLength(0);
+	});
+
 	it('switches at once without animating on a phone or with reduced motion', async () => {
 		setViewport({ reducedMotion: true });
 		const before = animations;
@@ -99,15 +120,27 @@ describe('the smaller moments', () => {
 		expect(open().members[0].species).toBe('Charmeleon');
 	});
 
-	it('flies a picked value to its row and cleans up the chip', async () => {
+	it('lands a picked value on its row with a pop and flies no chip', async () => {
 		await click(document.querySelector('[data-party-member][data-index="1"]')!);
 		await flush();
 		await click(document.querySelector('[data-key-row="item"]')!);
+		animated = [];
 		await click(button(/^Light Ball/, byLabel('Inspector')));
 		await wait(20);
 		await flush();
 		expect(open().members[1].item).toBe('Light Ball');
+		expect(animated).toContain(document.querySelector('[data-key-row="item"]'));
 		expect(clones()).toHaveLength(0);
+	});
+
+	it('pops a suggestion into its new party slot when its card is clicked', async () => {
+		const before = open().members.length;
+		animated = [];
+		await click(allByLabel(/^Add .+ to the team$/)[0]);
+		await wait(20);
+		await flush();
+		expect(open().members).toHaveLength(before + 1);
+		expect(animated).toContain(document.querySelector(`[data-party-member][data-index="${before}"]`));
 	});
 
 	it('puffs six particles and clears them', async () => {
@@ -122,7 +155,7 @@ describe('the smaller moments', () => {
 		const before = animations;
 		act(() => poof(10, 10));
 		pop(document.body);
-		await flyValue(document.body, 'body', 'x');
+		landOn('body');
 		await liftToCard('Pikachu', new DOMRect(0, 0, 32, 32), new DOMRect(0, 0, 96, 96));
 		let swapped = false;
 		await hopAndSwap(document.body, () => (swapped = true));
@@ -132,7 +165,7 @@ describe('the smaller moments', () => {
 	});
 
 	it('tolerates missing elements', async () => {
-		await expect(flyValue(null, '[data-nothing]', 'x')).resolves.toBeUndefined();
+		expect(() => landOn('[data-nothing]')).not.toThrow();
 		let swapped = false;
 		await hopAndSwap(null, () => (swapped = true));
 		expect(swapped).toBe(true);
