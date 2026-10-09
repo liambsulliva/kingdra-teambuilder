@@ -98,21 +98,26 @@ export interface SmogonSet {
 	nature?: string | string[];
 	moves?: (string | string[])[];
 	teratypes?: string | string[];
-	evs?: Partial<PokemonSet['evs']>;
-	ivs?: Partial<PokemonSet['ivs']>;
+	evs?: Partial<PokemonSet['evs']> | Partial<PokemonSet['evs']>[];
+	ivs?: Partial<PokemonSet['ivs']> | Partial<PokemonSet['ivs']>[];
 }
 
 const first = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v) ?? '';
 
-/** The first listed option of every field, as a patch for an existing set. */
-export function smogonPatch(set: SmogonSet): Partial<PokemonSet> {
+/**
+ * The first listed option of every field, as a patch for an existing set.
+ * Many Smogon sets leave out the ability because the species has one to
+ * choose from, so those take `defaultAbility`.
+ */
+export function smogonPatch(set: SmogonSet, defaultAbility: string): Partial<PokemonSet> {
+	const pick = <T>(v: T | T[] | undefined) => (Array.isArray(v) ? v[0] : v);
 	return {
 		item: first(set.item),
-		ability: first(set.ability),
+		ability: first(set.ability) || defaultAbility,
 		nature: first(set.nature),
 		moves: (set.moves ?? []).map((m) => first(m)).slice(0, 4),
 		teraType: first(set.teratypes),
-		evs: { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0, ...set.evs },
-		ivs: { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31, ...set.ivs },
+		evs: { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0, ...pick(set.evs) },
+		ivs: { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31, ...pick(set.ivs) },
 	};
 }

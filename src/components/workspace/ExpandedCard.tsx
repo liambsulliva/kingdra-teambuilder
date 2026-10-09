@@ -7,7 +7,7 @@ import { Icon } from '@/components/ui/Icon';
 import { Button } from '@/components/ui/controls';
 import { TypeBadge, TypeSwatch } from '@/components/ui/TypeBadge';
 import { PokemonIcon, PokemonSprite } from '@/components/pokemon/PokemonIcon';
-import { evolutionLine, fieldsFor, getMove, getNature, getSpecies } from '@/lib/dex';
+import { defaultAbility, evolutionLine, fieldsFor, getMove, getNature, getSpecies } from '@/lib/dex';
 import { exportSet, smogonPatch, type SmogonSet } from '@/lib/showdown';
 import { supportFor, type SupportGroup } from '@/lib/support';
 import { MAX_MOVES, type PokemonSet, type Team } from '@/lib/model';
@@ -52,7 +52,7 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 	if (fields.tera) rows.push({ view: 'tera', label: 'Tera', value: member.teraType, empty: species?.types[0] ?? 'Choose a type', flag: problemsFor(problems, ['tera']) });
 
 	const applySet = (name: string, set: SmogonSet) => {
-		updateSet(member.uid, smogonPatch(set));
+		updateSet(member.uid, smogonPatch(set, defaultAbility(team, member.species)));
 		setSets(null);
 		toast('success', `Loaded the Smogon ${name} set`);
 	};
@@ -145,11 +145,22 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 			)}
 
 			<div className='flex flex-col gap-2'>
-				<div className='flex items-center pl-2'>
-					<span className='text-xs text-muted'>Moves</span>
-					<button type='button' onClick={loadSmogon} className='ml-3 text-xs font-medium text-muted hover:text-fg'>
-						Load Smogon Set
-					</button>
+				<div className='flex items-start pl-2'>
+					<span className='flex h-6 items-center text-xs text-muted'>Moves</span>
+					<div className='ml-3 flex min-w-0 flex-col items-start gap-1.5'>
+						<button type='button' onClick={loadSmogon} className='flex h-6 items-center text-xs font-medium text-muted hover:text-fg'>
+							Load Smogon Set
+						</button>
+						{sets && (
+							<div className='flex flex-wrap gap-1.5'>
+								{Object.entries(sets).map(([name, set]) => (
+									<Button key={name} className='!h-7 !px-2 !text-xs' onClick={() => applySet(name, set)}>
+										{name}
+									</Button>
+								))}
+							</div>
+						)}
+					</div>
 					<span className='flex-1' />
 					<IconButton
 						icon='stats'
@@ -178,15 +189,6 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 						))}
 					</div>
 				)}
-				{sets && (
-					<div className='flex flex-wrap gap-1.5 pl-2'>
-						{Object.entries(sets).map(([name, set]) => (
-							<Button key={name} className='!h-7 !px-2 !text-xs' onClick={() => applySet(name, set)}>
-								{name}
-							</Button>
-						))}
-					</div>
-				)}
 				<div className='grid grid-cols-2 gap-2'>
 					{Array.from({ length: MAX_MOVES }, (_, i) => (
 						<MoveCell
@@ -212,10 +214,10 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 function EvolutionStep({ team, member, name }: { team: Team; member: PokemonSet; name: string }) {
 	const changeSpecies = useStore((s) => s.changeSpecies);
 	const current = name === member.species;
+	// The stage the card is on drags too: it moves the Pokémon itself, as its party sprite does.
 	const { setNodeRef, listeners, attributes, isDragging } = useDraggable({
 		id: `evolution:${member.uid}:${name}`,
 		data: { kind: 'evolution', uid: member.uid, species: name, teamId: team.id },
-		disabled: current,
 	});
 	return (
 		<button
@@ -225,10 +227,9 @@ function EvolutionStep({ team, member, name }: { team: Team; member: PokemonSet;
 			{...listeners}
 			// Keyboard keeps its click: the drag sensor would otherwise take Enter and Space.
 			onKeyDown={undefined}
-			disabled={current}
-			onClick={() => hopAndSwap(document.querySelector('[data-card-sprite]'), () => changeSpecies(member.uid, name))}
-			className={`bounce-host group flex cursor-pointer flex-col items-center gap-1 disabled:cursor-pointer ${isDragging ? 'opacity-40' : ''}`}
-			title={current ? name : `Switch to ${name}. Drag onto another team to move it there as ${name}`}
+			onClick={current ? undefined : () => hopAndSwap(document.querySelector('[data-card-sprite]'), () => changeSpecies(member.uid, name))}
+			className={`bounce-host group flex flex-col items-center gap-1 ${current ? 'cursor-grab' : 'cursor-pointer'} ${isDragging ? 'opacity-40' : ''}`}
+			title={current ? `Drag onto another team to move ${member.name || name} there` : `Switch to ${name}. Drag onto another team to move it there as ${name}`}
 		>
 			<PokemonIcon species={name} className='bounce-glyph' />
 			<span className={`h-0.5 w-5 rounded-full ${current ? 'bg-accent' : 'bg-transparent'}`} />

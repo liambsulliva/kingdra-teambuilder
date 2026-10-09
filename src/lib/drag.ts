@@ -61,10 +61,12 @@ export function accepts(drag: DragData, over: DropTarget): boolean {
 			// Only the open team's members can be stored or removed.
 			return own;
 		case 'evolution': {
-			// An evolution stage moves its member to another team as that species. Nothing else accepts it.
+			// A stage moves its member to another team. The card's own stage moves it unchanged, as its party sprite does.
 			if (over.kind !== 'teamslot') return false;
 			const target = s.library.teams.find((t) => t.id === over.teamId);
-			return !!target && over.teamId !== drag.teamId && hasRoom(target) && canUseSpecies(target, drag.species!);
+			const source = s.library.teams.find((t) => t.id === drag.teamId)?.members.find((m) => m.uid === drag.uid);
+			const isOwnStage = source?.species === drag.species;
+			return !!target && over.teamId !== drag.teamId && hasRoom(target) && (isOwnStage || canUseSpecies(target, drag.species!));
 		}
 		case 'boxset':
 			return (

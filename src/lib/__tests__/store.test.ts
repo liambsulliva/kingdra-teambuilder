@@ -96,6 +96,18 @@ describe('moving a member as an evolution', () => {
 		expect(teamNamed('Second').members).toEqual([{ ...before, species: 'Charmeleon' }]);
 	});
 
+	it("moves the card's own stage unchanged, as its party sprite would", () => {
+		const s = useStore.getState();
+		s.addMember('Charmander');
+		const source = team();
+		s.createTeam({ name: 'Second' });
+		s.openTeam(source.id);
+		const before = team().members[0];
+
+		expect(useStore.getState().moveMemberToTeam(before.uid, source.id, teamNamed('Second').id, undefined, 'Charmander')).toBe(true);
+		expect(teamNamed('Second').members).toEqual([before]);
+	});
+
 	it('refuses an evolution the target generation does not have', () => {
 		const s = useStore.getState();
 		s.addMember('Gabite');

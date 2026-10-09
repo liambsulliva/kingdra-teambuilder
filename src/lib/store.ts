@@ -372,7 +372,8 @@ export const useStore = create<Store>()((set, get) => {
 			const to = library.teams.find((t) => t.id === toTeamId);
 			const member = from?.members.find((m) => m.uid === memberUid);
 			if (!from || !to || !member || from.id === to.id) return false;
-			if (species && !canUseSpecies(to, species)) {
+			const evolves = !!species && species !== member.species;
+			if (evolves && !canUseSpecies(to, species)) {
 				get().toast('error', `${species} can't be used in ${to.name} (${formatLabel(to)})`);
 				return false;
 			}
@@ -381,7 +382,7 @@ export const useStore = create<Store>()((set, get) => {
 				get().toast('error', `${to.name} is full: remove a member first`);
 				return false;
 			}
-			const moved = species ? asSpecies(to, member, species) : member;
+			const moved = evolves ? asSpecies(to, member, species) : member;
 			const teams = library.teams.map((t) => {
 				if (t.id === from.id) return { ...t, members: t.members.filter((m) => m.uid !== memberUid) };
 				if (t.id !== to.id) return t;

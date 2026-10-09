@@ -20,6 +20,7 @@ import { TYPE_COLORS } from '@/components/ui/TypeBadge';
 import { accepts, type DragData, type DropTarget } from '@/lib/drag';
 import { useStore } from '@/lib/store';
 import { poof, pop } from '@/components/motion/choreography';
+import { selectWithLift } from '@/components/workspace/PartyRow';
 
 export function DragLayer({ children }: { children: React.ReactNode }) {
 	const [active, setActive] = useState<DragData | null>(null);
@@ -50,9 +51,13 @@ export function DragLayer({ children }: { children: React.ReactNode }) {
 
 		if (drag.kind === 'candidate') {
 			if (over?.kind === 'card') {
-				// Nothing to compare against on an empty team, so the drop adds the first member.
+				// Nothing to compare against on an empty team, so the drop adds the first member and puts it on the card.
 				if (!open.members.length) {
-					if (s.addMember(drag.species!)) landed(partyCell(0));
+					if (s.addMember(drag.species!)) {
+						const added = useStore.getState().library.teams.find((t) => t.id === open.id)!.members[0];
+						const from = point && new DOMRect(point.x - 16, point.y - 16, 32, 32);
+						selectWithLift(added, from || undefined);
+					}
 					return;
 				}
 				return s.compare(drag.species!);

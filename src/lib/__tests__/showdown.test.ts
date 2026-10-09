@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { exportSet, importSet, importTeams } from '../showdown';
+import { exportSet, importSet, importTeams, smogonPatch } from '../showdown';
 
 const KINGDRA = `Seahorse (Kingdra) (F) @ Choice Specs
 Ability: Swift Swim
@@ -37,5 +37,17 @@ describe('Showdown text', () => {
 		const { teams, skipped } = importTeams(seven, { mode: 'competitive', gen: 9, format: 'gen9ou' });
 		expect(teams[0].members).toHaveLength(6);
 		expect(skipped).toHaveLength(1);
+	});
+});
+
+describe('Smogon set loading', () => {
+	it('keeps the ability a set names, or the species default when the set leaves it out', () => {
+		expect(smogonPatch({ ability: ['Rough Skin', 'Iron Barbs'] }, 'Sand Stream').ability).toBe('Rough Skin');
+		expect(smogonPatch({ moves: ['Earthquake'] }, 'Sand Stream').ability).toBe('Sand Stream');
+	});
+
+	it('takes the first EV and IV spread when a set lists alternatives', () => {
+		const patch = smogonPatch({ evs: [{ atk: 252, spe: 252 }, { hp: 252, spd: 4 }] }, 'Defiant');
+		expect(patch.evs).toEqual({ hp: 0, atk: 252, def: 0, spa: 0, spd: 0, spe: 252 });
 	});
 });
