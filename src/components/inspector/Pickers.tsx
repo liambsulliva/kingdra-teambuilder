@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
 import { NumberBox, SearchField, Select } from '@/components/ui/controls';
 import { TypeBadge, TYPE_COLORS } from '@/components/ui/TypeBadge';
-import { abilitiesFor, fieldsFor, generationFor, getSpecies, itemsFor, naturesFor, typesForGen } from '@/lib/dex';
+import { abilitiesFor, fieldsFor, generationFor, getSpecies, itemsFor, naturesFor, searchItems, typesForGen } from '@/lib/dex';
 import type { PokemonSet, Team } from '@/lib/model';
 import { useStore, type InspectorView } from '@/lib/store';
 import { flyValue } from '@/components/motion/choreography';
@@ -72,14 +72,12 @@ export function ItemView({ team, member }: { team: Team; member: PokemonSet }) {
 	const apply = useApply(member);
 	const [query, setQuery] = useState('');
 	const items = useMemo(() => itemsFor(team), [team]);
-	const shown = useMemo(() => {
-		const q = query.trim().toLowerCase();
-		return items.filter((i) => !q || i.name.toLowerCase().includes(q)).slice(0, 120);
-	}, [items, query]);
+	const q = query.trim().toLowerCase();
+	const shown = useMemo(() => searchItems(items, query).slice(0, 120), [items, query]);
 	return (
 		<div className='flex flex-col gap-3'>
 			<Heading title='Item' hint={`${items.length} held items in Gen ${team.gen}`} />
-			<SearchField autoFocus placeholder='Search items' value={query} onChange={(e) => setQuery(e.target.value)} onClear={() => setQuery('')} />
+			<SearchField autoFocus placeholder='Search items and effects' value={query} onChange={(e) => setQuery(e.target.value)} onClear={() => setQuery('')} />
 			<div className='flex flex-col'>
 				{member.item && (
 					<Row onClick={() => apply('item', { item: '' })}>
@@ -91,7 +89,8 @@ export function ItemView({ team, member }: { team: Team; member: PokemonSet }) {
 					<Row key={i.id} selected={member.item === i.name} onClick={(el) => apply('item', { item: i.name }, el, i.name)}>
 						<span className='flex min-w-0 flex-1 flex-col gap-0.5'>
 							<span className={`text-base font-medium ${member.item === i.name ? 'text-accent' : ''}`}>{i.name}</span>
-							<span className='line-clamp-2 text-xs text-muted'>{i.shortDesc || i.desc}</span>
+							{/* A match in the long text shows that text, so the row says why it matched. */}
+							<span className='line-clamp-2 text-xs text-muted'>{q && !i.shortDesc.toLowerCase().includes(q) ? i.desc : i.shortDesc || i.desc}</span>
 						</span>
 					</Row>
 				))}
@@ -183,11 +182,14 @@ export function DetailsView({ team, member }: { team: Team; member: PokemonSet }
 			<div className='flex flex-col'>
 				<Field label='Nickname'>
 					<input
-						defaultValue={member.name}
-						key={member.uid}
+						value={member.name}
 						maxLength={18}
 						placeholder={member.species}
-						onBlur={(e) => set({ name: e.target.value.trim() })}
+						onChange={(e) => set({ name: e.target.value })}
+						onBlur={(e) => {
+							const name = e.target.value.trim();
+							if (name !== member.name) set({ name });
+						}}
 						className='h-7 w-full rounded px-1.5 text-base outline-none placeholder:text-muted hover:bg-hover focus:bg-hover'
 					/>
 				</Field>
@@ -207,7 +209,7 @@ export function DetailsView({ team, member }: { team: Team; member: PokemonSet }
 				{f.happiness && (
 					<Field label='Happiness'>
 						<NumberBox label='Happiness' value={member.happiness} min={0} max={255} width='w-14' onCommit={(v) => set({ happiness: v })} />
-						<span className='text-xs text-muted'>Return and Frustration use this</span>
+						<span className='text-xs text-muted'>0 to 255. Return and Frustration use this</span>
 					</Field>
 				)}
 				{f.pokeball && (

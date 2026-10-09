@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
+import { accepts, type DragData } from '@/lib/drag';
 import { TypeBadge } from '@/components/ui/TypeBadge';
 import { PokemonIcon } from '@/components/pokemon/PokemonIcon';
 import { getSpecies } from '@/lib/dex';
@@ -25,7 +26,9 @@ export async function selectWithLift(member: PokemonSet, from?: DOMRect) {
 /** One fixed cell of the party row. Cells never move, so the skeletons stay put as members come and go. */
 function PartyCell({ teamId, index, member, occupied, onHover }: { teamId: string; index: number; member?: PokemonSet; occupied: boolean; onHover: (m: PokemonSet | null) => void }) {
 	const { setNodeRef: dropRef, isOver, active } = useDroppable({ id: `party:${index}`, data: { kind: 'party', index } });
-	const live = !!active && active.data.current?.kind !== 'move';
+	const drag = active?.data.current as DragData | undefined;
+	// Only cells the dragged item could land on light up.
+	const live = !!drag && accepts(drag, { kind: 'party', index });
 	const self = !!member && String(active?.id).endsWith(member.uid);
 	return (
 		<div

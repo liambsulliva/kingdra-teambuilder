@@ -31,6 +31,14 @@ export type InspectorView =
 	| 'locations'
 	| 'compare';
 
+/** A legality fix waiting for confirmation in the dialog. */
+export interface PendingFix {
+	uid: string;
+	name: string;
+	changes: string[];
+	patch: Partial<PokemonSet>;
+}
+
 export interface Toast {
 	id: string;
 	kind: 'success' | 'error';
@@ -66,7 +74,8 @@ interface State {
 	/** Party member picked inside the open Box. */
 	boxPartyUid: string | null;
 	boxIndex: number;
-	dialog: null | 'newTeam' | 'importTeam' | 'importSet' | 'deleteMember';
+	dialog: null | 'newTeam' | 'importTeam' | 'importSet' | 'deleteMember' | 'fix';
+	pendingFix: PendingFix | null;
 	toasts: Toast[];
 	save: SaveStatus;
 	validation: Record<string, Validation>;
@@ -82,6 +91,8 @@ interface Actions {
 	dismissToast(id: string): void;
 	setSave(status: SaveStatus): void;
 	setDialog(dialog: State['dialog']): void;
+	proposeFix(fix: PendingFix): void;
+	applyFix(): void;
 	setValidation(teamId: string, v: Validation): void;
 
 	createTeam(partial: Partial<Team>): void;
@@ -97,7 +108,7 @@ interface Actions {
 	addMemberToTeam(teamId: string, species: string, index?: number): boolean;
 	removeMember(uid: string): void;
 	reorderMember(uid: string, index: number): void;
-	moveMemberToTeam(uid: string, fromTeamId: string, toTeamId: string, index?: number): boolean;
+	moveMemberToTeam(uid: string, fromTeamId: string, toTeamId: string, index?: number, species?: string): boolean;
 	updateSet(uid: string, patch: Partial<PokemonSet>): void;
 	replaceSet(uid: string, set: PokemonSet): void;
 	changeSpecies(uid: string, species: string): void;
@@ -165,6 +176,7 @@ export const useStore = create<Store>()((set, get) => {
 		boxPartyUid: null,
 		boxIndex: 0,
 		dialog: null,
+		pendingFix: null,
 		toasts: [],
 		save: 'local',
 		validation: {},
@@ -185,6 +197,14 @@ export const useStore = create<Store>()((set, get) => {
 		dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 		setSave: (save) => set({ save }),
 		setDialog: (dialog) => set({ dialog }),
+		proposeFix: (fix) => set({ pendingFix: fix, dialog: 'fix' }),
+		applyFix: () => {
+			const fix = get().pendingFix;
+			if (!fix) return;
+			get().updateSet(fix.uid, fix.patch);
+			set({ pendingFix: null, dialog: null });
+			get().toast('success', `Applied the fix to ${fix.name}`);
+		},
 		setValidation: (teamId, v) => set((s) => ({ validation: { ...s.validation, [teamId]: v } })),
 
 		createTeam: (partial) => {
@@ -341,39 +361,42 @@ export const useStore = create<Store>()((set, get) => {
 				return { ...t, members };
 			});
 		},
-		/** Moves a member to another team, keeping its set. Full teams reject it. */
-		moveMemberToTeam: (memberUid, fromTeamId, toTeamId, index) => {
+		/**
+		 * Moves a member to another team with its set. With `species`, it arrives as
+		 * that evolution, as if it had been switched on the card first. Refused when
+		 * the team is full or cannot field that species.
+		 */
+		moveMemberToTeam: (memberUid, fromTeamId, toTeamId, index, species) => {
 			const { library } = get();
 			const from = library.teams.find((t) => t.id === fromTeamId);
 			const to = library.teams.find((t) => t.id === toTeamId);
 			const member = from?.members.find((m) => m.uid === memberUid);
 			if (!from || !to || !member || from.id === to.id) return false;
+			if (species && !canUseSpecies(to, species)) {
+				get().toast('error', `${species} can't be used in ${to.name} (${formatLabel(to)})`);
+				return false;
+			}
 			if (to.members.length >= MAX_TEAM_SIZE) {
 				set({ rejectedAt: Date.now() });
 				get().toast('error', `${to.name} is full: remove a member first`);
 				return false;
 			}
+			const moved = species ? asSpecies(to, member, species) : member;
 			const teams = library.teams.map((t) => {
 				if (t.id === from.id) return { ...t, members: t.members.filter((m) => m.uid !== memberUid) };
 				if (t.id !== to.id) return t;
 				const members = [...t.members];
-				members.splice(Math.min(index ?? members.length, members.length), 0, member);
+				members.splice(Math.min(index ?? members.length, members.length), 0, moved);
 				return { ...t, members };
 			});
 			set({ library: touch({ ...library, teams }) });
 			if (get().selectedUid === memberUid) get().selectMember(null);
-			get().toast('success', `${member.name || member.species} moved to ${to.name}`);
+			get().toast('success', `${moved.name || moved.species} moved to ${to.name}`);
 			return true;
 		},
 		updateSet: (memberUid, patch) => updateMember(memberUid, (m) => ({ ...m, ...patch })),
 		replaceSet: (memberUid, next) => updateMember(memberUid, () => ({ ...next, uid: memberUid })),
-		changeSpecies: (memberUid, species) =>
-			updateMember(memberUid, (m) => {
-				// Keep the ability if the new species can have it; otherwise take its first.
-				const team = openTeam();
-				const ok = abilitiesFor(team, species).some((a) => a.ability.name === m.ability);
-				return { ...m, species, ability: ok ? m.ability : defaultAbility(team, species) };
-			}),
+		changeSpecies: (memberUid, species) => updateMember(memberUid, (m) => asSpecies(openTeam(), m, species)),
 		swapIn: (memberUid, species) => {
 			const team = openTeam();
 			const fresh = freshSet(team, species);
@@ -521,6 +544,12 @@ export const useStore = create<Store>()((set, get) => {
 			}),
 	};
 });
+
+/** The same set as another species. It keeps its ability when the species can have it; otherwise it takes the species' first. */
+function asSpecies(team: Team, set: PokemonSet, species: string): PokemonSet {
+	const ok = abilitiesFor(team, species).some((a) => a.ability.name === set.ability);
+	return { ...set, species, ability: ok ? set.ability : defaultAbility(team, species) };
+}
 
 function getTiersDefault(team?: Team) {
 	if (!team) return undefined;

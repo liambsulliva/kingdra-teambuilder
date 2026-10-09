@@ -278,9 +278,45 @@ function DeleteMemberDialog() {
 	);
 }
 
+function FixDialog() {
+	const fix = useStore((s) => s.pendingFix);
+	const open = useStore((s) => s.dialog === 'fix');
+	const setDialog = useStore((s) => s.setDialog);
+	const applyFix = useStore((s) => s.applyFix);
+	return (
+		<Dialog
+			open={open && !!fix}
+			onClose={() => setDialog(null)}
+			title={`Apply fix to ${fix?.name ?? 'this Pokémon'}?`}
+			width={440}
+			footer={
+				<>
+					<span className='flex-1' />
+					<Button onClick={() => setDialog(null)}>Cancel</Button>
+					<Button variant='accent' autoFocus onClick={applyFix}>
+						Apply fix
+					</Button>
+				</>
+			}
+		>
+			<div className='flex flex-col gap-3 text-base'>
+				<p className='text-muted'>This may be a breaking change. It edits the set, so the Pokémon may no longer play the way it was built.</p>
+				<ul className='flex flex-col gap-1.5 rounded-md border border-line p-3'>
+					{fix?.changes.map((c) => (
+						<li key={c} className='font-medium'>
+							{c}
+						</li>
+					))}
+				</ul>
+			</div>
+		</Dialog>
+	);
+}
+
 export function Dialogs() {
 	return (
 		<>
+			<FixDialog />
 			<DeleteMemberDialog />
 			<NewTeamDialog />
 			<ImportDialog kind='team' />

@@ -1,8 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
+import { Button } from '@/components/ui/controls';
 import { TypeBadge } from '@/components/ui/TypeBadge';
 import { effectiveness, getMove, getSpecies, typesForGen } from '@/lib/dex';
+import { fixKeyFor, planFix } from '@/lib/fixes';
 import { useRoles } from '@/lib/hooks';
 import { STATS, STAT_LABELS, type PokemonSet, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
@@ -32,6 +35,30 @@ function TypeCountGrid({ counts, bad }: { counts: [string, number][]; bad: (n: n
 				</div>
 			))}
 		</div>
+	);
+}
+
+/** A ghost button that plans a one-field fix and asks for confirmation before it touches the set. */
+function FixButton({ team, member, problem }: { team: Team; member: PokemonSet; problem: string }) {
+	const proposeFix = useStore((s) => s.proposeFix);
+	const toast = useStore((s) => s.toast);
+	const [busy, setBusy] = useState(false);
+	const name = member.name || member.species;
+	return (
+		<Button
+			variant='ghost'
+			disabled={busy}
+			className='!h-6 shrink-0 !px-2 !text-xs'
+			onClick={async () => {
+				setBusy(true);
+				const plan = await planFix(team, member, problem);
+				setBusy(false);
+				if (plan) proposeFix({ uid: member.uid, name, ...plan });
+				else toast('error', `No safe fix for ${name}`);
+			}}
+		>
+			Fix
+		</Button>
 	);
 }
 
@@ -66,14 +93,22 @@ export function TeamView({ team }: { team: Team }) {
 					<ul className='flex flex-col gap-1.5'>
 						{Object.entries(validation?.byMember ?? {}).flatMap(([uid, problems]) => {
 							const m = team.members.find((x) => x.uid === uid);
-							return problems.map((p, i) => (
-								<li key={uid + i} className='flex items-start gap-2 text-xs'>
-									<Icon name='warning' className='mt-0.5 text-danger' />
-									<span>
-										<span className='font-medium'>{m?.name || m?.species}</span> <span className='text-muted'>{p.replace(`${m?.name || m?.species}`, '').replace(/^[\s:'s]+/, '')}</span>
-									</span>
-								</li>
-							));
+							// One Fix per kind of problem: the second "ability is banned" line would only repeat the first.
+							const offered = new Set<string>();
+							return problems.map((p, i) => {
+								const key = m ? fixKeyFor(p, m) : null;
+								const fixable = !!m && !!key && !offered.has(key);
+								if (fixable) offered.add(key!);
+								return (
+									<li key={uid + i} className='flex items-start gap-2 text-xs'>
+										<Icon name='warning' className='mt-0.5 text-danger' />
+										<span className='min-w-0 flex-1'>
+											<span className='font-medium'>{m?.name || m?.species}</span> <span className='text-muted'>{p.replace(`${m?.name || m?.species}`, '').replace(/^[\s:'s]+/, '')}</span>
+										</span>
+										{fixable && <FixButton team={team} member={m!} problem={p} />}
+									</li>
+								);
+							});
 						})}
 						{validation?.team.map((p, i) => (
 							<li key={i} className='flex items-start gap-2 text-xs'>

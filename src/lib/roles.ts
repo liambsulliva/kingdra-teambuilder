@@ -1,14 +1,14 @@
 export const ROLES = [
 	'Wallbreaker',
-	'Setup sweeper',
-	'Revenge killer',
+	'Setup Sweeper',
+	'Revenge Killer',
 	'Pivot',
-	'Hazard setter',
-	'Hazard removal',
+	'Hazard Setter',
+	'Hazard Removal',
 	'Wall',
 	'Lead',
 	'Support',
-	'Weather setter',
+	'Weather Setter',
 	'Trick Room',
 ] as const;
 export type Role = (typeof ROLES)[number];
@@ -39,15 +39,15 @@ export function rolesForSet(name: string, set: SmogonSet): Role[] {
 	const n = name.toLowerCase();
 	const roles = new Set<Role>();
 	if (has(items, ['Choice Band', 'Choice Specs', 'Life Orb']) || /wallbreak|all-out|mixed|attacker/.test(n)) roles.add('Wallbreaker');
-	if (items.includes('Choice Scarf') || /scarf|revenge/.test(n)) roles.add('Revenge killer');
-	if (has(moves, SETUP) || /sweeper|dance|calm mind|nasty plot|bulk up|setup/.test(n)) roles.add('Setup sweeper');
+	if (items.includes('Choice Scarf') || /scarf|revenge/.test(n)) roles.add('Revenge Killer');
+	if (has(moves, SETUP) || /sweeper|dance|calm mind|nasty plot|bulk up|setup/.test(n)) roles.add('Setup Sweeper');
 	if (has(moves, PIVOT) || /pivot/.test(n)) roles.add('Pivot');
-	if (has(moves, HAZARDS) || /hazard|rocks|spikes|web/.test(n)) roles.add('Hazard setter');
-	if (has(moves, REMOVAL) || /defog|spin/.test(n)) roles.add('Hazard removal');
+	if (has(moves, HAZARDS) || /hazard|rocks|spikes|web/.test(n)) roles.add('Hazard Setter');
+	if (has(moves, REMOVAL) || /defog|spin/.test(n)) roles.add('Hazard Removal');
 	if (/defensive|wall|bulky|unaware|phazer/.test(n) || (has(moves, RECOVERY) && !has(moves, SETUP))) roles.add('Wall');
 	if (/lead/.test(n)) roles.add('Lead');
 	if (/utility|support|screens|cleric|wish/.test(n) || moves.filter((m) => SUPPORT.includes(m)).length >= 2) roles.add('Support');
-	if (has(abilities, WEATHER) || /setter/.test(n)) roles.add('Weather setter');
+	if (has(abilities, WEATHER) || /setter/.test(n)) roles.add('Weather Setter');
 	if (moves.includes('Trick Room') || /trick room/.test(n)) roles.add('Trick Room');
 	return [...roles];
 }

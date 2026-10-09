@@ -1,5 +1,5 @@
 import { Dex } from '@pkmn/dex';
-import { Generations, type Generation, type Specie, type Move, type GenerationNum } from '@pkmn/data';
+import { Generations, type Generation, type Specie, type Move, type Item, type GenerationNum } from '@pkmn/data';
 import type { PokemonSet, StatID, Team } from './model';
 import { STATS } from './model';
 
@@ -166,6 +166,19 @@ export function itemsFor(team: Team) {
 
 export function getItem(team: Team, name: string) {
 	return generationFor(team).items.get(name);
+}
+
+/** Items whose name contains the query, then items whose effect text does. */
+export function searchItems(items: Item[], query: string): Item[] {
+	const q = query.trim().toLowerCase();
+	if (!q) return items;
+	const byName: Item[] = [];
+	const byEffect: Item[] = [];
+	for (const item of items) {
+		if (item.name.toLowerCase().includes(q)) byName.push(item);
+		else if ([item.shortDesc, item.desc].some((text) => text.toLowerCase().includes(q))) byEffect.push(item);
+	}
+	return [...byName, ...byEffect];
 }
 
 export function abilitiesFor(team: Team, species: string) {

@@ -3,7 +3,8 @@ import { MAX_TEAM_SIZE, type Team } from './model';
 import { useStore } from './store';
 
 export interface DragData {
-	kind: 'candidate' | 'member' | 'boxset' | 'move';
+	kind: 'candidate' | 'member' | 'evolution' | 'boxset' | 'move';
+	/** The species: a suggestion's, or the evolution a member would become. */
 	species?: string;
 	/** A member's uid and the team it currently belongs to. */
 	uid?: string;
@@ -31,6 +32,8 @@ export function accepts(drag: DragData, over: DropTarget): boolean {
 	const s = useStore.getState();
 	const open = s.library.teams.find((t) => t.id === s.openTeamId)!;
 	const own = drag.teamId === open.id;
+	// A move dragged off its slot is removed wherever it is dropped; a move from the pool only lands on a slot.
+	if (drag.kind === 'move') return over?.kind === 'moveslot' || drag.slot !== undefined;
 	if (!over) return own && drag.kind === 'member'; // released outside: remove (poof)
 	switch (drag.kind) {
 		case 'candidate':
@@ -57,13 +60,17 @@ export function accepts(drag: DragData, over: DropTarget): boolean {
 			if (over.kind === 'party') return own || hasRoom(open);
 			// Only the open team's members can be stored or removed.
 			return own;
+		case 'evolution': {
+			// An evolution stage moves its member to another team as that species. Nothing else accepts it.
+			if (over.kind !== 'teamslot') return false;
+			const target = s.library.teams.find((t) => t.id === over.teamId);
+			return !!target && over.teamId !== drag.teamId && hasRoom(target) && canUseSpecies(target, drag.species!);
+		}
 		case 'boxset':
 			return (
 				(over.kind === 'party' &&
 					(over.index! < open.members.length || hasRoom(open))) ||
 				over.kind === 'boxcell'
 			);
-		case 'move':
-			return over.kind === 'moveslot';
 	}
 }

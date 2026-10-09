@@ -76,3 +76,35 @@ describe('moving members between teams', () => {
 		expect(team().members).toHaveLength(1);
 	});
 });
+
+describe('moving a member as an evolution', () => {
+	beforeEach(() => useStore.getState().hydrate(emptyLibrary()));
+	const teamNamed = (name: string) => useStore.getState().library.teams.find((t) => t.name === name)!;
+
+	it('moves the member as that evolution, with the same set', () => {
+		const s = useStore.getState();
+		s.addMember('Charmander');
+		const source = team();
+		s.updateSet(source.members[0].uid, { name: 'Sparky', level: 80 });
+		s.setMove(source.members[0].uid, 0, 'Ember');
+		s.createTeam({ name: 'Second' });
+		s.openTeam(source.id);
+		const before = team().members[0];
+
+		expect(useStore.getState().moveMemberToTeam(before.uid, source.id, teamNamed('Second').id, 0, 'Charmeleon')).toBe(true);
+		expect(teamNamed('Team 1').members).toHaveLength(0);
+		expect(teamNamed('Second').members).toEqual([{ ...before, species: 'Charmeleon' }]);
+	});
+
+	it('refuses an evolution the target generation does not have', () => {
+		const s = useStore.getState();
+		s.addMember('Gabite');
+		const source = team();
+		s.createTeam({ name: 'Old', gen: 3, format: 'gen3ou' });
+		s.openTeam(source.id);
+
+		expect(useStore.getState().moveMemberToTeam(source.members[0].uid, source.id, teamNamed('Old').id, undefined, 'Garchomp')).toBe(false);
+		expect(team().members).toHaveLength(1);
+		expect(teamNamed('Old').members).toHaveLength(0);
+	});
+});

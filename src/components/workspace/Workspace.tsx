@@ -57,7 +57,7 @@ export function Workspace() {
 				)}
 			</div>
 			{/* While the Box is open the party rides on the drawer instead. */}
-			<div className='pt-4'>{boxOpen ? <div className='h-14' /> : <PartyRow />}</div>
+			<div className='pt-2'>{boxOpen ? <div className='h-14' /> : <PartyRow />}</div>
 		</div>
 	);
 }

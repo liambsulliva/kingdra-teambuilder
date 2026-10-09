@@ -136,7 +136,7 @@ export function BottomPanel() {
 					type='button'
 					aria-expanded={boxOpen}
 					onClick={() => setBoxOpen(!boxOpen)}
-					className={`squishy inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-base font-medium ${boxOpen ? 'bg-[#2D333D] text-accent' : 'hover:bg-hover'}`}
+					className={`squishy inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-base font-medium ${boxOpen ? 'bg-accent-soft text-accent' : 'hover:bg-hover'}`}
 				>
 					<Icon name='box' />
 					Box

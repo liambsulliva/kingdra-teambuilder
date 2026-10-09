@@ -138,7 +138,7 @@ function DraggableMember({ team, member, children }: { team: Team; member: Pokem
 function TeamSlot({ team, index, empty, onPick, children }: { team: Team; index: number; empty: boolean; onPick?: () => void; children?: React.ReactNode }) {
 	const { setNodeRef, isOver, active } = useDroppable({ id: `teamslot:${team.id}:${index}`, data: { kind: 'teamslot', teamId: team.id, index } });
 	const drag = active?.data.current as DragData | undefined;
-	const dragging = drag?.kind === 'candidate' || drag?.kind === 'member';
+	const dragging = drag?.kind === 'candidate' || drag?.kind === 'member' || drag?.kind === 'evolution';
 	const ok = !!dragging && accepts(drag, { kind: 'teamslot', teamId: team.id, index });
 	return (
 		<span

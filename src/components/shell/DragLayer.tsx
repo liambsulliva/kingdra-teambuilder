@@ -65,6 +65,11 @@ export function DragLayer({ children }: { children: React.ReactNode }) {
 			}
 			return;
 		}
+		if (drag.kind === 'evolution') {
+			// The member leaves the open team and arrives on the target team as this evolution.
+			if (over?.kind === 'teamslot') s.moveMemberToTeam(drag.uid!, drag.teamId!, over.teamId, over.index, drag.species);
+			return;
+		}
 		if (drag.kind === 'member') {
 			const own = drag.teamId === open.id;
 			// A long-press that never moved is a request for the action sheet (touch).
@@ -99,9 +104,16 @@ export function DragLayer({ children }: { children: React.ReactNode }) {
 			if (over?.kind === 'boxcell') return s.moveInBox(drag.box!, drag.slot!, over.box!, over.slot!);
 			return;
 		}
-		if (drag.kind === 'move' && over?.kind === 'moveslot' && s.selectedUid) {
-			s.setMove(s.selectedUid, over.slot!, drag.move!);
-			landed(`[data-move-slot="${over.slot}"]`);
+		if (drag.kind === 'move') {
+			if (!s.selectedUid) return;
+			if (over?.kind === 'moveslot') {
+				s.setMove(s.selectedUid, over.slot!, drag.move!);
+				landed(`[data-move-slot="${over.slot}"]`);
+			} else if (drag.slot !== undefined) {
+				// Dragged off its slot and dropped anywhere else: the move leaves the set, with the same poof as a removed Pokémon.
+				s.setMove(s.selectedUid, drag.slot, '');
+				if (point) poof(point.x, point.y);
+			}
 		}
 	};
 

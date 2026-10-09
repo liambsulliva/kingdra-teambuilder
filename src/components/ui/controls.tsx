@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef } from 'react';
+import { forwardRef, useState } from 'react';
 import { Icon, type IconName } from './Icon';
 
 export function Button({
@@ -9,11 +9,12 @@ export function Button({
 	children,
 	className = '',
 	...rest
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'accent' | 'primary' | 'secondary'; icon?: IconName }) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'accent' | 'primary' | 'secondary' | 'ghost'; icon?: IconName }) {
 	const look = {
 		accent: 'bg-accent text-white hover:brightness-110',
 		primary: 'bg-fg text-bg hover:opacity-90',
 		secondary: 'border border-line text-fg hover:bg-hover',
+		ghost: 'text-accent hover:bg-accent-soft',
 	}[variant];
 	return (
 		<button
@@ -109,6 +110,11 @@ export const SearchField = forwardRef<
 	);
 });
 
+/**
+ * A whole-number field. Only digits get in, a value outside [min, max] turns
+ * red while it is typed, and blur or Enter commits it clamped to the range.
+ * Arrow keys step from the typed value (1, or 10 with Shift).
+ */
 export function NumberBox({
 	value,
 	min,
@@ -126,27 +132,39 @@ export function NumberBox({
 	width?: string;
 	invalid?: boolean;
 }) {
+	const [draft, setDraft] = useState(String(value));
+	const [synced, setSynced] = useState(value);
+	// The store moved the value under the field (another control, a reset): show that instead.
+	if (synced !== value) {
+		setSynced(value);
+		setDraft(String(value));
+	}
+	const typed = draft === '' ? value : Number(draft);
+	const outOfRange = draft !== '' && (typed < min || typed > max);
+	const clamp = (n: number) => Math.min(max, Math.max(min, n));
+	const commit = (next: number) => {
+		setDraft(String(next));
+		if (next !== value) onCommit(next);
+	};
 	return (
 		<input
 			aria-label={label}
+			aria-invalid={outOfRange || undefined}
 			inputMode='numeric'
-			key={value}
-			defaultValue={value}
-			onBlur={(e) => {
-				const n = parseInt(e.target.value, 10);
-				if (Number.isNaN(n)) e.target.value = String(value);
-				else onCommit(Math.min(max, Math.max(min, n)));
+			value={draft}
+			onChange={(e) => {
+				if (/^\d*$/.test(e.target.value)) setDraft(e.target.value);
 			}}
+			onBlur={() => commit(clamp(typed))}
 			onKeyDown={(e) => {
-				if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+				if (e.key === 'Enter') e.currentTarget.blur();
 				if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
 					e.preventDefault();
-					const step = e.shiftKey ? 10 : 1;
-					onCommit(Math.min(max, Math.max(min, value + (e.key === 'ArrowUp' ? step : -step))));
+					commit(clamp(typed + (e.key === 'ArrowUp' ? 1 : -1) * (e.shiftKey ? 10 : 1)));
 				}
 			}}
-			className={`h-6 ${width} rounded border bg-bg px-1.5 text-right text-xs tabular-nums text-fg outline-none focus:border-fg ${
-				invalid ? 'border-danger' : 'border-line'
+			className={`h-6 ${width} rounded border bg-bg px-1.5 text-right text-xs tabular-nums text-fg outline-none ${
+				invalid || outOfRange ? 'border-danger focus:border-danger' : 'border-line focus:border-fg'
 			}`}
 		/>
 	);

@@ -13,6 +13,6 @@ describe('legacy MongoDB data', () => {
 
 describe('roles', () => {
 	it('derives broad roles from a Smogon set', () => {
-		expect(rolesForSet('Choice Scarf', { item: 'Choice Scarf', moves: ['U-turn'] })).toEqual(expect.arrayContaining(['Revenge killer', 'Pivot']));
+		expect(rolesForSet('Choice Scarf', { item: 'Choice Scarf', moves: ['U-turn'] })).toEqual(expect.arrayContaining(['Revenge Killer', 'Pivot']));
 	});
 });

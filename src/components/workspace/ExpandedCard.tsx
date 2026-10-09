@@ -25,7 +25,6 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 	const activeSlot = useStore((s) => s.activeMoveSlot);
 	const setInspector = useStore((s) => s.setInspector);
 	const setMatchupType = useStore((s) => s.setMatchupType);
-	const changeSpecies = useStore((s) => s.changeSpecies);
 	const setDialog = useStore((s) => s.setDialog);
 	const updateSet = useStore((s) => s.updateSet);
 	const [sets, setSets] = useState<Record<string, SmogonSet> | null>(null);
@@ -109,26 +108,10 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 							<IconButton icon='shiny' label={member.shiny ? 'Shiny' : 'Not shiny'} selected={member.shiny} onClick={() => updateSet(member.uid, { shiny: !member.shiny })} className='!size-5' />
 						)}
 					</div>
-					<div className='flex items-start gap-3 pt-1'>
-						{line.map((name) => {
-							const current = name === member.species;
-							return (
-								<button
-									key={name}
-									type='button'
-									disabled={current}
-									onClick={() =>
-										hopAndSwap(document.querySelector('[data-card-sprite]'), () => changeSpecies(member.uid, name))
-									}
-									className='bounce-host group flex cursor-pointer flex-col items-center gap-1 disabled:cursor-pointer'
-									title={current ? name : `Switch to ${name}`}
-								>
-									<PokemonIcon species={name} className='bounce-glyph' />
-									<span className={`h-0.5 w-5 rounded-full ${current ? 'bg-accent' : 'bg-transparent'}`} />
-									<span className={`text-xs ${current ? 'text-fg' : 'text-muted group-hover:text-fg'}`}>{name}</span>
-								</button>
-							);
-						})}
+					<div className='-mb-0.5 flex items-start gap-3 pt-1'>
+						{line.map((name) => (
+							<EvolutionStep key={name} team={team} member={member} name={name} />
+						))}
 					</div>
 				</div>
 			</div>
@@ -222,11 +205,43 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 	);
 }
 
+/**
+ * One stage of the evolution line. Click switches the card to it. Drag it onto
+ * another team's card to move the member there as that stage.
+ */
+function EvolutionStep({ team, member, name }: { team: Team; member: PokemonSet; name: string }) {
+	const changeSpecies = useStore((s) => s.changeSpecies);
+	const current = name === member.species;
+	const { setNodeRef, listeners, attributes, isDragging } = useDraggable({
+		id: `evolution:${member.uid}:${name}`,
+		data: { kind: 'evolution', uid: member.uid, species: name, teamId: team.id },
+		disabled: current,
+	});
+	return (
+		<button
+			ref={setNodeRef}
+			type='button'
+			{...attributes}
+			{...listeners}
+			// Keyboard keeps its click: the drag sensor would otherwise take Enter and Space.
+			onKeyDown={undefined}
+			disabled={current}
+			onClick={() => hopAndSwap(document.querySelector('[data-card-sprite]'), () => changeSpecies(member.uid, name))}
+			className={`bounce-host group flex cursor-pointer flex-col items-center gap-1 disabled:cursor-pointer ${isDragging ? 'opacity-40' : ''}`}
+			title={current ? name : `Switch to ${name}. Drag onto another team to move it there as ${name}`}
+		>
+			<PokemonIcon species={name} className='bounce-glyph' />
+			<span className={`h-0.5 w-5 rounded-full ${current ? 'bg-accent' : 'bg-transparent'}`} />
+			<span className={`text-xs ${current ? 'text-fg' : 'text-muted group-hover:text-fg'}`}>{name}</span>
+		</button>
+	);
+}
+
 function MoveCell({ team, slot, move, active, flagged, onClick }: { team: Team; slot: number; move: string; active: boolean; flagged: boolean; onClick: () => void }) {
 	const { setNodeRef, isOver, active: dragging } = useDroppable({ id: `moveslot:${slot}`, data: { kind: 'moveslot', slot } });
 	const { setNodeRef: dragRef, listeners, attributes, isDragging } = useDraggable({
 		id: `moveslot-drag:${slot}`,
-		data: { kind: 'move', move, type: getMove(team, move)?.type },
+		data: { kind: 'move', move, type: getMove(team, move)?.type, slot },
 		disabled: !move,
 	});
 	const data = move ? getMove(team, move) : null;
