@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { IconButton } from '@/components/ui/IconButton';
@@ -20,7 +20,7 @@ import { useOpenTeam, useSelectedMember, useStore } from '@/lib/store';
 type TabId = 'teams' | 'party' | 'browse';
 
 /** Bottom sheet that springs up and can be dragged down to dismiss. */
-export function Sheet({ open, onClose, children, label }: { open: boolean; onClose: () => void; children: React.ReactNode; label: string }) {
+export function Sheet({ open, onClose, children, label, fixed = false }: { open: boolean; onClose: () => void; children: React.ReactNode; label: string; fixed?: boolean }) {
 	return (
 		<AnimatePresence>
 			{open && (
@@ -30,7 +30,7 @@ export function Sheet({ open, onClose, children, label }: { open: boolean; onClo
 						key='sheet'
 						role='dialog'
 						aria-label={label}
-						className='fixed inset-x-0 bottom-0 z-50 flex max-h-[80dvh] flex-col rounded-t-2xl border border-line bg-bg'
+						className={`fixed inset-x-0 bottom-0 z-50 flex ${fixed ? 'h-[80dvh]' : 'max-h-[80dvh]'} flex-col rounded-t-2xl border border-line bg-bg`}
 						initial={{ y: '100%' }}
 						animate={{ y: 0 }}
 						exit={{ y: '100%' }}
@@ -185,8 +185,22 @@ export function MobileApp() {
 	const inspector = useStore((s) => s.inspector);
 	const slot = useStore((s) => s.activeMoveSlot);
 	const [sheet, setSheet] = useState(false);
+	const chosen = useStore((s) => s.chosen);
+	const setInspector = useStore((s) => s.setInspector);
 	const firstTeam = useRef(openTeamId);
 	const firstView = useRef(`${inspector}:${slot}`);
+	// Closing resets the editor to the team view, so tapping the same row opens it again. Nothing is shown behind it on a phone.
+	const closeEditor = useCallback(() => {
+		setSheet(false);
+		setInspector('team');
+	}, [setInspector]);
+	// A choice in the editor (a move, ability, item, Tera type…) drags the sheet back down to the card.
+	const lastChosen = useRef(chosen);
+	useEffect(() => {
+		if (chosen === lastChosen.current) return;
+		lastChosen.current = chosen;
+		closeEditor();
+	}, [chosen, closeEditor]);
 
 	// Opening a team from the Teams tab jumps to Party.
 	useEffect(() => {
@@ -208,7 +222,8 @@ export function MobileApp() {
 	const tabs: [TabId, IconName, string][] = [['teams', 'teams', 'Teams'], ['party', 'party', 'Party'], ['browse', 'browse', 'Browse']];
 	return (
 		<div className='flex h-dvh flex-col overflow-hidden'>
-			<header className='flex h-[52px] shrink-0 items-center gap-2 border-b border-line pl-4 pr-2'>
+			{/* The status bar sits over the top safe area: the header starts below it, so nothing blurs under it. */}
+			<header className='flex h-[calc(52px+env(safe-area-inset-top))] shrink-0 items-center gap-2 border-b border-line pl-4 pr-2 pt-[env(safe-area-inset-top)]'>
 				<Logo size={32} />
 				<span className='font-head text-[20px] font-bold leading-6'>Kingdra</span>
 				<span className='flex-1' />
@@ -230,7 +245,8 @@ export function MobileApp() {
 				{tab === 'party' && <Workspace empty={<StarterSuggestions onSeeAll={() => setTab('browse')} />} />}
 				{tab === 'browse' && <Browse onPreview={() => setTab('party')} onParty={() => setTab('party')} />}
 			</div>
-			<nav className='flex h-[72px] shrink-0 border-t border-line pb-[env(safe-area-inset-bottom)]'>
+			{/* The home-indicator inset is added to the bar, so the tabs keep their 72 px below the dividing line. */}
+			<nav className='flex h-[calc(72px+env(safe-area-inset-bottom))] shrink-0 border-t border-line pb-[env(safe-area-inset-bottom)]'>
 				{tabs.map(([id, icon, label]) => (
 					<button key={id} type='button' onClick={() => setTab(id)} aria-current={tab === id} className='flex flex-1 flex-col items-center justify-center gap-1'>
 						<Icon name={icon} className={tab === id ? 'text-accent' : 'text-muted'} />
@@ -238,7 +254,7 @@ export function MobileApp() {
 					</button>
 				))}
 			</nav>
-			<Sheet open={sheet && !!member} onClose={() => setSheet(false)} label='Editor'>
+			<Sheet fixed open={sheet && !!member} onClose={closeEditor} label='Editor'>
 				<Inspector />
 			</Sheet>
 			<MemberActions />

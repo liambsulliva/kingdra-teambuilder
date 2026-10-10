@@ -102,7 +102,7 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
 
 ## 4. Expanded card
 
-- **Identity.** Animated sprite, nickname or species name (Stack Sans Headline), type badges. Clicking a type badge opens that member's matchups in the right panel. The sprite is top-aligned with the name beside it and left-aligned with the key row labels, on every device.
+- **Identity.** Animated sprite, nickname or species name (Stack Sans Headline), type badges. Clicking a type badge opens that member's matchups in the right panel. The sprite is top-aligned with the name beside it and left-aligned with the key row labels, on every device. On a phone the name truncates with an ellipsis, and the dex number and species (when there is a nickname) sit on the line below it.
 - **Evolution row.** 32×32 icons for the whole line (branches included) under the name, with the current stage underlined in red. Clicking another stage switches species and **keeps the whole set**. Anything the new species can't legally use is flagged, not deleted.
 - **Key rows.** Two-column label/value list. Clicking a row opens its editor in the right panel.
   - Competitive: Level, Ability, Item, Nature (with +/− stats), Tera.
@@ -194,10 +194,11 @@ All motion respects `prefers-reduced-motion`; with it on, everything becomes a c
 ## 10. Mobile, 650px and below
 
 - **Tabs.** A bottom bar with Teams, Party and Browse.
-  - **Teams:** the list with controls.
+  - **Teams:** the list with controls. The open team keeps all its icons here, so the list always shows the whole team. (Desktop leaves the open team's slots empty, since its members are in the party.)
   - **Party:** the card with the party row pinned under it.
   - **Browse:** Suggestions and Box, with search.
-- **Editor.** Slides up as a sheet over Party when a move, row or stats is tapped.
+- **Editor.** Slides up as a sheet over Party when a move, row or stats is tapped. It is 80% of the screen tall on every tab, so it never resizes as tabs change. A choice (a move, ability, item, Tera type, level or any other pick) drags it back down to the card. Dismissing it and tapping the same row opens it again.
+- **Safe areas.** The header starts below the status bar and the tab bar keeps its 72 px above the home indicator, so nothing sits under the system UI.
 - **Touch.**
   - Long-press picks up an icon for dragging, with the same rules as desktop.
   - Long-press without moving opens an action sheet: move to Box, remove.
@@ -210,6 +211,7 @@ All motion respects `prefers-reduced-motion`; with it on, everything becomes a c
 - **Empty team.** Under the empty-state message the top four suggestions for the team's tier sit in a 2×2 grid, followed by "See all suggestions", which opens Browse. They disappear once the first member is added.
 - **Icons stay loaded.** An icon whose sheet is already cached renders immediately on remount (tab switches), with no skeleton.
   - Tapping a move in the sheet follows the same replace-or-fill rule.
+  - On touch screens, draggable icons and rows never select text or call out under a long press.
 
 ## 11. Persistence
 

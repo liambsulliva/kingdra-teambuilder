@@ -43,7 +43,7 @@ const MoveRow = memo(function MoveRow({
 			{...attributes}
 			onClick={() => onPick(move)}
 			title={move.shortDesc || move.desc}
-			className={`squishy flex h-9 w-full items-center gap-2 rounded px-2 text-left transition-colors ${
+			className={`squishy drag-source flex h-9 w-full items-center gap-2 rounded px-2 text-left transition-colors ${
 				state === 'current' ? 'bg-accent-soft' : 'hover:bg-hover'
 			} ${isDragging ? 'opacity-40' : ''}`}
 		>
@@ -85,6 +85,7 @@ export function MovesView({
 }) {
 	const activeSlot = useStore((s) => s.activeMoveSlot);
 	const pickMove = useStore((s) => s.pickMove);
+	const chose = useStore((s) => s.chose);
 	const { mode, gen, format } = team;
 	const ctx = useMemo(() => ({ mode, gen, format }) as Team, [mode, gen, format]);
 	const [moves, setMoves] = useState<readonly Move[] | null>(() => cachedLearnableMoves(ctx, member.species, member.level));
@@ -157,6 +158,7 @@ export function MovesView({
 			? -1
 			: activeSlot ?? nextEmpty;
 		pickMove(move.name);
+		chose();
 		if (target >= 0) landOn(`[data-move-slot="${target}"]`);
 	};
 	// One callback for every row, so the memoized rows are not re-rendered for a new closure.

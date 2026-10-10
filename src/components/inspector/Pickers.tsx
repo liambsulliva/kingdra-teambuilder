@@ -10,14 +10,21 @@ import { useStore, type InspectorView } from '@/lib/store';
 import { landOn } from '@/components/motion/choreography';
 import { NatureText } from './StatsView';
 
-/** `picked`: a value chosen from a list lands on its key row on the card. Typed or removed values do not. */
+/**
+ * `picked`: a value chosen from a list lands on its key row on the card and counts as a choice, which
+ * closes a phone's editor. Typed values do neither.
+ */
 function useApply(member: PokemonSet) {
 	const updateSet = useStore((s) => s.updateSet);
+	const chose = useStore((s) => s.chose);
 	return (view: InspectorView, patch: Partial<PokemonSet>, picked = false) => {
-		// Choosing what is already chosen is a no-op: no change, no animation.
-		if ((Object.keys(patch) as (keyof PokemonSet)[]).every((k) => member[k] === patch[k])) return;
-		updateSet(member.uid, patch);
-		if (picked) landOn(`[data-key-row="${view}"]`);
+		// Choosing what is already chosen changes nothing and animates nothing, but the pick still counts.
+		const unchanged = (Object.keys(patch) as (keyof PokemonSet)[]).every((k) => member[k] === patch[k]);
+		if (!unchanged) updateSet(member.uid, patch);
+		if (picked) {
+			if (!unchanged) landOn(`[data-key-row="${view}"]`);
+			chose();
+		}
 	};
 }
 
@@ -71,6 +78,7 @@ export function AbilityView({ team, member }: { team: Team; member: PokemonSet }
 
 export function ItemView({ team, member }: { team: Team; member: PokemonSet }) {
 	const apply = useApply(member);
+	const chose = useStore((s) => s.chose);
 	const [query, setQuery] = useState('');
 	const items = useMemo(() => itemsFor(team), [team]);
 	const q = query.trim().toLowerCase();
@@ -81,7 +89,7 @@ export function ItemView({ team, member }: { team: Team; member: PokemonSet }) {
 			<SearchField autoFocus placeholder='Search items and effects' value={query} onChange={(e) => setQuery(e.target.value)} onClear={() => setQuery('')} />
 			<div className='flex flex-col'>
 				{member.item && (
-					<Row onClick={() => apply('item', { item: '' })}>
+					<Row onClick={() => { apply('item', { item: '' }); chose(); }}>
 						<Icon name='close' className='mt-0.5 text-muted' />
 						<span className='text-base text-muted'>Remove {member.item}</span>
 					</Row>
@@ -170,6 +178,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 export function DetailsView({ team, member }: { team: Team; member: PokemonSet }) {
 	const updateSet = useStore((s) => s.updateSet);
+	const chose = useStore((s) => s.chose);
 	const f = fieldsFor(team);
 	const species = getSpecies(team, member.species);
 	const gen = generationFor(team);
@@ -200,7 +209,7 @@ export function DetailsView({ team, member }: { team: Team; member: PokemonSet }
 							<span className='text-base text-muted'>Genderless</span>
 						) : (
 							(['', ...genders] as PokemonSet['gender'][]).map((g) => (
-								<button key={g || 'any'} type='button' onClick={() => set({ gender: g })} className={`squishy h-7 rounded px-2 text-base ${member.gender === g ? 'bg-accent-soft font-medium text-accent' : 'text-muted hover:bg-hover'}`}>
+								<button key={g || 'any'} type='button' onClick={() => { set({ gender: g }); chose(); }} className={`squishy h-7 rounded px-2 text-base ${member.gender === g ? 'bg-accent-soft font-medium text-accent' : 'text-muted hover:bg-hover'}`}>
 									{g === 'M' ? '♂ Male' : g === 'F' ? '♀ Female' : 'Random'}
 								</button>
 							))
@@ -215,12 +224,12 @@ export function DetailsView({ team, member }: { team: Team; member: PokemonSet }
 				)}
 				{f.pokeball && (
 					<Field label='Poké Ball'>
-						<Select label='Poké Ball' className='w-full' value={member.pokeball || 'Poke Ball'} options={balls.map((b) => ({ value: b, label: b }))} onChange={(v) => set({ pokeball: v === 'Poke Ball' ? '' : v })} />
+						<Select label='Poké Ball' className='w-full' value={member.pokeball || 'Poke Ball'} options={balls.map((b) => ({ value: b, label: b }))} onChange={(v) => { set({ pokeball: v === 'Poke Ball' ? '' : v }); chose(); }} />
 					</Field>
 				)}
 				{f.hiddenPower && (
 					<Field label='Hidden Power'>
-						<Select label='Hidden Power type' className='w-full' value={member.hpType || ''} options={[{ value: '', label: 'From IVs' }, ...hpTypes.map((t) => ({ value: t, label: t }))]} onChange={(v) => set({ hpType: v })} />
+						<Select label='Hidden Power type' className='w-full' value={member.hpType || ''} options={[{ value: '', label: 'From IVs' }, ...hpTypes.map((t) => ({ value: t, label: t }))]} onChange={(v) => { set({ hpType: v }); chose(); }} />
 					</Field>
 				)}
 				{f.dynamax && (
@@ -230,7 +239,7 @@ export function DetailsView({ team, member }: { team: Team; member: PokemonSet }
 						</Field>
 						{species?.canGigantamax && (
 							<Field label='Gigantamax'>
-								<button type='button' role='switch' aria-checked={member.gigantamax} onClick={() => set({ gigantamax: !member.gigantamax })} className={`squishy h-7 rounded px-2 text-base ${member.gigantamax ? 'bg-accent-soft font-medium text-accent' : 'text-muted hover:bg-hover'}`}>
+								<button type='button' role='switch' aria-checked={member.gigantamax} onClick={() => { set({ gigantamax: !member.gigantamax }); chose(); }} className={`squishy h-7 rounded px-2 text-base ${member.gigantamax ? 'bg-accent-soft font-medium text-accent' : 'text-muted hover:bg-hover'}`}>
 									{member.gigantamax ? 'Gigantamax' : 'Off'}
 								</button>
 							</Field>

@@ -100,6 +100,13 @@ describe('phone layout', () => {
 		type(editor.querySelector<HTMLInputElement>('input[type="search"]')!, 'Leftovers');
 		await click(button(/^Leftovers/, editor));
 		expect(open().members[1].item).toBe('Leftovers');
+		// A pick drags the sheet back down to the card.
+		await flush();
+		expect(sheet('Editor')).toBeNull();
+		// The same row opens the editor again after a dismiss, from the backdrop.
+		await click(document.querySelector('[data-key-row="item"]')!);
+		await flush();
+		expect(sheet('Editor')).toBeTruthy();
 		await click(document.querySelector('.fixed.inset-0.z-40')!);
 		await flush();
 		expect(sheet('Editor')).toBeNull();

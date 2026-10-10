@@ -67,7 +67,7 @@ function MemberButton({ teamId, member, index, onHover, onTap }: { teamId: strin
 			onMouseLeave={() => onHover(null)}
 			onFocus={() => onHover(member)}
 			onBlur={() => onHover(null)}
-			className={`bounce-host squishy absolute -inset-px block rounded-md ${isDragging ? 'opacity-30' : ''} ${picked ? 'bg-accent-soft' : ''}`}
+			className={`bounce-host squishy drag-source absolute -inset-px block rounded-md ${isDragging ? 'opacity-30' : ''} ${picked ? 'bg-accent-soft' : ''}`}
 		>
 			<span className='absolute inset-px'>
 				<PokemonIcon species={member.species} className='bounce-glyph' />

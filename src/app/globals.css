@@ -95,6 +95,16 @@ button:not(:disabled),
 	image-rendering: pixelated;
 }
 
+/* Draggable icons and rows on touch screens: a long press drags, and never selects or calls out the
+   icon or text under the finger. Mouse users are untouched. */
+@media (pointer: coarse) {
+	.drag-source {
+		-webkit-user-select: none;
+		user-select: none;
+		-webkit-touch-callout: none;
+	}
+}
+
 /* personal-website-v3 press: shrink while held, spring past rest on release */
 .squishy {
 	--press-scale: 0.95;

@@ -222,3 +222,72 @@ describe('desktop is unchanged where the phone changed', () => {
 		expect(queryByLabel('See all suggestions')).toBeNull();
 	});
 });
+
+describe('phone: editor and teams', () => {
+	beforeEach(() => start());
+
+	it('closes the editor after an ability is picked, and the same row opens it again', async () => {
+		await click(document.querySelector('[data-key-row="ability"]')!);
+		await flush();
+		expect(editorOpen()).toBe(true);
+		await click(button(/^Sand Veil/, byLabel('Editor')));
+		await flush();
+		expect(open().members[0].ability).toBe('Sand Veil');
+		expect(editorOpen()).toBe(false);
+		await click(document.querySelector('[data-key-row="ability"]')!);
+		await flush();
+		expect(editorOpen()).toBe(true);
+	});
+
+	it('gives the editor one height on every tab, so it does not jump between them', async () => {
+		await click(document.querySelector('[data-key-row="level"]')!);
+		await flush();
+		const sheet = byLabel('Editor');
+		expect(sheet.classList.contains('h-[80dvh]')).toBe(true);
+		expect(sheet.classList.contains('max-h-[80dvh]')).toBe(false);
+	});
+
+	it('keeps every icon of the open team on the team list on a phone', async () => {
+		await click(navTab('Teams'));
+		await flush();
+		for (let i = 0; i < trio.members.length; i++) {
+			expect(document.querySelector(`[data-team-icon="${trio.id}:${i}"] [aria-hidden="true"]`)).not.toBeNull();
+		}
+		expect(document.querySelector(`[data-team-icon="${trio.id}:3"]`)!.className).toContain('border-dashed');
+	});
+
+	it('keeps the number on the name’s line on a phone, with the name truncating', () => {
+		const name = byLabel('Garchomp set').querySelector('h2')!;
+		expect(name.className).toContain('truncate');
+		expect(name.className).not.toContain('break-words');
+		const number = [...name.parentElement!.querySelectorAll('span')].find((s) => s.textContent!.startsWith('#'))!;
+		expect(number.parentElement).toBe(name.parentElement);
+		expect(name.parentElement!.className).not.toContain('flex-wrap');
+		// The number and species sit on the name's bottom edge: bottom-aligned, with no padding lifting them.
+		expect(name.parentElement!.className).toContain('items-end');
+		expect(number.className).not.toContain('pb-1');
+	});
+
+	it('marks every draggable party icon so a long press drags instead of selecting', () => {
+		// The member on the card leaves the row, so two of the three are draggable here.
+		const sources = partyIcons();
+		expect(sources.length).toBe(trio.members.length - 1);
+		expect(sources.every((el) => el.classList.contains('drag-source'))).toBe(true);
+	});
+});
+
+describe('phone: legality issues', () => {
+	beforeEach(() => start());
+
+	it('lists a member’s legality issues under the move grid, with no flag beside its rows or moves', async () => {
+		const garchomp = trio.members[0];
+		act(() => s().setValidation(trio.id, { byMember: { [garchomp.uid]: ['Garchomp item Rocky Helmet is banned'] }, team: [], count: 1 }));
+		await flush();
+		const card = byLabel('Garchomp set');
+		expect(card.querySelector('[data-key-row="item"] .text-danger')).toBeNull();
+		expect(card.querySelector('[data-move-slot="0"] .text-danger')).toBeNull();
+		const grid = card.querySelector('[data-move-slot="3"]')!.closest('.grid')!;
+		expect(grid.nextElementSibling!.textContent).toContain('Legality');
+		expect(grid.nextElementSibling!.textContent).toContain('Garchomp item Rocky Helmet is banned');
+	});
+});

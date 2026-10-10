@@ -28,7 +28,7 @@ export function BoxCell({ box, slot, set, selected, onSelect }: { box: number; s
 					{...attributes}
 					onClick={onSelect}
 					aria-label={`${set.name || set.species}, box slot ${slot + 1}`}
-					className={`rounded-md p-1 ${selected ? 'bg-accent-soft' : 'hover:bg-hover'} ${isDragging ? 'opacity-30' : ''}`}
+					className={`drag-source rounded-md p-1 ${selected ? 'bg-accent-soft' : 'hover:bg-hover'} ${isDragging ? 'opacity-30' : ''}`}
 				>
 					<PokemonIcon species={set.species} />
 				</button>

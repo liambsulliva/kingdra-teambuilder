@@ -90,6 +90,8 @@ interface State {
 	mobileActionUid: string | null;
 	/** Bumped when an add is rejected so the dragged card can bounce back. */
 	rejectedAt: number;
+	/** Counts the choices made in the editor (a move, ability, item, Tera type…). A phone closes its editor sheet on each one. */
+	chosen: number;
 	/** The member last on each team's card, by team id, saved per viewer. */
 	lastSelected: Record<string, string>;
 }
@@ -128,6 +130,7 @@ interface Actions {
 	pickMove(move: string): void;
 
 	setInspector(view: InspectorView, slot?: number | null): void;
+	chose(): void;
 	setMatchupType(type: string | null): void;
 	preview(species: string | null): void;
 	compare(species: string | null): void;
@@ -255,6 +258,7 @@ export const useStore = create<Store>()((set, get) => {
 		save: 'local',
 		validation: {},
 		rejectedAt: 0,
+		chosen: 0,
 		mobileActionUid: null,
 		lastSelected: readLastSelected(),
 
@@ -545,6 +549,7 @@ export const useStore = create<Store>()((set, get) => {
 		},
 
 		setInspector: (view, slot = null) => set({ inspector: view, activeMoveSlot: view === 'moves' ? slot : null }),
+		chose: () => set((s) => ({ chosen: s.chosen + 1 })),
 		setMatchupType: (matchupType) => set({ matchupType, inspector: 'matchups' }),
 		preview: (species) =>
 			set((s) => ({

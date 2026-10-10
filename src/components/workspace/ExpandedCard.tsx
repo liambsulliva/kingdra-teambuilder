@@ -41,6 +41,8 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 	const problems = useStore((s) => s.validation[team.id]?.byMember[member.uid] ?? NO_PROBLEMS);
 	const fields = fieldsFor(team);
 	const mobile = useIsMobile();
+	// Inline legality flags beside rows and moves are for the desktop card. A phone lists its issues under the moves instead.
+	const flagOn = (words: string[]) => (mobile ? [] : problemsFor(problems, words));
 	const line = evolutionLine(team, member.species);
 	const nature = getNature(team, member.nature);
 	// An unset Tera type defaults to the Pokémon's first type.
@@ -57,11 +59,11 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 	}, [mode, gen, format, member.species, member.level]);
 
 	const rows: { view: InspectorView; label: string; value: string; empty: string; flag: string[] }[] = [];
-	if (fields.level) rows.push({ view: 'level', label: 'Level', value: String(member.level), empty: '', flag: problemsFor(problems, ['level']) });
-	if (fields.ability) rows.push({ view: 'ability', label: 'Ability', value: member.ability, empty: 'Choose an ability', flag: problemsFor(problems, ['ability', member.ability]) });
-	if (fields.item) rows.push({ view: 'item', label: 'Item', value: member.item, empty: 'No item', flag: problemsFor(problems, ['item', member.item]) });
+	if (fields.level) rows.push({ view: 'level', label: 'Level', value: String(member.level), empty: '', flag: flagOn(['level']) });
+	if (fields.ability) rows.push({ view: 'ability', label: 'Ability', value: member.ability, empty: 'Choose an ability', flag: flagOn(['ability', member.ability]) });
+	if (fields.item) rows.push({ view: 'item', label: 'Item', value: member.item, empty: 'No item', flag: flagOn(['item', member.item]) });
 	if (fields.nature) rows.push({ view: 'nature', label: 'Nature', value: member.nature, empty: 'Neutral', flag: [] });
-	if (fields.tera) rows.push({ view: 'tera', label: 'Tera', value: member.teraType, empty: species?.types[0] ?? 'Choose a type', flag: problemsFor(problems, ['tera']) });
+	if (fields.tera) rows.push({ view: 'tera', label: 'Tera', value: member.teraType, empty: species?.types[0] ?? 'Choose a type', flag: flagOn(['tera']) });
 
 	const applySet = (name: string, set: SmogonSet) => {
 		updateSet(member.uid, smogonPatch(set, defaultAbility(team, member.species)));
@@ -104,8 +106,8 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 					{/* Room on the right for the member actions, which sit at the top right of the panel. */}
 					<div className='flex items-end gap-2 pr-36'>
 						<h2 className='truncate font-head text-[24px] font-semibold leading-7 tracking-[-0.02em] md:text-[32px] md:leading-9'>{member.name || member.species}</h2>
-						<span className='pb-1 font-mono text-2xs text-muted'>#{species?.num ?? '?'}</span>
-						{member.name && <span className='truncate pb-1 text-xs text-muted'>{member.species}</span>}
+						<span className='font-mono text-2xs text-muted'>#{species?.num ?? '?'}</span>
+						{member.name && <span className='truncate text-xs text-muted'>{member.species}</span>}
 					</div>
 					<div className='flex items-center gap-1'>
 						{(species?.types ?? []).map((t) => (
@@ -204,11 +206,23 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 							slot={i}
 							move={member.moves[i] ?? ''}
 							active={inspector === 'moves' && activeSlot === i}
-							flagged={!!member.moves[i] && problemsFor(problems, [member.moves[i]]).length > 0}
+							flagged={!!member.moves[i] && flagOn([member.moves[i]]).length > 0}
 							onClick={() => setInspector('moves', i)}
 						/>
 					))}
 				</div>
+				{/* On a phone the legality issues sit here, under the moves, instead of beside each row and move. */}
+				{mobile && problems.length > 0 && (
+					<div className='flex flex-col gap-1.5 pt-1'>
+						<span className='text-xs text-muted'>Legality</span>
+						{problems.map((p, i) => (
+							<span key={i} className='flex items-start gap-2 text-xs'>
+								<Icon name='warning' className='mt-px shrink-0 text-danger' />
+								{p}
+							</span>
+						))}
+					</div>
+				)}
 			</div>
 		</section>
 		<div className='absolute right-0 top-0 flex'>
@@ -244,7 +258,7 @@ function EvolutionStep({ team, member, name }: { team: Team; member: PokemonSet;
 			// Keyboard keeps its click: the drag sensor would otherwise take Enter and Space.
 			onKeyDown={undefined}
 			onClick={current ? undefined : () => hopAndSwap(document.querySelector('[data-card-sprite]'), () => changeSpecies(member.uid, name))}
-			className={`bounce-host group flex flex-col items-center gap-1 ${current ? 'cursor-grab' : 'cursor-pointer'} ${isDragging ? 'opacity-40' : ''}`}
+			className={`bounce-host drag-source group flex flex-col items-center gap-1 ${current ? 'cursor-grab' : 'cursor-pointer'} ${isDragging ? 'opacity-40' : ''}`}
 			title={current ? `Drag onto another team to move ${member.name || name} there` : `Switch to ${name}. Drag onto another team to move it there as ${name}`}
 		>
 			<PokemonIcon species={name} className='bounce-glyph' />
@@ -276,7 +290,7 @@ function MoveCell({ team, slot, move, active, flagged, onClick }: { team: Team; 
 			data-move-slot={slot}
 			onClick={onClick}
 			aria-label={move ? `Move ${slot + 1}: ${move}. Change` : `Move ${slot + 1}: empty. Add a move`}
-			className={`flex h-14 flex-col justify-center gap-1 rounded-md px-3 text-left transition-colors ${isDragging ? 'opacity-40' : ''} ${
+			className={`drag-source flex h-14 flex-col justify-center gap-1 rounded-md px-3 text-left transition-colors ${isDragging ? 'opacity-40' : ''} ${
 				over ? 'border border-dashed border-accent bg-accent-soft' : move ? (active ? 'border-[1.5px] border-accent' : 'border border-line hover:border-line-strong') : `border border-dashed ${dropping ? 'border-accent' : 'border-line-strong'} hover:bg-hover`
 			}`}
 		>

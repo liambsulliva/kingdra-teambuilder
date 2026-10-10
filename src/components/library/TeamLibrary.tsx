@@ -13,6 +13,7 @@ import { MAX_TEAM_SIZE, type PokemonSet, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { openTeamWithMotion } from '@/components/motion/choreography';
 import { whenIdle } from '@/lib/idle';
+import { useIsMobile } from '@/lib/hooks';
 
 /** Cards mounted on the first render; the rest follow in chunks while the browser is idle. */
 const FIRST_CARDS = 60;
@@ -75,6 +76,10 @@ const TeamCard = memo(function TeamCard({ team, open }: { team: Team; open: bool
 	const renameTeam = useStore((s) => s.renameTeam);
 	const issues = useStore((s) => s.validation[team.id]?.count ?? 0);
 	const slots = Array.from({ length: MAX_TEAM_SIZE }, (_, i) => team.members[i]);
+	// The desktop open team leaves its slots empty, since its members are in the party. A phone shows every
+	// icon on the open team too, so the team list always shows the whole team.
+	const mobile = useIsMobile();
+	const collapsed = open && !mobile;
 	return (
 		<div
 			className={`group my-1 flex flex-col gap-2 rounded-md p-3 transition-colors ${open ? 'bg-hover' : 'cursor-pointer hover:bg-hover'}`}
@@ -97,14 +102,17 @@ const TeamCard = memo(function TeamCard({ team, open }: { team: Team; open: bool
 						key={i}
 						team={team}
 						index={i}
-						empty={!open && !m}
+						empty={!collapsed && !m}
 						onPick={m && !open ? () => openTeamWithMotion(team.id, m.uid) : undefined}
 					>
-						{m && !open && (
-							<DraggableMember team={team} member={m}>
+						{m && !collapsed &&
+							(open ? (
 								<PokemonIcon species={m.species} className='bounce-glyph' />
-							</DraggableMember>
-						)}
+							) : (
+								<DraggableMember team={team} member={m}>
+									<PokemonIcon species={m.species} className='bounce-glyph' />
+								</DraggableMember>
+							))}
 					</TeamSlot>
 				))}
 			</div>
@@ -148,7 +156,7 @@ const TeamCard = memo(function TeamCard({ team, open }: { team: Team; open: bool
 function DraggableMember({ team, member, children }: { team: Team; member: PokemonSet; children: React.ReactNode }) {
 	const { setNodeRef, listeners, isDragging } = useDraggable({ id: `member:${member.uid}`, data: { kind: 'member', uid: member.uid, species: member.species, teamId: team.id } });
 	return (
-		<span ref={setNodeRef} {...listeners} className={`block size-[32px] cursor-grab ${isDragging ? 'opacity-30' : ''}`}>
+		<span ref={setNodeRef} {...listeners} className={`drag-source block size-[32px] cursor-grab ${isDragging ? 'opacity-30' : ''}`}>
 			{children}
 		</span>
 	);
