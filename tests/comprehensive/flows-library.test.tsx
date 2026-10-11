@@ -184,6 +184,20 @@ describe('the open team', () => {
 		expect(open().id).toBe(lib.teams[1].id);
 	});
 
+	it('keeps its controls inside its card, in place of the format line, in the list and in card view', async () => {
+		for (const view of ['list', 'cards']) {
+			if (view === 'cards') await click(byLabel('Card view'));
+			const c = card(open().id);
+			for (const label of ['Competitive. Switch to casual', 'Duplicate team', 'Copy as Showdown text', 'Delete team']) {
+				expect(c.contains(byLabel(label)), `${view}: ${label}`).toBe(true);
+			}
+			expect(c.querySelector('select'), view).not.toBeNull();
+			expect(hasText(`${open().members.length}/6`, c), view).toBe(false);
+			// A closed team shows its format line instead.
+			expect(hasText(`${lib.teams[1].members.length}/6`, card(lib.teams[1].id)), view).toBe(true);
+		}
+	});
+
 	it('shows the legality issue count on the team card', async () => {
 		const first = lib.teams[0].members[0];
 		mockApi({ '/api/validate': () => ({ byMember: { [first.uid]: ['a', 'b'] }, team: ['c'], count: 3 }) });
@@ -191,6 +205,55 @@ describe('the open team', () => {
 		await wait(700);
 		const badge = card(open().id).querySelector('[title="3 legality issues"]');
 		expect(badge?.textContent).toBe('3');
+	});
+});
+
+describe('card view', () => {
+	const toggle = () => byLabel<HTMLButtonElement>('Card view');
+	const tiles = () => [...teamList().querySelectorAll<HTMLElement>('[data-team-tile]')];
+
+	it('turns the list into cards two to a row and back, keeping the open team and saving the choice', async () => {
+		const openId = open().id;
+		await click(toggle());
+		expect(toggle().getAttribute('aria-pressed')).toBe('true');
+		expect(teamList().className).toContain('grid-cols-2');
+		expect(tiles().map((el) => el.dataset.teamTile)).toEqual(lib.teams.map((t) => t.id));
+		expect(open().id).toBe(openId);
+		expect(card(openId).querySelector<HTMLInputElement>('input[aria-label="Team name"]')!.value).toBe(lib.teams[0].name);
+		expect(localStorage.getItem('kingdra.teamView')).toBe('cards');
+		await click(toggle());
+		expect(tiles()).toHaveLength(0);
+		expect(shownTeams()).toEqual(lib.teams.map((t) => t.id));
+		expect(open().id).toBe(openId);
+		expect(localStorage.getItem('kingdra.teamView')).toBe('list');
+	});
+
+	it('lays out each card’s six slots in a 2×3 grid, and hinges only the closed cards', async () => {
+		await click(toggle());
+		const closed = lib.teams[1];
+		const grid = card(closed.id).querySelector(`[data-team-icon="${closed.id}:0"]`)!.parentElement!;
+		expect(grid.className).toContain('grid-cols-3');
+		expect(grid.children).toHaveLength(6);
+		expect(card(closed.id).classList.contains('hinge')).toBe(true);
+		expect(card(open().id).classList.contains('hinge')).toBe(false);
+	});
+
+	it('opens a team from its card or from one of its icons', async () => {
+		await click(toggle());
+		await click(byLabel(`Open ${lib.teams[2].name}`));
+		expect(open().id).toBe(lib.teams[2].id);
+		const t = lib.teams[3];
+		await click(document.querySelector(`[data-team-icon="${t.id}:1"]`)!);
+		expect(open().id).toBe(t.id);
+		expect(s().selectedUid).toBe(t.members[1].uid);
+	});
+
+	it('filters the cards with the team search', async () => {
+		await click(toggle());
+		await click(byLabel('Search teams'));
+		type(byLabel('Teams').querySelector<HTMLInputElement>('input[type="search"]')!, lib.teams[5].name);
+		expect(tiles().map((el) => el.dataset.teamTile)).toContain(lib.teams[5].id);
+		expect(tiles().length).toBeLessThan(lib.teams.length);
 	});
 });
 

@@ -70,6 +70,8 @@ interface State {
 	merged: boolean;
 	/** Card art style, saved per viewer. */
 	spriteSet: SpriteSet;
+	/** The team list as rows or as cards, saved per viewer. */
+	teamView: TeamView;
 	activeMoveSlot: number | null;
 	matchupType: string | null;
 	carouselTab: string;
@@ -104,6 +106,7 @@ interface Actions {
 	setDialog(dialog: State['dialog']): void;
 	setMerged(merged: boolean): void;
 	setSpriteSet(spriteSet: SpriteSet): void;
+	setTeamView(teamView: TeamView): void;
 	proposeFix(fix: PendingFix): void;
 	applyFix(): void;
 	setValidation(teamId: string, v: Validation): void;
@@ -160,6 +163,19 @@ export function readSpriteSet(): SpriteSet {
 		return localStorage.getItem(SPRITE_KEY) === 'xy' ? 'xy' : 'bw';
 	} catch {
 		return 'bw';
+	}
+}
+
+export type TeamView = 'list' | 'cards';
+
+const VIEW_KEY = 'kingdra.teamView';
+
+/** The saved team list view. The list when nothing is saved or storage is blocked. */
+export function readTeamView(): TeamView {
+	try {
+		return localStorage.getItem(VIEW_KEY) === 'cards' ? 'cards' : 'list';
+	} catch {
+		return 'list';
 	}
 }
 
@@ -243,6 +259,7 @@ export const useStore = create<Store>()((set, get) => {
 		inspector: 'team',
 		merged: false,
 		spriteSet: readSpriteSet(),
+		teamView: readTeamView(),
 		activeMoveSlot: null,
 		matchupType: null,
 		carouselTab: 'OU',
@@ -283,6 +300,14 @@ export const useStore = create<Store>()((set, get) => {
 				// Storage can be full or blocked; the choice still applies for this visit.
 			}
 			set({ spriteSet });
+		},
+		setTeamView: (teamView) => {
+			try {
+				localStorage.setItem(VIEW_KEY, teamView);
+			} catch {
+				// Storage can be full or blocked; the choice still applies for this visit.
+			}
+			set({ teamView });
 		},
 		// Entering the merged layout from its rest view lands on the card; leaving it returns the card to the team view.
 		setMerged: (merged) =>

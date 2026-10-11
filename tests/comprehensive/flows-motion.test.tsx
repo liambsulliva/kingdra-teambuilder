@@ -54,6 +54,24 @@ describe('switching teams with the walk', () => {
 		expect(hiddenMembers()).toHaveLength(0);
 	});
 
+	it('walks the old party home while the new team walks off, both in the air at once', async () => {
+		const target = lib.teams[3];
+		const leaving = document.querySelectorAll('[data-party-member]').length;
+		let switching!: Promise<void>;
+		// Every flight starts before the first await: count the clones before any of them lands.
+		act(() => {
+			switching = openTeamWithMotion(target.id);
+		});
+		const arriving = document.querySelectorAll('[data-party-member]').length;
+		expect(leaving).toBeGreaterThan(0);
+		expect(arriving).toBeGreaterThan(0);
+		expect(clones()).toHaveLength(leaving + arriving);
+		await act(async () => switching);
+		await flush();
+		expect(clones()).toHaveLength(0);
+		expect(hiddenMembers()).toHaveLength(0);
+	});
+
 	it('lands on the last team when switched rapidly', async () => {
 		const ids = lib.teams.slice(1, 8).map((t) => t.id);
 		await act(async () => {
@@ -102,6 +120,56 @@ describe('switching teams with the walk', () => {
 		await act(async () => openTeamWithMotion(lib.teams[4].id));
 		expect(open().id).toBe(lib.teams[4].id);
 		expect(animations).toBe(before);
+	});
+});
+
+describe('switching teams in card view', () => {
+	const tile = (id: string) => document.querySelector<HTMLElement>(`[data-team-tile="${id}"]`)!;
+	/** Detached stand-ins that were animated: the falling card and its shards. */
+	const shards = () => animated.filter((el) => (el as HTMLElement).style.clipPath?.startsWith('polygon'));
+
+	beforeEach(async () => {
+		await click(byLabel('Card view'));
+		animated = [];
+		animations = 0;
+	});
+
+	it('jumps the old party home while the new card falls and shatters, then pops the empty card back', async () => {
+		const target = lib.teams[3];
+		await act(async () => openTeamWithMotion(target.id));
+		await flush();
+		expect(open().id).toBe(target.id);
+		expect(shards()).toHaveLength(6);
+		// The card that fell was a stand-in; the real one popped back in its place and is visible.
+		expect(animated).toContain(tile(target.id));
+		expect(tile(target.id).style.opacity).toBe('');
+		expect(clones()).toHaveLength(0);
+		expect(hiddenMembers()).toHaveLength(0);
+		expect(document.querySelectorAll('[data-team-tile]')).toHaveLength(lib.teams.length);
+	});
+
+	it('lands on the last team when cards are clicked rapidly, leaving nothing hidden or behind', async () => {
+		const ids = lib.teams.slice(1, 8).map((t) => t.id);
+		await act(async () => {
+			await Promise.all(ids.map((id) => openTeamWithMotion(id)));
+		});
+		await flush();
+		expect(open().id).toBe(ids.at(-1));
+		expect(clones()).toHaveLength(0);
+		expect(hiddenMembers()).toHaveLength(0);
+		expect([...document.querySelectorAll<HTMLElement>('[data-team-tile]')].filter((el) => el.style.opacity === '0')).toHaveLength(0);
+	});
+
+	it('pops the party in without a fall when the card is off screen', async () => {
+		const target = lib.teams[3];
+		vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+			return this.querySelector?.(`[data-team-tile="${target.id}"]`) ? new DOMRect(40, 5000, 130, 140) : new DOMRect(40, 40, 32, 32);
+		});
+		await act(async () => openTeamWithMotion(target.id));
+		await flush();
+		expect(open().id).toBe(target.id);
+		expect(shards()).toHaveLength(0);
+		expect(clones()).toHaveLength(0);
 	});
 });
 

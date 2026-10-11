@@ -256,6 +256,25 @@ describe('phone: editor and teams', () => {
 		expect(document.querySelector(`[data-team-icon="${trio.id}:3"]`)!.className).toContain('border-dashed');
 	});
 
+	it('shows every icon on the open card in card view, and opens a team with no hinge, fall or shatter', async () => {
+		setViewport({ reducedMotion: false });
+		await click(navTab('Teams'));
+		await flush();
+		await click(byLabel('Card view'));
+		const card = document.querySelector<HTMLElement>(`[data-team-tile="${trio.id}"]`)!;
+		for (let i = 0; i < trio.members.length; i++) {
+			expect(card.querySelector(`[data-team-icon="${trio.id}:${i}"] [aria-hidden="true"]`)).not.toBeNull();
+		}
+		const animate = vi.spyOn(Element.prototype, 'animate');
+		await click(byLabel(`Open ${blank.name}`));
+		await flush();
+		expect(open().id).toBe(blank.id);
+		const flown = animate.mock.contexts.filter((el) => (el as HTMLElement).style.position === 'fixed' || (el as HTMLElement).style.clipPath);
+		expect(flown).toHaveLength(0);
+		animate.mockRestore();
+		setViewport({ reducedMotion: true });
+	});
+
 	it('keeps the number on the name’s line on a phone, with the name truncating', () => {
 		const name = byLabel('Garchomp set').querySelector('h2')!;
 		expect(name.className).toContain('truncate');

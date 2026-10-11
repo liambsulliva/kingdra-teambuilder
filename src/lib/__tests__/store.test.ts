@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { readSpriteSet, useStore } from '../store';
+import { readSpriteSet, readTeamView, useStore } from '../store';
 import { emptyLibrary } from '../model';
 
 const team = () => useStore.getState().library.teams[0];
@@ -162,5 +162,18 @@ describe('card sprite set', () => {
 		expect(readSpriteSet()).toBe('xy');
 		useStore.getState().setSpriteSet('bw');
 		expect(readSpriteSet()).toBe('bw');
+	});
+});
+
+describe('team list view', () => {
+	beforeEach(() => localStorage.clear());
+
+	it('defaults to the list, then remembers cards for this viewer', () => {
+		expect(readTeamView()).toBe('list');
+		useStore.getState().setTeamView('cards');
+		expect(useStore.getState().teamView).toBe('cards');
+		expect(readTeamView()).toBe('cards');
+		useStore.getState().setTeamView('list');
+		expect(readTeamView()).toBe('list');
 	});
 });

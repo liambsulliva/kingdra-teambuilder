@@ -7,10 +7,10 @@ Status: decisions locked through the UI interview on 2026-10-08. Design lives in
 | Page | Contents |
 |---|---|
 | Cover | Index |
-| Components | Icons (39 Majesticons, 16 px), IconButton, Tooltip, PokemonSlot, TypeBadge, StatRow, MoveCell, KeyRow, Tab, Select, SearchField, Button, CarouselCard, TeamCard, MoveListRow, Toast, ModeToggle, EvolutionStep |
-| Desktop (1440×900) | Competitive / Stats (`9:2`), Move editing (`12:421`), Team analysis (`13:840`), Compare (`14:1149`), Box drawer (`15:1435`), Casual / Pokédex (`18:1874`), New team dialog (`20:2193`), Drag to add (`21:2540`), Stats / Dark (`21:3176`) |
-| Mobile (390×844) | Party (`23:2`), Editor sheet (`23:190`), Teams (`24:252`), Browse (`24:505`), Browse › Box (`47:3934`), Empty team (`47:4123`), Long-press action sheet (`24:691`), Support badge tapped (`48:773`) |
-| Motion | Storyboards with timings (`25:2`) |
+| Components | Icons (40 Majesticons, 16 px), IconButton, Tooltip, PokemonSlot, TypeBadge, StatRow, MoveCell, KeyRow, Tab, Select, SearchField, Button, CarouselCard, TeamCard, TeamTile (card view), MoveListRow, Toast, ModeToggle, EvolutionStep |
+| Desktop (1440×900) | Competitive / Stats (`9:2`), Team cards (`56:4104`), Move editing (`12:421`), Team analysis (`13:840`), Compare (`14:1149`), Box drawer (`15:1435`), Casual / Pokédex (`18:1874`), New team dialog (`20:2193`), Drag to add (`21:2540`), Stats / Dark (`21:3176`) |
+| Mobile (390×844) | Party (`23:2`), Editor sheet (`23:190`), Teams (`24:252`), Browse (`24:505`), Browse › Box (`47:3934`), Empty team (`47:4123`), Long-press action sheet (`24:691`), Support badge tapped (`48:773`), Teams in card view (`56:4791`) |
+| Motion | Storyboards with timings (`25:2`); card view open (`58:101`) and switch (`58:423`) |
 
 Variables: `Primitives`, `Color` (Light/Dark modes), `Layout`. Dark mode is the same frames with the `Color` collection switched to Dark.
 
@@ -84,9 +84,10 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
 ```
 
 - **Header.** The Kingdra logo (PokeAPI's front sprite, mirrored, cropped 38×38 around the head; `public/brand/kingdra.png`, also the favicon), vertically centered, plus the "Kingdra" wordmark on the left. On the right, the B/W | X/Y sprite toggle (saved per viewer), then 16px icon buttons: about (personal site, Instagram, LinkedIn, GitHub links), theme, account (Clerk sign-in or user button).
-- **Left panel, team list.** Scrolls independently. The panel head reads "Teams" with icons for search team names, import team (paste Showdown text, which creates a new team), and new team.
+- **Left panel, team list.** Scrolls independently. The panel head reads "Teams" with icons for card view, search team names, import team (paste Showdown text, which creates a new team), and new team.
+  - **Card view.** The 2×2 icon (Majesticons applications-line) switches the list to cards, two per row, each with its six icons in a 2×3 grid. It is a toggle shown as selected while cards are on, and the choice is saved per viewer. Switching views keeps the open team. On hover (fine pointer, desktop) a closed card hangs from its top-left corner and snaps down to 4° on a stiff spring, like a loose picture frame; it should feel instant (there in about 70 ms, settled by 300 ms).
   - **Team card.** Six 32×32 icon slots in a row at the top-left, then the team name, then a muted label such as "gen 9 · OU" or "gen 5 · casual".
-  - **Open team.** Its icon slots stay empty, with no dashed skeletons: the members are down in the party, and a dashed slot read as an empty one. A red marker sits by its name. Only the open team shows its **control row** beneath the card: mode (casual/competitive), generation and format, legality issue count, duplicate, export, delete. The row slides open as the party walks down.
+  - **Open team.** Its icon slots stay empty, with no dashed skeletons: the members are down in the party, and a dashed slot read as an empty one. A red marker sits by its name. Its **controls** take the place of its format line, beside the name, in the list and in card view: mode (casual/competitive), generation and format, duplicate, export, delete. The line keeps its 16 px height and the 20 px buttons overflow it, so a card never changes height when it opens. In card view the card is too narrow for all of them, so the mode toggle sits on the name row after the legality issue count, and the format label drops its chevron.
   - **Rename.** The team name is a ghost text input.
 - **Center workspace.**
   - **Expanded card.** Top-right icons: export set, import set, details.
@@ -184,7 +185,9 @@ All motion respects `prefers-reduced-motion`; with it on, everything becomes a c
 | Hover on any Pokémon icon or header icon | personal-website-v3 scare-bounce: 420ms, Y 0 → −7 → +1.5 → −1 → 0 at 0/28/62/80/100%, fine pointer only. |
 | Press | Squishy: scale 0.95 over 90ms, release over 460ms `cubic-bezier(.34,2.1,.5,1)`. |
 | Open team | Members walk off the team card toward the workspace, rocking ±30° about the bottom-center at about 140ms per step with a 2px bob, staggered 60ms. Each then jumps in an arc down to its party slot and lands with a squash. |
-| Switch team | Reverse first: the open party hops up and walks home into its card. Then the new team walks off and drops in. Rapid clicks redirect to the latest team. |
+| Open team, card view | The card lets go of its corner and falls with gravity (3200 px/s², at most 650 ms) onto the top edge of the Suggestions panel, where it shatters into six shards that bounce once and drop out of the window. Its Pokémon jump out of the break into their party slots (380 ms, staggered 30 ms) and land with a squash; the member for the card appears on the card. An empty card pops into the team's place in the grid as the card breaks (scale 0.9 → 1.04 → 1, 240 ms). |
+| Switch team, card view | The open party jumps up into the old card's empty slots (320 ms, staggered 30 ms) while the new card falls, so it shatters with the party still in the air and a switch takes about a second. A click or keypress skips to the end. If the card is not fully on screen, nothing falls: the new party pops in. |
+| Switch team | At the same time: the open party hops up and walks home into its card while the new team walks off its card and drops in. Rapid clicks redirect to the latest team. |
 | Select member | It jumps up into the card (the icon morphs into the card sprite) and the members to its right shift one slot left. The icon is cloned where it sits, bounce included, before the selection renders, so it never leaves the screen; it is teleported to the cell's settled height before it moves, and the card sprite takes over once its art has decoded, in the same frame the clone is removed. Selecting another member returns the old one: members shift right to reopen its slot, it drops back, then the new one jumps up. |
 | Add (drag) | A ghost icon follows the pointer. Valid slots switch from dashed to red. On drop the icon lands with a squash. A full team bounces the card back. |
 | Remove | Release a party icon outside the party and the Box and it disappears in a poof. Release it on the Box and it is stored. |
@@ -194,7 +197,7 @@ All motion respects `prefers-reduced-motion`; with it on, everything becomes a c
 ## 10. Mobile, 650px and below
 
 - **Tabs.** A bottom bar with Teams, Party and Browse.
-  - **Teams:** the list with controls. The open team keeps all its icons here, so the list always shows the whole team. (Desktop leaves the open team's slots empty, since its members are in the party.)
+  - **Teams:** the list or the cards, with the open team's controls in its card as on desktop (28 px buttons). Cards never hinge, fall or shatter on a phone. The open team keeps all its icons here, so the list always shows the whole team. (Desktop leaves the open team's slots empty, since its members are in the party.)
   - **Party:** the card with the party row pinned under it.
   - **Browse:** Suggestions and Box, with search.
 - **Editor.** Slides up as a sheet over Party when a move, row or stats is tapped. It is 80% of the screen tall on every tab, so it never resizes as tabs change. A choice (a move, ability, item, Tera type, level or any other pick) drags it back down to the card. Dismissing it and tapping the same row opens it again.
@@ -281,7 +284,7 @@ Every existing capability has a new home. Defects noted in `docs/research/redesi
 
 | Flow | Animation |
 |---|---|
-| Switch team | Brisk, about 0.7 s total. The old party walks home, then the new team walks off its card and jumps into the party. A click or keypress skips to the end. If the team's card is not fully on screen, nothing walks: the new party pops in all at once. |
+| Switch team | Brisk, about 0.4 s total. The old party walks home while the new team walks off its card and jumps into the party, both at once. A click or keypress skips to the end. If the team's card is not fully on screen, nothing walks: the new party pops in all at once. |
 | Select member | It arcs up onto the card. The rest of the row slides to close the gap (spring). |
 | Pick a move or picker value | Nothing flies. The move cell or key row bounces up with the same pop as a drop. |
 | Right panel view change | **None.** |

@@ -147,6 +147,25 @@ button:not(:disabled),
 	}
 }
 
+/* Card view: a closed team card hangs from its top-left corner like a loose picture frame. On hover it
+   snaps down to 4° on a stiff spring (stiffness 1500, damping 40): there in about 70 ms, one small
+   overshoot to about 4.6°, settled by 300 ms. It swings back the same way. Desktop pointers only; a
+   phone never hinges. */
+.hinge {
+	transform-origin: 0 0;
+	transition:
+		transform 300ms
+			linear(0, 0.098, 0.321, 0.578, 0.811, 0.986, 1.095, 1.144, 1.147, 1.123, 1.086, 1.048, 1.016, 0.994, 0.982, 0.977, 0.979, 0.984, 0.99, 0.995, 0.999, 1.002, 1.003, 1.003, 1),
+		box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1),
+		background-color 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: hover) and (pointer: fine) and (min-width: 651px) and (prefers-reduced-motion: no-preference) {
+	.hinge:hover {
+		transform: rotate(4deg);
+		box-shadow: 0 6px 12px -4px rgb(0 0 0 / 0.08);
+	}
+}
+
 @keyframes poof {
 	0% {
 		transform: translate(-50%, -50%) scale(0.2);

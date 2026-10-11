@@ -11,6 +11,8 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	tooltip?: 'below' | 'above' | 'none';
 	/** Anchor the tooltip to the button's right edge so it can't spill past the viewport. */
 	tooltipAlign?: 'center' | 'end';
+	/** `sm`: a 20 px hit (28 px on a phone) for rows that must keep a 16 px line, such as a team card's controls. */
+	size?: 'md' | 'sm';
 }
 
 /**
@@ -18,7 +20,7 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
  * on hover with a hover fill, tooltip below.
  */
 export const IconButton = forwardRef<HTMLButtonElement, Props>(function IconButton(
-	{ icon, label, selected, tone = 'default', tooltip = 'below', tooltipAlign = 'center', className = '', ...rest },
+	{ icon, label, selected, tone = 'default', tooltip = 'below', tooltipAlign = 'center', size = 'md', className = '', ...rest },
 	ref
 ) {
 	return (
@@ -28,7 +30,7 @@ export const IconButton = forwardRef<HTMLButtonElement, Props>(function IconButt
 				type='button'
 				aria-label={label}
 				aria-pressed={selected}
-				className={`squishy inline-flex size-8 items-center justify-center rounded-lg transition-colors disabled:pointer-events-none disabled:opacity-30 ${
+				className={`squishy inline-flex ${size === 'sm' ? 'size-[20px] rounded-md max-md:size-7' : 'size-8 rounded-lg'} items-center justify-center transition-colors disabled:pointer-events-none disabled:opacity-30 ${
 					selected ? 'bg-accent-soft text-accent' : tone === 'danger' ? 'text-danger ring-1 ring-danger hover:bg-danger-soft' : tone === 'accent' ? 'text-accent hover:bg-hover' : 'text-fg/80 hover:bg-hover hover:text-fg'
 				} ${className}`}
 				{...rest}
@@ -39,7 +41,7 @@ export const IconButton = forwardRef<HTMLButtonElement, Props>(function IconButt
 				<span
 					role='tooltip'
 					className={`pointer-events-none absolute z-50 max-md:hidden whitespace-nowrap ${tooltipAlign === 'end' ? 'right-0' : 'left-1/2 -translate-x-1/2'} rounded bg-fg px-2 py-1 text-sm font-medium text-bg opacity-0 transition-opacity duration-150 group-hover/ib:opacity-100 group-has-[:focus-visible]/ib:opacity-100 ${
-						tooltip === 'below' ? 'top-9' : 'bottom-9'
+						tooltip === 'below' ? (size === 'sm' ? 'top-6' : 'top-9') : size === 'sm' ? 'bottom-6' : 'bottom-9'
 					}`}
 				>
 					{label}

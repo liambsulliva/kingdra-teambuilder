@@ -17,6 +17,15 @@ export const MOTION = {
 	staggerMs: 20,
 	liftMs: 300,
 	pickMs: 320,
+	// Card view (user choice): the card falls with gravity and shatters on the Suggestions panel's top edge.
+	hopMs: 320,
+	hopStaggerMs: 30,
+	gravity: 3200,
+	maxFallMs: 650,
+	fallSpinDeg: 8,
+	shardMs: 650,
+	popOutMs: 380,
+	cardPopMs: 240,
 };
 
 let generation = 0;
@@ -145,14 +154,189 @@ const show = (els: HTMLElement[]) =>
 	});
 const showAllHidden = () => show([...hidden]);
 
+/** A Pokémon jumps from one box to another along an arc and lands with a squash. */
+function hop(species: string, from: DOMRect, to: DOMRect, delay: number, duration: number, lift: number) {
+	const { outer, inner } = cloneIcon(species, from);
+	// A quadratic Bézier walked at an even pace is a parabola: the jump falls like a thrown ball.
+	const path = arc([from.left, from.top], [to.left, to.top], lift, 12);
+	const a = outer.animate(
+		path.map(([x, y], i) => ({ offset: i / (path.length - 1), transform: `translate(${x - from.left}px, ${y - from.top}px)` })),
+		{ duration, delay, easing: 'linear', fill: 'both' }
+	);
+	const b = inner.animate(
+		[{ transform: 'scale(1, 1)' }, { offset: 0.84, transform: 'scale(1, 1)' }, { offset: 0.92, transform: 'scale(1.12, 0.84)' }, { transform: 'scale(1, 1)' }],
+		{ duration, delay, fill: 'both' }
+	);
+	live.add(a);
+	live.add(b);
+	return a.finished
+		.catch(() => undefined)
+		.finally(() => {
+			live.delete(a);
+			live.delete(b);
+			outer.remove();
+		});
+}
+
+/** The card's angle on its hinge right now, mid-swing included. */
+function hingeAngle(el: HTMLElement) {
+	const t = getComputedStyle(el).transform;
+	if (!t || t === 'none' || typeof DOMMatrix === 'undefined') return 0;
+	const m = new DOMMatrix(t);
+	return (Math.atan2(m.b, m.a) * 180) / Math.PI;
+}
+
+/** A stand-in for a team card: same look, no ids, labels or drop targets, fixed over the page. */
+function ghostCard(tile: HTMLElement, box: DOMRect, deg: number) {
+	const ghost = tile.cloneNode(true) as HTMLElement;
+	for (const el of [ghost, ...ghost.querySelectorAll<HTMLElement>('*')]) {
+		for (const attr of ['data-team-card', 'data-team-tile', 'data-team-icon', 'aria-label', 'role', 'tabindex', 'id']) el.removeAttribute(attr);
+	}
+	ghost.classList.remove('hinge');
+	ghost.setAttribute('aria-hidden', 'true');
+	Object.assign(ghost.style, {
+		position: 'fixed',
+		left: `${box.left}px`,
+		top: `${box.top}px`,
+		width: `${box.width}px`,
+		height: `${box.height}px`,
+		margin: '0',
+		zIndex: '80',
+		pointerEvents: 'none',
+		transformOrigin: '0 0',
+		transform: `rotate(${deg}deg)`,
+		boxShadow: '0 6px 12px -4px rgb(0 0 0 / 0.08)',
+	});
+	document.body.appendChild(ghost);
+	return ghost;
+}
+
+/** Where a falling card lands: the top edge of the Suggestions panel, or the bottom of the window without one. */
+function floorY() {
+	const panel = document.querySelector('section[aria-label="Suggestions"]');
+	const top = panel?.getBoundingClientRect().top;
+	return top && top > 0 ? Math.min(top, window.innerHeight) : window.innerHeight;
+}
+
+/** The card lets go of its corner and falls with gravity until its bottom edge meets the floor. */
+async function fall(ghost: HTMLElement, box: DOMRect, deg: number) {
+	const drop = Math.max(0, floorY() - box.bottom);
+	const duration = Math.min(MOTION.maxFallMs, Math.max(120, Math.sqrt((2 * drop) / MOTION.gravity) * 1000));
+	const steps = 12;
+	// Evenly spaced in time, so y grows with the square of the step: d = ½gt².
+	const frames = Array.from({ length: steps + 1 }, (_, i) => {
+		const f = i / steps;
+		return { offset: f, transform: `translateY(${drop * f * f}px) rotate(${deg + MOTION.fallSpinDeg * f}deg)` };
+	});
+	const a = ghost.animate(frames, { duration, easing: 'linear', fill: 'both' });
+	live.add(a);
+	await a.finished.catch(() => undefined);
+	live.delete(a);
+	ghost.remove();
+	return { impact: new DOMRect(box.left, box.top + drop, box.width, box.height), deg: deg + MOTION.fallSpinDeg };
+}
+
+/** Six pieces that tile the card: a fan around a point just below its middle. */
+const SHARDS: [number, number][][] = [
+	[[48, 58], [0, 0], [60, 0]],
+	[[48, 58], [60, 0], [100, 0], [100, 40]],
+	[[48, 58], [100, 40], [100, 100], [70, 100]],
+	[[48, 58], [70, 100], [30, 100]],
+	[[48, 58], [30, 100], [0, 100], [0, 65]],
+	[[48, 58], [0, 65], [0, 0]],
+];
+
+interface CardLook {
+	background: string;
+	border: string;
+	radius: string;
+}
+
+/** What a card's shards are made of: its fill, edge and corners. */
+function lookOf(el: HTMLElement): CardLook {
+	const style = getComputedStyle(el);
+	return { background: style.backgroundColor, border: `${style.borderTopWidth} solid ${style.borderTopColor}`, radius: style.borderTopLeftRadius };
+}
+
+/** The card breaks into shards that bounce once off the Suggestions panel and drop out of the window. */
+function shatter(look: CardLook, at: DOMRect, deg: number) {
+	const wrap = document.createElement('div');
+	wrap.setAttribute('aria-hidden', 'true');
+	Object.assign(wrap.style, {
+		position: 'fixed',
+		left: `${at.left}px`,
+		top: `${at.top}px`,
+		width: `${at.width}px`,
+		height: `${at.height}px`,
+		zIndex: '80',
+		pointerEvents: 'none',
+		transformOrigin: '0 0',
+		transform: `rotate(${deg}deg)`,
+	});
+	document.body.appendChild(wrap);
+	const g = MOTION.gravity / 1e6; // px per ms²
+	const runs = SHARDS.map((poly, i) => {
+		const cx = poly.reduce((s, p) => s + p[0], 0) / poly.length;
+		const cy = poly.reduce((s, p) => s + p[1], 0) / poly.length;
+		const shard = document.createElement('div');
+		Object.assign(shard.style, {
+			position: 'absolute',
+			inset: '0',
+			background: look.background,
+			border: look.border,
+			borderRadius: look.radius,
+			clipPath: `polygon(${poly.map(([x, y]) => `${x}% ${y}%`).join(', ')})`,
+			transformOrigin: `${cx}% ${cy}%`,
+		});
+		wrap.appendChild(shard);
+		// Outward from the break, up off the floor, then gravity pulls each one out of the window.
+		const vx = ((cx - 48) / 50) * 0.35 + (i % 2 ? 0.05 : -0.05);
+		const vy = -(0.22 + ((i * 37) % 5) * 0.035);
+		const spin = (i % 2 ? 1 : -1) * (120 + i * 25);
+		const steps = 10;
+		const frames = Array.from({ length: steps + 1 }, (_, k) => {
+			const t = (MOTION.shardMs * k) / steps;
+			const f = k / steps;
+			return {
+				offset: f,
+				transform: `translate(${vx * t}px, ${vy * t + 0.5 * g * t * t}px) rotate(${spin * f}deg)`,
+				opacity: f < 0.6 ? 1 : 1 - (f - 0.6) / 0.4,
+			};
+		});
+		const a = shard.animate(frames, { duration: MOTION.shardMs, easing: 'linear', fill: 'both' });
+		live.add(a);
+		return a.finished.catch(() => undefined).finally(() => live.delete(a));
+	});
+	return Promise.all(runs).finally(() => wrap.remove());
+}
+
+/** The open team's card pops back into the grid, empty, as the old one breaks. */
+function popCard(el: HTMLElement) {
+	show([el]);
+	if (reduced()) return;
+	el.animate(
+		[
+			{ transform: 'scale(0.9)', opacity: 0 },
+			{ transform: 'scale(1.04)', opacity: 1, offset: 0.6 },
+			{ transform: 'scale(1)', opacity: 1 },
+		],
+		{ duration: MOTION.cardPopMs, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
+	);
+}
+
 /**
  * Switch teams. The middle panel changes at once; the walk runs over it. The
- * open party walks home into its card, then the new team walks off its card
+ * open party walks home into its card while the new team walks off its card
  * and drops into the party, Pokémon hidden until they land. Rapid clicks
  * cancel in-flight animations and jump straight to the latest team. `select`
  * puts that member on the card in the same commit, so it never walks.
  * When the team's card is not fully on screen there is nothing to walk over:
  * the new party pops in all at once, as if each member had been added by hand.
+ *
+ * In card view the old party jumps home into its card's empty slots instead of
+ * walking while the new card falls, shatters on the Suggestions panel, and
+ * its Pokémon jump out of the break into the party while an empty card pops
+ * into its place.
  */
 export async function openTeamWithMotion(id: string, select?: string) {
 	const store = useStore.getState();
@@ -165,7 +349,9 @@ export async function openTeamWithMotion(id: string, select?: string) {
 		if (select) useStore.getState().selectMember(select);
 		return;
 	}
-	if (!onScreen(document.querySelector(`[data-team-card="${id}"]`))) {
+	// In card view the tile swings on its hinge, so measure the grid cell it sits in.
+	const tile = document.querySelector<HTMLElement>(`[data-team-tile="${id}"]`);
+	if (!onScreen(tile?.parentElement ?? document.querySelector(`[data-team-card="${id}"]`))) {
 		flushSync(() => {
 			useStore.getState().openTeam(id);
 			if (select) useStore.getState().selectMember(select);
@@ -173,8 +359,12 @@ export async function openTeamWithMotion(id: string, select?: string) {
 		document.querySelectorAll<HTMLElement>('[data-party-member]').forEach((el) => pop(el));
 		return;
 	}
-	// Any click or keypress mid-flight skips straight to the end.
-	const skip = () => live.forEach((a) => a.finish());
+	// Any click or keypress mid-flight skips straight to the end, later phases included.
+	let skipped = false;
+	const skip = () => {
+		skipped = true;
+		live.forEach((a) => a.finish());
+	};
 	window.addEventListener('pointerdown', skip, { once: true, capture: true });
 	window.addEventListener('keydown', skip, { once: true, capture: true });
 	const panel = document.querySelector('[data-team-panel]')?.getBoundingClientRect();
@@ -193,6 +383,14 @@ export async function openTeamWithMotion(id: string, select?: string) {
 			rect: el.getBoundingClientRect(),
 			ok: onScreen(el),
 		}));
+		// Card view: a copy of the card as it hangs now stands in for it until it falls, since the switch empties the real one.
+		const cell = tile?.parentElement?.getBoundingClientRect();
+		const card = tile && cell ? (() => {
+			const box = new DOMRect(cell.left, cell.top, tile.offsetWidth || cell.width, tile.offsetHeight || cell.height);
+			const deg = hingeAngle(tile);
+			const ghost = ghostCard(tile, box, deg);
+			return { ghost, box, deg, look: lookOf(ghost) };
+		})() : null;
 
 		// The switch commits synchronously so the new party is in place before anything is painted.
 		flushSync(() => {
@@ -215,26 +413,57 @@ export async function openTeamWithMotion(id: string, select?: string) {
 		});
 		hide(homeward.map((h) => h.target));
 
-		// 1. The old party walks home. Its icons come back on the card as each one lands.
-		if (homeward.length) {
-			await Promise.all(
-				homeward.map((h, i) =>
-					fly({ species: h.species, from: h.from, to: h.to, edgeX, delay: i * MOTION.staggerMs, reverse: true }).then(() => reveal([h.target]))
-				)
-			);
+		if (card) {
+			const openTile = document.querySelector<HTMLElement>(`[data-team-tile="${id}"]`);
+			if (openTile) hide([openTile]);
+			try {
+				// 1. The old party jumps home into its card's empty slots while, 2. the new card lets go and falls
+				// onto the Suggestions panel. Running both at once keeps a switch to about a second.
+				const home = Promise.all(
+					homeward.map((h, i) => (skipped ? Promise.resolve() : hop(h.species, h.from, h.to, i * MOTION.hopStaggerMs, MOTION.hopMs, 36)).then(() => reveal([h.target])))
+				);
+				const { impact, deg: landed } = skipped ? { impact: card.box, deg: card.deg } : await fall(card.ghost, card.box, card.deg);
+				card.ghost.remove();
+				if (mine !== generation) return;
+				// 3. It shatters, an empty card pops into its place, and its team jumps out of the break into the party.
+				if (openTile) popCard(openTile);
+				if (skipped) {
+					reveal(arrivals.map((a) => a.el));
+					await home;
+					return;
+				}
+				await Promise.all([
+					home,
+					shatter(card.look, impact, landed),
+					...arrivals.map((a, i) => {
+						const from = new DOMRect(impact.left + (a.from.left - card.box.left), impact.top + (a.from.top - card.box.top), 32, 32);
+						return hop(a.species, from, a.to, i * MOTION.hopStaggerMs, MOTION.popOutMs, 56).then(() => {
+							reveal([a.el]);
+							pop(a.el);
+						});
+					}),
+				]);
+			} finally {
+				card.ghost.remove();
+			}
+			return;
 		}
-		if (mine !== generation) return;
 
-		// 2. The new team walks down into its party.
+		// The old party walks home into its card while the new team walks off its own card and drops
+		// into the party, both at once, so a switch takes one trip instead of two. Each old icon comes
+		// back on its card as it lands; each new one appears in the party as it lands.
 		const last = arrivals.length - 1;
-		await Promise.all(
-			arrivals.map((a, i) =>
+		await Promise.all([
+			...homeward.map((h, i) =>
+				fly({ species: h.species, from: h.from, to: h.to, edgeX, delay: i * MOTION.staggerMs, reverse: true }).then(() => reveal([h.target]))
+			),
+			...arrivals.map((a, i) =>
 				fly({ species: a.species, from: a.from, to: a.to, edgeX, delay: (last - i) * MOTION.staggerMs }).then(() => {
 					reveal([a.el]);
 					pop(a.el);
 				})
-			)
-		);
+			),
+		]);
 	} finally {
 		window.removeEventListener('pointerdown', skip, { capture: true });
 		window.removeEventListener('keydown', skip, { capture: true });

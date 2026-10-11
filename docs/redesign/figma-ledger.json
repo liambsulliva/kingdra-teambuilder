@@ -96,7 +96,8 @@
   "saved": "4:142",
   "more": "4:145",
   "eye": "4:148",
-  "arrow-right": "4:153"
+  "arrow-right": "4:153",
+  "cards": "56:128"
  },
  "textStyles": {
   "Display/Wordmark": "S:15e470c090b760d2c0560532917c2ebe8ad9c0e3,",
@@ -136,7 +137,8 @@
   "MoveListRow": "7:233",
   "Toast": "7:247",
   "ModeToggle": "7:277",
-  "EvolutionStep": "7:289"
+  "EvolutionStep": "7:289",
+  "TeamTile": "56:188"
  },
  "layout": {
   "frame": "1440x900",
@@ -156,7 +158,8 @@
    "casual": "18:1874",
    "newTeam": "20:2193",
    "dragAdd": "21:2540",
-   "dark": "21:3176"
+   "dark": "21:3176",
+   "teamCards": "56:4104"
   },
   "mobile": {
    "party": "23:2",
@@ -166,10 +169,13 @@
    "actions": "24:691",
    "browseBox": "47:3934",
    "partyEmpty": "47:4123",
-   "supportTapped": "48:773"
+   "supportTapped": "48:773",
+   "teamsCards": "56:4791"
   },
   "motion": "25:2",
-  "cover": "26:2"
+  "cover": "26:2",
+  "motionCardOpen": "58:101",
+  "motionCardSwitch": "58:423"
  },
  "extraAssets": {
   "front-blastoise": "16:2",
