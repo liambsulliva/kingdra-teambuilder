@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Show, SignInButton, UserButton } from '@clerk/nextjs';
 import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icon';
-import { useStore } from '@/lib/store';
+import { useStore, type SaveStatus } from '@/lib/store';
+import { useReducedMotion } from '@/lib/hooks';
 
 export function Logo({ size = 38 }: { size?: number }) {
 	return (
@@ -21,13 +22,115 @@ export function Logo({ size = 38 }: { size?: number }) {
 	);
 }
 
+/** The save swim: six still frames, 400 ms each, with nothing drawn in between (stop motion, not a tween). */
+const FRAME_MS = 400;
+const FRAMES = 6;
+/** Kingdra is drawn at 18 × 20, three fifths of its 30 × 34 icon, so the swim and its label sit comfortably in the header. */
+const STEP = 6;
+const START = 6;
+const BOB = [0, -1, 0, 1, 0, -1];
+const TILT = [-6, 0, 6, 0, -6, 0];
+/** Each frame's bubble starts at its own height, so the trail is uneven. Bubbles start at 3 px and grow a pixel a frame. */
+const BUBBLE_Y = [13, 9, 15, 11, 14, 8];
+const BUBBLE_SIZE = 3;
+const BUBBLE_RISE = 3;
+
+/** A save that lands at once (a guest save) still shows two frames, so it never just flickers. */
+const MIN_MS = 2 * FRAME_MS;
+
+/**
+ * The frame Kingdra is on, or null when it isn't swimming. Every save starts or extends the swim: an account
+ * save while it is in flight, a guest save once it is written to this browser. It stops at the next frame
+ * once nothing is saving and the last save has shown for two frames, even mid-lap. An error stops it at
+ * once. With reduced motion it never swims.
+ */
+function useSaveSwim(save: SaveStatus, localWrites: number) {
+	const reduced = useReducedMotion();
+	const [frame, setFrame] = useState<number | null>(null);
+	const current = useRef(frame);
+	useEffect(() => {
+		current.current = frame;
+	}, [frame]);
+	/** When the latest save has had its two frames. */
+	const until = useRef(0);
+	const start = () => {
+		until.current = performance.now() + MIN_MS;
+		if (current.current === null) setFrame(0);
+	};
+	useEffect(() => {
+		if (save === 'error') setFrame(null);
+		else if (save === 'saving' && !reduced) start();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [save]);
+	useEffect(() => {
+		if (localWrites && !reduced) start();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [localWrites]);
+	useEffect(() => {
+		if (frame === null) return;
+		const t = setTimeout(() => {
+			// A millisecond of slack: a timer can fire a hair before the moment it was set for.
+			const busy = useStore.getState().save === 'saving' || performance.now() < until.current - 1;
+			setFrame(busy ? (frame + 1) % FRAMES : null);
+		}, FRAME_MS);
+		return () => clearTimeout(t);
+	}, [frame]);
+	return reduced ? null : frame;
+}
+
+/**
+ * Kingdra swims right across a 54 px track, 6 px a frame, tilting and bobbing. Each frame leaves a bubble
+ * whose right edge is 2 px behind Kingdra, at its own height, that rises 3 px a frame, grows and
+ * fades, and pops after its third frame. Bubbles are only ever behind it: they are drawn under it, and a new
+ * lap starts with no trail, so none is left ahead.
+ */
+function KingdraSwim({ frame }: { frame: number }) {
+	const bubbles = Array.from({ length: Math.min(3, frame + 1) }, (_, age) => frame - age);
+	return (
+		<span aria-hidden='true' data-save-swim={frame} className='relative block h-[22px] w-[54px] shrink-0'>
+			{bubbles.map((spawn) => {
+				const age = frame - spawn;
+				const size = BUBBLE_SIZE + age;
+				// Centered where it spawned, so it rises straight up as it grows.
+				const x = START + STEP * spawn - 2 - BUBBLE_SIZE / 2;
+				const y = BUBBLE_Y[spawn] - BUBBLE_RISE * age;
+				return (
+					<span
+						key={spawn}
+						data-bubble={spawn}
+						className='absolute rounded-full border border-current'
+						style={{ width: size, height: size, left: x - size / 2, top: y - size / 2, opacity: age === 2 ? 0.6 : 1 }}
+					/>
+				);
+			})}
+			<span
+				data-kingdra
+				className='kingdra-silhouette absolute left-0 top-px h-[20px] w-[18px] bg-current'
+				style={{ transform: `translate(${START + STEP * frame}px, ${BOB[frame]}px) rotate(${TILT[frame]}deg)` }}
+			/>
+		</span>
+	);
+}
+
 function SaveStatus() {
 	const save = useStore((s) => s.save);
+	const localWrites = useStore((s) => s.localWrites);
+	const frame = useSaveSwim(save, localWrites);
 	const label = { local: 'Saved in this browser', saving: 'Saving', saved: 'Saved', error: 'Not saved' }[save];
+	// While Kingdra swims it is the whole indicator; screen readers still hear "Saving".
 	return (
 		<span className={`hidden items-center gap-1.5 pr-2 text-xs md:inline-flex ${save === 'error' ? 'text-danger' : 'text-muted'}`} aria-live='polite'>
-			<Icon name={save === 'error' ? 'warning' : 'saved'} />
-			{label}
+			{frame !== null ? (
+				<>
+					<KingdraSwim frame={frame} />
+					<span className='sr-only'>Saving</span>
+				</>
+			) : (
+				<>
+					<Icon name={save === 'error' ? 'warning' : 'saved'} />
+					{label}
+				</>
+			)}
 		</span>
 	);
 }

@@ -138,7 +138,9 @@
   "Toast": "7:247",
   "ModeToggle": "7:277",
   "EvolutionStep": "7:289",
-  "TeamTile": "56:188"
+  "TeamTile": "56:188",
+  "SaveIndicator": "66:240",
+  "KingdraSilhouette": "66:167"
  },
  "layout": {
   "frame": "1440x900",
@@ -175,7 +177,8 @@
   "motion": "25:2",
   "cover": "26:2",
   "motionCardOpen": "58:101",
-  "motionCardSwitch": "58:423"
+  "motionCardSwitch": "58:423",
+  "motionSaveSwim": "67:451"
  },
  "extraAssets": {
   "front-blastoise": "16:2",

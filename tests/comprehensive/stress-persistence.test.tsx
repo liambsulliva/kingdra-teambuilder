@@ -3,8 +3,8 @@ import { act } from 'react';
 import { usePersistence } from '@/lib/hooks';
 import { emptyLibrary, newSet, newTeam, normalizeLibrary, type Library } from '@/lib/model';
 import { useStore } from '@/lib/store';
-import { auth, fetchCalls, mockApi, seedLocalLibrary } from '../helpers/env';
-import { flush, hasText, render, renderApp, wait } from '../helpers/render';
+import { auth, fetchCalls, mockApi, seedLocalLibrary, setViewport } from '../helpers/env';
+import { flush, hasText, render, renderApp, wait, waitFor } from '../helpers/render';
 import { buildStressLibrary, clone, type StressLibrary } from '../fixtures/library';
 
 // The account library lives in this fake MongoDB document; /api/library is the real route.
@@ -279,5 +279,69 @@ describe('signed-in account library', () => {
 		await mount();
 		expect(names(s().library)).toEqual(['Team 1']);
 		expect(stored()?.teams.map((t) => t.name) ?? []).not.toContain(stress.library.teams[0].name);
+	});
+});
+
+describe('the save swim in the header', () => {
+	const status = () => document.querySelector<HTMLElement>('header [aria-live]')!;
+	const swim = () => document.querySelector<HTMLElement>('[data-save-swim]');
+	const frame = () => Number(swim()!.dataset.saveSwim);
+	const kingdraLeft = () => Number(/translate\((-?[\d.]+)px/.exec(document.querySelector<HTMLElement>('[data-kingdra]')!.style.transform)![1]);
+	const bubbleRights = () => [...document.querySelectorAll<HTMLElement>('[data-bubble]')].map((b) => parseFloat(b.style.left) + parseFloat(b.style.width));
+
+	beforeEach(() => setViewport({ reducedMotion: false }));
+
+	it('swims two still frames after a guest save, bubbles only behind, then stops with no visible label', async () => {
+		seedLocalLibrary(stress.library);
+		await renderApp();
+		expect(swim()).toBeNull();
+		s().renameTeam(s().library.teams[1].id, 'Swim');
+		await waitFor(() => expect(swim()).not.toBeNull());
+		expect(frame()).toBe(0);
+		// The label is only for screen readers while Kingdra swims.
+		expect(status().querySelector('.sr-only')!.textContent).toBe('Saving');
+		expect([...status().childNodes].filter((n) => n.nodeType === Node.TEXT_NODE)).toHaveLength(0);
+		const seen: number[] = [];
+		while (swim()) {
+			const f = frame();
+			if (!seen.includes(f)) {
+				seen.push(f);
+				expect(document.querySelectorAll('[data-bubble]')).toHaveLength(Math.min(3, f + 1));
+				for (const right of bubbleRights()) expect(right).toBeLessThan(kingdraLeft());
+			}
+			await wait(40);
+		}
+		// One frame at a time, no in-betweens, and it stops early: two frames for an instant save.
+		expect(seen).toEqual([0, 1]);
+		expect(hasText('Saved in this browser', status())).toBe(true);
+	});
+
+	it('keeps swimming while an account save is in flight, and stops at once on an error', async () => {
+		db.doc = { library: clone(stress.library) };
+		auth.isSignedIn = true;
+		await renderApp();
+		await waitFor(() => expect(swim()).toBeNull(), 4000);
+		mockApi({ '/api/library': () => new Promise<Response>(() => {}) });
+		s().createTeam({ name: 'Slow save' });
+		await waitFor(() => expect(swim()).not.toBeNull());
+		await wait(1300);
+		// Past the two-frame minimum, and still saving: it swims on.
+		expect(s().save).toBe('saving');
+		expect(swim()).not.toBeNull();
+		act(() => s().setSave('error'));
+		await flush();
+		expect(swim()).toBeNull();
+		expect(hasText('Not saved', status())).toBe(true);
+	});
+
+	it('never swims with reduced motion', async () => {
+		setViewport({ reducedMotion: true });
+		seedLocalLibrary(stress.library);
+		await renderApp();
+		s().renameTeam(s().library.teams[1].id, 'Still');
+		await wait(400);
+		expect(stored()!.teams[1].name).toBe('Still');
+		expect(swim()).toBeNull();
+		expect(hasText('Saved in this browser', status())).toBe(true);
 	});
 });

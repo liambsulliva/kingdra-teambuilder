@@ -87,6 +87,8 @@ interface State {
 	pendingFix: PendingFix | null;
 	toasts: Toast[];
 	save: SaveStatus;
+	/** Bumped by every write to this browser. A guest save is instant, so the header watches this to show it. */
+	localWrites: number;
 	validation: Record<string, Validation>;
 	/** Mobile: member whose long-press action sheet is open. */
 	mobileActionUid: string | null;
@@ -103,6 +105,7 @@ interface Actions {
 	toast(kind: Toast['kind'], message: string): void;
 	dismissToast(id: string): void;
 	setSave(status: SaveStatus): void;
+	noteLocalWrite(): void;
 	setDialog(dialog: State['dialog']): void;
 	setMerged(merged: boolean): void;
 	setSpriteSet(spriteSet: SpriteSet): void;
@@ -273,6 +276,7 @@ export const useStore = create<Store>()((set, get) => {
 		pendingFix: null,
 		toasts: [],
 		save: 'local',
+		localWrites: 0,
 		validation: {},
 		rejectedAt: 0,
 		chosen: 0,
@@ -292,6 +296,7 @@ export const useStore = create<Store>()((set, get) => {
 		},
 		dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 		setSave: (save) => set({ save }),
+		noteLocalWrite: () => set((s) => ({ localWrites: s.localWrites + 1 })),
 		setDialog: (dialog) => set({ dialog }),
 		setSpriteSet: (spriteSet) => {
 			try {

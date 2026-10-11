@@ -7,10 +7,10 @@ Status: decisions locked through the UI interview on 2026-10-08. Design lives in
 | Page | Contents |
 |---|---|
 | Cover | Index |
-| Components | Icons (40 Majesticons, 16 px), IconButton, Tooltip, PokemonSlot, TypeBadge, StatRow, MoveCell, KeyRow, Tab, Select, SearchField, Button, CarouselCard, TeamCard, TeamTile (card view), MoveListRow, Toast, ModeToggle, EvolutionStep |
+| Components | Icons (40 Majesticons, 16 px), IconButton, Tooltip, PokemonSlot, TypeBadge, StatRow, MoveCell, KeyRow, Tab, Select, SearchField, Button, CarouselCard, TeamCard, TeamTile (card view), SaveIndicator and Kingdra silhouette, MoveListRow, Toast, ModeToggle, EvolutionStep |
 | Desktop (1440×900) | Competitive / Stats (`9:2`), Team cards (`56:4104`), Move editing (`12:421`), Team analysis (`13:840`), Compare (`14:1149`), Box drawer (`15:1435`), Casual / Pokédex (`18:1874`), New team dialog (`20:2193`), Drag to add (`21:2540`), Stats / Dark (`21:3176`) |
 | Mobile (390×844) | Party (`23:2`), Editor sheet (`23:190`), Teams (`24:252`), Browse (`24:505`), Browse › Box (`47:3934`), Empty team (`47:4123`), Long-press action sheet (`24:691`), Support badge tapped (`48:773`), Teams in card view (`56:4791`) |
-| Motion | Storyboards with timings (`25:2`); card view open (`58:101`) and switch (`58:423`) |
+| Motion | Storyboards with timings (`25:2`); card view open (`58:101`) and switch (`58:423`); save swim (`67:451`) |
 
 Variables: `Primitives`, `Color` (Light/Dark modes), `Layout`. Dark mode is the same frames with the `Color` collection switched to Dark.
 
@@ -83,7 +83,7 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Header.** The Kingdra logo (PokeAPI's front sprite, mirrored, cropped 38×38 around the head; `public/brand/kingdra.png`, also the favicon), vertically centered, plus the "Kingdra" wordmark on the left. On the right, the B/W | X/Y sprite toggle (saved per viewer), then 16px icon buttons: about (personal site, Instagram, LinkedIn, GitHub links), theme, account (Clerk sign-in or user button).
+- **Header.** The Kingdra logo (PokeAPI's front sprite, mirrored, cropped 38×38 around the head; `public/brand/kingdra.png`, also the favicon), vertically centered, plus the "Kingdra" wordmark on the left. On the right, the B/W | X/Y sprite toggle (saved per viewer), then 16px icon buttons: about (personal site, Instagram, LinkedIn, GitHub links), theme, account (Clerk sign-in or user button). Left of them, the save status: a 16px icon and a label ("Saved in this browser", "Saved", "Not saved"), which gives way to the **save swim** on every save: a Kingdra silhouette (PokeAPI's Gen VIII icon, mirrored to swim right, `public/brand/kingdra-silhouette.png`) swimming across a 54×22 track with a trail of bubbles, and no visible label.
 - **Left panel, team list.** Scrolls independently. The panel head reads "Teams" with icons for card view, search team names, import team (paste Showdown text, which creates a new team), and new team.
   - **Card view.** The 2×2 icon (Majesticons applications-line) switches the list to cards, two per row, each with its six icons in a 2×3 grid. It is a toggle shown as selected while cards are on, and the choice is saved per viewer. Switching views keeps the open team. On hover (fine pointer, desktop) a closed card hangs from its top-left corner and snaps down to 4° on a stiff spring, like a loose picture frame; it should feel instant (there in about 70 ms, settled by 300 ms).
   - **Team card.** Six 32×32 icon slots in a row at the top-left, then the team name, then a muted label such as "gen 9 · OU" or "gen 5 · casual".
@@ -192,6 +192,7 @@ All motion respects `prefers-reduced-motion`; with it on, everything becomes a c
 | Add (drag) | A ghost icon follows the pointer. Valid slots switch from dashed to red. On drop the icon lands with a squash. A full team bounces the card back. |
 | Remove | Release a party icon outside the party and the Box and it disappears in a poof. Release it on the Box and it is stored. |
 | Box drawer | Slides up with a spring and slides back down. |
+| Save | Stop motion: Kingdra swims right in still frames, 400 ms each with no in-betweens, 6 px a frame, tilting ±6° and bobbing 1 px. Each frame leaves a 3 px bubble 2 px behind it, at its own height, that rises 3 px and grows 1 px a frame and pops after three; bubbles are only ever behind it, and a new lap starts with a clean trail. Every save starts it (an account save while in flight, a guest save once written); it stops at the next frame once nothing is saving, after at least two frames (0.8 s), and at once on an error. None with reduced motion. |
 | Theme | 200ms color crossfade. |
 
 ## 10. Mobile, 650px and below

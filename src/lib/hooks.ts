@@ -195,7 +195,10 @@ export function usePersistence() {
 				// Only guest libraries live on this device. An account's library is never mirrored here, so signing out cannot show it.
 				pending = () => {
 					if (!writeLocal(library)) setSave('error');
-					else if (useStore.getState().save === 'error') setSave('local');
+					else {
+						if (useStore.getState().save === 'error') setSave('local');
+						useStore.getState().noteLocalWrite();
+					}
 				};
 				timer = setTimeout(flush, LOCAL_SAVE_DELAY);
 			} else {

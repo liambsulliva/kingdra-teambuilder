@@ -166,6 +166,14 @@ button:not(:disabled),
 	}
 }
 
+/* The save indicator's Kingdra: the Gen VIII icon's silhouette, mirrored to swim right, drawn in the text color
+   at three fifths of its 30 × 34 size. */
+.kingdra-silhouette {
+	-webkit-mask: url('/brand/kingdra-silhouette.png') 0 0 / 100% 100% no-repeat;
+	mask: url('/brand/kingdra-silhouette.png') 0 0 / 100% 100% no-repeat;
+	transform-origin: 50% 50%;
+}
+
 @keyframes poof {
 	0% {
 		transform: translate(-50%, -50%) scale(0.2);
