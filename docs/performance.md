@@ -25,7 +25,7 @@ The worst-case library is 200 teams of 6 plus 32 full boxes, about 906 KB of JSO
    - **Returning accounts** (remembered in `kingdra.account`): the account fetch starts at once. Only if it is refused, because the session cookie expired, does it retry after Clerk loads.
 3. The workbench renders. The first 60 team cards mount at once; the rest mount in idle chunks. Off-screen cards use `content-visibility: auto`.
 4. Learnsets, a 263 KB brotli chunk, are prefetched while the browser is idle, so the first card open does not wait for them.
-5. The proxy (`src/proxy.ts`) only runs Clerk on `/api/*`. The static page never waits on a Clerk handshake redirect.
+5. The proxy (`src/proxy.ts`) runs Clerk on `/api/*` and forwards Clerk's `/__clerk` Frontend API calls. The static page never waits on a Clerk handshake redirect.
 
 ## Rules that keep it fast
 

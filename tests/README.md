@@ -4,7 +4,7 @@ Three Vitest projects, defined in `vitest.workspace.ts`:
 
 | Project | Where | What | Run |
 | --- | --- | --- | --- |
-| unit | `src/**/__tests__` | Colocated library tests | part of both commands |
+| unit | `src/**/__tests__` | Colocated library tests, and the server-side Clerk proxy (`src/__tests__/proxy.test.ts`) | part of both commands |
 | simple | `tests/simple` | Fast checks of the model, dex, store, drag rules, API routes and the everyday app flows (~3 s) | `npm run test:simple` (watch: `npm test`) |
 | comprehensive | `tests/comprehensive` | The stress suite: every user flow against 32 seeded teams and 100 boxed Pokémon (~15 s) | `npm run test:comprehensive` |
 
@@ -21,6 +21,8 @@ Three Vitest projects, defined in `vitest.workspace.ts`:
 The seed is printed by `stress-data.test.ts`. Replay a run with `STRESS_SEED=<n> npm run test:comprehensive`.
 
 ## The test environment
+
+Server code runs in Node, not jsdom: `src/__tests__/proxy.test.ts` opts into `// @vitest-environment node`. In jsdom, a production build (Vercel sets `NODE_ENV=production`) swaps Node built-ins such as `node:async_hooks` for empty stubs, and Clerk's middleware throws `AsyncLocalStorage is not a constructor` as it loads. It lives in the unit project because the DOM setup below needs jsdom.
 
 `tests/setup/dom.tsx` runs before the simple and comprehensive files:
 
