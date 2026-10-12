@@ -72,6 +72,8 @@ interface State {
 	spriteSet: SpriteSet;
 	/** The team list as rows or as cards, saved per viewer. */
 	teamView: TeamView;
+	/** The walk, the card fall and the lift onto the card. Off, a switch just pops the new party in. Saved per viewer. */
+	fancyMotion: boolean;
 	activeMoveSlot: number | null;
 	matchupType: string | null;
 	carouselTab: string;
@@ -110,6 +112,7 @@ interface Actions {
 	setMerged(merged: boolean): void;
 	setSpriteSet(spriteSet: SpriteSet): void;
 	setTeamView(teamView: TeamView): void;
+	setFancyMotion(fancyMotion: boolean): void;
 	proposeFix(fix: PendingFix): void;
 	applyFix(): void;
 	setValidation(teamId: string, v: Validation): void;
@@ -179,6 +182,17 @@ export function readTeamView(): TeamView {
 		return localStorage.getItem(VIEW_KEY) === 'cards' ? 'cards' : 'list';
 	} catch {
 		return 'list';
+	}
+}
+
+const MOTION_KEY = 'kingdra.fancyMotion';
+
+/** Whether fancy animations are on. On when nothing is saved or storage is blocked. */
+export function readFancyMotion(): boolean {
+	try {
+		return localStorage.getItem(MOTION_KEY) !== 'off';
+	} catch {
+		return true;
 	}
 }
 
@@ -263,6 +277,7 @@ export const useStore = create<Store>()((set, get) => {
 		merged: false,
 		spriteSet: readSpriteSet(),
 		teamView: readTeamView(),
+		fancyMotion: readFancyMotion(),
 		activeMoveSlot: null,
 		matchupType: null,
 		carouselTab: 'OU',
@@ -313,6 +328,14 @@ export const useStore = create<Store>()((set, get) => {
 				// Storage can be full or blocked; the choice still applies for this visit.
 			}
 			set({ teamView });
+		},
+		setFancyMotion: (fancyMotion) => {
+			try {
+				localStorage.setItem(MOTION_KEY, fancyMotion ? 'on' : 'off');
+			} catch {
+				// Storage can be full or blocked; the choice still applies for this visit.
+			}
+			set({ fancyMotion });
 		},
 		// Entering the merged layout from its rest view lands on the card; leaving it returns the card to the team view.
 		setMerged: (merged) =>

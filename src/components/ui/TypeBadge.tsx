@@ -1,6 +1,6 @@
 export const TYPE_COLORS: Record<string, string> = {
 	Normal: '#9FA19F',
-	Fire: '#E62829',
+	Fire: '#D92426',
 	Water: '#2980EF',
 	Electric: '#FAC000',
 	Grass: '#3FA129',
@@ -28,15 +28,22 @@ const luminance = (hex: string) => {
 	return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
 };
 
-/** White text unless its contrast on the type color drops under 2.9:1. */
-export const typeText = (type: string) => (1.05 / (luminance(TYPE_COLORS[type] ?? '#9FA19F') + 0.05) >= 2.9 ? '#FFFFFF' : '#0A0A0A');
+/**
+ * White or near-black, whichever contrasts more with the type color. The badge text is 11–12 px, so it needs
+ * WCAG AA's 4.5:1, and both choices clear it for every type (Fire is set just dark enough for white).
+ */
+export const typeText = (type: string) => {
+	const bg = luminance(TYPE_COLORS[type] ?? '#9FA19F');
+	const against = (text: number) => (Math.max(text, bg) + 0.05) / (Math.min(text, bg) + 0.05);
+	return against(1) >= against(luminance('#0A0A0A')) ? '#FFFFFF' : '#0A0A0A';
+};
 
 export function TypeBadge({ type, onClick, small }: { type: string; onClick?: () => void; small?: boolean }) {
 	const style = { backgroundColor: TYPE_COLORS[type] ?? '#9FA19F', color: typeText(type) };
 	const cls = `inline-flex shrink-0 items-center rounded font-medium ${small ? 'h-4 px-1 text-2xs' : 'h-5 px-1.5 text-xs'}`;
 	if (!onClick) return <span className={cls} style={style}>{type}</span>;
 	return (
-		<button type='button' onClick={onClick} className={`squishy ${cls} hover:brightness-110`} style={style} title={`${type} matchups`}>
+		<button type='button' onClick={onClick} className={`squishy ${cls} hover:brightness-95`} style={style} title={`${type} matchups`}>
 			{type}
 		</button>
 	);

@@ -19,7 +19,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
 	width: 'device-width',
 	initialScale: 1,
-	viewportFit: 'cover',
+	// No viewport-fit=cover: with it, iOS draws the page under the status bar and frosts that strip. Without it the
+	// page starts below the status bar, so the env(safe-area-inset-*) paddings are zero and the layout needs none.
 	themeColor: [
 		{ media: '(prefers-color-scheme: light)', color: '#ffffff' },
 		{ media: '(prefers-color-scheme: dark)', color: '#0f0f10' },

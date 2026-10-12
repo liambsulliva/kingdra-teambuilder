@@ -4,25 +4,7 @@ import { abilitiesFor, calcStats, fieldsFor, getSpecies, itemsFor, learnableMove
 import { STATS, STAT_LABELS, newSet, newTeam, statTable, type Library, type StatID, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { mockApi, seedLocalLibrary } from '../helpers/env';
-import {
-	allButtons,
-	blur,
-	button,
-	byLabel,
-	click,
-	dblclick,
-	flush,
-	hasText,
-	key,
-	openDialog,
-	queryButton,
-	queryByLabel,
-	renderApp,
-	select,
-	type,
-	wait,
-	waitFor,
-} from '../helpers/render';
+import { allButtons, blur, button, byLabel, byName, click, dblclick, flush, hasText, key, openDialog, queryButton, queryByLabel, renderApp, select, type, wait, waitFor } from '../helpers/render';
 import { buildStressLibrary, clone, type StressLibrary } from '../fixtures/library';
 
 const s = () => useStore.getState();
@@ -45,7 +27,7 @@ async function start(extra: Team[] = []) {
 }
 
 async function putOnCard(t: Team, index: number) {
-	if (open().id !== t.id) await click(byLabel(`Open ${t.name}`));
+	if (open().id !== t.id) await click(byName(`Open ${t.name}`));
 	// A member is always on the card once the team has one; its party icon is hidden on desktop.
 	const uid = open().members[index].uid;
 	// Already on the card, its party icon is hidden on desktop: select it the way a click would.
@@ -199,7 +181,7 @@ describe('the tab strip', () => {
 			['Details', true],
 		]);
 		// Opening a team with members puts one on the card, so every tab is live.
-		await click(byLabel(`Open ${ou.name}`));
+		await click(byName(`Open ${ou.name}`));
 		expect(tabs().every(([, disabled]) => !disabled)).toBe(true);
 	});
 
@@ -414,7 +396,7 @@ describe('analysis', () => {
 
 	it('counts team weaknesses and coverage for every team in the library', async () => {
 		for (const t of lib.teams.slice(0, 12)) {
-			if (open().id !== t.id) await click(byLabel(`Open ${t.name}`));
+			if (open().id !== t.id) await click(byName(`Open ${t.name}`));
 			if (s().selectedUid) await key(window, 'Escape');
 			expect(s().inspector).toBe('team');
 			expect(hasText('Weak to', inspector()), t.name).toBe(true);
@@ -432,7 +414,7 @@ describe('analysis', () => {
 				count: 3,
 			}),
 		});
-		await click(byLabel(`Open ${ou.name}`));
+		await click(byName(`Open ${ou.name}`));
 		expect(hasText('Checking', inspector())).toBe(true);
 		// updateSet edits members of the open team.
 		act(() => s().updateSet(g.uid, { moves: ['Earthquake', 'Spore'] }));
@@ -457,7 +439,7 @@ describe('analysis', () => {
 		// The second member: the first opens on the card, out of the party row.
 		const g = ou.members[1];
 		mockApi({ '/api/validate': () => ({ byMember: { [g.uid]: ['Garchomp item Rocky Helmet is banned'] }, team: [], count: 1 }) });
-		await click(byLabel(`Open ${ou.name}`));
+		await click(byName(`Open ${ou.name}`));
 		act(() => s().updateSet(g.uid, { item: 'Rocky Helmet' }));
 		await wait(700);
 		expect(document.querySelector('[data-party-member][data-index="1"] [aria-label="Has legality issues"]')).toBeTruthy();
@@ -466,7 +448,7 @@ describe('analysis', () => {
 	});
 
 	it('does not validate casual teams', async () => {
-		await click(byLabel(`Open ${casual.name}`));
+		await click(byName(`Open ${casual.name}`));
 		await wait(700);
 		expect(s().validation[casual.id]).toEqual({ byMember: {}, team: [], count: 0 });
 		expect(hasText('Legality', inspector())).toBe(false);

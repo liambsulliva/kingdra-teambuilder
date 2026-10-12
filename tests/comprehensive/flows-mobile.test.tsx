@@ -5,7 +5,7 @@ import type { DragData, DropTarget } from '@/lib/drag';
 import { emptyLibrary, newSet, newTeam, type Library } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { seedLocalLibrary, setViewport } from '../helpers/env';
-import { allByLabel, button, byLabel, click, flush, hasText, key, queryByLabel, renderApp, waitFor } from '../helpers/render';
+import { allByName, button, byLabel, byName, click, flush, hasText, key, queryByLabel, renderApp, waitFor } from '../helpers/render';
 
 // Mobile interaction patterns agreed in docs/redesign/spec.md section 10. jsdom has no
 // layout, so drops drive the real DragLayer's handlers directly, as in flows-drag.
@@ -177,14 +177,14 @@ describe('phone: empty team', () => {
 
 	it('offers four suggestions and a way into Browse, with tap wording', async () => {
 		expect(hasText('Drag a suggestion onto the party, or tap one to add it.')).toBe(true);
-		expect(allByLabel(/^Add .+ to the team$/)).toHaveLength(4);
+		expect(allByName(/^Add .+ to the team$/)).toHaveLength(4);
 		await click(button('See all suggestions'));
 		expect(current()).toBe('Browse');
 	});
 
 	it('puts the first add on the card and drops the starters', async () => {
-		const first = allByLabel(/^Add .+ to the team$/)[0];
-		const species = first.getAttribute('aria-label')!.replace(/^Add | to the team$/g, '');
+		const first = allByName(/^Add .+ to the team$/)[0];
+		const species = first.querySelector('.font-semibold')!.textContent!;
 		await click(first);
 		await flush(2);
 		expect(open().members).toHaveLength(1);
@@ -226,6 +226,14 @@ describe('desktop is unchanged where the phone changed', () => {
 describe('phone: editor and teams', () => {
 	beforeEach(() => start());
 
+	it('has the fancy animations toggle in the header, with no tooltip', async () => {
+		const toggle = byLabel('Disable fancy animations', document.querySelector('header')!);
+		expect(toggle.parentElement!.querySelector('[role="tooltip"]')).toBeNull();
+		await click(toggle);
+		expect(s().fancyMotion).toBe(false);
+		expect(toggle.getAttribute('aria-pressed')).toBe('true');
+	});
+
 	it('closes the editor after an ability is picked, and the same row opens it again', async () => {
 		await click(document.querySelector('[data-key-row="ability"]')!);
 		await flush();
@@ -266,7 +274,7 @@ describe('phone: editor and teams', () => {
 			expect(card.querySelector(`[data-team-icon="${trio.id}:${i}"] [aria-hidden="true"]`)).not.toBeNull();
 		}
 		const animate = vi.spyOn(Element.prototype, 'animate');
-		await click(byLabel(`Open ${blank.name}`));
+		await click(byName(`Open ${blank.name}`));
 		await flush();
 		expect(open().id).toBe(blank.id);
 		const flown = animate.mock.contexts.filter((el) => (el as HTMLElement).style.position === 'fixed' || (el as HTMLElement).style.clipPath);

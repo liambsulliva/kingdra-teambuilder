@@ -13,11 +13,13 @@ import { resetEnv } from '../helpers/env';
 MotionGlobalConfig.skipAnimations = true;
 
 vi.mock('@clerk/nextjs', () => {
-	const auth = () => (globalThis as unknown as { __auth: { isLoaded: boolean; isSignedIn: boolean } }).__auth;
+	const auth = () => (globalThis as unknown as { __auth: { isLoaded: boolean; isSignedIn: boolean; failed: boolean } }).__auth;
 	return {
 		useAuth: () => auth(),
+		// A Clerk that failed to load shows neither state, only its failure fallback.
 		Show: ({ when, children }: { when: string; children: React.ReactNode }) =>
-			(when === 'signed-in') === auth().isSignedIn ? <>{children}</> : null,
+			!auth().failed && (when === 'signed-in') === auth().isSignedIn ? <>{children}</> : null,
+		ClerkFailed: ({ children }: { children: React.ReactNode }) => (auth().failed ? <>{children}</> : null),
 		SignInButton: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 		UserButton: () => <span data-testid='user-button' />,
 	};

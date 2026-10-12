@@ -11,7 +11,7 @@ export function Button({
 	...rest
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'accent' | 'primary' | 'secondary' | 'ghost'; icon?: IconName }) {
 	const look = {
-		accent: 'bg-accent text-white hover:brightness-110',
+		accent: 'bg-accent-solid text-white hover:brightness-95',
 		primary: 'bg-fg text-bg hover:opacity-90',
 		secondary: 'border border-line text-fg hover:bg-hover',
 		ghost: 'text-accent hover:bg-accent-soft',

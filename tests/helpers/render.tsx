@@ -93,6 +93,34 @@ export function byLabel<T extends HTMLElement = HTMLElement>(want: string | RegE
 
 export const queryByLabel = (want: string | RegExp, scope: ParentNode = document) => allByLabel(want, scope)[0] ?? null;
 
+/**
+ * A control's accessible name the way a screen reader joins it: its text, sr-only text included, words kept apart.
+ * Controls that name themselves by their visible text (team cards, suggestions, move slots) are found with `byName`.
+ */
+export const nameOf = (el: Element) => {
+	const words: string[] = [];
+	const walk = (node: Node) => {
+		if (node.nodeType === Node.TEXT_NODE) words.push(node.textContent ?? '');
+		else node.childNodes.forEach(walk);
+	};
+	walk(el);
+	return words.join(' ').replace(/\s+/g, ' ').replace(/ ([.,:])/g, '$1').trim();
+};
+/** A string matches the whole name, or its first words; a RegExp is tested against the name. */
+const named = (name: string, want: string | RegExp) => (typeof want === 'string' ? name === want || name.startsWith(`${want} `) : want.test(name));
+
+/** Every button (and button-like element) whose accessible name matches. */
+export const allByName = (want: string | RegExp, scope: ParentNode = document) =>
+	[...scope.querySelectorAll('button, [role="button"]')].filter((el) => named(nameOf(el), want)) as HTMLElement[];
+
+export function byName<T extends HTMLElement = HTMLElement>(want: string | RegExp, scope: ParentNode = document): T {
+	const found = allByName(want, scope);
+	if (!found.length) throw new Error(`No button named ${want}`);
+	return found[0] as T;
+}
+
+export const queryByName = (want: string | RegExp, scope: ParentNode = document) => allByName(want, scope)[0] ?? null;
+
 /** Buttons (and button-like elements) whose visible text matches. */
 export const allButtons = (want: string | RegExp, scope: ParentNode = document) =>
 	[...scope.querySelectorAll('button, [role="button"], [role="tab"], [role="radio"]')].filter((el) =>

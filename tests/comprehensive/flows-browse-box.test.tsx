@@ -4,7 +4,7 @@ import { formatsForGen, getSpecies, speciesFor, speciesInTier } from '@/lib/dex'
 import { BOX_SIZE, newSet, newTeam, type Library, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { mockApi, resetStore, seedLocalLibrary } from '../helpers/env';
-import { allByLabel, blur, button, byLabel, click, dblclick, flush, hasText, key, queryByLabel, queryButton, renderApp, select, type, waitFor } from '../helpers/render';
+import { allByLabel, allByName, blur, button, byLabel, byName, click, dblclick, flush, hasText, key, queryButton, queryByLabel, renderApp, select, type, waitFor } from '../helpers/render';
 import { buildStressLibrary, clone, type StressLibrary } from '../fixtures/library';
 import { tierTabs as tabsFor } from '@/components/browse/BottomPanel';
 
@@ -12,7 +12,7 @@ const s = () => useStore.getState();
 const CHAMPIONS_TIERED = ['gen9championsou', 'gen9championsuu'];
 const open = () => s().library.teams.find((t) => t.id === s().openTeamId)!;
 const panel = () => byLabel('Suggestions');
-const cards = () => allByLabel(/^Add .+ to the team$/, panel()).map((el) => el.getAttribute('aria-label')!.replace(/^Add (.+) to the team$/, '$1'));
+const cards = () => allByName(/^Add .+ to the team$/, panel()).map((el) => el.querySelector('.font-semibold')!.textContent!);
 const tierTabs = () => [...panel().querySelectorAll('[role="tablist"] [role="tab"]')].map((t) => t.textContent);
 const search = () => panel().querySelector<HTMLInputElement>('input[type="search"]')!;
 const genSelect = () => panel().querySelector<HTMLSelectElement>('select[aria-label="Generation"]')!;
@@ -35,7 +35,7 @@ async function start(extra: Team[] = []) {
 }
 
 async function openTeam(t: Team) {
-	if (open().id !== t.id) await click(byLabel(`Open ${t.name}`));
+	if (open().id !== t.id) await click(byName(`Open ${t.name}`));
 	await settle();
 }
 
@@ -174,11 +174,11 @@ describe('suggestions carousel', () => {
 	it('adds a clicked suggestion to the party, and refuses a seventh', async () => {
 		await openTeam(roomy);
 		const first = cards()[0];
-		await click(byLabel(`Add ${first} to the team`));
+		await click(byName(`Add ${first}`));
 		expect(open().members.at(-1)!.species).toBe(first);
 		await openTeam(lib.teams[0]);
 		const before = open().members.length;
-		await click(byLabel(`Add ${cards()[0]} to the team`));
+		await click(byName(`Add ${cards()[0]}`));
 		expect(open().members).toHaveLength(before);
 		expect(s().toasts.at(-1)?.message).toBe(`${lib.teams[0].name} is full: remove a member first`);
 	});

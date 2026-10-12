@@ -289,11 +289,11 @@ function MoveCell({ team, slot, move, active, flagged, onClick }: { team: Team; 
 			{...attributes}
 			data-move-slot={slot}
 			onClick={onClick}
-			aria-label={move ? `Move ${slot + 1}: ${move}. Change` : `Move ${slot + 1}: empty. Add a move`}
 			className={`drag-source flex h-14 flex-col justify-center gap-1 rounded-md px-3 text-left transition-colors ${isDragging ? 'opacity-40' : ''} ${
 				over ? 'border border-dashed border-accent bg-accent-soft' : move ? (active ? 'border-[1.5px] border-accent' : 'border border-line hover:border-line-strong') : `border border-dashed ${dropping ? 'border-accent' : 'border-line-strong'} hover:bg-hover`
 			}`}
 		>
+			<span className='sr-only'>{move ? `Move ${slot + 1}: ` : `Move ${slot + 1}: empty. `}</span>
 			{move ? (
 				<>
 					<span className='flex items-center gap-1.5 text-base font-medium'>
@@ -304,6 +304,7 @@ function MoveCell({ team, slot, move, active, flagged, onClick }: { team: Team; 
 						{data && <TypeSwatch type={data.type} />}
 						{data ? `${data.type} - ${data.category}${data.basePower ? ` - ${data.basePower}` : ''}` : 'Unknown move'}
 					</span>
+					<span className='sr-only'>. Change</span>
 				</>
 			) : (
 				<span className={`flex items-center gap-1.5 text-base font-medium ${over ? 'text-accent' : 'text-muted'}`}>

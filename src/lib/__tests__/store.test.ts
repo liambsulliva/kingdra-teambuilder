@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { readSpriteSet, readTeamView, useStore } from '../store';
+import { readFancyMotion, readSpriteSet, readTeamView, useStore } from '../store';
 import { emptyLibrary } from '../model';
 
 const team = () => useStore.getState().library.teams[0];
@@ -175,5 +175,18 @@ describe('team list view', () => {
 		expect(readTeamView()).toBe('cards');
 		useStore.getState().setTeamView('list');
 		expect(readTeamView()).toBe('list');
+	});
+});
+
+describe('fancy animations', () => {
+	beforeEach(() => localStorage.clear());
+
+	it('defaults to on, then remembers turning them off for this viewer', () => {
+		expect(readFancyMotion()).toBe(true);
+		useStore.getState().setFancyMotion(false);
+		expect(useStore.getState().fancyMotion).toBe(false);
+		expect(readFancyMotion()).toBe(false);
+		useStore.getState().setFancyMotion(true);
+		expect(readFancyMotion()).toBe(true);
 	});
 });

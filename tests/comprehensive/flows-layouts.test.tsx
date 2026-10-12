@@ -4,7 +4,7 @@ import { formatLabel } from '@/lib/dex';
 import { newSet, newTeam, type Library, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { seedLocalLibrary, setViewport } from '../helpers/env';
-import { allByLabel, button, byLabel, click, flush, hasText, key, queryByLabel, queryButton, renderApp, type, waitFor } from '../helpers/render';
+import { allByName, button, byLabel, byName, click, flush, hasText, key, queryButton, queryByLabel, queryByName, renderApp, type, waitFor } from '../helpers/render';
 import { buildStressLibrary, clone, type StressLibrary } from '../fixtures/library';
 
 const s = () => useStore.getState();
@@ -49,9 +49,9 @@ describe('phone layout', () => {
 	it('jumps to Teams from the team summary, and back to Party when a team is opened', async () => {
 		await click(button(new RegExp(`^${roomy.name}`)));
 		expect(current()).toBe('Teams');
-		expect(allByLabel(/^Open /)).toHaveLength(lib.teams.length - 1);
+		expect(allByName(/^Open /)).toHaveLength(lib.teams.length - 1);
 		const next = lib.teams[5];
-		await click(byLabel(`Open ${next.name}`));
+		await click(byName(`Open ${next.name}`));
 		await flush();
 		expect(open().id).toBe(next.id);
 		expect(current()).toBe('Party');
@@ -66,13 +66,13 @@ describe('phone layout', () => {
 
 	it('browses suggestions with search and tiers, and adds one with a tap', async () => {
 		await click(navTab('Browse'));
-		expect(allByLabel(/^Add .+ to the team$/).length).toBeGreaterThan(10);
-		expect(allByLabel(/^Add .+ to the team$/).length).toBeLessThanOrEqual(80);
+		expect(allByName(/^Add .+ to the team$/).length).toBeGreaterThan(10);
+		expect(allByName(/^Add .+ to the team$/).length).toBeLessThanOrEqual(80);
 		await click(button('UU'));
 		expect(s().carouselTab).toBe('UU');
 		type(document.querySelector<HTMLInputElement>('input[type="search"]')!, 'Snorlax');
 		await flush();
-		await click(byLabel('Add Snorlax to the team'));
+		await click(byName('Add Snorlax'));
 		expect(open().members.at(-1)!.species).toBe('Snorlax');
 	});
 
@@ -205,6 +205,6 @@ describe('switching layouts keeps the library', () => {
 	it('renders every team on the phone Teams tab', async () => {
 		await start({ mobile: true });
 		await click(navTab('Teams'));
-		for (const t of lib.teams.slice(1) as Team[]) expect(queryByLabel(`Open ${t.name}`), t.name).toBeTruthy();
+		for (const t of lib.teams.slice(1) as Team[]) expect(queryByName(`Open ${t.name}`), t.name).toBeTruthy();
 	});
 });

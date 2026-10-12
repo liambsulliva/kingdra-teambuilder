@@ -14,6 +14,11 @@
 	--track: 244 245 247;
 	--accent: 37 99 235;
 	--accent-soft: 234 241 254;
+	/* Button fill: the same blue in both themes, so white text on it clears 4.5:1. */
+	/* Button fill: the same blue in both themes, so white text on it clears 4.5:1. */
+	--accent-solid: 37 99 235;
+	--nature-up: 220 38 38;
+	--nature-down: 37 99 235;
 	--danger: 238 21 21;
 	--danger-soft: 253 236 236;
 	/* Loading placeholders: a faint gradient that pulses until the image lands. */
@@ -33,6 +38,9 @@
 		--track: 30 30 34;
 		--accent: 110 168 255;
 		--accent-soft: 20 32 54;
+		--accent-solid: 37 99 235;
+		--nature-up: 248 113 113;
+		--nature-down: 96 165 250;
 		--danger: 255 74 74;
 		--danger-soft: 42 20 20;
 		--skeleton-edge: 48 48 48;
@@ -51,6 +59,9 @@
 	--track: 30 30 34;
 	--accent: 110 168 255;
 	--accent-soft: 20 32 54;
+	--accent-solid: 37 99 235;
+	--nature-up: 248 113 113;
+	--nature-down: 96 165 250;
 	--danger: 255 74 74;
 	--danger-soft: 42 20 20;
 	--skeleton-edge: 48 48 48;
@@ -150,7 +161,7 @@ button:not(:disabled),
 /* Card view: a closed team card hangs from its top-left corner like a loose picture frame. On hover it
    snaps down to 4° on a stiff spring (stiffness 1500, damping 40): there in about 70 ms, one small
    overshoot to about 4.6°, settled by 300 ms. It swings back the same way. Desktop pointers only; a
-   phone never hinges. */
+   phone never hinges. With fancy animations off (`data-still`) it keeps the shadow but doesn't swing. */
 .hinge {
 	transform-origin: 0 0;
 	transition:
@@ -161,8 +172,10 @@ button:not(:disabled),
 }
 @media (hover: hover) and (pointer: fine) and (min-width: 651px) and (prefers-reduced-motion: no-preference) {
 	.hinge:hover {
-		transform: rotate(4deg);
 		box-shadow: 0 6px 12px -4px rgb(0 0 0 / 0.08);
+	}
+	.hinge:not([data-still]):hover {
+		transform: rotate(4deg);
 	}
 }
 

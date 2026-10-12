@@ -86,10 +86,11 @@ export const CandidateCard = memo(function CandidateCard({ species, types, roles
 			{...listeners}
 			{...attributes}
 			onClick={() => addAndLand(() => addMember(species))}
-			aria-label={`Add ${species} to the team`}
 			className={`${cardLook} drag-source transition-colors ${wide ? 'w-full' : 'w-[152px]'} ${isDragging ? 'border-dashed border-line-strong opacity-[0.33]' : 'border-line hover:border-line-strong'}`}
 		>
+			<span className='sr-only'>Add </span>
 			<CandidateBody species={species} types={types} roles={roles} casual={casual} />
+			<span className='sr-only'> to the team</span>
 		</button>
 	);
 });

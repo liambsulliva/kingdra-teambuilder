@@ -4,7 +4,7 @@ import { hopAndSwap, landOn, liftToCard, openTeamWithMotion, poof, pop } from '@
 import { newSet, newTeam, type Library } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { seedLocalLibrary, setViewport } from '../helpers/env';
-import { allByLabel, button, byLabel, click, flush, renderApp, wait } from '../helpers/render';
+import { allByName, button, byLabel, click, flush, renderApp, wait } from '../helpers/render';
 import { buildStressLibrary, clone, type StressLibrary } from '../fixtures/library';
 
 const s = () => useStore.getState();
@@ -173,6 +173,66 @@ describe('switching teams in card view', () => {
 	});
 });
 
+describe('with fancy animations off', () => {
+	const toggle = () => byLabel('Disable fancy animations');
+	const shards = () => animated.filter((el) => (el as HTMLElement).style.clipPath?.startsWith('polygon'));
+
+	beforeEach(async () => {
+		await click(toggle());
+		animated = [];
+		animations = 0;
+	});
+
+	it('is a pressed toggle in the header, saved for this viewer', async () => {
+		expect(toggle().getAttribute('aria-pressed')).toBe('true');
+		expect(s().fancyMotion).toBe(false);
+		expect(localStorage.getItem('kingdra.fancyMotion')).toBe('off');
+		await click(toggle());
+		expect(toggle().getAttribute('aria-pressed')).toBe('false');
+		expect(s().fancyMotion).toBe(true);
+	});
+
+	it('pops the new party into its slots instead of walking anyone', async () => {
+		const target = lib.teams[3];
+		let switching!: Promise<void>;
+		act(() => {
+			switching = openTeamWithMotion(target.id);
+		});
+		// Nothing is in the air: no clone ever leaves the card.
+		expect(clones()).toHaveLength(0);
+		await act(async () => switching);
+		await flush();
+		expect(open().id).toBe(target.id);
+		const party = [...document.querySelectorAll('[data-party-member]')];
+		expect(party.length).toBeGreaterThan(0);
+		expect(party.every((el) => animated.includes(el))).toBe(true);
+		expect(hiddenMembers()).toHaveLength(0);
+	});
+
+	it('drops no card in card view', async () => {
+		await click(byLabel('Card view'));
+		animated = [];
+		const target = lib.teams[3];
+		await act(async () => openTeamWithMotion(target.id));
+		await flush();
+		expect(open().id).toBe(target.id);
+		expect(shards()).toHaveLength(0);
+		expect(clones()).toHaveLength(0);
+		expect([...document.querySelectorAll('[data-party-member]')].every((el) => animated.includes(el))).toBe(true);
+	});
+
+	it('selects a party member without the jump onto the card', async () => {
+		await click(document.querySelector('[data-party-member][data-index="1"]')!);
+		expect(clones()).toHaveLength(0);
+		await flush();
+		expect(s().selectedUid).toBe(open().members[1].uid);
+		expect(document.querySelector<HTMLElement>('[data-card-sprite]')!.style.opacity).toBe('');
+		const before = animations;
+		await liftToCard('Pikachu', new DOMRect(0, 0, 32, 32), new DOMRect(0, 0, 96, 96));
+		expect(animations).toBe(before);
+	});
+});
+
 describe('the smaller moments', () => {
 	it('lifts a party member onto the card and shows the card sprite afterwards', async () => {
 		// The first member opens on the card; lift the second.
@@ -207,7 +267,7 @@ describe('the smaller moments', () => {
 	it('pops a suggestion into its new party slot when its card is clicked', async () => {
 		const before = open().members.length;
 		animated = [];
-		await click(allByLabel(/^Add .+ to the team$/)[0]);
+		await click(allByName(/^Add .+ to the team$/)[0]);
 		await wait(20);
 		await flush();
 		expect(open().members).toHaveLength(before + 1);

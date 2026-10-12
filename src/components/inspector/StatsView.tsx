@@ -232,7 +232,7 @@ export function StatsView({
 				{fields.nature && (
 					<button
 						type='button'
-						className='hover:text-fg'
+						className='h-[24px] hover:text-fg'
 						onClick={() => setInspector('nature')}
 					>
 						{nature ? (
@@ -259,7 +259,7 @@ export function StatsView({
 				<div className='flex flex-wrap gap-x-4 gap-y-1 text-xs'>
 					<button
 						type='button'
-						className='text-muted hover:text-fg'
+						className='h-[24px] text-muted hover:text-fg'
 						onClick={() =>
 							updateSet(member.uid, {
 								evs: { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 },
@@ -272,7 +272,7 @@ export function StatsView({
 						<>
 							<button
 								type='button'
-								className='text-muted hover:text-fg'
+								className='h-[24px] text-muted hover:text-fg'
 								onClick={() => setIv('atk', member.ivs.atk === 0 ? 31 : 0)}
 							>
 								{member.ivs.atk === 0
@@ -281,7 +281,7 @@ export function StatsView({
 							</button>
 							<button
 								type='button'
-								className='text-muted hover:text-fg'
+								className='h-[24px] text-muted hover:text-fg'
 								onClick={() => setIv('spe', member.ivs.spe === 0 ? 31 : 0)}
 							>
 								{member.ivs.spe === 0

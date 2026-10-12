@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Show, SignInButton, UserButton } from '@clerk/nextjs';
+import { ClerkFailed, Show, SignInButton, UserButton } from '@clerk/nextjs';
 import { IconButton } from '@/components/ui/IconButton';
 import { Icon } from '@/components/ui/Icon';
 import { useStore, type SaveStatus } from '@/lib/store';
@@ -175,9 +175,21 @@ export function SpriteToggle() {
 	);
 }
 
+/** Turns off the walk, the card fall and the lift onto the card; a switch then pops the new party in. Saved per viewer. */
+export function MotionToggle({ tooltip }: { tooltip?: 'below' | 'none' }) {
+	const fancy = useStore((s) => s.fancyMotion);
+	const setFancy = useStore((s) => s.setFancyMotion);
+	return <IconButton icon='shiny' label='Disable fancy animations' selected={!fancy} onClick={() => setFancy(!fancy)} tooltip={tooltip} />;
+}
+
 export function Account() {
 	return (
 		<>
+			{/* Clerk renders nothing until it loads. If it can't (a live key on a host its instance refuses), say so
+			    instead of leaving the corner empty. */}
+			<ClerkFailed>
+				<IconButton icon='account' label="Sign-in isn't available on this deployment" tooltipAlign='end' disabled />
+			</ClerkFailed>
 			<Show when='signed-out'>
 				<SignInButton mode='modal'>
 					<IconButton icon='account' label='Sign in to sync your teams' tooltipAlign='end' />
@@ -203,6 +215,7 @@ export function Header() {
 			<span className='flex-1' />
 			<SaveStatus />
 			<SpriteToggle />
+			<MotionToggle />
 			<IconButton icon={theme === 'dark' ? 'sun' : 'moon'} label={theme === 'dark' ? 'Light mode' : 'Dark mode'} onClick={toggle} />
 			<Account />
 		</header>

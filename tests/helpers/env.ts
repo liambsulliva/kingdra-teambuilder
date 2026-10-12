@@ -4,8 +4,8 @@ import { useStore, type Store } from '@/lib/store';
 import { clearRequestCaches } from '@/lib/hooks';
 import { clearSmogonCache } from '@/lib/smogon';
 
-/** What Clerk's useAuth reports. Flip `isSignedIn` and remount to sign in or out. */
-export const auth = { isLoaded: true, isSignedIn: false };
+/** What Clerk's useAuth reports. Flip `isSignedIn` and remount to sign in or out; `failed` is a Clerk that could not load. */
+export const auth = { isLoaded: true, isSignedIn: false, failed: false };
 (globalThis as unknown as { __auth: typeof auth }).__auth = auth;
 
 /** Which media queries match. Defaults to a desktop that prefers reduced motion, so choreography resolves at once. */
@@ -110,6 +110,7 @@ export function resetEnv() {
 	clearSmogonCache();
 	auth.isLoaded = true;
 	auth.isSignedIn = false;
+	auth.failed = false;
 	Object.assign(viewport, { mobile: false, merged: false, reducedMotion: true });
 	listeners.clear();
 	routes = [];

@@ -7,7 +7,7 @@ import { IconButton } from '@/components/ui/IconButton';
 import { SearchField, Tab } from '@/components/ui/controls';
 import { TypeBadge } from '@/components/ui/TypeBadge';
 import { PokemonIcon } from '@/components/pokemon/PokemonIcon';
-import { Account, Logo, SpriteToggle, useTheme } from '@/components/shell/Header';
+import { Account, Logo, MotionToggle, SpriteToggle, useTheme } from '@/components/shell/Header';
 import { TeamLibrary } from '@/components/library/TeamLibrary';
 import { Workspace } from '@/components/workspace/Workspace';
 import { Inspector } from '@/components/inspector/Inspector';
@@ -19,10 +19,10 @@ import { useOpenTeam, useSelectedMember, useStore } from '@/lib/store';
 
 type TabId = 'teams' | 'party' | 'browse';
 
-/** Bottom sheet that springs up and can be dragged down to dismiss. */
-export function Sheet({ open, onClose, children, label, fixed = false }: { open: boolean; onClose: () => void; children: React.ReactNode; label: string; fixed?: boolean }) {
+/** Bottom sheet that springs up and can be dragged down to dismiss. `onExited` runs once it has slid away. */
+export function Sheet({ open, onClose, onExited, children, label, fixed = false }: { open: boolean; onClose: () => void; onExited?: () => void; children: React.ReactNode; label: string; fixed?: boolean }) {
 	return (
-		<AnimatePresence>
+		<AnimatePresence onExitComplete={onExited}>
 			{open && (
 				<>
 					<motion.div key='scrim' className='fixed inset-0 z-40 bg-fg/20' initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
@@ -43,7 +43,7 @@ export function Sheet({ open, onClose, children, label, fixed = false }: { open:
 						<div className='flex justify-center py-2'>
 							<span className='h-1 w-9 rounded-full bg-line' />
 						</div>
-						<div className='min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-[env(safe-area-inset-bottom)]'>{children}</div>
+						<div className='min-h-0 flex-1 overflow-y-auto overflow-x-hidden'>{children}</div>
 					</motion.div>
 				</>
 			)}
@@ -189,11 +189,10 @@ export function MobileApp() {
 	const setInspector = useStore((s) => s.setInspector);
 	const firstTeam = useRef(openTeamId);
 	const firstView = useRef(`${inspector}:${slot}`);
-	// Closing resets the editor to the team view, so tapping the same row opens it again. Nothing is shown behind it on a phone.
-	const closeEditor = useCallback(() => {
-		setSheet(false);
-		setInspector('team');
-	}, [setInspector]);
+	const closeEditor = useCallback(() => setSheet(false), []);
+	// Once the sheet has slid away, the editor goes back to the team view, so tapping the same row opens it again.
+	// Doing it earlier would swap the editor's content to Team analysis while the sheet is still on screen.
+	const resetEditor = useCallback(() => setInspector('team'), [setInspector]);
 	// A choice in the editor (a move, ability, item, Tera type…) drags the sheet back down to the card.
 	const lastChosen = useRef(chosen);
 	useEffect(() => {
@@ -222,12 +221,12 @@ export function MobileApp() {
 	const tabs: [TabId, IconName, string][] = [['teams', 'teams', 'Teams'], ['party', 'party', 'Party'], ['browse', 'browse', 'Browse']];
 	return (
 		<div className='flex h-dvh flex-col overflow-hidden'>
-			{/* The status bar sits over the top safe area: the header starts below it, so nothing blurs under it. */}
-			<header className='flex h-[calc(52px+env(safe-area-inset-top))] shrink-0 items-center gap-2 border-b border-line pl-4 pr-2 pt-[env(safe-area-inset-top)]'>
+			<header className='flex h-[52px] shrink-0 items-center gap-2 border-b border-line pl-4 pr-2'>
 				<Logo size={32} />
 				<span className='font-head text-[20px] font-bold leading-6'>Kingdra</span>
 				<span className='flex-1' />
 				<SpriteToggle />
+				<MotionToggle tooltip='none' />
 				<IconButton icon={theme === 'dark' ? 'sun' : 'moon'} label={theme === 'dark' ? 'Light mode' : 'Dark mode'} onClick={toggle} tooltip='none' />
 				<Account />
 			</header>
@@ -245,8 +244,7 @@ export function MobileApp() {
 				{tab === 'party' && <Workspace empty={<StarterSuggestions onSeeAll={() => setTab('browse')} />} />}
 				{tab === 'browse' && <Browse onPreview={() => setTab('party')} onParty={() => setTab('party')} />}
 			</div>
-			{/* The home-indicator inset is added to the bar, so the tabs keep their 72 px below the dividing line. */}
-			<nav className='flex h-[calc(72px+env(safe-area-inset-bottom))] shrink-0 border-t border-line pb-[env(safe-area-inset-bottom)]'>
+			<nav className='flex h-[72px] shrink-0 border-t border-line'>
 				{tabs.map(([id, icon, label]) => (
 					<button key={id} type='button' onClick={() => setTab(id)} aria-current={tab === id} className='flex flex-1 flex-col items-center justify-center gap-1'>
 						<Icon name={icon} className={tab === id ? 'text-accent' : 'text-muted'} />
@@ -254,7 +252,7 @@ export function MobileApp() {
 					</button>
 				))}
 			</nav>
-			<Sheet fixed open={sheet && !!member} onClose={closeEditor} label='Editor'>
+			<Sheet fixed open={sheet && !!member} onClose={closeEditor} onExited={resetEditor} label='Editor'>
 				<Inspector />
 			</Sheet>
 			<MemberActions />

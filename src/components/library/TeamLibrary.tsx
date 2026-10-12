@@ -99,7 +99,6 @@ function openProps(team: Team, open: boolean) {
 		},
 		role: open ? undefined : 'button',
 		tabIndex: open ? undefined : 0,
-		'aria-label': open ? undefined : `Open ${team.name}`,
 		'data-team-card': team.id,
 	};
 }
@@ -178,6 +177,7 @@ function TeamMeta({ team }: { team: Team }) {
 const TeamCard = memo(function TeamCard({ team, open }: { team: Team; open: boolean }) {
 	return (
 		<div className={`group my-1 flex flex-col gap-2 rounded-md p-3 transition-colors ${open ? 'bg-hover' : 'cursor-pointer hover:bg-hover'}`} {...openProps(team, open)}>
+			{!open && <span className='sr-only'>Open </span>}
 			<TeamSlots team={team} open={open} className='flex gap-2' />
 			<TeamName team={team} open={open} />
 			{open ? <TeamControls team={team} withMode /> : <TeamMeta team={team} />}
@@ -187,16 +187,19 @@ const TeamCard = memo(function TeamCard({ team, open }: { team: Team; open: bool
 
 /**
  * Card view: a framed card with the six icons in a 2×3 grid. On a desktop hover it
- * swings from its top-left corner (`.hinge`); opening it drops and shatters it.
+ * swings from its top-left corner (`.hinge`), unless fancy animations are off; opening it drops and shatters it.
  * The mode toggle moves up to the name row, since the card is too narrow for the full control line.
  */
 const TeamTile = memo(function TeamTile({ team, open }: { team: Team; open: boolean }) {
+	const still = useStore((s) => !s.fancyMotion);
 	return (
 		<div
 			className={`group relative flex min-w-0 flex-1 flex-col gap-2 rounded-md border border-line p-3 ${open ? 'bg-hover' : 'hinge cursor-pointer bg-bg hover:z-10 hover:bg-hover'}`}
 			data-team-tile={team.id}
+			data-still={still || undefined}
 			{...openProps(team, open)}
 		>
+			{!open && <span className='sr-only'>Open </span>}
 			<TeamSlots team={team} open={open} className='grid w-fit grid-cols-3 gap-1' />
 			<TeamName team={team} open={open}>
 				{open && <ModeButton team={team} />}
@@ -283,8 +286,6 @@ function TeamControls({ team, withMode, compact }: { team: Team; withMode?: bool
 	const toast = useStore((s) => s.toast);
 	const [confirming, setConfirming] = useState(false);
 	const value = team.mode === 'casual' ? `casual:${team.gen}` : team.format;
-	// The narrow card trims its buttons to 18 px so a format such as "Gen 9 OU" fits beside them.
-	const narrow = compact ? 'md:!w-[18px]' : '';
 	const label = team.mode === 'casual' ? `Gen ${team.gen}` : `Gen ${team.gen} ${formatsForGen(team.gen).find((f) => f.id === team.format)?.name ?? team.format}`;
 	const copy = async () => {
 		if (!team.members.length) return toast('error', 'This team has no Pokémon to export');
@@ -319,20 +320,20 @@ function TeamControls({ team, withMode, compact }: { team: Team; withMode?: bool
 					{team.mode === 'casual' ? casualOptions() : formatOptions()}
 				</select>
 			</label>
-			<IconButton size='sm' className={narrow} icon='duplicate' label='Duplicate team' onClick={() => duplicateTeam(team.id)} />
-			<IconButton size='sm' className={narrow} icon='export' label='Copy as Showdown text' onClick={copy} />
+			<IconButton size='sm' icon='duplicate' label='Duplicate team' onClick={() => duplicateTeam(team.id)} />
+			<IconButton size='sm' icon='export' label='Copy as Showdown text' onClick={copy} />
 			{confirming ? (
 				<button
 					type='button'
 					autoFocus
 					onBlur={() => setConfirming(false)}
 					onClick={() => deleteTeam(team.id)}
-					className='squishy h-[20px] shrink-0 rounded-md bg-danger px-1.5 text-2xs font-medium text-white max-md:h-7 max-md:px-2 max-md:text-xs'
+					className='squishy h-[24px] shrink-0 rounded-md bg-danger px-1.5 text-2xs font-medium text-white max-md:h-7 max-md:px-2 max-md:text-xs'
 				>
 					Delete?
 				</button>
 			) : (
-				<IconButton size='sm' className={narrow} icon='trash' label='Delete team' tooltipAlign='end' onClick={() => setConfirming(true)} />
+				<IconButton size='sm' icon='trash' label='Delete team' tooltipAlign='end' onClick={() => setConfirming(true)} />
 			)}
 		</div>
 	);

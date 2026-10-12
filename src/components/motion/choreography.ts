@@ -34,6 +34,8 @@ const live = new Set<Animation>();
 const hidden = new Set<HTMLElement>();
 
 const reduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/** The viewer turned fancy animations off: no walk, no card fall, no lift onto the card. Pops stay. */
+const plain = () => !useStore.getState().fancyMotion;
 
 /**
  * Fully inside the window and inside every scrolling ancestor's visible box.
@@ -332,6 +334,7 @@ function popCard(el: HTMLElement) {
  * puts that member on the card in the same commit, so it never walks.
  * When the team's card is not fully on screen there is nothing to walk over:
  * the new party pops in all at once, as if each member had been added by hand.
+ * With fancy animations off it always switches that way.
  *
  * In card view the old party jumps home into its card's empty slots instead of
  * walking while the new card falls, shatters on the Suggestions panel, and
@@ -351,7 +354,7 @@ export async function openTeamWithMotion(id: string, select?: string) {
 	}
 	// In card view the tile swings on its hinge, so measure the grid cell it sits in.
 	const tile = document.querySelector<HTMLElement>(`[data-team-tile="${id}"]`);
-	if (!onScreen(tile?.parentElement ?? document.querySelector(`[data-team-card="${id}"]`))) {
+	if (plain() || !onScreen(tile?.parentElement ?? document.querySelector(`[data-team-card="${id}"]`))) {
 		flushSync(() => {
 			useStore.getState().openTeam(id);
 			if (select) useStore.getState().selectMember(select);
@@ -472,7 +475,7 @@ export async function openTeamWithMotion(id: string, select?: string) {
 
 /** A party member jumps up onto the card along an arc, growing to card size. */
 export async function liftToCard(species: string, from: DOMRect, to: DOMRect) {
-	if (reduced()) return;
+	if (reduced() || plain()) return;
 	const { outer, inner } = cloneIcon(species, from);
 	const path = arc([from.left, from.top], [to.left + to.width / 2 - 16, to.top + to.height - 32], 40, 12);
 	const scale = Math.min(to.width, to.height) / 32;

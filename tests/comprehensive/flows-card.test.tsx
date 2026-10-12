@@ -5,7 +5,7 @@ import { fieldsFor, getSpecies } from '@/lib/dex';
 import { newSet, newTeam, type Library, type PokemonSet, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { clipboard, mockApi, seedLocalLibrary } from '../helpers/env';
-import { allButtons, button, byLabel, click, flush, hasText, key, openDialog, queryButton, queryByLabel, renderApp, type, wait, waitFor } from '../helpers/render';
+import { allButtons, button, byLabel, byName, click, flush, hasText, key, openDialog, queryButton, queryByLabel, queryByName, renderApp, type, wait, waitFor } from '../helpers/render';
 import { buildStressLibrary, clone, type StressLibrary } from '../fixtures/library';
 
 const s = () => useStore.getState();
@@ -29,7 +29,7 @@ async function start(extra: Team[] = []) {
 }
 
 async function openTeam(t: Team) {
-	if (open().id !== t.id) await click(byLabel(`Open ${t.name}`));
+	if (open().id !== t.id) await click(byName(`Open ${t.name}`));
 }
 
 /** Click the member's party cell by position: two members can share a nickname. */
@@ -60,7 +60,7 @@ describe('the card for every member of every team', () => {
 				expect(keyRows(), `${t.name}`).toEqual(expected);
 				for (let i = 0; i < 4; i++) {
 					const move = m.moves[i];
-					expect(queryByLabel(move ? `Move ${i + 1}: ${move}. Change` : `Move ${i + 1}: empty. Add a move`), `${m.species} slot ${i}`).toBeTruthy();
+					expect(queryByName(move ? `Move ${i + 1}: ${move}` : `Move ${i + 1}: empty. Add move`), `${m.species} slot ${i}`).toBeTruthy();
 				}
 				await key(window, 'Escape');
 			}

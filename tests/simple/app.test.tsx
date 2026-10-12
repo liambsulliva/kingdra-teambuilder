@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { useStore } from '@/lib/store';
 import { emptyLibrary, newSet, newTeam } from '@/lib/model';
 import { clipboard, seedLocalLibrary, setViewport } from '../helpers/env';
-import { allByLabel, button, byLabel, click, flush, hasText, key, openDialog, queryByLabel, renderApp, type, waitFor } from '../helpers/render';
+import { allByName, button, byLabel, byName, click, flush, hasText, key, openDialog, queryByLabel, renderApp, type, waitFor } from '../helpers/render';
 
 const s = () => useStore.getState();
 const open = () => s().library.teams.find((t) => t.id === s().openTeamId)!;
@@ -15,7 +15,7 @@ describe('desktop app, everyday flows', () => {
 		expect(byLabel('Inspector')).toBeTruthy();
 		expect(byLabel('Suggestions')).toBeTruthy();
 		expect(hasText('Saved in this browser')).toBe(true);
-		expect(allByLabel(/^Add .+ to the team$/).length).toBeGreaterThan(10);
+		expect(allByName(/^Add .+ to the team$/).length).toBeGreaterThan(10);
 	});
 
 	it('restores a guest library saved in this browser', async () => {
@@ -39,20 +39,20 @@ describe('desktop app, everyday flows', () => {
 
 	it('adds a suggestion, puts it on the card and fills a move', async () => {
 		await renderApp();
-		await click(byLabel('Add Garchomp to the team'));
+		await click(byName('Add Garchomp'));
 		expect(open().members.map((m) => m.species)).toEqual(['Garchomp']);
 		// The first member goes straight onto the card.
 		expect(byLabel('Garchomp set')).toBeTruthy();
-		await click(byLabel('Move 1: empty. Add a move'));
+		await click(byName('Move 1: empty. Add move'));
 		const eq = await waitFor(() => button(/^GroundEarthquake/));
 		await click(eq);
 		expect(open().members[0].moves[0]).toBe('Earthquake');
-		expect(byLabel('Move 1: Earthquake. Change')).toBeTruthy();
+		expect(byName('Move 1: Earthquake')).toBeTruthy();
 	});
 
 	it('deletes a member after confirming', async () => {
 		await renderApp();
-		await click(byLabel('Add Garchomp to the team'));
+		await click(byName('Add Garchomp'));
 		await click(byLabel('Delete Garchomp'));
 		expect(hasText('Delete Garchomp?', openDialog()!)).toBe(true);
 		await click(button('Delete', openDialog()!));
@@ -70,7 +70,7 @@ describe('desktop app, everyday flows', () => {
 
 	it('copies the open team as Showdown text', async () => {
 		await renderApp();
-		await click(byLabel('Add Garchomp to the team'));
+		await click(byName('Add Garchomp'));
 		await click(byLabel('Copy as Showdown text'));
 		await flush();
 		expect(clipboard.text).toContain('Garchomp');
@@ -88,7 +88,7 @@ describe('desktop app, everyday flows', () => {
 
 	it('keeps a member on the card: Escape does not clear it', async () => {
 		await renderApp();
-		await click(byLabel('Add Garchomp to the team'));
+		await click(byName('Add Garchomp'));
 		await key(window, 'Escape');
 		expect(s().selectedUid).toBe(open().members[0].uid);
 		expect(byLabel('Garchomp set')).toBeTruthy();

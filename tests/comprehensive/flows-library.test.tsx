@@ -3,24 +3,8 @@ import { act } from 'react';
 import { exportTeam } from '@/lib/showdown';
 import { newSet, type Library } from '@/lib/model';
 import { useStore } from '@/lib/store';
-import { clipboard, mockApi, seedLocalLibrary } from '../helpers/env';
-import {
-	allByLabel,
-	blur,
-	button,
-	byLabel,
-	click,
-	flush,
-	hasText,
-	key,
-	openDialog,
-	queryButton,
-	queryByLabel,
-	renderApp,
-	select,
-	type,
-	wait,
-} from '../helpers/render';
+import { auth, clipboard, mockApi, seedLocalLibrary } from '../helpers/env';
+import { allByLabel, blur, button, byLabel, byName, click, flush, hasText, key, openDialog, queryButton, queryByLabel, renderApp, select, type, wait } from '../helpers/render';
 import { buildStressLibrary, clone, type StressLibrary } from '../fixtures/library';
 
 const s = () => useStore.getState();
@@ -52,7 +36,7 @@ describe('team list', () => {
 
 	it('opens every team by clicking its card, showing its party', async () => {
 		for (const t of lib.teams.slice(1)) {
-			await click(byLabel(`Open ${t.name}`));
+			await click(byName(`Open ${t.name}`));
 			expect(open().id).toBe(t.id);
 			// It opens with its first member on the card and the rest in the party.
 			const [first, ...rest] = t.members;
@@ -63,10 +47,10 @@ describe('team list', () => {
 
 	it('opens a team from the keyboard', async () => {
 		const t = lib.teams[4];
-		await key(byLabel(`Open ${t.name}`), 'Enter');
+		await key(byName(`Open ${t.name}`), 'Enter');
 		expect(open().id).toBe(t.id);
 		const u = lib.teams[7];
-		await key(byLabel(`Open ${u.name}`), ' ');
+		await key(byName(`Open ${u.name}`), ' ');
 		expect(open().id).toBe(u.id);
 	});
 
@@ -79,7 +63,7 @@ describe('team list', () => {
 
 	it('leaves the open team card without skeleton slots, so an empty-looking slot is empty', async () => {
 		const t = lib.teams[4];
-		await click(byLabel(`Open ${t.name}`));
+		await click(byName(`Open ${t.name}`));
 		expect(open().id).toBe(t.id);
 		const slots = [...document.querySelectorAll<HTMLElement>(`[data-team-icon^="${t.id}:"]`)];
 		expect(slots).toHaveLength(6);
@@ -131,7 +115,7 @@ describe('the open team', () => {
 		await click(byLabel('Casual. Switch to competitive'));
 		expect(open()).toMatchObject({ mode: 'competitive', format: lib.teams[0].format });
 		// A casual team from the library goes back to its generation's OU.
-		await click(byLabel(`Open ${lib.teams[25].name}`));
+		await click(byName(`Open ${lib.teams[25].name}`));
 		await click(byLabel('Casual. Switch to competitive'));
 		expect(open()).toMatchObject({ mode: 'competitive', format: `gen${lib.teams[25].gen}ou` });
 	});
@@ -143,7 +127,7 @@ describe('the open team', () => {
 		expect(open()).toMatchObject({ gen: 7, format: 'gen7uu', mode: 'competitive' });
 		select(sel(), 'gen9championsou');
 		expect(open()).toMatchObject({ gen: 9, format: 'gen9championsou' });
-		await click(byLabel(`Open ${lib.teams[26].name}`));
+		await click(byName(`Open ${lib.teams[26].name}`));
 		expect([...sel().options].map((o) => o.value)).toEqual(['casual:9', 'casual:8', 'casual:7', 'casual:6', 'casual:5', 'casual:4', 'casual:3', 'casual:2', 'casual:1']);
 		select(sel(), 'casual:2');
 		expect(open()).toMatchObject({ mode: 'casual', gen: 2 });
@@ -238,9 +222,19 @@ describe('card view', () => {
 		expect(card(open().id).classList.contains('hinge')).toBe(false);
 	});
 
+	it('stops the cards swinging when fancy animations are off, and swings them again when back on', async () => {
+		await click(toggle());
+		const closed = lib.teams[1];
+		expect(card(closed.id).hasAttribute('data-still')).toBe(false);
+		await click(byLabel('Disable fancy animations'));
+		expect(card(closed.id).hasAttribute('data-still')).toBe(true);
+		await click(byLabel('Disable fancy animations'));
+		expect(card(closed.id).hasAttribute('data-still')).toBe(false);
+	});
+
 	it('opens a team from its card or from one of its icons', async () => {
 		await click(toggle());
-		await click(byLabel(`Open ${lib.teams[2].name}`));
+		await click(byName(`Open ${lib.teams[2].name}`));
 		expect(open().id).toBe(lib.teams[2].id);
 		const t = lib.teams[3];
 		await click(document.querySelector(`[data-team-icon="${t.id}:1"]`)!);
@@ -349,7 +343,7 @@ describe('import team dialog', () => {
 	});
 
 	it('gives a casual team’s import its generation’s OU', async () => {
-		await click(byLabel(`Open ${lib.teams[27].name}`));
+		await click(byName(`Open ${lib.teams[27].name}`));
 		await click(byLabel('Import a Showdown team'));
 		paste('Pikachu\n- Thunderbolt');
 		await click(button('Import', dialog()));
@@ -376,6 +370,16 @@ describe('header', () => {
 
 	it('offers sign in to guests', () => {
 		expect(byLabel('Sign in to sync your teams')).toBeTruthy();
+	});
+
+	it('says sign-in is unavailable when Clerk cannot load, instead of leaving the corner empty', async () => {
+		auth.failed = true;
+		await renderApp();
+		// The suite already rendered one app; check the header of the one rendered with Clerk failing.
+		const header = [...document.querySelectorAll('header')].at(-1)!;
+		const unavailable = byLabel<HTMLButtonElement>("Sign-in isn't available on this deployment", header);
+		expect(unavailable.disabled).toBe(true);
+		expect(queryByLabel('Sign in to sync your teams', header)).toBeNull();
 	});
 
 	it('dismisses a toast on click', async () => {

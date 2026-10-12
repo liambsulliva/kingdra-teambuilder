@@ -24,13 +24,14 @@ const config: Config = {
 				track: token('track'),
 				accent: token('accent'),
 				'accent-soft': token('accent-soft'),
+				'accent-solid': token('accent-solid'),
 				danger: token('danger'),
 				'danger-soft': token('danger-soft'),
 				'skeleton-edge': token('skeleton-edge'),
 				'skeleton-mid': token('skeleton-mid'),
-				// In-game nature colors: raised stat red, lowered stat blue.
-				'nature-up': '#DC2626',
-				'nature-down': '#2563EB',
+				// In-game nature colors: raised stat red, lowered stat blue. Dark mode gets lighter values (globals.css) to clear 4.5:1.
+				'nature-up': token('nature-up'),
+				'nature-down': token('nature-down'),
 				stat: {
 					hp: '#80C743',
 					atk: '#DFC847',

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { animate } from 'motion/react';
+import { useStore } from '@/lib/store';
 
 /** A number that counts to its new value over 300 ms. */
 export function TickNumber({ value, className = '' }: { value: number; className?: string }) {
@@ -22,10 +23,14 @@ export function TickNumber({ value, className = '' }: { value: number; className
 }
 
 const STRETCH = 5;
+const SPRING = '420ms cubic-bezier(0.34, 2.1, 0.5, 1)';
+/** With fancy animations off: the same glide, without the overshoot. */
+const GLIDE = '200ms cubic-bezier(0.22, 1, 0.36, 1)';
 
 /**
  * Elastic slider: dragging past either end stretches the fill up to 5 px,
- * then it springs back on release, like a rubber band.
+ * then it springs back on release, like a rubber band. With fancy animations
+ * off it neither stretches nor overshoots.
  */
 export function ElasticSlider({
 	value,
@@ -45,6 +50,8 @@ export function ElasticSlider({
 	const track = useRef<HTMLDivElement>(null);
 	const [over, setOver] = useState(0);
 	const [dragging, setDragging] = useState(false);
+	const elastic = useStore((s) => s.fancyMotion);
+	const ease = elastic ? SPRING : GLIDE;
 	const pct = ((value - min) / (max - min)) * 100;
 
 	const fromPointer = (clientX: number) => {
@@ -52,7 +59,7 @@ export function ElasticSlider({
 		const raw = (clientX - r.left) / r.width;
 		const excess = raw < 0 ? raw * r.width : raw > 1 ? (raw - 1) * r.width : 0;
 		// Resistance grows with distance; never stretch more than 5 px.
-		setOver(Math.sign(excess) * STRETCH * (1 - Math.exp(-Math.abs(excess) / 24)));
+		setOver(elastic ? Math.sign(excess) * STRETCH * (1 - Math.exp(-Math.abs(excess) / 24)) : 0);
 		const v = Math.round((min + Math.min(1, Math.max(0, raw)) * (max - min)) / step) * step;
 		if (v !== value) onChange(v);
 	};
@@ -96,14 +103,14 @@ export function ElasticSlider({
 				style={{
 					left: over < 0 ? over : 0,
 					width: `calc(${pct}% + ${over > 0 ? over : 0}px)`,
-					transition: dragging ? 'none' : 'all 420ms cubic-bezier(0.34, 2.1, 0.5, 1)',
+					transition: dragging ? 'none' : `all ${ease}`,
 				}}
 			/>
 			<div
 				className='absolute top-[1px] size-3.5 rounded-full border-[1.5px] border-fg bg-bg'
 				style={{
 					left: `calc(${pct}% - 7px + ${over}px)`,
-					transition: dragging ? 'none' : 'left 420ms cubic-bezier(0.34, 2.1, 0.5, 1)',
+					transition: dragging ? 'none' : `left ${ease}`,
 				}}
 			/>
 		</div>
