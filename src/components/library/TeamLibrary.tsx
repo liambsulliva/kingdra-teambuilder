@@ -11,9 +11,8 @@ import { accepts, type DragData } from '@/lib/drag';
 import { exportTeam } from '@/lib/showdown';
 import { MAX_TEAM_SIZE, type PokemonSet, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
-import { openTeamWithMotion } from '@/components/motion/choreography';
+import { openTeamWithMotion, selectWithLift } from '@/components/motion/choreography';
 import { whenIdle } from '@/lib/idle';
-import { useIsMobile } from '@/lib/hooks';
 
 /** Cards mounted on the first render; the rest follow in chunks while the browser is idle. */
 const FIRST_CARDS = 60;
@@ -47,7 +46,7 @@ export function TeamLibrary() {
 	const count = useProgressiveCount(shown.length);
 	const empty = !shown.length && <li className={`px-3 py-6 text-base text-muted ${cards ? 'col-span-2' : ''}`}>No teams match “{query}”.</li>;
 	return (
-		<aside aria-label='Teams' className='flex min-h-0 flex-col'>
+		<aside aria-label='Teams' className='flex min-h-0 select-none flex-col'>
 			<div className='flex h-12 shrink-0 items-center pl-6 pr-3'>
 				<h2 className='text-md font-semibold'>Teams</h2>
 				<span className='ml-2 text-xs tabular-nums text-muted'>{teams.length}</span>
@@ -103,21 +102,15 @@ function openProps(team: Team, open: boolean) {
 	};
 }
 
-/** The six slots, in a row or a 2×3 grid. The desktop open team leaves them empty while its members walk into the party; with fancy animations off they stay. */
+/** The six slots, in a row or a 2×3 grid. The open team's members show here too; an icon is hidden only while it is in the air. */
 function TeamSlots({ team, open, className }: { team: Team; open: boolean; className: string }) {
 	const slots = Array.from({ length: MAX_TEAM_SIZE }, (_, i) => team.members[i]);
-	// A phone shows every icon on the open team too, so the team list always shows the whole team.
-	const mobile = useIsMobile();
-	// With fancy animations on, the open team's icons have walked onto the card, so its slots stay empty.
-	const fancy = useStore((s) => s.fancyMotion);
-	const collapsed = open && !mobile && fancy;
 	return (
 		// 32 px slots, not size-8: the root font is 14 px, so size-8 would be 28 px and the 32 px icons would overlap.
 		<div className={className}>
 			{slots.map((m, i) => (
-				<TeamSlot key={i} team={team} index={i} empty={!collapsed && !m} onPick={m && !open ? () => openTeamWithMotion(team.id, m.uid) : undefined}>
+				<TeamSlot key={i} team={team} index={i} empty={!m} onPick={m && (open ? (from, source) => selectWithLift(m, from, source) : () => openTeamWithMotion(team.id, m.uid))}>
 					{m &&
-						!collapsed &&
 						(open ? (
 							<PokemonIcon species={m.species} className='bounce-glyph' />
 						) : (
@@ -150,7 +143,7 @@ function TeamName({ team, open, children }: { team: Team; open: boolean; childre
 							(e.target as HTMLInputElement).blur();
 						}
 					}}
-					className='-mx-1 w-0 min-w-0 flex-1 rounded px-1 text-base font-semibold outline-none hover:bg-hover focus:bg-hover'
+					className='-mx-1 w-0 min-w-0 flex-1 select-text rounded px-1 text-base font-semibold outline-none hover:bg-hover focus:bg-hover'
 				/>
 			) : (
 				<span className='min-w-0 flex-1 truncate text-base font-semibold'>{team.name}</span>
@@ -222,7 +215,7 @@ function DraggableMember({ team, member, children }: { team: Team; member: Pokem
 }
 
 /** A slot on a team card. Dropping a suggestion adds it to that team; dropping a member moves it there. */
-function TeamSlot({ team, index, empty, onPick, children }: { team: Team; index: number; empty: boolean; onPick?: () => void; children?: React.ReactNode }) {
+function TeamSlot({ team, index, empty, onPick, children }: { team: Team; index: number; empty: boolean; onPick?: (from: DOMRect, source: HTMLElement) => void; children?: React.ReactNode }) {
 	const { setNodeRef, isOver, active } = useDroppable({ id: `teamslot:${team.id}:${index}`, data: { kind: 'teamslot', teamId: team.id, index } });
 	const drag = active?.data.current as DragData | undefined;
 	const dragging = drag?.kind === 'candidate' || drag?.kind === 'member' || drag?.kind === 'evolution';
@@ -232,7 +225,7 @@ function TeamSlot({ team, index, empty, onPick, children }: { team: Team; index:
 		<span
 			ref={setNodeRef}
 			data-team-icon={`${team.id}:${index}`}
-			onClick={onPick && ((e) => { e.stopPropagation(); onPick(); })}
+			onClick={onPick && ((e) => { e.stopPropagation(); onPick(e.currentTarget.getBoundingClientRect(), e.currentTarget); })}
 			className={`bounce-host size-[32px] rounded-md border transition-colors ${onPick ? 'cursor-pointer' : ''} ${
 				dragging
 					? isOver

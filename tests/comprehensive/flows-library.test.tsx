@@ -61,13 +61,23 @@ describe('team list', () => {
 		expect(s().selectedUid).toBe(t.members[1].uid);
 	});
 
-	it('leaves the open team card without skeleton slots, so an empty-looking slot is empty', async () => {
+	it('shows the open team’s members in its slots, and only the empty slots are dashed', async () => {
 		const t = lib.teams[4];
 		await click(byName(`Open ${t.name}`));
 		expect(open().id).toBe(t.id);
 		const slots = [...document.querySelectorAll<HTMLElement>(`[data-team-icon^="${t.id}:"]`)];
 		expect(slots).toHaveLength(6);
-		expect(slots.some((el) => el.className.includes('border-dashed'))).toBe(false);
+		expect(slots.filter((el) => el.children.length > 0)).toHaveLength(t.members.length);
+		expect(slots.filter((el) => el.className.includes('border-dashed'))).toHaveLength(6 - t.members.length);
+	});
+
+	it('selects a member by clicking its icon on the open team, as the party does', async () => {
+		const t = lib.teams[4];
+		await click(byName(`Open ${t.name}`));
+		const icon = document.querySelector<HTMLElement>(`[data-team-icon="${t.id}:2"]`)!;
+		await click(icon);
+		await flush();
+		expect(s().selectedUid).toBe(t.members[2].uid);
 	});
 
 	it('searches teams by name, species and nickname', async () => {

@@ -144,7 +144,6 @@ function Browse({ onPreview, onParty }: { onPreview: () => void; onParty: () => 
 			</div>
 			{/* Left-aligned under the tabs and put across both, so drags to and from it stay short. */}
 			<PartyRow
-				keepSelected
 				className='border-t border-line px-4 pt-3'
 				onTap={(m) => {
 					const s = useStore.getState();

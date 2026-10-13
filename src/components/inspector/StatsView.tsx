@@ -191,6 +191,7 @@ export function StatsView({
 								{dv ? 'Exp' : limits.label}
 							</button>
 							<ElasticSlider
+								identity={member.uid}
 								label={`${STAT_LABELS[s]} ${limits.name}`}
 								value={member.evs[s]}
 								max={limits.perStat}

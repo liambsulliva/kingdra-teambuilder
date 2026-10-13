@@ -95,6 +95,39 @@ describe('switching teams with the walk', () => {
 		expect(animations).toBe(before);
 	});
 
+	it('opens a team from one of its icons with the picked member on the card at once, its sprite waiting for the jump', async () => {
+		const target = lib.teams[3];
+		const picked = target.members[1];
+		let switching!: Promise<void>;
+		act(() => {
+			switching = openTeamWithMotion(target.id, picked.uid);
+		});
+		expect(s().selectedUid).toBe(picked.uid);
+		expect(document.querySelector<HTMLElement>('[data-card-sprite]')!.style.opacity).toBe('0');
+		await act(async () => switching);
+		await flush();
+		await wait(80);
+		expect(open().id).toBe(target.id);
+		expect(s().selectedUid).toBe(picked.uid);
+		expect(document.querySelector<HTMLElement>('[data-card-sprite]')!.style.opacity).toBe('');
+	});
+
+	it('leaves a member chosen during the walk on the card, and the picked member does not jump over it', async () => {
+		const target = lib.teams[3];
+		const picked = target.members[1];
+		const other = target.members[2];
+		let switching!: Promise<void>;
+		act(() => {
+			switching = openTeamWithMotion(target.id, picked.uid);
+		});
+		act(() => s().selectMember(other.uid));
+		await act(async () => switching);
+		await flush();
+		await wait(80);
+		expect(s().selectedUid).toBe(other.uid);
+		expect(document.querySelector<HTMLElement>('[data-card-sprite]')!.style.opacity).toBe('');
+	});
+
 	it('pops the whole new party in at once when the team card is off screen', async () => {
 		const target = lib.teams[3];
 		// The card sits below the window: nothing can walk over it.
@@ -105,9 +138,9 @@ describe('switching teams with the walk', () => {
 		await flush();
 		expect(open().id).toBe(target.id);
 		const party = [...document.querySelectorAll('[data-party-member]')];
-		// The team opens with a member on the card, so its party icon is not in the row.
+		// Every member is in the row, the one on the card included.
 		expect(s().selectedUid).toBe(open().members[0].uid);
-		expect(party).toHaveLength(open().members.length - 1);
+		expect(party).toHaveLength(open().members.length);
 		// Each member pops where it stands. Nothing is flown, so no clone is left in the body.
 		expect(party.every((el) => animated.includes(el))).toBe(true);
 		expect(clones()).toHaveLength(0);
@@ -209,20 +242,6 @@ describe('with fancy animations off', () => {
 		expect(hiddenMembers()).toHaveLength(0);
 	});
 
-	it('keeps every party member in its cell, including the one on the card', async () => {
-		const team = open();
-		const onCard = team.members.find((m) => m.uid === s().selectedUid);
-		expect(onCard, 'a member is on the card').toBeTruthy();
-		expect(document.querySelectorAll('[data-party-member]')).toHaveLength(team.members.length);
-		expect(document.querySelector(`[data-party-member][data-species="${onCard!.species}"]`)).toBeTruthy();
-	});
-
-	it('shows the open team\'s icons in the team list too', () => {
-		const team = open();
-		const shown = [...document.querySelectorAll(`[data-team-icon^="${team.id}:"]`)].filter((el) => el.children.length > 0);
-		expect(shown).toHaveLength(team.members.length);
-	});
-
 	it('drops no card in card view', async () => {
 		await click(byLabel('Card view'));
 		animated = [];
@@ -240,6 +259,8 @@ describe('with fancy animations off', () => {
 		expect(clones()).toHaveLength(0);
 		await flush();
 		expect(s().selectedUid).toBe(open().members[1].uid);
+		// The card sprite shows once the lift has landed.
+		await wait(80);
 		expect(document.querySelector<HTMLElement>('[data-card-sprite]')!.style.opacity).toBe('');
 		const before = animations;
 		await liftToCard('Pikachu', new DOMRect(0, 0, 32, 32), new DOMRect(0, 0, 96, 96));
@@ -253,6 +274,7 @@ describe('the smaller moments', () => {
 		await click(document.querySelector('[data-party-member][data-index="1"]')!);
 		await flush();
 		expect(s().selectedUid).toBe(open().members[1].uid);
+		await wait(80);
 		expect(document.querySelector<HTMLElement>('[data-card-sprite]')!.style.opacity).toBe('');
 		expect(clones()).toHaveLength(0);
 	});

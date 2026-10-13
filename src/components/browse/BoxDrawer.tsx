@@ -104,7 +104,7 @@ export function BoxDrawer() {
 						<div className='flex justify-center pt-2'>
 							<span className='h-1 w-9 rounded-full bg-line' />
 						</div>
-						<PartyRow keepSelected />
+						<PartyRow />
 						<div className='h-px bg-line' />
 						<div className='flex items-center gap-3'>
 							<h2 className='text-md font-semibold'>Box</h2>

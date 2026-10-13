@@ -168,6 +168,14 @@ describe('the card for every member of every team', () => {
 		expect(s().selectedUid).toBe(t.members[0].uid);
 	});
 
+	it('shows every party member in its cell, the one on the card included', () => {
+		const team = open();
+		const onCard = team.members.find((m) => m.uid === s().selectedUid);
+		expect(onCard, 'a member is on the card').toBeTruthy();
+		expect(document.querySelectorAll('[data-party-member]')).toHaveLength(team.members.length);
+		expect(document.querySelector(`[data-party-member][data-species="${onCard!.species}"]`)).toBeTruthy();
+	});
+
 	it('lets Escape close a dialog without closing the card', async () => {
 		const t = lib.teams[0];
 		await putOnCard(t, t.members[0]);

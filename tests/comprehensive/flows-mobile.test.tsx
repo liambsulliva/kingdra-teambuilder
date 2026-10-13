@@ -73,13 +73,13 @@ describe('phone: party and card', () => {
 		expect(s().inspector).toBe('team');
 	});
 
-	it('hops a tapped member onto the card: no sheet, no selection tile, and its icon leaves the row', async () => {
+	it('hops a tapped member onto the card: no sheet, no selection tile, and its icon stays in the row', async () => {
 		await click(document.querySelector('[data-party-member][data-index="1"]')!);
 		await flush(2);
 		expect(s().selectedUid).toBe(trio.members[1].uid);
 		expect(byLabel('Pikachu set')).toBeTruthy();
 		expect(editorOpen()).toBe(false);
-		expect(partyIcons().map((el) => el.dataset.species)).toEqual(['Garchomp', 'Corviknight']);
+		expect(partyIcons().map((el) => el.dataset.species)).toEqual(trio.members.map((m) => m.species));
 		expect(partyIcons().some((el) => el.className.includes('bg-accent-soft'))).toBe(false);
 	});
 
@@ -198,8 +198,8 @@ describe('phone: empty team', () => {
 describe('desktop is unchanged where the phone changed', () => {
 	beforeEach(() => start(false));
 
-	it('keeps the card member out of the workspace party row, with hover captions', () => {
-		expect(partyIcons().map((el) => el.dataset.species)).toEqual(['Pikachu', 'Corviknight']);
+	it('shows the card member in the workspace party row too, with hover captions', () => {
+		expect(partyIcons().map((el) => el.dataset.species)).toEqual(trio.members.map((m) => m.species));
 	});
 
 	it('shows all six in the Box drawer so the card member can be boxed', async () => {
@@ -296,9 +296,9 @@ describe('phone: editor and teams', () => {
 	});
 
 	it('marks every draggable party icon so a long press drags instead of selecting', () => {
-		// The member on the card leaves the row, so two of the three are draggable here.
+		// Every member is in the row, the one on the card included, so all three are draggable here.
 		const sources = partyIcons();
-		expect(sources.length).toBe(trio.members.length - 1);
+		expect(sources.length).toBe(trio.members.length);
 		expect(sources.every((el) => el.classList.contains('drag-source'))).toBe(true);
 	});
 });

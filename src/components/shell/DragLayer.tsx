@@ -20,8 +20,7 @@ import { TYPE_COLORS } from '@/components/ui/TypeBadge';
 import { accepts, type DragData, type DropTarget } from '@/lib/drag';
 import { MOBILE_QUERY } from '@/lib/breakpoints';
 import { useStore } from '@/lib/store';
-import { landOn, poof } from '@/components/motion/choreography';
-import { selectWithLift } from '@/components/workspace/PartyRow';
+import { landOn, poof, selectWithLift } from '@/components/motion/choreography';
 
 export function DragLayer({ children }: { children: React.ReactNode }) {
 	const [active, setActive] = useState<DragData | null>(null);

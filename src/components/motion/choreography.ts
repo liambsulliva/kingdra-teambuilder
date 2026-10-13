@@ -5,30 +5,33 @@ import { Dex } from '@pkmn/dex';
 import { iconSprite, iconStyle } from '@/lib/sprites';
 import { useStore } from '@/lib/store';
 import { MOBILE_QUERY } from '@/lib/breakpoints';
+import type { PokemonSet } from '@/lib/model';
 
 // Starting values from the Motion page in Figma; tune here.
 // Team switch is "brisk": about 0.7 s end to end (user choice).
 export const MOTION = {
-	stepMs: 55,
+	stepMs: 67,
 	rockDeg: 30,
-	walkMs: 110,
-	jumpMs: 160,
-	landMs: 60,
-	staggerMs: 20,
-	liftMs: 300,
-	pickMs: 320,
+	walkMs: 200,
+	jumpMs: 104,
+	landMs: 40,
+	staggerMs: 13,
+	liftMs: 340,
+	pickMs: 210,
 	// Card view (user choice): the card falls with gravity and shatters on the Suggestions panel's top edge.
-	hopMs: 320,
-	hopStaggerMs: 30,
-	gravity: 3200,
-	maxFallMs: 650,
+	hopMs: 370,
+	hopStaggerMs: 20,
+	gravity: 4800,
+	maxFallMs: 420,
 	fallSpinDeg: 8,
-	shardMs: 650,
-	popOutMs: 380,
-	cardPopMs: 240,
+	shardMs: 420,
+	popOutMs: 440,
+	cardPopMs: 160,
 };
 
 let generation = 0;
+/** Lifts in flight: the card's sprite shows only when none is left. */
+let lifting = 0;
 const live = new Set<Animation>();
 /** Elements hidden while a Pokémon walks toward them, so a stale run can be cleared. */
 const hidden = new Set<HTMLElement>();
@@ -86,6 +89,36 @@ function arc(from: [number, number], to: [number, number], lift: number, steps =
 		const y = (1 - t) ** 2 * from[1] + 2 * (1 - t) * t * cy + t ** 2 * to[1];
 		return [x, y] as [number, number];
 	});
+}
+
+/** Where a hop's three phases end, as fractions of its duration: a fast charge, a slow jump, a fast landing. */
+const CHARGE_END = 0.16;
+const JUMP_END = 0.84;
+
+/**
+ * Keyframes for a hop along `path` (absolute points, the first at `origin`). The icon crouches into a charge, stretches
+ * off the ground, rounds out at the top of the arc, and squashes on touchdown before it springs back. `grow` scales it
+ * across the jump. Its transform origin must be the bottom centre.
+ */
+function hopFrames(path: [number, number][], [ox, oy]: [number, number], grow = 1): Keyframe[] {
+	const at = (p: [number, number], sx: number, sy: number, g: number, dy = 0): Keyframe => ({
+		transform: `translate(${p[0] - ox}px, ${p[1] - oy + dy}px) scale(${sx * g}, ${sy * g})`,
+	});
+	const last = path.length - 1;
+	const start = path[0];
+	const end = path[last];
+	const frames: Keyframe[] = [{ offset: 0, ...at(start, 1, 1, 1) }];
+	// Charge: crouched, squashed and sunk a little into the spot.
+	frames.push({ offset: CHARGE_END, ...at(start, 1.14, 0.8, 1, 3) });
+	// Jump: stretched off the ground, round at the top, lengthening again on the way down.
+	path.forEach((p, i) => {
+		const t = i / last;
+		const stretch = 1 + 0.12 * (1 - 2 * t);
+		frames.push({ offset: CHARGE_END + (JUMP_END - CHARGE_END) * t, ...at(p, 1 / Math.sqrt(stretch), stretch, 1 + (grow - 1) * t) });
+	});
+	// Landing: squash on touchdown, overshoot back, settle.
+	frames.push({ offset: JUMP_END, ...at(end, 1.14, 0.8, grow) }, { offset: 0.92, ...at(end, 1.04, 0.94, grow) }, { offset: 1, ...at(end, 1, 1, grow) });
+	return frames;
 }
 
 interface Flight {
@@ -158,24 +191,16 @@ const showAllHidden = () => show([...hidden]);
 
 /** A Pokémon jumps from one box to another along an arc and lands with a squash. */
 function hop(species: string, from: DOMRect, to: DOMRect, delay: number, duration: number, lift: number) {
-	const { outer, inner } = cloneIcon(species, from);
+	const { outer } = cloneIcon(species, from);
+	outer.style.transformOrigin = '50% 100%';
 	// A quadratic Bézier walked at an even pace is a parabola: the jump falls like a thrown ball.
 	const path = arc([from.left, from.top], [to.left, to.top], lift, 12);
-	const a = outer.animate(
-		path.map(([x, y], i) => ({ offset: i / (path.length - 1), transform: `translate(${x - from.left}px, ${y - from.top}px)` })),
-		{ duration, delay, easing: 'linear', fill: 'both' }
-	);
-	const b = inner.animate(
-		[{ transform: 'scale(1, 1)' }, { offset: 0.84, transform: 'scale(1, 1)' }, { offset: 0.92, transform: 'scale(1.12, 0.84)' }, { transform: 'scale(1, 1)' }],
-		{ duration, delay, fill: 'both' }
-	);
+	const a = outer.animate(hopFrames(path, [from.left, from.top]), { duration, delay, easing: 'linear', fill: 'both' });
 	live.add(a);
-	live.add(b);
 	return a.finished
 		.catch(() => undefined)
 		.finally(() => {
 			live.delete(a);
-			live.delete(b);
 			outer.remove();
 		});
 }
@@ -312,7 +337,7 @@ function shatter(look: CardLook, at: DOMRect, deg: number) {
 	return Promise.all(runs).finally(() => wrap.remove());
 }
 
-/** The open team's card pops back into the grid, empty, as the old one breaks. */
+/** The open team's card pops back into the grid as the old one breaks. */
 function popCard(el: HTMLElement) {
 	show([el]);
 	if (reduced()) return;
@@ -336,9 +361,9 @@ function popCard(el: HTMLElement) {
  * the new party pops in all at once, as if each member had been added by hand.
  * With fancy animations off it always switches that way.
  *
- * In card view the old party jumps home into its card's empty slots instead of
+ * In card view the old party jumps home into its card's slots instead of
  * walking while the new card falls, shatters on the Suggestions panel, and
- * its Pokémon jump out of the break into the party while an empty card pops
+ * its Pokémon jump out of the break into the party while the new card pops
  * into its place.
  */
 export async function openTeamWithMotion(id: string, select?: string) {
@@ -354,12 +379,33 @@ export async function openTeamWithMotion(id: string, select?: string) {
 	}
 	// In card view the tile swings on its hinge, so measure the grid cell it sits in.
 	const tile = document.querySelector<HTMLElement>(`[data-team-tile="${id}"]`);
+	// The picked member, when the team was opened from one of its icons: it is left off the card until it lands.
+	const target = select ? store.library.teams.find((t) => t.id === id) : undefined;
+	const pickedIndex = target ? target.members.findIndex((m) => m.uid === select) : -1;
+	const picked: PokemonSet | undefined = pickedIndex >= 0 ? target!.members[pickedIndex] : undefined;
+	// Only the latest switch may reveal anything; an older run's arrivals stay hidden.
+	const reveal = (els: HTMLElement[]) => mine === generation && show(els);
+	// The picked member's party icon, once it has landed, jumps onto the card; a member chosen since then is left alone.
+	const settle = (els: HTMLElement[]) => {
+		reveal(els);
+		const cell = els.find((el) => el.hasAttribute('data-party-member') && Number(el.dataset.index) === pickedIndex);
+		if (!cell || !picked || mine !== generation) return;
+		if (useStore.getState().selectedUid === picked.uid) void liftOntoCard(picked.species, cell.getBoundingClientRect(), cell);
+		else if (!lifting) {
+			const sprite = document.querySelector<HTMLElement>('[data-card-sprite]');
+			if (sprite) show([sprite]);
+		}
+	};
 	if (plain() || !onScreen(tile?.parentElement ?? document.querySelector(`[data-team-card="${id}"]`))) {
 		flushSync(() => {
 			useStore.getState().openTeam(id);
 			if (select) useStore.getState().selectMember(select);
 		});
-		document.querySelectorAll<HTMLElement>('[data-party-member]').forEach((el) => pop(el));
+		// Nothing walks: each new party icon shows once its pop is over.
+		document.querySelectorAll<HTMLElement>('[data-party-member]').forEach((el) => {
+			hide([el]);
+			void pop(el).then(() => settle([el]));
+		});
 		return;
 	}
 	// Any click or keypress mid-flight skips straight to the end, later phases included.
@@ -372,9 +418,6 @@ export async function openTeamWithMotion(id: string, select?: string) {
 	window.addEventListener('keydown', skip, { once: true, capture: true });
 	const panel = document.querySelector('[data-team-panel]')?.getBoundingClientRect();
 	const edgeX = panel ? panel.right - 40 : 260;
-	// Only the latest switch may reveal anything; an older run's arrivals stay hidden.
-	const reveal = (els: HTMLElement[]) => mine === generation && show(els);
-
 	try {
 		const oldId = store.openTeamId;
 		// Measure before the switch moves anything: the old party, and the new team's icons on its card.
@@ -385,6 +428,7 @@ export async function openTeamWithMotion(id: string, select?: string) {
 			index: Number(el.dataset.teamIcon!.split(':')[1]),
 			rect: el.getBoundingClientRect(),
 			ok: onScreen(el),
+			el,
 		}));
 		// Card view: a copy of the card as it hangs now stands in for it until it falls, since the switch empties the real one.
 		const cell = tile?.parentElement?.getBoundingClientRect();
@@ -400,16 +444,24 @@ export async function openTeamWithMotion(id: string, select?: string) {
 			useStore.getState().openTeam(id);
 			if (select) useStore.getState().selectMember(select);
 		});
+		// The picked member's card is up already; its sprite waits for its jump.
+		const cardSprite = document.querySelector<HTMLElement>('[data-card-sprite]');
+		if (picked && cardSprite) hide([cardSprite]);
 
 		// A member flies only when both its card icon and its party slot are on screen; the rest pop.
 		const arrivals = [...document.querySelectorAll<HTMLElement>('[data-party-member]')].flatMap((el) => {
 			const index = Number(el.dataset.index);
 			const src = sources.find((s) => s.index === index);
-			return src?.ok && onScreen(el) ? [{ el, species: el.dataset.species!, from: src.rect, to: el.getBoundingClientRect(), index }] : [];
+			return src?.ok && onScreen(el) ? [{ el, species: el.dataset.species!, from: src.rect, to: el.getBoundingClientRect(), index, source: src.el }] : [];
 		});
 		const flying = new Set(arrivals.map((a) => a.el));
-		document.querySelectorAll<HTMLElement>('[data-party-member]').forEach((el) => !flying.has(el) && pop(el));
+		document.querySelectorAll<HTMLElement>('[data-party-member]').forEach((el) => {
+			if (flying.has(el)) return;
+			hide([el]);
+			void pop(el).then(() => settle([el]));
+		});
 		hide(arrivals.map((a) => a.el));
+		hide(arrivals.map((a) => a.source));
 		const homeward = leaving.flatMap((h) => {
 			const target = document.querySelector<HTMLElement>(`[data-team-icon="${oldId}:${h.index}"]`);
 			return target && onScreen(target) ? [{ ...h, target, to: target.getBoundingClientRect() }] : [];
@@ -420,7 +472,7 @@ export async function openTeamWithMotion(id: string, select?: string) {
 			const openTile = document.querySelector<HTMLElement>(`[data-team-tile="${id}"]`);
 			if (openTile) hide([openTile]);
 			try {
-				// 1. The old party jumps home into its card's empty slots while, 2. the new card lets go and falls
+				// 1. The old party jumps home into its card's slots while, 2. the new card lets go and falls
 				// onto the Suggestions panel. Running both at once keeps a switch to about a second.
 				const home = Promise.all(
 					homeward.map((h, i) => (skipped ? Promise.resolve() : hop(h.species, h.from, h.to, i * MOTION.hopStaggerMs, MOTION.hopMs, 36)).then(() => reveal([h.target])))
@@ -428,10 +480,10 @@ export async function openTeamWithMotion(id: string, select?: string) {
 				const { impact, deg: landed } = skipped ? { impact: card.box, deg: card.deg } : await fall(card.ghost, card.box, card.deg);
 				card.ghost.remove();
 				if (mine !== generation) return;
-				// 3. It shatters, an empty card pops into its place, and its team jumps out of the break into the party.
+				// 3. It shatters, the new card pops into its place, and its team jumps out of the break into the party.
 				if (openTile) popCard(openTile);
 				if (skipped) {
-					reveal(arrivals.map((a) => a.el));
+					settle(arrivals.flatMap((a) => [a.el, a.source]));
 					await home;
 					return;
 				}
@@ -441,7 +493,7 @@ export async function openTeamWithMotion(id: string, select?: string) {
 					...arrivals.map((a, i) => {
 						const from = new DOMRect(impact.left + (a.from.left - card.box.left), impact.top + (a.from.top - card.box.top), 32, 32);
 						return hop(a.species, from, a.to, i * MOTION.hopStaggerMs, MOTION.popOutMs, 56).then(() => {
-							reveal([a.el]);
+							settle([a.el, a.source]);
 							pop(a.el);
 						});
 					}),
@@ -462,7 +514,7 @@ export async function openTeamWithMotion(id: string, select?: string) {
 			),
 			...arrivals.map((a, i) =>
 				fly({ species: a.species, from: a.from, to: a.to, edgeX, delay: (last - i) * MOTION.staggerMs }).then(() => {
-					reveal([a.el]);
+					settle([a.el, a.source]);
 					pop(a.el);
 				})
 			),
@@ -474,23 +526,45 @@ export async function openTeamWithMotion(id: string, select?: string) {
 }
 
 /** A party member jumps up onto the card along an arc, growing to card size. */
-export async function liftToCard(species: string, from: DOMRect, to: DOMRect) {
+export async function liftToCard(species: string, from: DOMRect, to: DOMRect, source?: HTMLElement) {
 	if (reduced() || plain()) return;
 	const { outer, inner } = cloneIcon(species, from);
 	const path = arc([from.left, from.top], [to.left + to.width / 2 - 16, to.top + to.height - 32], 40, 12);
 	const scale = Math.min(to.width, to.height) / 32;
-	const frames = path.map(([x, y], i) => ({
-		offset: i / (path.length - 1),
-		transform: `translate(${x - from.left}px, ${y - from.top}px) scale(${1 + ((scale - 1) * i) / (path.length - 1)})`,
-	}));
 	outer.style.transformOrigin = '50% 100%';
-	const a = outer.animate(frames, { duration: MOTION.liftMs, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'both' });
+	const a = outer.animate(hopFrames(path, [from.left, from.top], scale), { duration: MOTION.liftMs, easing: 'linear', fill: 'both' });
 	const b = inner.animate([{ opacity: 1 }, { opacity: 1, offset: 0.7 }, { opacity: 0 }], { duration: MOTION.liftMs, fill: 'both' });
 	live.add(a);
+	if (source) hide([source]);
 	await a.finished.catch(() => undefined);
 	live.delete(a);
 	b.cancel();
 	outer.remove();
+	if (source) show([source]);
+}
+
+/** Lifts an icon up onto the card. The card's sprite stays hidden until the last lift has landed. */
+async function liftOntoCard(species: string, from: DOMRect, source?: HTMLElement) {
+	const sprite = document.querySelector<HTMLElement>('[data-card-sprite]');
+	if (!sprite) return;
+	sprite.style.opacity = '0';
+	lifting++;
+	try {
+		await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+		await liftToCard(species, from, sprite.getBoundingClientRect(), source);
+	} finally {
+		lifting--;
+		if (!lifting) sprite.style.opacity = '';
+	}
+}
+
+/**
+ * Puts a member on the card. The card renders at once, but its sprite stays hidden until the member's icon has
+ * jumped up onto it; `source` is the icon the member leaves.
+ */
+export async function selectWithLift(member: PokemonSet, from?: DOMRect, source?: HTMLElement) {
+	flushSync(() => useStore.getState().selectMember(member.uid));
+	if (from) await liftOntoCard(member.species, from, source);
 }
 
 /** A small poof where a dragged member was released outside the party. */
@@ -519,12 +593,17 @@ export function poof(x: number, y: number) {
 }
 
 /** The landing pop: a small spring on the element that just received a member or a value. */
-export function pop(el: Element | null) {
-	if (!el || reduced()) return;
-	(el as HTMLElement).animate([{ transform: 'scale(1)' }, { transform: 'scale(1.05)', offset: 0.35 }, { transform: 'scale(1)' }], {
-		duration: 320,
-		easing: 'cubic-bezier(0.34, 2.1, 0.5, 1)',
-	});
+export function pop(el: Element | null): Promise<void> {
+	if (!el || reduced()) return Promise.resolve();
+	return (el as HTMLElement)
+		.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.05)', offset: 0.35 }, { transform: 'scale(1)' }], {
+			duration: 210,
+			easing: 'cubic-bezier(0.34, 2.1, 0.5, 1)',
+		})
+		.finished.then(
+			() => undefined,
+			() => undefined
+		);
 }
 
 /** The landing pop on whatever is at `selector`, once React has drawn it. */
@@ -554,7 +633,7 @@ export async function hopAndSwap(el: HTMLElement | null, swap: () => void) {
 			{ transform: 'translateY(0)', opacity: 1 },
 			{ transform: 'translateY(-22px)', opacity: 0.2 },
 		],
-		{ duration: 160, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'forwards' }
+		{ duration: 210, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'forwards' }
 	);
 	await up.finished.catch(() => undefined);
 	swap();
@@ -565,7 +644,7 @@ export async function hopAndSwap(el: HTMLElement | null, swap: () => void) {
 			{ transform: 'translateY(0) scale(1.08, 0.9)', opacity: 1, offset: 0.75 },
 			{ transform: 'translateY(0) scale(1, 1)', opacity: 1 },
 		],
-		{ duration: 200, easing: 'cubic-bezier(0.55, 0, 1, 0.45)' }
+		{ duration: 260, easing: 'cubic-bezier(0.55, 0, 1, 0.45)' }
 	);
 	up.cancel();
 	await down.finished.catch(() => undefined);
@@ -573,7 +652,7 @@ export async function hopAndSwap(el: HTMLElement | null, swap: () => void) {
 
 /**
  * Swap in from the comparison: the old party icon poofs while the candidate
- * arcs from its carousel card into the same party slot. About 400 ms.
+ * arcs from its carousel card into the same party slot. About 460 ms.
  */
 export async function hopInto(species: string, fromSelector: string, toSelector: string) {
 	const from = document.querySelector(fromSelector);
@@ -584,11 +663,9 @@ export async function hopInto(species: string, fromSelector: string, toSelector:
 	poof(b.left + b.width / 2, b.top + b.height / 2);
 	const start = new DOMRect(a.left + a.width / 2 - 16, a.top + 12, 32, 32);
 	const { outer } = cloneIcon(species, start);
+	outer.style.transformOrigin = '50% 100%';
 	const path = arc([start.left, start.top], [b.left, b.top], 36, 12);
-	const anim = outer.animate(
-		path.map(([x, y], i) => ({ offset: i / (path.length - 1), transform: `translate(${x - start.left}px, ${y - start.top}px)` })),
-		{ duration: 400, easing: 'cubic-bezier(0.45, 0, 0.2, 1)', fill: 'both' }
-	);
+	const anim = outer.animate(hopFrames(path, [start.left, start.top]), { duration: 460, easing: 'linear', fill: 'both' });
 	(to as HTMLElement).style.opacity = '0';
 	await anim.finished.catch(() => undefined);
 	outer.remove();
