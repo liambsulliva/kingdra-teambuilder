@@ -84,6 +84,20 @@ describe('/api/library', () => {
 		expect((await put({})).status).toBe(400);
 		expect(server.updates).toHaveLength(0);
 	});
+
+	it('prefers the new library over leftover pre-redesign fields, and treats an empty old party as a new account', async () => {
+		server.doc = { library: { teams: [{ name: 'New' }] }, teamNames: ['Old'], pokemonParty: [[{ name: 'mew', id: 151 }]] };
+		const body = await (await library.GET()).json();
+		expect(body.library.teams[0].name).toBe('New');
+		expect(body.migrated).toBeUndefined();
+		server.doc = { pokemonParty: [] };
+		expect(await (await library.GET()).json()).toEqual({ library: null });
+	});
+
+	// Known issue: `body.library` is read off a null body, so the route throws instead of answering 400.
+	it.fails('rejects a JSON null body', async () => {
+		expect((await put('null')).status).toBe(400);
+	});
 });
 
 describe('/api/roles', () => {
@@ -151,6 +165,13 @@ describe('/api/suggestions', () => {
 		]);
 	});
 
+	it('defaults to Gen 9 OU and lets the CDN cache an answer', async () => {
+		mockApi({ 'stats/gen9ou.json': () => ({ pokemon: { Mew: { moves: { Psychic: 0.5 } } } }) });
+		const res = await suggestions.GET(req('/api/suggestions?species=Mew'));
+		expect((await res.json()).moves).toEqual([{ name: 'Psychic', usage: 50 }]);
+		expect(res.headers.get('Cache-Control')).toBeTruthy();
+	});
+
 	it('falls back to set moves, then to nothing', async () => {
 		mockApi({
 			'stats/gen6ou.json': () => new Response('', { status: 404 }),
@@ -181,6 +202,16 @@ describe('/api/validate', () => {
 		});
 		const body = await (await post({ format: 'gen9ou', members: [garchomp] })).json();
 		expect(body).toEqual({ byMember: {}, team: [], count: 0 });
+	});
+
+	// Known issue: the body is parsed outside a try, so bad JSON throws instead of answering 400.
+	it.fails('rejects a body that is not JSON', async () => {
+		expect((await validate.POST(req('/api/validate', { method: 'POST', body: '{not json' }))).status).toBe(400);
+	});
+
+	// Known issue: `m.moves.filter` throws on a member without a move list.
+	it.fails('rejects a member without a move list', async () => {
+		expect((await post({ format: 'gen9ou', members: [{ species: 'Mew', uid: 'x' }] })).status).toBe(400);
 	});
 
 	it('attributes problems to the member they are about', async () => {

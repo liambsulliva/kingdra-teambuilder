@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it } from 'vitest';
-import { readFancyMotion, readSpriteSet, readTeamView, useStore } from '../store';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { readFancyMotion, readLastSelected, readSpriteSet, readTeamView, useStore } from '../store';
 import { emptyLibrary } from '../model';
 
 const team = () => useStore.getState().library.teams[0];
@@ -188,5 +188,28 @@ describe('fancy animations', () => {
 		expect(readFancyMotion()).toBe(false);
 		useStore.getState().setFancyMotion(true);
 		expect(readFancyMotion()).toBe(true);
+	});
+});
+
+describe('per-viewer preferences with blocked storage', () => {
+	it('fall back to their defaults when storage cannot be read', () => {
+		const spy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+			throw new Error('SecurityError');
+		});
+		try {
+			expect(readSpriteSet()).toBe('bw');
+			expect(readTeamView()).toBe('list');
+			expect(readFancyMotion()).toBe(true);
+			expect(readLastSelected()).toEqual({});
+		} finally {
+			spy.mockRestore();
+		}
+	});
+
+	it('ignore a damaged last-selected record', () => {
+		for (const bad of ['null', '5', '{bad']) {
+			localStorage.setItem('kingdra.lastSelected', bad);
+			expect(readLastSelected(), bad).toEqual({});
+		}
 	});
 });

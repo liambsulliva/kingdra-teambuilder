@@ -260,7 +260,8 @@ describe('signed-in account library', () => {
 		db.doc = { library: clone(stress.library) };
 		auth.isSignedIn = true;
 		await renderApp();
-		expect(hasText('Saved')).toBe(true);
+		// Exactly "Saved": the guest label, "Saved in this browser", would also contain it.
+		expect(document.querySelector('header [aria-live]')!.textContent).toBe('Saved');
 		expect(document.querySelector('[data-testid="user-button"]')).toBeTruthy();
 		s().createTeam({ name: 'Pending' });
 		await flush(1);
@@ -268,6 +269,8 @@ describe('signed-in account library', () => {
 		mockApi({ '/api/library': () => new Response('', { status: 500 }) });
 		await wait(900);
 		expect(hasText('Not saved')).toBe(true);
+		// Red is for errors: the failed save is the one status shown in danger.
+		expect(document.querySelector('header [aria-live]')!.className).toContain('text-danger');
 	});
 
 	it('signing out shows the guest library, never the account', async () => {

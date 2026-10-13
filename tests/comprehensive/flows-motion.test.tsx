@@ -4,7 +4,7 @@ import { hopAndSwap, landOn, liftToCard, openTeamWithMotion, poof, pop } from '@
 import { newSet, newTeam, type Library } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { seedLocalLibrary, setViewport } from '../helpers/env';
-import { allByName, button, byLabel, click, flush, renderApp, wait } from '../helpers/render';
+import { allByName, button, byLabel, click, flush, renderApp, wait, waitFor } from '../helpers/render';
 import { buildStressLibrary, clone, type StressLibrary } from '../fixtures/library';
 
 const s = () => useStore.getState();
@@ -147,12 +147,49 @@ describe('switching teams with the walk', () => {
 		expect(hiddenMembers()).toHaveLength(0);
 	});
 
-	it('switches at once without animating on a phone or with reduced motion', async () => {
+	it('switches at once without animating with reduced motion', async () => {
 		setViewport({ reducedMotion: true });
 		const before = animations;
 		await act(async () => openTeamWithMotion(lib.teams[4].id));
 		expect(open().id).toBe(lib.teams[4].id);
 		expect(animations).toBe(before);
+	});
+
+	it('switches at once without animating on a phone', async () => {
+		setViewport({ mobile: true });
+		await flush();
+		const before = animations;
+		await act(async () => openTeamWithMotion(lib.teams[4].id));
+		expect(open().id).toBe(lib.teams[4].id);
+		expect(animations).toBe(before);
+		expect(clones()).toHaveLength(0);
+	});
+
+	it('skips to the end on a keypress mid-walk, leaving nothing hidden', async () => {
+		const target = lib.teams[3];
+		let switching!: Promise<void>;
+		act(() => {
+			switching = openTeamWithMotion(target.id);
+		});
+		expect(clones().length).toBeGreaterThan(0);
+		act(() => void window.dispatchEvent(new KeyboardEvent('keydown', { key: 'x' })));
+		await act(async () => switching);
+		await flush();
+		expect(open().id).toBe(target.id);
+		expect(clones()).toHaveLength(0);
+		expect(hiddenMembers()).toHaveLength(0);
+	});
+
+	// docs/redesign/spec.md §14: team create, duplicate, import and delete have no animation.
+	it('animates nothing when a team is created, duplicated or deleted', async () => {
+		const before = animations;
+		await click(byLabel('Duplicate team'));
+		act(() => s().createTeam({ name: 'Quiet' }));
+		await click(byLabel('Delete team'));
+		await click(button('Delete?'));
+		await flush();
+		expect(animations).toBe(before);
+		expect(clones()).toHaveLength(0);
 	});
 });
 
@@ -167,7 +204,7 @@ describe('switching teams in card view', () => {
 		animations = 0;
 	});
 
-	it('jumps the old party home while the new card falls and shatters, then pops the empty card back', async () => {
+	it('jumps the old party home while the new card falls and shatters, then pops the card back in its place', async () => {
 		const target = lib.teams[3];
 		await act(async () => openTeamWithMotion(target.id));
 		await flush();
@@ -193,6 +230,38 @@ describe('switching teams in card view', () => {
 		expect([...document.querySelectorAll<HTMLElement>('[data-team-tile]')].filter((el) => el.style.opacity === '0')).toHaveLength(0);
 	});
 
+	it('skips the shatter on a keypress while the card falls, leaving nothing hidden or behind', async () => {
+		const target = lib.teams[3];
+		let switching!: Promise<void>;
+		act(() => {
+			switching = openTeamWithMotion(target.id);
+		});
+		act(() => void window.dispatchEvent(new KeyboardEvent('keydown', { key: 'x' })));
+		await act(async () => switching);
+		await flush();
+		expect(open().id).toBe(target.id);
+		expect(shards()).toHaveLength(0);
+		expect(clones()).toHaveLength(0);
+		expect(hiddenMembers()).toHaveLength(0);
+		expect(tile(target.id).style.opacity).toBe('');
+	});
+
+	it('opens onto the member whose icon was clicked, its sprite showing once it lands', async () => {
+		const target = lib.teams[3];
+		const picked = target.members[1];
+		let switching!: Promise<void>;
+		act(() => {
+			switching = openTeamWithMotion(target.id, picked.uid);
+		});
+		expect(s().selectedUid).toBe(picked.uid);
+		await act(async () => switching);
+		await flush();
+		await wait(80);
+		expect(s().selectedUid).toBe(picked.uid);
+		expect(document.querySelector<HTMLElement>('[data-card-sprite]')!.style.opacity).toBe('');
+		expect(hiddenMembers()).toHaveLength(0);
+	});
+
 	it('pops the party in without a fall when the card is off screen', async () => {
 		const target = lib.teams[3];
 		vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
@@ -216,7 +285,7 @@ describe('with fancy animations off', () => {
 		animations = 0;
 	});
 
-	it('is a pressed toggle in the header, saved for this viewer', async () => {
+	it('is the “Enable fancy animations” toggle in the header, pressed only while on, and saved for this viewer', async () => {
 		expect(toggle().getAttribute('aria-pressed')).toBe('false');
 		expect(s().fancyMotion).toBe(false);
 		expect(localStorage.getItem('kingdra.fancyMotion')).toBe('off');
@@ -282,9 +351,13 @@ describe('the smaller moments', () => {
 	it('hops the sprite when evolving and swaps species mid-air', async () => {
 		// The first member is already on the card.
 		expect(s().selectedUid).toBe(open().members[0].uid);
+		const sprite = document.querySelector('[data-card-sprite]');
+		animated = [];
 		await click(button('Charmeleon'));
 		await flush();
 		expect(open().members[0].species).toBe('Charmeleon');
+		// Up, then down a frame later: two animations on the card sprite.
+		await waitFor(() => expect(animated.filter((el) => el === sprite)).toHaveLength(2));
 	});
 
 	it('lands a picked value on its row with a pop and flies no chip', async () => {

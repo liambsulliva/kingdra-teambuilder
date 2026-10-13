@@ -35,6 +35,12 @@ export function accepts(drag: DragData, over: DropTarget): boolean {
 	// A move dragged off its slot is removed wherever it is dropped; a move from the pool only lands on a slot.
 	if (drag.kind === 'move') return over?.kind === 'moveslot' || drag.slot !== undefined;
 	if (!over) return own && drag.kind === 'member'; // released outside: remove (poof)
+	// Dropped on the card (its move slots included), a Pokémon goes onto the card, joining the party if it needs a place.
+	if (over.kind === 'card' || over.kind === 'moveslot') {
+		if (drag.kind === 'member') return own || hasRoom(open);
+		if (drag.kind === 'candidate' || drag.kind === 'boxset') return hasRoom(open);
+		return false;
+	}
 	switch (drag.kind) {
 		case 'candidate':
 			if (over.kind === 'teamslot') {
@@ -46,11 +52,7 @@ export function accepts(drag: DragData, over: DropTarget): boolean {
 					canUseSpecies(target, drag.species!)
 				);
 			}
-			return (
-				(over.kind === 'party' &&
-					(hasRoom(open) || over.index! < open.members.length)) ||
-				over.kind === 'card'
-			);
+			return over.kind === 'party' && (hasRoom(open) || over.index! < open.members.length);
 		case 'member':
 			// Any member can move to another team's card or to the open party. On an occupied slot the two swap, so a full team takes it too.
 			if (over.kind === 'teamslot') {
@@ -69,10 +71,6 @@ export function accepts(drag: DragData, over: DropTarget): boolean {
 			return !!target && over.teamId !== drag.teamId && (hasRoom(target) || over.index < target.members.length) && (isOwnStage || canUseSpecies(target, drag.species!));
 		}
 		case 'boxset':
-			return (
-				(over.kind === 'party' &&
-					(over.index! < open.members.length || hasRoom(open))) ||
-				over.kind === 'boxcell'
-			);
+			return (over.kind === 'party' && (over.index! < open.members.length || hasRoom(open))) || over.kind === 'boxcell';
 	}
 }

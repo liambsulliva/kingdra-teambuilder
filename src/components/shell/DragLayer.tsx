@@ -47,19 +47,18 @@ export function DragLayer({ children }: { children: React.ReactNode }) {
 			? { x: (e.activatorEvent as PointerEvent).clientX + e.delta.x, y: (e.activatorEvent as PointerEvent).clientY + e.delta.y }
 			: null;
 		const partyCell = (index: number) => `[data-party-member][data-index="${index}"]`;
+		// Any Pokémon dropped on the card, its move slots included, goes onto the card: into the party first if it isn't there.
+		const onCard = over?.kind === 'card' || over?.kind === 'moveslot';
+		const putOnCard = (uid: string) => {
+			const member = useStore.getState().library.teams.find((t) => t.id === open.id)?.members.find((m) => m.uid === uid);
+			if (member) selectWithLift(member, (point && new DOMRect(point.x - 16, point.y - 16, 32, 32)) || undefined);
+		};
 
 		if (drag.kind === 'candidate') {
-			if (over?.kind === 'card') {
-				// Nothing to compare against on an empty team, so the drop adds the first member and puts it on the card.
-				if (!open.members.length) {
-					if (s.addMember(drag.species!)) {
-						const added = useStore.getState().library.teams.find((t) => t.id === open.id)!.members[0];
-						const from = point && new DOMRect(point.x - 16, point.y - 16, 32, 32);
-						selectWithLift(added, from || undefined);
-					}
-					return;
-				}
-				return s.compare(drag.species!);
+			if (onCard) {
+				// addMember refuses a seventh member itself (toast + party shake).
+				if (s.addMember(drag.species!)) putOnCard(useStore.getState().library.teams.find((t) => t.id === open.id)!.members.at(-1)!.uid);
+				return;
 			}
 			if (over?.kind === 'teamslot') return void s.addMemberToTeam(over.teamId, drag.species!, over.index);
 			// addMember rejects a seventh member itself (toast + party shake).
@@ -85,6 +84,11 @@ export function DragLayer({ children }: { children: React.ReactNode }) {
 				if (over.teamId !== drag.teamId) s.moveMemberToTeam(drag.uid!, drag.teamId!, over.teamId, over.index);
 				return;
 			}
+			if (onCard) {
+				// Another team's member joins the open party first; a full party refuses it.
+				if (own || s.moveMemberToTeam(drag.uid!, drag.teamId!, open.id)) putOnCard(drag.uid!);
+				return;
+			}
 			if (!own) {
 				// Another team's member can only be dropped into the open party.
 				if (over?.kind === 'party') {
@@ -93,7 +97,7 @@ export function DragLayer({ children }: { children: React.ReactNode }) {
 				}
 				return;
 			}
-			// Released anywhere that isn't the party or the Box: poof.
+			// Released anywhere that isn't the card, the party or the Box: poof.
 			if (!over || (over.kind !== 'party' && over.kind !== 'boxcell')) {
 				s.removeMember(drag.uid!);
 				if (point) poof(point.x, point.y);
@@ -104,6 +108,12 @@ export function DragLayer({ children }: { children: React.ReactNode }) {
 			return;
 		}
 		if (drag.kind === 'boxset') {
+			if (onCard) {
+				const stored = s.library.boxes[drag.box!]?.slots[drag.slot!];
+				s.takeFromBox(drag.box!, drag.slot!);
+				if (stored && useStore.getState().library.boxes[drag.box!]?.slots[drag.slot!] !== stored) putOnCard(stored.uid);
+				return;
+			}
 			if (over?.kind === 'party') return s.takeFromBox(drag.box!, drag.slot!, over.index! < open.members.length ? over.index : undefined);
 			if (over?.kind === 'boxcell') return s.moveInBox(drag.box!, drag.slot!, over.box!, over.slot!);
 			return;

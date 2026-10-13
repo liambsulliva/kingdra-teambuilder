@@ -31,8 +31,7 @@ export type InspectorView =
 	| 'details'
 	| 'matchups'
 	| 'pokedex'
-	| 'locations'
-	| 'compare';
+	| 'locations';
 
 /** A legality fix waiting for confirmation in the dialog. */
 export interface PendingFix {
@@ -61,10 +60,6 @@ interface State {
 	hydrated: boolean;
 	openTeamId: string;
 	selectedUid: string | null;
-	previewSpecies: string | null;
-	compareSpecies: string | null;
-	/** Party member the comparison is against when nothing is on the card. */
-	compareTarget: string | null;
 	inspector: InspectorView;
 	/** Tablet width: the workspace is merged into the right panel as its first tab. */
 	merged: boolean;
@@ -134,16 +129,12 @@ interface Actions {
 	updateSet(uid: string, patch: Partial<PokemonSet>): void;
 	replaceSet(uid: string, set: PokemonSet): void;
 	changeSpecies(uid: string, species: string): void;
-	swapIn(uid: string, species: string): void;
 	setMove(uid: string, slot: number, move: string): void;
 	pickMove(move: string): void;
 
 	setInspector(view: InspectorView, slot?: number | null): void;
 	chose(): void;
 	setMatchupType(type: string | null): void;
-	preview(species: string | null): void;
-	compare(species: string | null): void;
-	setCompareTarget(uid: string | null): void;
 	setCarousel(patch: Partial<Pick<State, 'carouselTab' | 'carouselRole' | 'carouselSearch' | 'carouselGen'>>): void;
 
 	setBoxOpen(open: boolean): void;
@@ -270,9 +261,6 @@ export const useStore = create<Store>()((set, get) => {
 		hydrated: false,
 		openTeamId: first.teams[0].id,
 		selectedUid: null,
-		previewSpecies: null,
-		compareSpecies: null,
-		compareTarget: null,
 		inspector: 'team',
 		merged: false,
 		spriteSet: readSpriteSet(),
@@ -365,8 +353,6 @@ export const useStore = create<Store>()((set, get) => {
 				return {
 					openTeamId: id,
 					selectedUid: pickFor(team, s.lastSelected),
-					previewSpecies: null,
-					compareSpecies: null,
 					inspector: restView(s),
 					activeMoveSlot: null,
 					carouselTab: tab,
@@ -430,13 +416,11 @@ export const useStore = create<Store>()((set, get) => {
 			if (memberUid) focus(memberUid);
 			set((s) => ({
 				selectedUid: memberUid,
-				previewSpecies: null,
-				compareSpecies: null,
 				activeMoveSlot: null,
 				inspector: s.merged ? 'card' : memberUid
 					? openTeam().mode === 'casual'
 						? 'pokedex'
-						: s.inspector === 'team' || s.inspector === 'compare' || s.inspector === 'pokedex' || s.inspector === 'locations'
+						: s.inspector === 'team' || s.inspector === 'pokedex' || s.inspector === 'locations'
 							? 'stats'
 							: s.inspector
 					: 'team',
@@ -449,7 +433,6 @@ export const useStore = create<Store>()((set, get) => {
 				if (index !== undefined && team.members[index]) {
 					const old = team.members[index];
 					updateTeam(team.id, (t) => ({ ...t, members: t.members.map((m) => (m.uid === old.uid ? { ...freshSet(t, species), uid: old.uid } : m)) }));
-					set({ previewSpecies: null });
 					cardIfMerged();
 					return true;
 				}
@@ -463,7 +446,6 @@ export const useStore = create<Store>()((set, get) => {
 				members.splice(index ?? members.length, 0, member);
 				return { ...t, members };
 			});
-			set({ previewSpecies: null });
 			if (!get().selectedUid) focus(member.uid);
 			cardIfMerged();
 			return true;
@@ -559,12 +541,6 @@ export const useStore = create<Store>()((set, get) => {
 		updateSet: (memberUid, patch) => updateMember(memberUid, (m) => ({ ...m, ...patch })),
 		replaceSet: (memberUid, next) => updateMember(memberUid, () => ({ ...next, uid: memberUid })),
 		changeSpecies: (memberUid, species) => updateMember(memberUid, (m) => asSpecies(openTeam(), m, species)),
-		swapIn: (memberUid, species) => {
-			const team = openTeam();
-			const fresh = freshSet(team, species);
-			updateMember(memberUid, () => ({ ...fresh, uid: memberUid }));
-			set((s) => ({ compareSpecies: null, previewSpecies: null, inspector: s.merged ? 'card' : 'stats' }));
-		},
 		setMove: (memberUid, slot, move) =>
 			updateMember(memberUid, (m) => {
 				const moves = [...m.moves];
@@ -604,20 +580,6 @@ export const useStore = create<Store>()((set, get) => {
 		setInspector: (view, slot = null) => set({ inspector: view, activeMoveSlot: view === 'moves' ? slot : null }),
 		chose: () => set((s) => ({ chosen: s.chosen + 1 })),
 		setMatchupType: (matchupType) => set({ matchupType, inspector: 'matchups' }),
-		preview: (species) =>
-			set((s) => ({
-				previewSpecies: species,
-				compareSpecies: null,
-				inspector: s.merged ? 'card' : species ? (s.selectedUid ? 'compare' : s.inspector) : s.selectedUid ? 'stats' : 'team',
-			})),
-		setCompareTarget: (compareTarget) => set({ compareTarget }),
-		compare: (species) =>
-			set((s) => ({
-				compareSpecies: species,
-				compareTarget: s.selectedUid ?? openTeam().members[0]?.uid ?? null,
-				previewSpecies: null,
-				inspector: s.merged ? 'card' : species ? 'compare' : s.selectedUid ? 'stats' : 'team',
-			})),
 		setCarousel: (patch) => set(patch),
 
 		setBoxOpen: (boxOpen) => set({ boxOpen, boxPartyUid: null }),

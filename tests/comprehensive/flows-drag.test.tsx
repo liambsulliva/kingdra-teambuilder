@@ -5,7 +5,7 @@ import type { DragData, DropTarget } from '@/lib/drag';
 import { BOX_SIZE, newSet, newTeam, type Library, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { seedLocalLibrary, setViewport } from '../helpers/env';
-import { flush, renderApp } from '../helpers/render';
+import { byLabel, flush, renderApp } from '../helpers/render';
 import { buildStressLibrary, clone, type StressLibrary } from '../fixtures/library';
 
 // jsdom has no layout, so dnd-kit cannot detect collisions. The real DragLayer is
@@ -76,10 +76,30 @@ describe('dragging a suggestion', () => {
 		expect(s().selectedUid).toBe(open().members[0].uid);
 	});
 
-	it('onto the card of a team with members compares it', () => {
+	it('onto the card of a team with members adds it and puts it on the card', async () => {
 		drop({ kind: 'candidate', species: 'Garchomp' }, { kind: 'card' });
-		expect(s().compareSpecies).toBe('Garchomp');
-		expect(open().members).toHaveLength(2);
+		await flush();
+		expect(open().members.map((m) => m.species)).toEqual(['Pikachu', 'Eevee', 'Garchomp']);
+		expect(s().selectedUid).toBe(open().members[2].uid);
+		expect(byLabel('Garchomp set')).toBeTruthy();
+	});
+
+	it('onto a move slot does the same: the card is one drop target', async () => {
+		drop({ kind: 'candidate', species: 'Garchomp' }, { kind: 'moveslot', slot: 1 });
+		await flush();
+		expect(open().members.at(-1)!.species).toBe('Garchomp');
+		expect(s().selectedUid).toBe(open().members.at(-1)!.uid);
+	});
+
+	it('onto the card of a full team is refused with a shake, and the card keeps its member', async () => {
+		await openTeam(full());
+		const before = open().members.map((m) => m.uid);
+		const carded = s().selectedUid;
+		const shake = s().rejectedAt;
+		drop({ kind: 'candidate', species: 'Mew' }, { kind: 'card' });
+		expect(open().members.map((m) => m.uid)).toEqual(before);
+		expect(s().selectedUid).toBe(carded);
+		expect(s().rejectedAt).toBeGreaterThan(shake);
 	});
 
 	it('onto a party cell inserts it there', () => {
@@ -127,9 +147,17 @@ describe('dragging a party member', () => {
 		expect(open().members.map((m) => m.uid)).not.toContain(uid);
 	});
 
-	it('released on the card or a move slot removes it too', () => {
-		drop(drag(), { kind: 'card' });
-		expect(open().members.map((m) => m.species)).toEqual(['Eevee']);
+	it('dropped on the card puts it on the card and leaves the party as it was', async () => {
+		const eevee = open().members.find((m) => m.species === 'Eevee')!;
+		expect(s().selectedUid).not.toBe(eevee.uid);
+		drop({ kind: 'member', uid: eevee.uid, species: 'Eevee', teamId: roomy.id }, { kind: 'card' });
+		await flush();
+		expect(s().selectedUid).toBe(eevee.uid);
+		expect(open().members.map((m) => m.species)).toEqual(['Pikachu', 'Eevee']);
+		drop(drag(), { kind: 'moveslot', slot: 0 });
+		await flush();
+		expect(s().selectedUid).toBe(pikachu().uid);
+		expect(open().members.map((m) => m.species)).toEqual(['Pikachu', 'Eevee']);
 	});
 
 	it('within the party reorders', () => {
@@ -185,10 +213,28 @@ describe('dragging a party member', () => {
 		expect(team(from.id).members.map((m) => m.uid)).not.toContain(set.uid);
 	});
 
+	it('from a closed team onto the card joins the party and goes on the card', async () => {
+		const from = lib.teams.find((t) => t.members.length > 1 && t.id !== roomy.id)!;
+		const set = from.members[0];
+		drop({ kind: 'member', uid: set.uid, species: set.species, teamId: from.id }, { kind: 'card' });
+		await flush();
+		expect(open().members.at(-1)).toEqual(set);
+		expect(s().selectedUid).toBe(set.uid);
+		expect(team(from.id).members.map((m) => m.uid)).not.toContain(set.uid);
+	});
+
+	it('from a closed team onto the card of a full party stays put', async () => {
+		await openTeam(full());
+		const from = lib.teams.find((t) => t.members.length > 1 && t.id !== s().openTeamId && t.id !== roomy.id)!;
+		const set = from.members[0];
+		drop({ kind: 'member', uid: set.uid, species: set.species, teamId: from.id }, { kind: 'card' });
+		expect(team(from.id).members[0]).toEqual(set);
+	});
+
 	it('from a closed team released anywhere else stays put', () => {
 		const from = lib.teams.find((t) => t.members.length > 1 && t.id !== roomy.id)!;
 		const set = from.members[0];
-		for (const over of [undefined, { kind: 'card' as const }, { kind: 'boxcell' as const, box: 0, slot: 0 }]) {
+		for (const over of [undefined, { kind: 'boxcell' as const, box: 0, slot: 0 }]) {
 			drop({ kind: 'member', uid: set.uid, species: set.species, teamId: from.id }, over);
 			expect(team(from.id).members[0]).toEqual(set);
 		}
@@ -247,9 +293,22 @@ describe('dragging from the Box', () => {
 		expect(s().library.boxes.every((b) => b.slots.length === BOX_SIZE)).toBe(true);
 	});
 
-	it('anywhere else does nothing', () => {
+	it('onto the card joins the party and goes on the card, unless the party is full', async () => {
 		const a = first();
 		drop({ kind: 'boxset', box: 0, slot: a.slot }, { kind: 'card' });
+		await flush();
+		expect(open().members.at(-1)!.uid).toBe(a.set.uid);
+		expect(s().selectedUid).toBe(a.set.uid);
+		expect(s().library.boxes[0].slots[a.slot]).toBeNull();
+		await openTeam(full());
+		const b = first();
+		drop({ kind: 'boxset', box: 0, slot: b.slot }, { kind: 'card' });
+		expect(s().library.boxes[0].slots[b.slot]!.uid).toBe(b.set.uid);
+		expect(open().members.map((m) => m.uid)).not.toContain(b.set.uid);
+	});
+
+	it('released nowhere does nothing', () => {
+		const a = first();
 		drop({ kind: 'boxset', box: 0, slot: a.slot }, undefined);
 		expect(s().library.boxes[0].slots[a.slot]!.uid).toBe(a.set.uid);
 	});

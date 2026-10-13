@@ -6,10 +6,8 @@ import { Button } from '@/components/ui/controls';
 import { TypeBadge } from '@/components/ui/TypeBadge';
 import { effectiveness, getMove, getSpecies, typesForGen } from '@/lib/dex';
 import { fixKeyFor, planFix } from '@/lib/fixes';
-import { useRoles } from '@/lib/hooks';
-import { STATS, STAT_LABELS, type PokemonSet, type Team } from '@/lib/model';
+import { type PokemonSet, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
-import { STAT_BAR } from './StatsView';
 
 function Section({ title, sub, children }: { title: string; sub?: React.ReactNode; children: React.ReactNode }) {
 	return (
@@ -163,69 +161,6 @@ export function MatchupsView({ team, member }: { team: Team; member: PokemonSet 
 					</Section>
 				);
 			})}
-		</div>
-	);
-}
-
-function Badges({ types, align }: { types: string[]; align: 'left' | 'right' }) {
-	if (!types.length) return <span className={`text-base text-muted ${align === 'right' ? 'text-right' : ''}`}>None</span>;
-	return <span className={`flex flex-wrap gap-1 ${align === 'right' ? 'justify-end' : ''}`}>{types.map((t) => <TypeBadge key={t} type={t} />)}</span>;
-}
-
-export function CompareView({ team, candidate }: { team: Team; candidate: string }) {
-	const selected = useStore((s) => s.selectedUid);
-	const target = useStore((s) => s.compareTarget);
-	const roles = useRoles(team.mode === 'competitive' ? team.format : null);
-	const mine = team.members.find((m) => m.uid === (selected ?? target)) ?? team.members[0];
-	const a = getSpecies(team, candidate);
-	const b = mine ? getSpecies(team, mine.species) : null;
-	if (!a) return null;
-	const side = (types: string[], test: (x: number) => boolean) => matchups(team, types).filter(([, x]) => test(x)).map(([t]) => t);
-	const rows: [string, (x: number) => boolean][] = [
-		['Weak to', (x) => x > 1],
-		['Resists', (x) => x > 0 && x < 1],
-		['Immune to', (x) => x === 0],
-	];
-	return (
-		<div className='flex flex-col gap-4'>
-			<div className='flex items-end'>
-				<span className='text-base font-semibold'>{a.name}</span>
-				<span className='flex-1' />
-				<span className='text-base font-semibold'>{b?.name ?? 'Your team'}</span>
-			</div>
-			<span className='-mt-2 text-xs text-muted'>Base stats, not trained values</span>
-			{STATS.map((k) => {
-				const x = a.baseStats[k];
-				const y = b?.baseStats[k] ?? 0;
-				return (
-					<div key={k} className='flex items-center gap-2'>
-						<span className={`w-8 text-sm tabular-nums ${x >= y ? 'font-semibold' : 'text-muted'}`}>{x}</span>
-						<span className='flex h-2 flex-1 justify-end overflow-hidden rounded-full bg-track'>
-							<span className={`h-full rounded-full ${STAT_BAR[k]} ${x >= y ? '' : 'opacity-35'}`} style={{ width: `${Math.min(100, (x / 150) * 100)}%` }} />
-						</span>
-						<span className='w-8 text-center text-base font-semibold'>{STAT_LABELS[k]}</span>
-						<span className='h-2 flex-1 overflow-hidden rounded-full bg-track'>
-							<span className={`block h-full rounded-full ${STAT_BAR[k]} ${y >= x ? '' : 'opacity-35'}`} style={{ width: `${Math.min(100, (y / 150) * 100)}%` }} />
-						</span>
-						<span className={`w-8 text-right text-sm tabular-nums ${y >= x ? 'font-semibold' : 'text-muted'}`}>{b ? y : '—'}</span>
-					</div>
-				);
-			})}
-			<div className='h-px bg-line' />
-			{rows.map(([label, test]) => (
-				<div key={label} className='grid grid-cols-[1fr_auto_1fr] items-start gap-3'>
-					<Badges types={side(a.types, test)} align='left' />
-					<span className='pt-0.5 text-xs text-muted'>{label}</span>
-					{b ? <Badges types={side(b.types, test)} align='right' /> : <span />}
-				</div>
-			))}
-			{team.mode === 'competitive' && (
-				<div className='grid grid-cols-[1fr_auto_1fr] items-start gap-3'>
-					<span className='text-base'>{(roles[a.name] ?? []).join(', ') || '—'}</span>
-					<span className='pt-0.5 text-xs text-muted'>Roles</span>
-					<span className='text-right text-base'>{b ? (roles[b.name] ?? []).join(', ') || '—' : ''}</span>
-				</div>
-			)}
 		</div>
 	);
 }

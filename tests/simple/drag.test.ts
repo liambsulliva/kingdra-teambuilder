@@ -11,9 +11,8 @@ const SIX = ['Pikachu', 'Charizard', 'Lapras', 'Snorlax', 'Gengar', 'Dragonite']
 beforeEach(() => resetStore());
 
 describe('which drops are accepted', () => {
-	it('lets a suggestion onto the card, and onto a party cell while there is room or a member to replace', () => {
+	it('lets a suggestion onto a party cell while there is room or a member to replace', () => {
 		const cand: DragData = { kind: 'candidate', species: 'Mew' };
-		expect(accepts(cand, { kind: 'card' })).toBe(true);
 		expect(accepts(cand, { kind: 'party', index: 0 })).toBe(true);
 		SIX.forEach((p) => s().addMember(p));
 		expect(accepts(cand, { kind: 'party', index: 6 })).toBe(false);
@@ -78,10 +77,24 @@ describe('which drops are accepted', () => {
 		const drag: DragData = { kind: 'boxset', box: 0, slot: 0 };
 		expect(accepts(drag, { kind: 'party', index: 0 })).toBe(true);
 		expect(accepts(drag, { kind: 'boxcell', box: 0, slot: 1 })).toBe(true);
-		expect(accepts(drag, { kind: 'card' })).toBe(false);
 		SIX.forEach((p) => s().addMember(p));
 		expect(accepts(drag, { kind: 'party', index: 6 })).toBe(false);
 		expect(accepts(drag, { kind: 'party', index: 0 })).toBe(true);
+	});
+
+	// Any Pokémon dropped on the card goes onto the card; one that isn't in the party needs room in it.
+	it('lets any Pokémon onto the card or its move slots while it has a place in the party', () => {
+		s().addMember('Pikachu');
+		const own: DragData = { kind: 'member', uid: open().members[0].uid, teamId: open().id };
+		const others: DragData[] = [{ kind: 'candidate', species: 'Mew' }, { kind: 'boxset', box: 0, slot: 0 }, { kind: 'member', uid: 'x', teamId: 'other' }];
+		for (const target of [{ kind: 'card' as const }, { kind: 'moveslot' as const, slot: 2 }]) {
+			expect(accepts(own, target)).toBe(true);
+			for (const drag of others) expect(accepts(drag, target), `${drag.kind} on ${target.kind}`).toBe(true);
+		}
+		SIX.slice(1).forEach((p) => s().addMember(p));
+		expect(accepts(own, { kind: 'card' })).toBe(true);
+		for (const drag of others) expect(accepts(drag, { kind: 'card' }), `${drag.kind} on a full team`).toBe(false);
+		expect(accepts({ kind: 'evolution', uid: own.uid, teamId: open().id, species: 'Raichu' }, { kind: 'card' })).toBe(false);
 	});
 
 	it('lets a move from the list onto a slot only, and a move off its slot anywhere', () => {

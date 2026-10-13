@@ -174,13 +174,25 @@ describe('tablet layout: the workspace merges into the right panel', () => {
 		expect(s().inspector).toBe('card');
 	});
 
-	it('adds a Compare tab while comparing, and disables the editors', async () => {
-		act(() => s().compare('Mew'));
-		await flush();
-		expect(strip().slice(0, 2)).toEqual(['Party and card', 'Compare']);
-		expect((byLabel('Stats') as HTMLButtonElement).disabled).toBe(true);
-		await click(byLabel('Compare'));
-		expect(hasText('Base stats, not trained values')).toBe(true);
+	it('offers drop targets on the card only while the card tab is open', async () => {
+		expect(document.querySelector('[data-party]')).toBeTruthy();
+		expect(document.querySelector('[data-move-slot]')).toBeTruthy();
+		await click(document.querySelector('[data-key-row="ability"]')!);
+		expect(document.querySelector('[data-party]')).toBeNull();
+		expect(document.querySelector('[data-move-slot]')).toBeNull();
+	});
+
+	it('brings the card back when a suggestion is added from another tab', async () => {
+		await click(document.querySelector('[data-key-row="ability"]')!);
+		expect(s().inspector).toBe('ability');
+		await click(allByName(/^Add .+ to the team$/)[0]);
+		expect(open().members).toHaveLength(3);
+		expect(s().inspector).toBe('card');
+	});
+
+	it('offers no Compare tab, whatever is dragged or dropped', () => {
+		expect(strip()).not.toContain('Compare');
+		expect(strip()[0]).toBe('Party and card');
 	});
 
 	it('goes back to the team view when widened to desktop', async () => {

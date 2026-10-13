@@ -67,7 +67,7 @@ describe('suggestions carousel', () => {
 	beforeEach(() => start([roomy, gen5, dbl, kanto]));
 
 	it('offers the tier tabs of every team’s format, with one of them selected', async () => {
-		for (const t of lib.teams.filter((x) => !CHAMPIONS_TIERED.includes(x.format))) {
+		for (const t of lib.teams) {
 			await openTeam(t);
 			const tabs = tierTabs();
 			expect(tabs, t.name).toEqual(tabsFor(t));
@@ -276,6 +276,53 @@ describe('the PC Box', () => {
 		await click(byLabel('Delete box'));
 		await click(button('Delete?', drawer()!));
 		expect(s().library.boxes.map((b) => b.name)).toEqual(['Box 1', 'Box 2', 'Box 3', 'Box 4']);
+	});
+
+	it('renames a box with Enter, and names what a delete would take with it', async () => {
+		await openBox();
+		await dblclick(button('Box 1', drawer()!));
+		const input = drawer()!.querySelector<HTMLInputElement>('input')!;
+		type(input, 'Starters');
+		await key(input, 'Enter');
+		await blur(input);
+		expect(s().library.boxes[0].name).toBe('Starters');
+		await click(byLabel('Delete box'));
+		const n = lib.boxes[0].slots.filter(Boolean).length;
+		expect(button('Delete?', drawer()!).title).toBe(`Deletes Starters and the ${n} stored in it`);
+	});
+
+	it('moves a picked party member into the box being viewed', async () => {
+		await openBox();
+		await click(byLabel('Next box'));
+		await click(byLabel('Next box'));
+		const m = lib.teams[0].members[2];
+		await click(drawer()!.querySelector('[data-party-member][data-index="2"]')!);
+		expect(drawer()!.querySelector('[data-party-member][data-index="2"]')!.className).toContain('bg-accent-soft');
+		await click(button('Move to box', drawer()!));
+		expect(s().library.boxes[2].slots.some((x) => x?.uid === m.uid)).toBe(true);
+	});
+
+	it('forgets the selection when paging, and a box cell replaces a picked party member', async () => {
+		await openBox();
+		const slot = lib.boxes[0].slots.findIndex(Boolean);
+		const stored = lib.boxes[0].slots[slot]!;
+		await click(byLabel(`${stored.name || stored.species}, box slot ${slot + 1}`));
+		await click(byLabel('Next box'));
+		expect(hasText('Select a Pokémon to see its set.', drawer()!)).toBe(true);
+		await click(byLabel('Previous box'));
+		await click(drawer()!.querySelector('[data-party-member][data-index="1"]')!);
+		expect(s().boxPartyUid).toBe(lib.teams[0].members[1].uid);
+		await click(byLabel(`${stored.name || stored.species}, box slot ${slot + 1}`));
+		expect(s().boxPartyUid).toBeNull();
+		expect(queryButton('Move to party', drawer()!)).toBeTruthy();
+	});
+
+	it('holds 32 boxes at most, and says so on the New box button', async () => {
+		for (let i = lib.boxes.length; i < 32; i++) act(() => s().addBox());
+		await openBox();
+		const full = byLabel<HTMLButtonElement>('PC full: 32 boxes', drawer()!);
+		expect(full.disabled).toBe(true);
+		expect(queryByLabel('New box', drawer()!)).toBeNull();
 	});
 
 	it('cannot delete the only box', async () => {

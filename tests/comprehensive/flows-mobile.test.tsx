@@ -5,7 +5,7 @@ import type { DragData, DropTarget } from '@/lib/drag';
 import { emptyLibrary, newSet, newTeam, type Library } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { seedLocalLibrary, setViewport } from '../helpers/env';
-import { allByName, button, byLabel, byName, click, flush, hasText, key, queryByLabel, renderApp, waitFor } from '../helpers/render';
+import { allByName, button, byLabel, byName, click, flush, hasText, hover, key, queryByLabel, renderApp, type, wait, waitFor } from '../helpers/render';
 
 // Mobile interaction patterns agreed in docs/redesign/spec.md section 10. jsdom has no
 // layout, so drops drive the real DragLayer's handlers directly, as in flows-drag.
@@ -83,10 +83,82 @@ describe('phone: party and card', () => {
 		expect(partyIcons().some((el) => el.className.includes('bg-accent-soft'))).toBe(false);
 	});
 
-	it('opens the editor sheet only from a key row, move or Stats', async () => {
+	it('opens the editor sheet from a key row, a move slot or a type badge', async () => {
 		await click(document.querySelector('[data-key-row="item"]')!);
 		await flush();
 		expect(editorOpen()).toBe(true);
+		act(() => s().setInspector('team'));
+		act(() => useStore.setState({ chosen: s().chosen + 1 }));
+		await flush();
+		expect(editorOpen()).toBe(false);
+		await click(document.querySelector('[data-move-slot="1"]')!);
+		await flush();
+		expect(editorOpen()).toBe(true);
+		expect(s()).toMatchObject({ inspector: 'moves', activeMoveSlot: 1 });
+		act(() => useStore.setState({ chosen: s().chosen + 1 }));
+		await flush();
+		await click(byLabel('Garchomp set').querySelector('button[title$="matchups"]')!);
+		await flush();
+		expect(editorOpen()).toBe(true);
+		expect(s().inspector).toBe('matchups');
+	});
+
+	it('closes the sheet once a move is picked with no slot chosen', async () => {
+		act(() => s().setInspector('moves'));
+		await flush();
+		expect(editorOpen()).toBe(true);
+		const eq = await waitFor(() => button(/^GroundEarthquake/, byLabel('Editor')));
+		await click(eq);
+		await flush();
+		expect(open().members[0].moves[0]).toBe('Earthquake');
+		expect(editorOpen()).toBe(false);
+		expect(byName('Move 1: Earthquake')).toBeTruthy();
+	});
+
+	// Known issue: picking clears the active slot, which the sheet reads as a new view and reopens itself in the
+	// same render the pick closed it. Reproduced in Chrome at 375 px: the sheet stays up on “Moves”.
+	it.fails('closes the sheet once a move is picked for a tapped slot', async () => {
+		await click(document.querySelector('[data-move-slot="0"]')!);
+		await flush();
+		const eq = await waitFor(() => button(/^GroundEarthquake/, byLabel('Editor')));
+		await click(eq);
+		await flush();
+		expect(open().members[0].moves[0]).toBe('Earthquake');
+		expect(editorOpen()).toBe(false);
+	});
+
+	it('closes the sheet on a level preset, but not while a level is typed', async () => {
+		await click(document.querySelector('[data-key-row="level"]')!);
+		await flush();
+		const box = byLabel('Editor').querySelector<HTMLInputElement>('input[aria-label="Level"]')!;
+		type(box, '7');
+		await flush();
+		expect(editorOpen()).toBe(true);
+		await click(button('50', byLabel('Editor')));
+		await flush();
+		expect(open().members[0].level).toBe(50);
+		expect(editorOpen()).toBe(false);
+	});
+
+	it('opens the action sheet on a long press that never moves, and acts from it', async () => {
+		drop({ kind: 'member', uid: trio.members[1].uid, species: 'Pikachu', teamId: trio.id }, undefined, 2);
+		await flush();
+		const sheet = byLabel('Pokémon actions');
+		expect(hasText('Pikachu', sheet)).toBe(true);
+		expect(hasText('Electric', sheet)).toBe(true);
+		await click(button('Move to Box', sheet));
+		await flush();
+		expect(open().members.map((m) => m.species)).toEqual(['Garchomp', 'Corviknight']);
+		expect(s().mobileActionUid).toBeNull();
+	});
+
+	it('never opens the action sheet for another team’s member', async () => {
+		const other = newTeam({ name: 'Other', members: [newSet('Mew')] });
+		act(() => s().addTeams([other]));
+		act(() => s().openTeam(trio.id));
+		drop({ kind: 'member', uid: other.members[0].uid, species: 'Mew', teamId: other.id }, undefined, 2);
+		await flush();
+		expect(s().mobileActionUid).toBeNull();
 	});
 
 	it('captions the member on the card, never the last one touched', async () => {
@@ -149,6 +221,24 @@ describe('phone: Browse party row', () => {
 		expect(editorOpen()).toBe(false);
 	});
 
+	// docs/redesign/spec.md §10: nothing animates across tabs.
+	it('flies nothing across tabs when a tapped member switches to Party', async () => {
+		setViewport({ reducedMotion: false });
+		const animate = vi.spyOn(Element.prototype, 'animate');
+		try {
+			await click(document.querySelector('[data-party-member][data-index="2"]')!);
+			await flush(2);
+			await wait(400);
+			expect(current()).toBe('Party');
+			expect(s().selectedUid).toBe(trio.members[2].uid);
+			const flown = animate.mock.contexts.filter((el) => (el as HTMLElement).style.position === 'fixed');
+			expect(flown).toHaveLength(0);
+		} finally {
+			animate.mockRestore();
+			setViewport({ reducedMotion: true });
+		}
+	});
+
 	it('in Box, a tapped member is boxed and a tapped Box Pokémon joins the party', async () => {
 		await click(button('Box'));
 		await click(document.querySelector('[data-party-member][data-index="1"]')!);
@@ -198,8 +288,11 @@ describe('phone: empty team', () => {
 describe('desktop is unchanged where the phone changed', () => {
 	beforeEach(() => start(false));
 
-	it('shows the card member in the workspace party row too, with hover captions', () => {
+	it('shows the card member in the workspace party row too, with hover captions', async () => {
 		expect(partyIcons().map((el) => el.dataset.species)).toEqual(trio.members.map((m) => m.species));
+		await hover(partyIcons()[1]);
+		expect(caption()).toContain('Pikachu');
+		expect(caption()).toContain('Electric');
 	});
 
 	it('shows all six in the Box drawer so the card member can be boxed', async () => {

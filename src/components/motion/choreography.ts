@@ -649,26 +649,3 @@ export async function hopAndSwap(el: HTMLElement | null, swap: () => void) {
 	up.cancel();
 	await down.finished.catch(() => undefined);
 }
-
-/**
- * Swap in from the comparison: the old party icon poofs while the candidate
- * arcs from its carousel card into the same party slot. About 460 ms.
- */
-export async function hopInto(species: string, fromSelector: string, toSelector: string) {
-	const from = document.querySelector(fromSelector);
-	const to = document.querySelector(toSelector);
-	if (!from || !to || reduced()) return;
-	const a = from.getBoundingClientRect();
-	const b = to.getBoundingClientRect();
-	poof(b.left + b.width / 2, b.top + b.height / 2);
-	const start = new DOMRect(a.left + a.width / 2 - 16, a.top + 12, 32, 32);
-	const { outer } = cloneIcon(species, start);
-	outer.style.transformOrigin = '50% 100%';
-	const path = arc([start.left, start.top], [b.left, b.top], 36, 12);
-	const anim = outer.animate(hopFrames(path, [start.left, start.top]), { duration: 460, easing: 'linear', fill: 'both' });
-	(to as HTMLElement).style.opacity = '0';
-	await anim.finished.catch(() => undefined);
-	outer.remove();
-	(to as HTMLElement).style.opacity = '';
-	pop(to);
-}

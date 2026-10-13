@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 import { emptyLibrary, type Library } from '@/lib/model';
-import { useStore, type Store } from '@/lib/store';
+import { readFancyMotion, readLastSelected, readSpriteSet, readTeamView, useStore, type Store } from '@/lib/store';
 import { clearRequestCaches } from '@/lib/hooks';
 import { clearSmogonCache } from '@/lib/smogon';
 
@@ -98,6 +98,14 @@ const initialStore = useStore.getState();
 export function resetStore(library: Library = emptyLibrary()) {
 	useStore.setState({ ...initialStore, toasts: [], validation: {} } as Store, true);
 	useStore.getState().hydrate(library);
+}
+
+/**
+ * Re-read the preferences saved per viewer, as a page reload would. The store reads them once, when its module
+ * loads, so seeding storage before `renderApp` alone has no effect.
+ */
+export function reloadPreferences() {
+	useStore.setState({ spriteSet: readSpriteSet(), teamView: readTeamView(), fancyMotion: readFancyMotion(), lastSelected: readLastSelected() });
 }
 
 /** Put a library in this browser's storage, as a returning guest would have it. */

@@ -5,7 +5,7 @@ import { fieldsFor, getSpecies } from '@/lib/dex';
 import { newSet, newTeam, type Library, type PokemonSet, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { clipboard, mockApi, seedLocalLibrary } from '../helpers/env';
-import { allButtons, button, byLabel, byName, click, flush, hasText, key, openDialog, queryButton, queryByLabel, queryByName, renderApp, type, wait, waitFor } from '../helpers/render';
+import { allButtons, button, byLabel, byName, click, flush, hasText, key, openDialog, queryButton, queryByLabel, queryByName, renderApp, type, waitFor } from '../helpers/render';
 import { buildStressLibrary, clone, type StressLibrary } from '../fixtures/library';
 
 const s = () => useStore.getState();
@@ -36,7 +36,7 @@ async function openTeam(t: Team) {
 async function putOnCard(t: Team, m: PokemonSet) {
 	await openTeam(t);
 	const index = open().members.findIndex((x) => x.uid === m.uid);
-	// Opening a team puts a member on the card already; its party icon is hidden on desktop.
+	// Opening a team puts a member on the card already; its icon stays in the party row.
 	if (s().selectedUid !== m.uid) await click(document.querySelector(`[data-party-member][data-index="${index}"]`)!);
 	await flush(2);
 	expect(s().selectedUid).toBe(m.uid);
@@ -180,7 +180,14 @@ describe('the card for every member of every team', () => {
 		const t = lib.teams[0];
 		await putOnCard(t, t.members[0]);
 		await click(byLabel('Paste a Showdown set'));
+		const dialog = openDialog()!;
+		// Escape: the browser closes the dialog and fires `close`; the window sees the key too.
+		act(() => {
+			dialog.removeAttribute('open');
+			dialog.dispatchEvent(new Event('close'));
+		});
 		await key(window, 'Escape');
+		expect(s().dialog).toBeNull();
 		expect(s().selectedUid).toBe(t.members[0].uid);
 	});
 
@@ -190,7 +197,24 @@ describe('the card for every member of every team', () => {
 		expect(hasText('Blank Slate')).toBe(true);
 		expect(hasText('0/6')).toBe(true);
 		expect(hasText('Drag a suggestion onto the party, or click one to add it.')).toBe(true);
-		expect(hasText('preview')).toBe(false);
+		// A competitive team counts its issues even while empty; a casual one never does.
+		expect(hasText('0/6 - No Issues')).toBe(true);
+		await act(() => s().createTeam({ name: 'Blank Casual', mode: 'casual', format: 'casual' }));
+		expect(hasText('0/6')).toBe(true);
+		expect(hasText('Issue')).toBe(false);
+	});
+
+	it('shows the nature with its raised and lowered stats, or Neutral', async () => {
+		const t = newTeam({ name: 'Natures', format: 'gen9ou', members: [newSet('Garchomp', { ability: 'Rough Skin', nature: 'Jolly' }), newSet('Pikachu', { ability: 'Static' })] });
+		act(() => s().addTeams([t]));
+		await flush();
+		const row = () => document.querySelector('[data-key-row="nature"]')!.textContent!;
+		expect(row()).toContain('Jolly');
+		expect(row()).toMatch(/\+\s*Spe/);
+		expect(row()).toMatch(/[−-]\s*SpA/);
+		await click(document.querySelector('[data-party-member][data-index="1"]')!);
+		await flush(2);
+		expect(row()).toContain('Neutral');
 	});
 });
 
@@ -269,83 +293,5 @@ describe('Smogon sets on the card', () => {
 	it('lists the support moves the species can learn', async () => {
 		await putOnCard(solo, solo.members[0]);
 		await waitFor(() => expect(hasText('Hazards', byLabel('Garchomp set'))).toBe(true));
-	});
-});
-
-describe('preview and comparison', () => {
-	beforeEach(() => start());
-
-	it('previews a candidate with base stats and can add it', async () => {
-		const t = lib.teams.find((x) => x.members.length < 6)!;
-		await openTeam(t);
-		await key(window, 'Escape');
-		act(() => s().preview('Mew'));
-		const preview = byLabel('Preview Mew');
-		expect(hasText('#151', preview)).toBe(true);
-		await click(button('Add to team', preview));
-		expect(open().members.at(-1)!.species).toBe('Mew');
-		expect(queryByLabel('Preview Mew')).toBeNull();
-	});
-
-	it('disables adding to a full team and points at Compare; Escape and the close button leave', async () => {
-		const full = lib.teams[0];
-		act(() => s().preview('Mew'));
-		expect(button('Add to team', byLabel('Preview Mew')).disabled).toBe(true);
-		expect(hasText(`${full.name} is full. Compare to swap someone out.`)).toBe(true);
-		await key(window, 'Escape');
-		expect(s().previewSpecies).toBeNull();
-		act(() => s().preview('Mew'));
-		await click(byLabel('Close preview'));
-		expect(s().previewSpecies).toBeNull();
-		act(() => s().preview('Mew'));
-		await click(button('Compare', byLabel('Preview Mew')));
-		expect(s().compareSpecies).toBe('Mew');
-	});
-
-	it('swaps the candidate in for the member on the card as a fresh set, and keeps it on the card', async () => {
-		const t = lib.teams[0];
-		await putOnCard(t, t.members[3]);
-		act(() => s().compare('Mew'));
-		const scene = byLabel('Compare Mew');
-		expect(hasText('Candidate', scene)).toBe(true);
-		expect(hasText('On your card', scene)).toBe(true);
-		await click(button(`Swap ${label(t.members[3])} for Mew`));
-		await flush(4);
-		expect(open().members[3]).toMatchObject({ uid: t.members[3].uid, species: 'Mew', moves: [], item: '' });
-		expect(s().compareSpecies).toBeNull();
-		expect(s().selectedUid).toBe(t.members[3].uid);
-	});
-
-	it('compares against the member on the card, and returns to it on close', async () => {
-		const t = lib.teams[0];
-		await putOnCard(t, t.members[2]);
-		act(() => s().compare('Mew'));
-		expect(hasText('On your card', byLabel('Compare Mew'))).toBe(true);
-		expect(queryByLabel(/^Compare with /)).toBeNull();
-		await click(byLabel('Close comparison'));
-		expect(s()).toMatchObject({ compareSpecies: null, selectedUid: t.members[2].uid });
-	});
-
-	it('adds the candidate from the comparison when the team has room', async () => {
-		const t = lib.teams.find((x) => x.members.length < 6)!;
-		await openTeam(t);
-		act(() => s().compare('Mew'));
-		await click(button('Add to team', byLabel('Compare Mew')));
-		expect(open().members.at(-1)!.species).toBe('Mew');
-	});
-
-	it('shows base stats, matchups and roles side by side in the inspector', async () => {
-		// Roles are cached per format for the session, so this uses a format no other test opens.
-		const t = newTeam({ name: 'Roles', format: 'gen6uu', gen: 6, members: [newSet('Garchomp', { ability: 'Rough Skin' })] });
-		lib.teams.push(t);
-		s().addTeams([t]);
-		mockApi({ '/api/roles': () => ({ roles: { Mew: ['Support', 'Pivot'] } }) });
-		await putOnCard(t, t.members[0]);
-		act(() => s().compare('Mew'));
-		await wait(20);
-		const inspector = byLabel('Inspector');
-		expect(hasText('Base stats, not trained values', inspector)).toBe(true);
-		for (const row of ['Weak to', 'Resists', 'Immune to', 'Roles']) expect(hasText(row, inspector), row).toBe(true);
-		await waitFor(() => expect(hasText('Support, Pivot', inspector)).toBe(true));
 	});
 });

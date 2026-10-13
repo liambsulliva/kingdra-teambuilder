@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { ElasticSlider } from '../motion-ui';
+import { ElasticSlider, TickNumber } from '../motion-ui';
 import { useStore } from '@/lib/store';
 
 let container: HTMLDivElement;
@@ -118,5 +118,45 @@ describe('elastic slider', () => {
 		act(() => root.render(bar(-20, 'a')));
 		await settle(400);
 		expect(thumb().style.left).toBe('0%');
+	});
+});
+
+/** A viewer who asked the system for reduced motion. */
+const preferReducedMotion = () =>
+	vi.stubGlobal('matchMedia', (query: string) => ({
+		matches: query.includes('prefers-reduced-motion'),
+		media: query,
+		addEventListener() {},
+		removeEventListener() {},
+		addListener() {},
+		removeListener() {},
+	}));
+
+// docs/redesign/spec.md §9 and §14: all motion respects prefers-reduced-motion, as ≤150 ms fades or nothing.
+describe('with reduced motion', () => {
+	afterEach(() => vi.unstubAllGlobals());
+
+	// Known issue: the slingshot runs its full 500 ms overshoot whatever the system setting.
+	it.fails('moves a new Pokémon’s bar to its value without the slingshot', async () => {
+		preferReducedMotion();
+		mount(0, 'a');
+		await settle(20);
+		act(() => root.render(bar(126, 'b')));
+		const positions: number[] = [];
+		for (let i = 0; i < 10; i++) {
+			await settle(30);
+			positions.push(parseFloat(thumb().style.left));
+		}
+		expect(Math.max(...positions)).toBeLessThanOrEqual(50);
+		expect(positions[5]).toBe(50);
+	});
+
+	// Known issue: stat numbers still count up over 300 ms.
+	it.fails('shows a new number at once instead of counting to it', async () => {
+		preferReducedMotion();
+		act(() => root.render(<TickNumber value={0} />));
+		act(() => root.render(<TickNumber value={100} />));
+		await settle(30);
+		expect(container.textContent).toBe('100');
 	});
 });

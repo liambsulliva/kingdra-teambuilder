@@ -8,7 +8,7 @@ import { useOpenTeam, useSelectedMember, useStore, type InspectorView } from '@/
 import { StatsView } from './StatsView';
 import { MovesView } from './MovesView';
 import { AbilityView, DetailsView, ItemView, LevelView, NatureView, TeraView } from './Pickers';
-import { CompareView, MatchupsView, TeamView } from './AnalysisViews';
+import { MatchupsView, TeamView } from './AnalysisViews';
 import { LocationsView, PokedexView } from './PokedexViews';
 
 /**
@@ -20,7 +20,6 @@ export function Inspector() {
 	const member = useSelectedMember();
 	const view = useStore((s) => s.inspector);
 	const merged = useStore((s) => s.merged);
-	const compare = useStore((s) => s.compareSpecies);
 	const setInspector = useStore((s) => s.setInspector);
 	const casual = team.mode === 'casual';
 	const fields = fieldsFor(team);
@@ -37,13 +36,11 @@ export function Inspector() {
 	const views: [InspectorView, IconName, string][] = casual
 		? [['team', 'team', 'Team analysis'], ['pokedex', 'pokedex', 'Pokédex'], ['locations', 'locations', 'Locations'], ...shown, ['matchups', 'matchups', 'Matchups']]
 		: [['team', 'team', 'Team analysis'], ['stats', 'stats', 'Stats'], ...shown, ['matchups', 'matchups', 'Matchups'], ['details', 'details', 'Details']];
-	// Merged: the card comes first, and while comparing the Compare analysis sits beside it.
-	const tabs: [InspectorView, IconName, string][] = merged
-		? [['card', 'party', 'Party and card'], ...(compare ? [['compare', 'compare', 'Compare'] as [InspectorView, IconName, string]] : []), ...views]
-		: views;
-	const needsMember = (v: InspectorView) => v !== 'team' && v !== 'compare' && v !== 'card';
+	// Merged: the card comes first.
+	const tabs: [InspectorView, IconName, string][] = merged ? [['card', 'party', 'Party and card'], ...views] : views;
+	const needsMember = (v: InspectorView) => v !== 'team' && v !== 'card';
 	const home: InspectorView = merged ? 'card' : 'team';
-	const current: InspectorView = view === 'card' && !merged ? 'team' : view === 'compare' && !compare ? home : needsMember(view) && !member ? home : view;
+	const current: InspectorView = view === 'card' && !merged ? 'team' : needsMember(view) && !member ? home : view;
 
 	const strip = (
 		<div className='flex min-h-[48px] shrink-0 flex-wrap items-center gap-0.5 border-b border-line px-4 py-1'>
@@ -53,7 +50,7 @@ export function Inspector() {
 					icon={icon}
 					label={label}
 					selected={current === v}
-					disabled={v !== 'card' && v !== 'compare' && (!!compare || (needsMember(v) && !member))}
+					disabled={needsMember(v) && !member}
 					onClick={() => setInspector(v)}
 				/>
 			))}
@@ -70,7 +67,6 @@ export function Inspector() {
 
 	let body: React.ReactNode = null;
 	if (current === 'team') body = <TeamView team={team} />;
-	else if (current === 'compare' && compare) body = <CompareView team={team} candidate={compare} />;
 	else if (member) {
 		const props = { team, member };
 		body = {
@@ -85,7 +81,7 @@ export function Inspector() {
 			matchups: <MatchupsView {...props} />,
 			pokedex: <PokedexView {...props} />,
 			locations: <LocationsView {...props} />,
-		}[current as Exclude<InspectorView, 'team' | 'compare' | 'card'>];
+		}[current as Exclude<InspectorView, 'team' | 'card'>];
 	}
 
 	return (

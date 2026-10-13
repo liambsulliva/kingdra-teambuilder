@@ -24,12 +24,12 @@ describe('team lifecycle', () => {
 		expect(s().library.teams).toHaveLength(2);
 	});
 
-	it('opening a team clears the card, preview and comparison, and resets the carousel to its tier', () => {
+	it('opening an empty team leaves the card empty and resets the carousel to its tier', () => {
 		s().addMember('Pikachu');
 		s().selectMember(open().members[0].uid);
 		s().setCarousel({ carouselRole: 'Pivot', carouselGen: 3 });
 		s().createTeam({ name: 'UU', format: 'gen9uu' });
-		expect(s()).toMatchObject({ selectedUid: null, previewSpecies: null, compareSpecies: null, carouselTab: 'UU', carouselRole: 'All roles', carouselGen: null, inspector: 'team' });
+		expect(s()).toMatchObject({ selectedUid: null, carouselTab: 'UU', carouselRole: 'All roles', carouselGen: null, inspector: 'team' });
 		s().createTeam({ name: 'Casual', mode: 'casual', format: 'casual' });
 		expect(s().carouselTab).toBe('All');
 	});
@@ -155,13 +155,7 @@ describe('party members', () => {
 		expect(open().members[2]).toMatchObject({ species: 'Mew', uid: old.uid, moves: [] });
 	});
 
-	it('clears the preview when a member is added', () => {
-		s().preview('Mew');
-		s().addMember('Mew');
-		expect(s().previewSpecies).toBeNull();
-	});
-
-	it('removes a member and takes it off the card', () => {
+	it('removes the only member and leaves the card empty', () => {
 		s().addMember('Pikachu');
 		const uid = open().members[0].uid;
 		s().selectMember(uid);
@@ -200,16 +194,6 @@ describe('party members', () => {
 		const uid = open().members[0].uid;
 		s().changeSpecies(uid, 'Garchomp');
 		expect(open().members[0].ability).toBe('Rough Skin');
-	});
-
-	it('swaps a candidate in as a fresh set in the same slot', () => {
-		s().addMember('Pikachu');
-		const old = open().members[0];
-		s().updateSet(old.uid, { moves: ['Thunderbolt'], item: 'Light Ball' });
-		s().compare('Garchomp');
-		s().swapIn(old.uid, 'Garchomp');
-		expect(open().members[0]).toMatchObject({ uid: old.uid, species: 'Garchomp', moves: [], item: '', ability: 'Rough Skin' });
-		expect(s()).toMatchObject({ compareSpecies: null, previewSpecies: null, inspector: 'stats' });
 	});
 
 	it('selecting a member without an ability gives it the default', () => {
@@ -270,6 +254,10 @@ describe('moves', () => {
 });
 
 describe('inspector routing', () => {
+	it('has no preview or comparison left in the store', () => {
+		for (const gone of ['preview', 'compare', 'swapIn', 'setCompareTarget', 'previewSpecies', 'compareSpecies', 'compareTarget']) expect(s(), gone).not.toHaveProperty(gone);
+	});
+
 	it('opens Stats for a competitive member and the Pokédex for a casual one', () => {
 		s().addMember('Pikachu');
 		s().selectMember(open().members[0].uid);
@@ -301,29 +289,6 @@ describe('inspector routing', () => {
 	it('opens matchups for a type', () => {
 		s().setMatchupType('Fire');
 		expect(s()).toMatchObject({ matchupType: 'Fire', inspector: 'matchups' });
-	});
-
-	it('previews and compares candidates', () => {
-		s().preview('Mew');
-		expect(s()).toMatchObject({ previewSpecies: 'Mew', inspector: 'team' });
-		s().addMember('Pikachu');
-		s().selectMember(open().members[0].uid);
-		s().preview('Mew');
-		expect(s().inspector).toBe('compare');
-		s().preview(null);
-		expect(s().inspector).toBe('stats');
-		s().compare('Mew');
-		expect(s()).toMatchObject({ compareSpecies: 'Mew', compareTarget: open().members[0].uid, inspector: 'compare' });
-		s().compare(null);
-		expect(s().inspector).toBe('stats');
-	});
-
-	it('compares against the first member when nothing is on the card', () => {
-		s().addMember('Pikachu');
-		s().compare('Mew');
-		expect(s().compareTarget).toBe(open().members[0].uid);
-		s().setCompareTarget('other');
-		expect(s().compareTarget).toBe('other');
 	});
 
 	it('the merged layout rests on the card instead of the team view', () => {
@@ -517,5 +482,162 @@ describe('feedback', () => {
 		s().setSave('error');
 		s().setDialog('importTeam');
 		expect(s()).toMatchObject({ save: 'error', dialog: 'importTeam' });
+	});
+});
+
+// docs/redesign/spec.md §3: once a team has members, one of them is always on the card.
+describe('always a member on the card', () => {
+	const three = () => ['Pikachu', 'Mew', 'Eevee'].forEach((p) => s().addMember(p));
+	const uids = () => open().members.map((m) => m.uid);
+
+	it('puts the first add on the card and leaves later adds off it', () => {
+		three();
+		expect(s().selectedUid).toBe(uids()[0]);
+	});
+
+	it('hands the card to the member that slides into the removed slot, else the one before', () => {
+		three();
+		const [, mew, eevee] = uids();
+		s().selectMember(mew);
+		s().removeMember(mew);
+		expect(s().selectedUid).toBe(eevee);
+		s().removeMember(eevee);
+		expect(s().selectedUid).toBe(uids()[0]);
+	});
+
+	it('leaves the card alone when a member that is not on it is removed', () => {
+		three();
+		const [pikachu, , eevee] = uids();
+		s().removeMember(eevee);
+		expect(s().selectedUid).toBe(pikachu);
+	});
+
+	it('reopens a team on the member last on its card, remembered in this browser', () => {
+		three();
+		const team = open().id;
+		const eevee = uids()[2];
+		s().selectMember(eevee);
+		expect(JSON.parse(localStorage.getItem('kingdra.lastSelected')!)).toEqual({ [team]: eevee });
+		s().createTeam({ name: 'Other' });
+		expect(s().selectedUid).toBeNull();
+		s().openTeam(team);
+		expect(s().selectedUid).toBe(eevee);
+	});
+
+	it('opens on the first member when the remembered one has left the team', () => {
+		three();
+		const team = open().id;
+		s().createTeam({ name: 'Other' });
+		// Remembered on another visit, for a member since removed elsewhere.
+		useStore.setState({ lastSelected: { [team]: 'gone' } });
+		s().openTeam(team);
+		expect(s().selectedUid).toBe(uids()[0]);
+	});
+
+	it('hydrates onto the remembered member', () => {
+		const team = newTeam({ name: 'Saved', members: [newSet('Pikachu'), newSet('Mew')] });
+		useStore.setState({ lastSelected: { [team.id]: team.members[1].uid } });
+		s().hydrate(library({ teams: [team] }));
+		expect(s().selectedUid).toBe(team.members[1].uid);
+		s().hydrate(library({ teams: [newTeam({ name: 'Empty' })] }));
+		expect(s().selectedUid).toBeNull();
+	});
+
+	it('keeps working when browser storage is blocked', () => {
+		three();
+		const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+			throw new Error('QuotaExceededError');
+		});
+		try {
+			s().selectMember(uids()[1]);
+			expect(s().selectedUid).toBe(uids()[1]);
+		} finally {
+			spy.mockRestore();
+		}
+	});
+
+	it('hands the card on when its member is boxed, or to what it swaps with in a box', () => {
+		three();
+		const [pikachu, mew] = uids();
+		s().storeInBox(pikachu);
+		expect(s().selectedUid).toBe(mew);
+		// Stored in an occupied slot: the stored Pokémon comes out and takes the card.
+		s().storeInBox(mew, 0, 0);
+		const back = open().members.find((m) => m.species === 'Pikachu')!;
+		expect(s().selectedUid).toBe(back.uid);
+	});
+
+	it('puts a Pokémon taken from the box onto the card when it swaps with the member there', () => {
+		three();
+		s().storeInBox(uids()[2]);
+		const pikachu = uids()[0];
+		s().takeFromBox(0, 0, 0);
+		expect(open().members[0].species).toBe('Eevee');
+		expect(s().selectedUid).toBe(open().members[0].uid);
+		expect(s().library.boxes[0].slots[0]?.uid).toBe(pikachu);
+	});
+
+	it('hands the card to the member swapped in from another team', () => {
+		three();
+		const home = open().id;
+		const pikachu = uids()[0];
+		s().createTeam({ name: 'Away' });
+		s().addMember('Lapras');
+		const away = open().id;
+		s().openTeam(home);
+		expect(s().moveMemberToTeam(pikachu, home, away, 0)).toBe(true);
+		expect(open().members[0].species).toBe('Lapras');
+		expect(s().selectedUid).toBe(open().members[0].uid);
+	});
+
+	it('hands the card to a neighbour when its member moves to another team', () => {
+		three();
+		const home = open().id;
+		const [pikachu, mew] = uids();
+		s().createTeam({ name: 'Away' });
+		const away = open().id;
+		s().openTeam(home);
+		s().moveMemberToTeam(pikachu, home, away);
+		expect(s().selectedUid).toBe(mew);
+	});
+});
+
+describe('preferences saved per viewer', () => {
+	it('round-trips the card sprites, team view and fancy animations, and survives blocked storage', () => {
+		s().setSpriteSet('xy');
+		s().setTeamView('cards');
+		s().setFancyMotion(false);
+		expect(localStorage.getItem('kingdra.sprites')).toBe('xy');
+		expect(localStorage.getItem('kingdra.teamView')).toBe('cards');
+		expect(localStorage.getItem('kingdra.fancyMotion')).toBe('off');
+		const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+			throw new Error('blocked');
+		});
+		try {
+			s().setFancyMotion(true);
+			s().setTeamView('list');
+			expect(s()).toMatchObject({ fancyMotion: true, teamView: 'list' });
+		} finally {
+			spy.mockRestore();
+		}
+	});
+
+	it('counts picker choices and guest writes, which the phone sheet and save swim watch', () => {
+		const { chosen, localWrites } = s();
+		s().chose();
+		s().noteLocalWrite();
+		expect(s()).toMatchObject({ chosen: chosen + 1, localWrites: localWrites + 1 });
+	});
+});
+
+describe('team context', () => {
+	it('resets the carousel to the tier of the new context', () => {
+		const id = open().id;
+		s().setTeamContext(id, { mode: 'casual' });
+		expect(s().carouselTab).toBe('All');
+		s().setTeamContext(id, { mode: 'competitive', gen: 9, format: 'gen9championsou' });
+		expect(s().carouselTab).toBe('OU');
+		s().setTeamContext(id, { format: 'gen9uu' });
+		expect(s().carouselTab).toBe('UU');
 	});
 });

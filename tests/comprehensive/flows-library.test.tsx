@@ -92,7 +92,7 @@ describe('team list', () => {
 		const nick = stress.library.teams.flatMap((t) => t.members).find((m) => m.name);
 		if (nick) {
 			type(input, nick.name);
-			expect(shownTeams().length).toBeGreaterThan(0);
+			expect(shownTeams()).toContain(lib.teams.find((t) => t.members.some((m) => m.uid === nick.uid))!.id);
 		}
 		type(input, 'zzzz-nothing');
 		expect(shownTeams()).toEqual([]);
@@ -101,6 +101,65 @@ describe('team list', () => {
 		expect(shownTeams()).toHaveLength(lib.teams.length);
 		await key(input, 'Escape');
 		expect(byLabel('Teams').querySelector('input[type="search"]')).toBeNull();
+	});
+});
+
+describe('team list, more', () => {
+	const searchInput = () => byLabel('Teams').querySelector<HTMLInputElement>('input[type="search"]');
+
+	it('closes the search from its icon, forgetting the query', async () => {
+		await click(byLabel('Search teams'));
+		expect(byLabel('Search teams').getAttribute('aria-pressed')).toBe('true');
+		type(searchInput()!, 'zzzz-nothing');
+		expect(shownTeams()).toEqual([]);
+		await click(byLabel('Search teams'));
+		expect(searchInput()).toBeNull();
+		expect(shownTeams()).toHaveLength(lib.teams.length);
+		await click(byLabel('Search teams'));
+		expect(searchInput()!.value).toBe('');
+		type(searchInput()!, '   ');
+		expect(shownTeams()).toHaveLength(lib.teams.length);
+	});
+
+	it('leaves the open team out of the “Open” buttons, and clicking it changes nothing', async () => {
+		const t = open();
+		expect(byName(`Open ${lib.teams[1].name}`)).toBeTruthy();
+		expect(card(t.id).getAttribute('role')).toBeNull();
+		await click(card(t.id));
+		expect(open().id).toBe(t.id);
+	});
+
+	it('opens a closed team only when Enter lands on the card itself, not on one of its icons', async () => {
+		const t = lib.teams[6];
+		await key(document.querySelector(`[data-team-icon="${t.id}:0"]`)!, 'Enter');
+		expect(open().id).toBe(lib.teams[0].id);
+		await key(card(t.id), 'Enter');
+		expect(open().id).toBe(t.id);
+	});
+
+	it('labels the open team’s format select with its generation and format, in the list and in card view', async () => {
+		select(card(open().id).querySelector('select')!, 'gen7uu');
+		const label = () => card(open().id).querySelector('select')!.closest('label')!;
+		expect(label().querySelector('[aria-hidden="true"]')!.textContent).toBe('Gen 7 UU');
+		// The list shows a chevron; the narrow card drops it.
+		expect(label().querySelector('svg')).not.toBeNull();
+		await click(byLabel('Card view'));
+		expect(label().querySelector('[aria-hidden="true"]')!.textContent).toBe('Gen 7 UU');
+		expect(label().querySelector('svg')).toBeNull();
+		// In card view the mode toggle sits on the name row.
+		const nameRow = card(open().id).querySelector('input[aria-label="Team name"]')!.parentElement!;
+		expect(nameRow.contains(byLabel('Competitive. Switch to casual', card(open().id)))).toBe(true);
+		await click(byLabel('Competitive. Switch to casual', card(open().id)));
+		expect(label().querySelector('[aria-hidden="true"]')!.textContent).toBe('Gen 7');
+	});
+
+	it('counts one legality issue in the singular, and never badges a casual team', async () => {
+		const id = open().id;
+		act(() => s().setValidation(id, { byMember: {}, team: ['x'], count: 1 }));
+		expect(card(id).querySelector('[title="1 legality issue"]')?.textContent).toBe('1');
+		await click(byLabel('Competitive. Switch to casual'));
+		act(() => s().setValidation(id, { byMember: {}, team: ['x'], count: 1 }));
+		expect(card(id).querySelector('[title*="legality"]')).toBeNull();
 	});
 });
 
@@ -305,6 +364,22 @@ describe('new team dialog', () => {
 		expect(s().library.teams).toHaveLength(lib.teams.length);
 	});
 
+	it('closes on Escape and on a click on the backdrop', async () => {
+		await click(byLabel('New team'));
+		// Escape makes the browser close the dialog and fire `close`.
+		const d = dialog();
+		act(() => {
+			d.removeAttribute('open');
+			d.dispatchEvent(new Event('close'));
+		});
+		expect(s().dialog).toBeNull();
+		await click(byLabel('New team'));
+		await click(dialog());
+		await flush();
+		expect(openDialog()).toBeNull();
+		expect(s().library.teams).toHaveLength(lib.teams.length);
+	});
+
 	it('switches to the import dialog', async () => {
 		await click(byLabel('New team'));
 		await click(button('Paste a Showdown team instead'));
@@ -350,6 +425,32 @@ describe('import team dialog', () => {
 		await click(button('Import', dialog()));
 		expect(s().toasts.map((t) => t.message)).toEqual(expect.arrayContaining(['Skipped Fakemon']));
 		expect(open().members.map((m) => m.species)).toEqual(['Pikachu']);
+	});
+
+	it('gives headerless text the open team’s format, and names every imported team in one toast', async () => {
+		await click(byName(`Open ${lib.teams[1].name}`));
+		await click(byLabel('Import a Showdown team'));
+		paste('Pikachu\n- Thunderbolt');
+		await click(button('Import', dialog()));
+		expect(open()).toMatchObject({ format: lib.teams[1].format, mode: 'competitive' });
+		await click(byLabel('Import a Showdown team'));
+		// The textarea is empty again after an import.
+		expect(dialog().querySelector('textarea')!.value).toBe('');
+		paste('=== [gen9ou] Alpha ===\n\nPikachu\n- Thunderbolt\n\n=== [gen9ou] Beta ===\n\nMew\n- Psychic');
+		await click(button('Import', dialog()));
+		expect(lastToast()?.message).toBe('Imported Alpha, Beta');
+	});
+
+	it('clears the error once a retry imports', async () => {
+		await click(byLabel('Import a Showdown team'));
+		paste('just some words');
+		await click(button('Import', dialog()));
+		expect(hasText("Couldn't find any Pokémon", dialog())).toBe(true);
+		paste('Pikachu\n- Thunderbolt');
+		await click(button('Import', dialog()));
+		expect(openDialog()).toBeNull();
+		await click(byLabel('Import a Showdown team'));
+		expect(hasText("Couldn't find any Pokémon", dialog())).toBe(false);
 	});
 
 	it('gives a casual team’s import its generation’s OU', async () => {

@@ -124,18 +124,12 @@ function StarterSuggestions({ onSeeAll }: { onSeeAll: () => void }) {
 	);
 }
 
-function Browse({ onPreview, onParty }: { onPreview: () => void; onParty: () => void }) {
+function Browse({ onParty }: { onParty: () => void }) {
 	const { team, list, roles } = useCandidates();
 	const tab = useStore((s) => s.carouselTab);
 	const search = useStore((s) => s.carouselSearch);
 	const setCarousel = useStore((s) => s.setCarousel);
-	const previewSpecies = useStore((s) => s.previewSpecies);
 	const [mode, setMode] = useState<'suggestions' | 'box'>('suggestions');
-	const seen = useRef(previewSpecies);
-	useEffect(() => {
-		if (previewSpecies && previewSpecies !== seen.current) onPreview();
-		seen.current = previewSpecies;
-	}, [previewSpecies, onPreview]);
 	return (
 		<div className='flex min-h-0 flex-1 flex-col gap-3 pt-2'>
 			<div className='flex gap-5 px-4'>
@@ -241,7 +235,7 @@ export function MobileApp() {
 			<div className='flex min-h-0 flex-1 flex-col'>
 				{tab === 'teams' && <div className='min-h-0 flex-1 overflow-y-auto'><TeamLibrary /></div>}
 				{tab === 'party' && <Workspace empty={<StarterSuggestions onSeeAll={() => setTab('browse')} />} />}
-				{tab === 'browse' && <Browse onPreview={() => setTab('party')} onParty={() => setTab('party')} />}
+				{tab === 'browse' && <Browse onParty={() => setTab('party')} />}
 			</div>
 			<nav className='flex h-[72px] shrink-0 border-t border-line'>
 				{tabs.map(([id, icon, label]) => (

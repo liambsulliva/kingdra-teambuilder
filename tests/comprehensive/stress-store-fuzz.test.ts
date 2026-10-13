@@ -26,6 +26,8 @@ function checkInvariants(step: string) {
 	expect(new Set(uids).size, `${step}: unique uids`).toBe(uids.length);
 	expect(new Set(lib.teams.map((t) => t.id)).size, `${step}: unique team ids`).toBe(lib.teams.length);
 	if (st.selectedUid) expect(open().members.some((m) => m.uid === st.selectedUid), `${step}: selected member is in the open team`).toBe(true);
+	// docs/redesign/spec.md §3: once a team has members, one of them is always on the card.
+	if (open().members.length) expect(st.selectedUid, `${step}: a member is on the card`).not.toBeNull();
 	expect(st.boxIndex, step).toBeLessThan(lib.boxes.length);
 }
 
@@ -60,15 +62,12 @@ function actions(): Action[] {
 				s().moveInBox(r.int(0, n), r.int(0, BOX_SIZE - 1), r.int(0, n), r.int(0, BOX_SIZE - 1));
 			},
 		},
-		{ name: 'swapIn', conserves: true, run: (r) => { const m = anyMember(r); if (m) s().swapIn(m.uid, species(r)); } },
 		{ name: 'changeSpecies', conserves: true, run: (r) => { const m = anyMember(r); if (m) s().changeSpecies(m.uid, species(r)); } },
 		{ name: 'setMove', conserves: true, run: (r) => { const m = anyMember(r); if (m) s().setMove(m.uid, r.int(0, 3), r.pick(['Protect', 'Rest', 'Substitute', ''])); } },
 		{ name: 'pickMove', conserves: true, run: (r) => { if (r.chance(0.3)) s().setInspector('moves', r.int(0, 3)); s().pickMove(r.pick(['Protect', 'Rest', 'Substitute', 'Toxic', 'Facade'])); } },
 		{ name: 'updateSet', conserves: true, run: (r) => { const m = anyMember(r); if (m) s().updateSet(m.uid, { level: r.int(1, 100), shiny: r.chance(0.5) }); } },
 		{ name: 'renameTeam', conserves: true, run: (r) => s().renameTeam(anyTeam(r).id, r.chance(0.2) ? '  ' : `Renamed ${r.int(0, 999)}`) },
 		{ name: 'setTeamContext', conserves: true, run: (r) => s().setTeamContext(open().id, r.chance(0.3) ? { mode: r.pick(['casual', 'competitive'] as const) } : { gen: r.int(1, 9) }) },
-		{ name: 'preview', conserves: true, run: (r) => s().preview(r.chance(0.5) ? species(r) : null) },
-		{ name: 'compare', conserves: true, run: (r) => s().compare(r.chance(0.5) ? species(r) : null) },
 		{ name: 'duplicateTeam', run: (r) => s().duplicateTeam(anyTeam(r).id) },
 		{ name: 'deleteTeam', run: (r) => s().deleteTeam(anyTeam(r).id) },
 		{ name: 'createTeam', run: (r) => s().createTeam({ name: `New ${r.int(0, 99)}`, gen: r.int(1, 9) }) },
