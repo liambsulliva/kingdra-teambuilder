@@ -94,7 +94,7 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 	};
 
 	return (
-		<div className='relative w-full'>
+		<div className='relative w-full [container-type:inline-size]'>
 		<section aria-label={`${member.name || member.species} set`} className='flex w-full max-w-[580px] flex-col gap-4'>
 			{/* pl-2: the sprite lines up with the key row labels below. */}
 			<div className='flex gap-4 pl-2 md:gap-6'>
@@ -103,8 +103,8 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 					<PokemonSprite species={member.species} shiny={member.shiny} size={mobile ? 72 : 96} />
 				</div>
 				<div className='flex min-w-0 flex-1 flex-col gap-2.5'>
-					{/* Room on the right for the member actions, which sit at the top right of the panel. */}
-					<div className='flex items-end gap-2 pr-36'>
+					{/* On desktop the name and species run as far as the member actions at the top right of the panel, and only truncate before them. */}
+					<div className='flex items-end gap-2 max-md:pr-36 md:w-max md:max-w-[calc(100cqw_-_260px)]'>
 						<h2 className='truncate font-head text-[24px] font-semibold leading-7 tracking-[-0.02em] md:text-[32px] md:leading-9'>{member.name || member.species}</h2>
 						<span className='font-mono text-2xs text-muted'>#{species?.num ?? '?'}</span>
 						{member.name && <span className='truncate text-xs text-muted'>{member.species}</span>}
