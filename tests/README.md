@@ -33,7 +33,7 @@ The seed is printed by `stress-data.test.ts`. Replay a run with `STRESS_SEED=<n>
 
 ## The test environment
 
-Server code runs in Node, not jsdom: `src/__tests__/proxy.test.ts` opts into `// @vitest-environment node`. In jsdom, a production build (Vercel sets `NODE_ENV=production`) swaps Node built-ins such as `node:async_hooks` for empty stubs, and Clerk's middleware throws `AsyncLocalStorage is not a constructor` as it loads. It lives in the unit project because the DOM setup below needs jsdom.
+Server code, and any test that reads files with `node:fs` or `node:path`, runs in Node, not jsdom: `src/__tests__/proxy.test.ts` and `src/lib/__tests__/breakpoints.test.ts` opt into `// @vitest-environment node`. In jsdom, a production build (Vercel sets `NODE_ENV=production`) swaps Node built-ins such as `node:async_hooks` for empty stubs, and Clerk's middleware throws `AsyncLocalStorage is not a constructor` as it loads. It lives in the unit project because the DOM setup below needs jsdom.
 
 `tests/setup/dom.tsx` runs before the simple and comprehensive files:
 

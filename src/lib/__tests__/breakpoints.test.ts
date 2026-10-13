@@ -1,3 +1,5 @@
+// @vitest-environment node
+// It reads source files: under jsdom, a production build (Vercel sets NODE_ENV=production) stubs out node:fs and node:path.
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
