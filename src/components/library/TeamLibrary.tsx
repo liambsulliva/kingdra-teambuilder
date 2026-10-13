@@ -103,12 +103,14 @@ function openProps(team: Team, open: boolean) {
 	};
 }
 
-/** The six slots, in a row or a 2×3 grid. The desktop open team leaves them empty, since its members are in the party. */
+/** The six slots, in a row or a 2×3 grid. The desktop open team leaves them empty while its members walk into the party; with fancy animations off they stay. */
 function TeamSlots({ team, open, className }: { team: Team; open: boolean; className: string }) {
 	const slots = Array.from({ length: MAX_TEAM_SIZE }, (_, i) => team.members[i]);
 	// A phone shows every icon on the open team too, so the team list always shows the whole team.
 	const mobile = useIsMobile();
-	const collapsed = open && !mobile;
+	// With fancy animations on, the open team's icons have walked onto the card, so its slots stay empty.
+	const fancy = useStore((s) => s.fancyMotion);
+	const collapsed = open && !mobile && fancy;
 	return (
 		// 32 px slots, not size-8: the root font is 14 px, so size-8 would be 28 px and the 32 px icons would overlap.
 		<div className={className}>

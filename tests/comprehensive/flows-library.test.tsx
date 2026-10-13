@@ -226,9 +226,9 @@ describe('card view', () => {
 		await click(toggle());
 		const closed = lib.teams[1];
 		expect(card(closed.id).hasAttribute('data-still')).toBe(false);
-		await click(byLabel('Disable fancy animations'));
+		await click(byLabel('Enable fancy animations'));
 		expect(card(closed.id).hasAttribute('data-still')).toBe(true);
-		await click(byLabel('Disable fancy animations'));
+		await click(byLabel('Enable fancy animations'));
 		expect(card(closed.id).hasAttribute('data-still')).toBe(false);
 	});
 

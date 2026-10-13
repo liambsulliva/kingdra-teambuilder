@@ -80,7 +80,7 @@ function MemberButton({ teamId, member, index, onHover, onTap }: { teamId: strin
 /**
  * Bottom-left party: six fixed cells. The member on the card leaves its cell,
  * except with `keepSelected` (the Box drawer and the phone's Browse tab, where
- * there is no card and it must stay draggable). On phones a tap hops a member
+ * there is no card and it must stay draggable) or with fancy animations off. On phones a tap hops a member
  * up onto the card (or runs `onTap`), and the caption names the member on the
  * card rather than the last one touched.
  */
@@ -88,6 +88,7 @@ export function PartyRow({ keepSelected = false, onTap, className = '' }: { keep
 	const team = useOpenTeam();
 	const selectedUid = useStore((s) => s.selectedUid);
 	const rejectedAt = useStore((s) => s.rejectedAt);
+	const fancy = useStore((s) => s.fancyMotion);
 	const mobile = useIsMobile();
 	const keep = keepSelected;
 	const [hoveredState, setHovered] = useState<PokemonSet | null>(null);
@@ -107,9 +108,9 @@ export function PartyRow({ keepSelected = false, onTap, className = '' }: { keep
 			>
 				{Array.from({ length: MAX_TEAM_SIZE }, (_, i) => {
 					const m = team.members[i];
-					// The member on the card leaves its cell blank: no skeleton, so it never reads as a free slot.
+					// The member on the card leaves its cell while its icon lifts onto the card. With fancy animations off nothing lifts, so it stays.
 					const isSelected = !!m && m.uid === selectedUid;
-					return <PartyCell key={i} teamId={team.id} index={i} occupied={!!m} member={m && (keep || !isSelected) ? m : undefined} onHover={hover} onTap={tap} />;
+					return <PartyCell key={i} teamId={team.id} index={i} occupied={!!m} member={m && (keep || !isSelected || !fancy) ? m : undefined} onHover={hover} onTap={tap} />;
 				})}
 			</motion.div>
 			<p className='flex h-4 items-center gap-2 text-xs' aria-live='polite'>

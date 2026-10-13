@@ -175,11 +175,11 @@ export function SpriteToggle() {
 	);
 }
 
-/** Turns off the walk, the card fall and the lift onto the card; a switch then pops the new party in. Saved per viewer. */
+/** Fancy animations on or off: the walk, the card fall and the lift onto the card. Pressed while on. Off, a switch pops the new party in. Saved per viewer. */
 export function MotionToggle({ tooltip }: { tooltip?: 'below' | 'none' }) {
 	const fancy = useStore((s) => s.fancyMotion);
 	const setFancy = useStore((s) => s.setFancyMotion);
-	return <IconButton icon='shiny' label='Disable fancy animations' selected={!fancy} onClick={() => setFancy(!fancy)} tooltip={tooltip} />;
+	return <IconButton icon='shiny' label='Enable fancy animations' selected={fancy} onClick={() => setFancy(!fancy)} tooltip={tooltip} />;
 }
 
 export function Account() {

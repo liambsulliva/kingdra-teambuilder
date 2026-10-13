@@ -227,11 +227,11 @@ describe('phone: editor and teams', () => {
 	beforeEach(() => start());
 
 	it('has the fancy animations toggle in the header, with no tooltip', async () => {
-		const toggle = byLabel('Disable fancy animations', document.querySelector('header')!);
+		const toggle = byLabel('Enable fancy animations', document.querySelector('header')!);
 		expect(toggle.parentElement!.querySelector('[role="tooltip"]')).toBeNull();
 		await click(toggle);
 		expect(s().fancyMotion).toBe(false);
-		expect(toggle.getAttribute('aria-pressed')).toBe('true');
+		expect(toggle.getAttribute('aria-pressed')).toBe('false');
 	});
 
 	it('closes the editor after an ability is picked, and the same row opens it again', async () => {

@@ -174,7 +174,7 @@ describe('switching teams in card view', () => {
 });
 
 describe('with fancy animations off', () => {
-	const toggle = () => byLabel('Disable fancy animations');
+	const toggle = () => byLabel('Enable fancy animations');
 	const shards = () => animated.filter((el) => (el as HTMLElement).style.clipPath?.startsWith('polygon'));
 
 	beforeEach(async () => {
@@ -184,11 +184,11 @@ describe('with fancy animations off', () => {
 	});
 
 	it('is a pressed toggle in the header, saved for this viewer', async () => {
-		expect(toggle().getAttribute('aria-pressed')).toBe('true');
+		expect(toggle().getAttribute('aria-pressed')).toBe('false');
 		expect(s().fancyMotion).toBe(false);
 		expect(localStorage.getItem('kingdra.fancyMotion')).toBe('off');
 		await click(toggle());
-		expect(toggle().getAttribute('aria-pressed')).toBe('false');
+		expect(toggle().getAttribute('aria-pressed')).toBe('true');
 		expect(s().fancyMotion).toBe(true);
 	});
 
@@ -207,6 +207,20 @@ describe('with fancy animations off', () => {
 		expect(party.length).toBeGreaterThan(0);
 		expect(party.every((el) => animated.includes(el))).toBe(true);
 		expect(hiddenMembers()).toHaveLength(0);
+	});
+
+	it('keeps every party member in its cell, including the one on the card', async () => {
+		const team = open();
+		const onCard = team.members.find((m) => m.uid === s().selectedUid);
+		expect(onCard, 'a member is on the card').toBeTruthy();
+		expect(document.querySelectorAll('[data-party-member]')).toHaveLength(team.members.length);
+		expect(document.querySelector(`[data-party-member][data-species="${onCard!.species}"]`)).toBeTruthy();
+	});
+
+	it('shows the open team\'s icons in the team list too', () => {
+		const team = open();
+		const shown = [...document.querySelectorAll(`[data-team-icon^="${team.id}:"]`)].filter((el) => el.children.length > 0);
+		expect(shown).toHaveLength(team.members.length);
 	});
 
 	it('drops no card in card view', async () => {
