@@ -15,7 +15,6 @@ const SHEET_URL = 'https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.p
 function decodePng(buf) {
 	let pos = 8;
 	let w, h, bd, ct;
-	let plte = null;
 	let trns = null;
 	const idat = [];
 	while (pos < buf.length) {
@@ -28,7 +27,6 @@ function decodePng(buf) {
 			bd = data[8];
 			ct = data[9];
 		} else if (type === 'IDAT') idat.push(data);
-		else if (type === 'PLTE') plte = data;
 		else if (type === 'tRNS') trns = data;
 		pos += 12 + len;
 	}

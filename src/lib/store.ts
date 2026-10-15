@@ -16,7 +16,7 @@ import {
 	type PokemonSet,
 	type Team,
 } from './model';
-import { abilitiesFor, canUseSpecies, defaultAbility, formatLabel, formatsForGen, getSpecies, isChampions } from './dex';
+import { abilitiesFor, canUseSpecies, defaultAbility, defaultLevel, formatLabel, formatsForGen, getSpecies } from './dex';
 
 export type InspectorView =
 	| 'card'
@@ -73,6 +73,8 @@ interface State {
 	matchupType: string | null;
 	carouselTab: string;
 	carouselRole: string;
+	/** A support category from SUPPORT, or 'All support'. */
+	carouselSupport: string;
 	carouselSearch: string;
 	/** Browse a lower generation without changing the team's. Null browses the team's own. */
 	carouselGen: number | null;
@@ -135,7 +137,7 @@ interface Actions {
 	setInspector(view: InspectorView, slot?: number | null): void;
 	chose(): void;
 	setMatchupType(type: string | null): void;
-	setCarousel(patch: Partial<Pick<State, 'carouselTab' | 'carouselRole' | 'carouselSearch' | 'carouselGen'>>): void;
+	setCarousel(patch: Partial<Pick<State, 'carouselTab' | 'carouselRole' | 'carouselSupport' | 'carouselSearch' | 'carouselGen'>>): void;
 
 	setBoxOpen(open: boolean): void;
 	setBoxPartyUid(uid: string | null): void;
@@ -252,8 +254,7 @@ export const useStore = create<Store>()((set, get) => {
 
 	const freshSet = (team: Team, species: string) => {
 		const s = getSpecies(team, species);
-		const level = team.format.endsWith('lc') ? 5 : team.format.includes('vgc') || isChampions(team) ? 50 : 100;
-		return newSet(s?.name ?? species, { ability: defaultAbility(team, species), level });
+		return newSet(s?.name ?? species, { ability: defaultAbility(team, species), level: defaultLevel(team) });
 	};
 
 	return {
@@ -270,6 +271,7 @@ export const useStore = create<Store>()((set, get) => {
 		matchupType: null,
 		carouselTab: 'OU',
 		carouselRole: 'All roles',
+		carouselSupport: 'All support',
 		carouselGen: null,
 		carouselSearch: '',
 		boxOpen: false,
@@ -357,6 +359,7 @@ export const useStore = create<Store>()((set, get) => {
 					activeMoveSlot: null,
 					carouselTab: tab,
 					carouselRole: 'All roles',
+					carouselSupport: 'All support',
 					carouselGen: null,
 				};
 			}),

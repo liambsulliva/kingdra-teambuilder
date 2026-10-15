@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { DragEndEvent } from '@dnd-kit/core';
 import type { DragData, DropTarget } from '@/lib/drag';
 import { emptyLibrary, newSet, newTeam, type Library } from '@/lib/model';
+import { moveIndex } from '@/lib/dex';
 import { useStore } from '@/lib/store';
 import { seedLocalLibrary, setViewport } from '../helpers/env';
 import { allByName, button, byLabel, byName, click, flush, hasText, hover, key, queryByLabel, renderApp, type, wait, waitFor } from '../helpers/render';
@@ -259,6 +260,40 @@ describe('phone: Browse party row', () => {
 		expect(open().members[0].species).toBe('Gholdengo');
 		drop({ kind: 'candidate', species: 'Kingambit' }, { kind: 'party', index: 3 });
 		expect(open().members.map((m) => m.species)).toContain('Kingambit');
+	});
+});
+
+describe('phone: Browse filters', () => {
+	beforeEach(async () => {
+		await start();
+		await click(navTab('Browse'));
+	});
+
+	it('puts Role and Support side by side under the search, and filters with them', async () => {
+		const field = document.querySelector<HTMLInputElement>('input[type="search"]')!;
+		expect(field.placeholder).toBe('Search by name, role, type, or move.');
+		const role = document.querySelector<HTMLSelectElement>('select[aria-label="Role"]')!;
+		const support = document.querySelector<HTMLSelectElement>('select[aria-label="Support"]')!;
+		const row = support.closest('div')!;
+		expect(role.closest('div')).toBe(row);
+		expect(row.previousElementSibling!.contains(field)).toBe(true);
+		const index = await moveIndex(trio);
+		type(support, 'Hazards');
+		const setters = (name: string) => ['stealthrock', 'spikes', 'toxicspikes', 'stickyweb', 'defog', 'rapidspin'].some((m) => index.get(name)!.has(m));
+		const shown = () => allByName(/^Add .+ to the team$/).map((el) => el.querySelector('.font-semibold')!.textContent!);
+		await waitFor(() => expect(shown().length).toBeGreaterThan(0));
+		for (const name of shown()) expect(setters(name), name).toBe(true);
+	});
+
+	it('finds Pokémon by move, and says when nothing matches', async () => {
+		const field = document.querySelector<HTMLInputElement>('input[type="search"]')!;
+		type(field, 'Sticky Web');
+		const index = await moveIndex(trio);
+		const shown = () => allByName(/^Add .+ to the team$/).map((el) => el.querySelector('.font-semibold')!.textContent!);
+		await waitFor(() => expect(shown().length).toBeGreaterThan(0));
+		for (const name of shown()) expect(index.get(name)!.has('stickyweb'), name).toBe(true);
+		type(field, 'zzzz');
+		await waitFor(() => expect(hasText('No Pokémon match “zzzz” in Gen 9.')).toBe(true));
 	});
 });
 

@@ -262,6 +262,14 @@ export function evolutionLine(team: Team, name: string): string[] {
 }
 
 let championsLearnsets: Promise<Record<string, string[]>> | null = null;
+const loadChampionsLearnsets = () =>
+	(championsLearnsets ??= import('./data/champions-learnsets.json').then(
+		(m) => m.default as Record<string, string[]>
+	));
+
+/** The level a new member starts at: 5 in Little Cup, 50 in VGC and Champions, else 100. */
+export const defaultLevel = (team: Pick<Team, 'format'>) =>
+	team.format.endsWith('lc') ? 5 : team.format.includes('vgc') || isChampions(team) ? 50 : 100;
 
 const LEVEL_UP = /^(\d+)L(\d+)$/;
 
@@ -295,7 +303,7 @@ export function prefetchLearnsets() {
 	void Dex.learnsets.get('pikachu').catch(() => undefined);
 }
 
-export async function learnsetAt(team: Team, species: string, level: number): Promise<Record<string, string[]>> {
+export async function learnsetAt(team: Pick<Team, 'mode' | 'gen' | 'format'>, species: string, level: number): Promise<Record<string, string[]>> {
 	const gen = generationFor(team);
 	const learnable = (await gen.learnsets.learnable(species)) ?? {};
 	const lowest = await lowestLevelUp(gen, species);
@@ -343,10 +351,7 @@ async function findLearnableMoves(
 ): Promise<Move[]> {
 	const gen = generationFor(team);
 	if (team.mode === 'competitive' && isChampions(team)) {
-		championsLearnsets ??= import('./data/champions-learnsets.json').then(
-			(m) => m.default as Record<string, string[]>
-		);
-		const sets = await championsLearnsets;
+		const sets = await loadChampionsLearnsets();
 		const ids =
 			sets[species] ?? sets[gen.species.get(species)?.baseSpecies ?? ''];
 		// Not in Champions (e.g. carried over from another format): fall back to
@@ -363,6 +368,44 @@ async function findLearnableMoves(
 		.map((id) => gen.moves.get(id))
 		.filter((m): m is Move => !!m)
 		.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+const moveIndexCache = new Map<string, Promise<ReadonlyMap<string, ReadonlySet<string>>>>();
+const moveIndexDone = new Map<string, ReadonlyMap<string, ReadonlySet<string>>>();
+const moveIndexKey = (team: Pick<Team, 'mode' | 'gen' | 'format'>) => `${team.mode}:${team.gen}:${team.mode === 'casual' ? '' : team.format}`;
+
+/** A move index already built, so the carousel can filter on its first render. */
+export const cachedMoveIndex = (team: Pick<Team, 'mode' | 'gen' | 'format'>) => moveIndexDone.get(moveIndexKey(team)) ?? null;
+
+/**
+ * The move ids every browsable species can know at a new member's level, for
+ * finding Pokémon by move. Built once per team context on first use.
+ */
+export function moveIndex(team: Pick<Team, 'mode' | 'gen' | 'format'>): Promise<ReadonlyMap<string, ReadonlySet<string>>> {
+	const key = moveIndexKey(team);
+	let pending = moveIndexCache.get(key);
+	if (!pending) {
+		pending = buildMoveIndex(team).then((index) => {
+			moveIndexDone.set(key, index);
+			return index;
+		});
+		pending.catch(() => moveIndexCache.delete(key));
+		moveIndexCache.set(key, pending);
+	}
+	return pending;
+}
+
+async function buildMoveIndex(team: Pick<Team, 'mode' | 'gen' | 'format'>) {
+	const champions = team.mode === 'competitive' && isChampions(team) ? await loadChampionsLearnsets() : null;
+	const level = defaultLevel(team);
+	const index = new Map<string, ReadonlySet<string>>();
+	for (const [i, s] of speciesFor(team).entries()) {
+		// A whole format takes a few hundred ms on a phone; give the page a frame now and then.
+		if (i % 64 === 63) await new Promise((r) => setTimeout(r));
+		const ids = champions?.[s.name] ?? champions?.[s.baseSpecies];
+		index.set(s.name, new Set(ids ?? Object.keys(await learnsetAt(team, s.name, level))));
+	}
+	return index;
 }
 
 export function allMoves(team: Team): Move[] {

@@ -78,7 +78,7 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
 │               │                                      │                   │
 │               │ ▢ ▢ ▢ ▢ ▢   ← party, bottom-left      │                   │
 ├───────────────┴──────────────────────────────────────┴───────────────────┤
-│ Suggestions  gen 9 ▾  Ubers OU UU RU NU PU ZU LC  roles ▾      ▣ box  ⌕   │
+│ Suggestions  gen 9 ▾  Ubers OU UU RU NU PU ZU LC  roles ▾ support ▾ ▣ ⌕   │
 │ [card] [card] [card] [card] [card] [card] [card] [card] →                │ carousel
 └──────────────────────────────────────────────────────────────────────────┘
 ```
@@ -95,8 +95,9 @@ The earlier Codex research in `docs/research` and `docs/design` was spot-checked
   - **Always a member on the card.** Once a team has members, one of them is always on the card: the first add puts it there, opening a team brings back the member that was last on its card (remembered per team in this browser, else the first), and removing, boxing or moving the member on the card puts its neighbor there (the member that slides into its slot, else the one before). Esc and clicking the empty workspace never clear the card. The empty state appears only while the team has no members: the team name, its format and size, and on competitive teams its issue count ("No Issues" when clean).
 - **Right panel (inspector).** Scrolls independently and shows one view at a time. With no member on the card it shows **Team analysis**. A tab strip of 16px icons switches between views.
 - **Bottom panel.** Full width. The toolbar sits above a horizontally scrolling carousel.
-  - **Toolbar left.** Generation select. In Competitive: format tiers plus a role filter. In Casual: generations only, no roles.
-  - **Toolbar right.** The **Box** icon, then search across the full catalogue (not only loaded cards).
+  - **Toolbar left.** Generation select. In Competitive: format tiers, a role filter and a **Support** filter. In Casual: generations and the Support filter, no roles. Support narrows the cards to Pokémon that can learn a move from one of the card's support categories (Hazards, Momentum, Disruption, Status, Terrain) in the team's generation and format, at a new member's level.
+  - **Toolbar right.** The **Box** icon, then search across the full catalogue (not only loaded cards), with the placeholder "Search for Pokémon, roles, moves, etc." cut short with an ellipsis where the field is narrow. A query matches names first, then roles (Competitive), types, abilities, support categories and moves it starts a word of: "Toxic Spikes" lists every Pokémon in the format that can learn it. Under three letters only names match. The role and Support filters still apply to a search.
+  - **Narrow widths.** The toolbar stays one 52 px row for as long as it can. The search field narrows first, cutting its placeholder short with an ellipsis, down to a minimum width. Only narrower than that do the filters, then Box and search (kept to the right), wrap onto a second row instead of squeezing the selects or tabs.
 - **Box drawer.** The Box icon slides a drawer up from the screen's bottom edge over the carousel, to about 50% of the viewport. The party row stays visible above it so drags between the two are short. Esc, the icon, or a click outside closes it.
 
 **Tablet, 651–1100px.** The workspace folds into the right panel as its first tab (the party icon), so the team list stays on the left and the panel takes the space the center and right panels shared. The card tab is the default there: selecting, adding a Pokémon or picking a move brings it forward. Editors open as tabs beside it. Drop targets on the card (the card itself, the party row, move cells) exist only while that tab is open. Widening to desktop returns the panel to Team analysis. At 650px and below the mobile layout applies (section 10).
@@ -196,7 +197,7 @@ All motion respects `prefers-reduced-motion`; with it on, everything becomes a c
 - **Tabs.** A bottom bar with Teams, Party and Browse.
   - **Teams:** the list or the cards, with the open team's controls in its card as on desktop (28 px buttons). Cards never hinge, fall or shatter on a phone, and a team opens at once. The open team keeps all its icons here, as on desktop, so the list always shows the whole team.
   - **Party:** the card with the party row pinned under it.
-  - **Browse:** Suggestions and Box, with search.
+  - **Browse:** Suggestions and Box, with search. Role (Competitive only) and Support sit side by side on one row under the search field, above the tier tabs.
 - **Editor.** Slides up as a sheet over Party when a key row, a move slot, a type badge (matchups) or More details is tapped. It is 80% of the screen tall on every tab, so it never resizes as tabs change. A choice (a move, ability, item, Tera type, level preset or any other pick) drags it back down to the card; typing a level does not. Dismissing it and tapping the same row opens it again.
 - **Safe areas.** The header starts below the status bar and the tab bar keeps its 72 px above the home indicator, so nothing sits under the system UI.
 - **Touch.**

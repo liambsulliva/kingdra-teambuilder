@@ -1,6 +1,7 @@
 import { act } from 'react';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { formatsForGen, getSpecies, speciesFor, speciesInTier } from '@/lib/dex';
+import { formatsForGen, getSpecies, moveIndex, speciesFor, speciesInTier } from '@/lib/dex';
+import { SUPPORT } from '@/lib/support';
 import { BOX_SIZE, newSet, newTeam, type Library, type Team } from '@/lib/model';
 import { useStore } from '@/lib/store';
 import { mockApi, resetStore, seedLocalLibrary } from '../helpers/env';
@@ -16,6 +17,8 @@ const cards = () => allByName(/^Add .+ to the team$/, panel()).map((el) => el.qu
 const tierTabs = () => [...panel().querySelectorAll('[role="tablist"] [role="tab"]')].map((t) => t.textContent);
 const search = () => panel().querySelector<HTMLInputElement>('input[type="search"]')!;
 const genSelect = () => panel().querySelector<HTMLSelectElement>('select[aria-label="Generation"]')!;
+const supportSelect = () => panel().querySelector<HTMLSelectElement>('select[aria-label="Support"]')!;
+const toId = (x: string) => x.toLowerCase().replace(/[^a-z0-9]/g, '');
 const drawer = () => queryByLabel('Box');
 const boxCells = () => allByLabel(/, box slot \d+$/);
 /** The carousel cross-fades lists (AnimatePresence, mode wait): let the old list leave. */
@@ -100,19 +103,80 @@ describe('suggestions carousel', () => {
 		expect(shown).toEqual([...shown].sort((a, b) => b - a));
 	});
 
-	it('searches the whole generation by name, and says when nothing matches', async () => {
+	it('searches the whole generation, names first, and says when nothing matches', async () => {
 		await openTeam(roomy);
+		expect(search().placeholder).toBe('Search by name, role, type, or move.');
 		type(search(), 'char');
 		await settle();
 		const expected = speciesFor(roomy).filter((x) => x.name.toLowerCase().includes('char')).map((x) => x.name);
-		expect(cards().sort()).toEqual(expected.slice(0, 60).sort());
+		// Learners of Charm, Charge and Charge Beam follow the names.
+		await waitFor(() => expect(cards().length).toBeGreaterThan(expected.length));
+		expect(cards().slice(0, expected.length).sort()).toEqual(expected.sort());
 		expect(panel().querySelector('[role="tab"][aria-selected="true"]')).toBeNull();
 		type(search(), 'zzzz');
 		await settle();
-		expect(hasText('No Pokémon named “zzzz” in Gen 9.', panel())).toBe(true);
+		expect(hasText('No Pokémon match “zzzz” in Gen 9.', panel())).toBe(true);
 		await click(byLabel('Clear search', panel()));
 		await settle();
 		expect(cards().length).toBeGreaterThan(0);
+	});
+
+	it('finds every Pokémon in the format that learns a searched move', async () => {
+		await openTeam(roomy);
+		type(search(), 'Toxic Spikes');
+		const index = await moveIndex(roomy);
+		const learners = speciesFor(roomy).filter((x) => index.get(x.name)!.has('toxicspikes')).map((x) => x.name);
+		expect(learners).toEqual(expect.arrayContaining(['Toxapex', 'Glimmora']));
+		await waitFor(() => expect(cards().length).toBe(Math.min(60, learners.length)));
+		for (const name of cards()) expect(learners, name).toContain(name);
+		// Two letters are a name search only, so they do not pull in every move that starts with them.
+		type(search(), 'to');
+		await settle();
+		for (const name of cards()) expect(name.toLowerCase()).toContain('to');
+	});
+
+	it('finds Pokémon by role', async () => {
+		// Roles are cached per format for the session, so this team uses a format nothing else opens.
+		const kalos = newTeam({ name: 'Kalos UU', gen: 6, format: 'gen6uu', members: [] });
+		const pivot = speciesInTier(kalos, 'UU')[0].name;
+		mockApi({ '/api/roles': () => ({ roles: { [pivot]: ['Pivot'] } }) });
+		act(() => s().addTeams([kalos]));
+		await settle();
+		await waitFor(() => expect(hasText('Pivot', panel())).toBe(true));
+		type(search(), 'pivot');
+		await settle();
+		expect(cards()).toEqual([pivot]);
+	});
+
+	it('filters by support category, in Competitive and in Casual', async () => {
+		await openTeam(roomy);
+		const index = await moveIndex(roomy);
+		const tier = speciesInTier(roomy, s().carouselTab).map((x) => x.name);
+		for (const { name, moves } of SUPPORT) {
+			select(supportSelect(), name);
+			await settle();
+			const expected = tier.filter((x) => moves.some((m) => index.get(x)!.has(toId(m))));
+			await waitFor(() => expect(cards().length, name).toBe(Math.min(60, expected.length)));
+			for (const x of cards()) expect(expected, `${name}: ${x}`).toContain(x);
+		}
+		select(supportSelect(), 'All support');
+		await settle();
+		expect(cards().length).toBe(Math.min(60, tier.length));
+		select(supportSelect(), 'Hazards');
+		await openTeam(kanto);
+		// Opening a team resets it, and Casual keeps it without roles.
+		expect(s().carouselSupport).toBe('All support');
+		expect(supportSelect()).toBeTruthy();
+		select(supportSelect(), 'Status');
+		await settle();
+		const casual = await moveIndex(kanto);
+		await waitFor(() => expect(cards().length).toBeGreaterThan(0));
+		for (const x of cards()) expect(['toxic', 'willowisp', 'thunderwave'].some((m) => casual.get(x)!.has(m)), x).toBe(true);
+		// Gen 3 has no U-turn, Volt Switch, Flip Turn or Parting Shot.
+		select(supportSelect(), 'Momentum');
+		await settle();
+		await waitFor(() => expect(hasText('Nothing here learns a Momentum move.', panel())).toBe(true));
+		expect(cards()).toEqual([]);
 	});
 
 	it('filters by role, ranking species with known roles first', async () => {

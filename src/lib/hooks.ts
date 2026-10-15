@@ -5,6 +5,7 @@ import { useAuth } from '@clerk/nextjs';
 import { emptyLibrary, normalizeLibrary, type Library, type Team } from './model';
 import { useOpenTeam, useStore, type Validation } from './store';
 import { MERGED_QUERY, MOBILE_QUERY } from './breakpoints';
+import { cachedMoveIndex, moveIndex } from './dex';
 
 const LOCAL_KEY = 'kingdra.library.v2';
 const GUEST_KEY = 'kingdra.guest-unsynced';
@@ -306,6 +307,24 @@ export function useRoles(format: string | null) {
 		};
 	}, [format]);
 	return roles;
+}
+
+/** Every browsable species' move ids for the team's context, built on first use (null until then). */
+export function useMoveIndex(team: Pick<Team, 'mode' | 'gen' | 'format'>, enabled: boolean) {
+	const { mode, gen, format } = team;
+	const ready = cachedMoveIndex({ mode, gen, format });
+	const [, setLoaded] = useState(0);
+	useEffect(() => {
+		if (!enabled || ready) return;
+		let live = true;
+		moveIndex({ mode, gen, format })
+			.then(() => live && setLoaded((n) => n + 1))
+			.catch(() => undefined);
+		return () => {
+			live = false;
+		};
+	}, [enabled, ready, mode, gen, format]);
+	return enabled ? ready : null;
 }
 
 /** Smogon suggestions by format and species, kept for the visit like the roles. */

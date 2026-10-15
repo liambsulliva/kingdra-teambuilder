@@ -19,16 +19,25 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
 
-const dbConnect = async (): Promise<typeof mongoose> => {
-	const opts = {
-		bufferCommands: false,
-		serverSelectionTimeoutMS: 5000,
-		socketTimeoutMS: 45000,
-	};
+// One connection attempt shared by every request (and kept across dev hot reloads). With
+// bufferCommands off, a request that skipped ahead of a pending connect would query a closed
+// connection, so each waits on the same promise.
+const cache = globalThis as typeof globalThis & { mongoosePending?: Promise<typeof mongoose> | null };
 
-	return mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
-		return mongoose;
-	});
+const dbConnect = (): Promise<typeof mongoose> => {
+	if (mongoose.connection.readyState === 1) return Promise.resolve(mongoose);
+	cache.mongoosePending ??= mongoose
+		.connect(MONGODB_URI!, {
+			bufferCommands: false,
+			serverSelectionTimeoutMS: 5000,
+			socketTimeoutMS: 45000,
+		})
+		.catch((error) => {
+			// A failed attempt (e.g. a DNS timeout) must not stick: the next request tries again.
+			cache.mongoosePending = null;
+			throw error;
+		});
+	return cache.mongoosePending;
 };
 
 export default dbConnect;

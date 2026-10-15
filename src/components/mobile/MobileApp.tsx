@@ -4,14 +4,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { IconButton } from '@/components/ui/IconButton';
-import { SearchField, Tab } from '@/components/ui/controls';
+import { SearchField, Select, Tab } from '@/components/ui/controls';
 import { TypeBadge } from '@/components/ui/TypeBadge';
 import { PokemonIcon } from '@/components/pokemon/PokemonIcon';
 import { Account, Logo, MotionToggle, SpriteToggle, useTheme } from '@/components/shell/Header';
 import { TeamLibrary } from '@/components/library/TeamLibrary';
 import { Workspace } from '@/components/workspace/Workspace';
 import { Inspector } from '@/components/inspector/Inspector';
-import { CandidateCard, tierTabs, useCandidates } from '@/components/browse/BottomPanel';
+import { CandidateCard, emptyMessage, ROLE_OPTIONS, SEARCH_PLACEHOLDER, SUPPORT_OPTIONS, tierTabs, useCandidates } from '@/components/browse/BottomPanel';
 import { BoxCell } from '@/components/browse/BoxDrawer';
 import { PartyRow } from '@/components/workspace/PartyRow';
 import { formatLabel, getSpecies } from '@/lib/dex';
@@ -125,8 +125,10 @@ function StarterSuggestions({ onSeeAll }: { onSeeAll: () => void }) {
 }
 
 function Browse({ onParty }: { onParty: () => void }) {
-	const { team, list, roles } = useCandidates();
+	const { team, list, roles, loading, search: shownSearch } = useCandidates();
 	const tab = useStore((s) => s.carouselTab);
+	const role = useStore((s) => s.carouselRole);
+	const support = useStore((s) => s.carouselSupport);
 	const search = useStore((s) => s.carouselSearch);
 	const setCarousel = useStore((s) => s.setCarousel);
 	const [mode, setMode] = useState<'suggestions' | 'box'>('suggestions');
@@ -151,7 +153,11 @@ function Browse({ onParty }: { onParty: () => void }) {
 			) : (
 				<>
 					<div className='flex flex-col gap-2 px-4'>
-						<SearchField placeholder='Search Pokémon' value={search} onChange={(e) => setCarousel({ carouselSearch: e.target.value })} onClear={() => setCarousel({ carouselSearch: '' })} />
+						<SearchField placeholder={SEARCH_PLACEHOLDER} value={search} onChange={(e) => setCarousel({ carouselSearch: e.target.value })} onClear={() => setCarousel({ carouselSearch: '' })} />
+						<div className='flex gap-2'>
+							{team.mode === 'competitive' && <Select className='min-w-0 flex-1' label='Role' value={role} options={ROLE_OPTIONS} onChange={(v) => setCarousel({ carouselRole: v })} />}
+							<Select className='min-w-0 flex-1' label='Support' value={support} options={SUPPORT_OPTIONS} onChange={(v) => setCarousel({ carouselSupport: v })} />
+						</div>
 						<div className='scrollbar-none flex gap-4 overflow-x-auto'>
 							{tierTabs(team).map((t) => (
 								<Tab key={t} selected={!search && tab === t} onClick={() => setCarousel({ carouselTab: t, carouselSearch: '' })}>{t}</Tab>
@@ -162,6 +168,7 @@ function Browse({ onParty }: { onParty: () => void }) {
 						{list.slice(0, 80).map((s) => (
 							<CandidateCard key={s.name} species={s.name} types={s.types} roles={roles[s.name]} casual={team.mode === 'casual'} wide />
 						))}
+						{!list.length && !loading && <p className='col-span-2 pt-2 text-base text-muted'>{emptyMessage(shownSearch, support, team.gen)}</p>}
 					</div>
 				</>
 			)}

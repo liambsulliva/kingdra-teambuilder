@@ -27,9 +27,9 @@ describe('team lifecycle', () => {
 	it('opening an empty team leaves the card empty and resets the carousel to its tier', () => {
 		s().addMember('Pikachu');
 		s().selectMember(open().members[0].uid);
-		s().setCarousel({ carouselRole: 'Pivot', carouselGen: 3 });
+		s().setCarousel({ carouselRole: 'Pivot', carouselSupport: 'Hazards', carouselGen: 3 });
 		s().createTeam({ name: 'UU', format: 'gen9uu' });
-		expect(s()).toMatchObject({ selectedUid: null, carouselTab: 'UU', carouselRole: 'All roles', carouselGen: null, inspector: 'team' });
+		expect(s()).toMatchObject({ selectedUid: null, carouselTab: 'UU', carouselRole: 'All roles', carouselSupport: 'All support', carouselGen: null, inspector: 'team' });
 		s().createTeam({ name: 'Casual', mode: 'casual', format: 'casual' });
 		expect(s().carouselTab).toBe('All');
 	});

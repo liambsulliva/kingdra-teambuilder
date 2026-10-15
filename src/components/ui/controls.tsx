@@ -98,7 +98,7 @@ export const SearchField = forwardRef<
 				ref={ref}
 				type='search'
 				value={value}
-				className='w-full min-w-0 select-text bg-transparent text-base text-fg outline-none placeholder:text-muted [&::-webkit-search-cancel-button]:hidden'
+				className='w-full min-w-0 select-text text-ellipsis bg-transparent text-base text-fg outline-none placeholder:text-muted [&::-webkit-search-cancel-button]:hidden'
 				{...rest}
 			/>
 			{onClear && value ? (
