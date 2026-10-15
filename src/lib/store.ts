@@ -17,6 +17,8 @@ import {
 	type Team,
 } from './model';
 import { abilitiesFor, canUseSpecies, defaultAbility, defaultLevel, formatLabel, formatsForGen, getSpecies } from './dex';
+import { balance, costOf, entriesFor, newRosterEntry, pickState, priceOf, rosterSet, startDraft, teamRefusal, teamSpecies, type Suggestion } from './draft/draft';
+import type { Draft, DraftSettings, League } from './draft/types';
 
 export type InspectorView =
 	| 'card'
@@ -31,7 +33,9 @@ export type InspectorView =
 	| 'details'
 	| 'matchups'
 	| 'pokedex'
-	| 'locations';
+	| 'locations'
+	/** Draft Mode: where the roster differs from the league sheet. */
+	| 'draftSync';
 
 /** A legality fix waiting for confirmation in the dialog. */
 export interface PendingFix {
@@ -82,7 +86,7 @@ interface State {
 	/** Party member picked inside the open Box. */
 	boxPartyUid: string | null;
 	boxIndex: number;
-	dialog: null | 'newTeam' | 'importTeam' | 'importSet' | 'deleteMember' | 'fix';
+	dialog: null | 'newTeam' | 'importTeam' | 'importSet' | 'deleteMember' | 'fix' | 'draftSetup' | 'releasePick';
 	pendingFix: PendingFix | null;
 	toasts: Toast[];
 	save: SaveStatus;
@@ -97,6 +101,16 @@ interface State {
 	chosen: number;
 	/** The member last on each team's card, by team id, saved per viewer. */
 	lastSelected: Record<string, string>;
+	/**
+	 * Draft Mode is on. `library` is then the draft's workspace: its battle teams, with the draft in
+	 * `library.draft`. The stock library waits in `stock`, untouched, until Draft Mode is turned off.
+	 */
+	draftMode: boolean;
+	stock: { library: Library; openTeamId: string } | null;
+	/** The last sync, read for "Synced N min ago". `at` is when the sheet was last read, changed or not. */
+	draftSync: { status: 'idle' | 'syncing' | 'error'; message?: string; at?: number };
+	/** Roster entry waiting on the release confirm. */
+	pendingRelease: string | null;
 }
 
 interface Actions {
@@ -148,6 +162,21 @@ interface Actions {
 	storeInBox(uid: string, boxIndex?: number, slot?: number): void;
 	takeFromBox(boxIndex: number, slot: number, partyIndex?: number): void;
 	moveInBox(fromBox: number, fromSlot: number, toBox: number, toSlot: number): void;
+
+	setDraftMode(on: boolean): void;
+	/** Starts the draft from a confirmed setup, or re-reads it against a new sheet, and enters Draft Mode. */
+	confirmDraft(league: League, settings: DraftSettings): void;
+	/** A sync: league data replaces the old at once. The roster is left to the user. */
+	syncLeague(league: League): void;
+	setDraftSync(sync: State['draftSync']): void;
+	draftPick(species: string): boolean;
+	releasePick(uid: string): void;
+	confirmRelease(): void;
+	setCaptain(uid: string, captain: boolean): void;
+	setCaptainType(uid: string, teraType: string): void;
+	acceptSuggestion(suggestion: Suggestion): void;
+	acceptAllSuggestions(suggestions: Suggestion[]): void;
+	dismissSuggestion(suggestion: Suggestion): void;
 }
 
 export type Store = State & Actions;
@@ -187,6 +216,34 @@ export function readFancyMotion(): boolean {
 	} catch {
 		return true;
 	}
+}
+
+const DRAFT_KEY = 'kingdra.draftMode';
+
+/** Whether Draft Mode was on when this viewer left. Off when nothing is saved or storage is blocked. */
+export function readDraftMode(): boolean {
+	try {
+		return localStorage.getItem(DRAFT_KEY) === 'on';
+	} catch {
+		return false;
+	}
+}
+
+const writeDraftMode = (on: boolean) => {
+	try {
+		localStorage.setItem(DRAFT_KEY, on ? 'on' : 'off');
+	} catch {
+		// Storage can be full or blocked; the mode still applies for this visit.
+	}
+};
+
+/**
+ * The library to save. Outside Draft Mode it is `library` itself. In Draft Mode it is the stock library with
+ * the live draft folded in, so saving never writes the workspace over the user's teams.
+ */
+export function savedLibrary(s: Pick<State, 'library' | 'stock' | 'openTeamId'>): Library {
+	if (!s.stock || !s.library.draft) return s.library;
+	return { ...s.stock.library, updatedAt: s.library.updatedAt, draft: { ...s.library.draft, teams: s.library.teams, openTeamId: s.openTeamId } };
 }
 
 const LAST_KEY = 'kingdra.lastSelected';
@@ -254,7 +311,84 @@ export const useStore = create<Store>()((set, get) => {
 
 	const freshSet = (team: Team, species: string) => {
 		const s = getSpecies(team, species);
-		return newSet(s?.name ?? species, { ability: defaultAbility(team, species), level: defaultLevel(team) });
+		const draft = get().draftMode ? get().library.draft : undefined;
+		const set = newSet(s?.name ?? species, { ability: defaultAbility(team, species), level: draft?.league.rules.level ?? defaultLevel(team) });
+		return draft ? rosterSet(draft, set) : set;
+	};
+
+	/** In Draft Mode, refuses a species the roster doesn't allow on a team, with a toast. True when refused. */
+	const refuseInDraft = (species: string) => {
+		const draft = get().draftMode ? get().library.draft : undefined;
+		const why = draft && teamRefusal(draft, getSpecies(openTeam(), species)?.name ?? species);
+		if (!why) return false;
+		set({ rejectedAt: Date.now() });
+		get().toast('error', why);
+		return true;
+	};
+
+	const updateDraft = (fn: (draft: Draft) => Draft) =>
+		set((s) => (s.library.draft ? { library: touch({ ...s.library, draft: fn(s.library.draft) }) } : {}));
+
+	/** Swaps the workspace to the draft, keeping the stock library aside. Leaves updatedAt alone, so nothing is saved. */
+	const enterDraft = () => {
+		const s = get();
+		const draft = s.library.draft;
+		if (!draft || s.stock) return;
+		const team = draft.teams.find((t) => t.id === draft.openTeamId) ?? draft.teams[0];
+		set({
+			stock: { library: s.library, openTeamId: s.openTeamId },
+			draftMode: true,
+			library: { ...s.library, teams: draft.teams },
+			openTeamId: team.id,
+			selectedUid: pickFor(team, s.lastSelected),
+			inspector: restView(s),
+			activeMoveSlot: null,
+			boxOpen: false,
+			boxPartyUid: null,
+			mobileActionUid: null,
+			carouselTab: 'All',
+			carouselRole: 'All roles',
+			carouselSupport: 'All support',
+			carouselSearch: '',
+			carouselGen: null,
+		});
+	};
+
+	const leaveDraft = () => {
+		const s = get();
+		if (!s.stock) return set({ draftMode: false });
+		const library = savedLibrary(s);
+		const team = library.teams.find((t) => t.id === s.stock!.openTeamId) ?? library.teams[0];
+		set({
+			draftMode: false,
+			stock: null,
+			library,
+			openTeamId: team.id,
+			selectedUid: pickFor(team, s.lastSelected),
+			inspector: restView(s),
+			activeMoveSlot: null,
+			boxOpen: false,
+			boxPartyUid: null,
+			mobileActionUid: null,
+			carouselTab: getTiersDefault(team) ?? 'OU',
+			carouselRole: 'All roles',
+			carouselSupport: 'All support',
+			carouselSearch: '',
+			carouselGen: null,
+		});
+	};
+
+	/** Takes roster entries off the roster, and their members off every draft team that has no other pick for them. */
+	const dropPicks = (uids: string[]) => {
+		const s = get();
+		const draft = s.library.draft;
+		if (!draft) return;
+		const roster = draft.roster.filter((r) => !uids.includes(r.uid));
+		const next = { ...draft, roster };
+		const at = indexOf(s.selectedUid ?? '');
+		const teams = s.library.teams.map((t) => ({ ...t, members: t.members.filter((m) => entriesFor(next, m.species).length || !draft.roster.some((r) => uids.includes(r.uid) && teamSpecies(r.species) === m.species)) }));
+		set({ library: touch({ ...s.library, teams, draft: next }) });
+		settle(Math.max(0, at));
 	};
 
 	return {
@@ -287,13 +421,22 @@ export const useStore = create<Store>()((set, get) => {
 		chosen: 0,
 		mobileActionUid: null,
 		lastSelected: readLastSelected(),
+		draftMode: false,
+		stock: null,
+		draftSync: { status: 'idle' },
+		pendingRelease: null,
 
-		hydrate: (library) =>
+		hydrate: (library) => {
+			const resume = get().draftMode || readDraftMode();
 			set((s) => {
-				const open = library.teams.find((t) => t.id === s.openTeamId) ?? library.teams[0];
+				const open = library.teams.find((t) => t.id === (s.stock?.openTeamId ?? s.openTeamId)) ?? library.teams[0];
 				// The carousel opens on a tab the open team has: a casual team has no OU tab.
-				return { library, hydrated: true, openTeamId: open.id, selectedUid: pickFor(open, s.lastSelected), carouselTab: getTiersDefault(open) ?? s.carouselTab };
-			}),
+				return { library, stock: null, draftMode: false, hydrated: true, openTeamId: open.id, selectedUid: pickFor(open, s.lastSelected), carouselTab: getTiersDefault(open) ?? s.carouselTab };
+			});
+			// Draft Mode comes back on with the page when the library holds a draft to resume.
+			if (resume && library.draft) enterDraft();
+			else if (resume) writeDraftMode(false);
+		},
 		toast: (kind, message) => {
 			const id = uid();
 			set((s) => ({ toasts: [...s.toasts.slice(-2), { id, kind, message }] }));
@@ -344,7 +487,9 @@ export const useStore = create<Store>()((set, get) => {
 		setValidation: (teamId, v) => set((s) => ({ validation: { ...s.validation, [teamId]: v } })),
 
 		createTeam: (partial) => {
-			const team = newTeam(partial);
+			const draft = get().draftMode ? get().library.draft : undefined;
+			// Every draft team is competitive, in the league's format.
+			const team = newTeam(draft ? { ...partial, mode: 'competitive', gen: 9, format: draft.settings.format } : partial);
 			set((s) => ({ library: touch({ ...s.library, teams: [...s.library.teams, team] }), dialog: null }));
 			get().openTeam(team.id);
 		},
@@ -365,6 +510,8 @@ export const useStore = create<Store>()((set, get) => {
 			}),
 		renameTeam: (id, name) => updateTeam(id, (t) => ({ ...t, name: name.trim() || t.name })),
 		setTeamContext: (id, ctx) => {
+			// The league sets a draft team's mode and format.
+			if (get().draftMode) return;
 			updateTeam(id, (t) => {
 				const next = { ...t, ...ctx };
 				// Keep the format valid for the generation; fall back to its OU.
@@ -403,7 +550,19 @@ export const useStore = create<Store>()((set, get) => {
 			set({ library: touch({ ...library, teams }) });
 			if (get().openTeamId === id) get().openTeam(teams[Math.max(0, i - 1)].id);
 		},
-		addTeams: (teams) => {
+		addTeams: (incoming) => {
+			let teams = incoming;
+			const draft = get().draftMode ? get().library.draft : undefined;
+			if (draft) {
+				// Imported into a draft, a team keeps only rostered Pokémon and takes the league's format.
+				let skipped = 0;
+				teams = incoming.map((t) => {
+					const members = t.members.filter((m) => !teamRefusal(draft, m.species));
+					skipped += t.members.length - members.length;
+					return { ...t, mode: 'competitive' as const, gen: 9, format: draft.settings.format, members };
+				});
+				if (skipped) get().toast('error', `Left out ${skipped} Pokémon that ${skipped === 1 ? "isn't" : "aren't"} on your roster`);
+			}
 			if (!teams.length) return;
 			set((s) => ({ library: touch({ ...s.library, teams: [...s.library.teams, ...teams] }) }));
 			get().openTeam(teams[teams.length - 1].id);
@@ -430,6 +589,7 @@ export const useStore = create<Store>()((set, get) => {
 			}));
 		},
 		addMember: (species, index) => {
+			if (refuseInDraft(species)) return false;
 			const team = openTeam();
 			if (team.members.length >= MAX_TEAM_SIZE) {
 				// Dropped on a member of a full team: take its place.
@@ -457,6 +617,7 @@ export const useStore = create<Store>()((set, get) => {
 			if (teamId === get().openTeamId) return get().addMember(species, index);
 			const team = get().library.teams.find((t) => t.id === teamId);
 			if (!team) return false;
+			if (refuseInDraft(species)) return false;
 			if (!canUseSpecies(team, species)) {
 				get().toast('error', `${species} can't be used in ${team.name} (${formatLabel(team)})`);
 				return false;
@@ -511,6 +672,7 @@ export const useStore = create<Store>()((set, get) => {
 			const member = from?.members.find((m) => m.uid === memberUid);
 			if (!from || !to || !member || from.id === to.id) return false;
 			const evolves = !!species && species !== member.species;
+			if (evolves && refuseInDraft(species)) return false;
 			if (evolves && !canUseSpecies(to, species)) {
 				get().toast('error', `${species} can't be used in ${to.name} (${formatLabel(to)})`);
 				return false;
@@ -542,8 +704,15 @@ export const useStore = create<Store>()((set, get) => {
 			return true;
 		},
 		updateSet: (memberUid, patch) => updateMember(memberUid, (m) => ({ ...m, ...patch })),
-		replaceSet: (memberUid, next) => updateMember(memberUid, () => ({ ...next, uid: memberUid })),
-		changeSpecies: (memberUid, species) => updateMember(memberUid, (m) => asSpecies(openTeam(), m, species)),
+		replaceSet: (memberUid, next) => {
+			if (refuseInDraft(next.species)) return;
+			updateMember(memberUid, () => ({ ...next, uid: memberUid }));
+		},
+		changeSpecies: (memberUid, species) => {
+			// In Draft Mode a member only switches to another stage that is also on the roster.
+			if (refuseInDraft(species)) return;
+			updateMember(memberUid, (m) => asSpecies(openTeam(), m, species));
+		},
 		setMove: (memberUid, slot, move) =>
 			updateMember(memberUid, (m) => {
 				const moves = [...m.moves];
@@ -617,6 +786,8 @@ export const useStore = create<Store>()((set, get) => {
 			get().toast('success', `Deleted ${name}`);
 		},
 		storeInBox: (memberUid, boxIndex, slot) => {
+			// The Box belongs to the stock library; Draft Mode has its roster instead.
+			if (get().draftMode) return;
 			const team = openTeam();
 			const member = team.members.find((m) => m.uid === memberUid);
 			if (!member) return;
@@ -654,6 +825,7 @@ export const useStore = create<Store>()((set, get) => {
 			get().toast('success', `${member.name || member.species} moved to ${boxes[useBox].name}`);
 		},
 		takeFromBox: (boxIndex, slot, partyIndex) => {
+			if (get().draftMode) return;
 			const team = openTeam();
 			const { library } = get();
 			const stored = library.boxes[boxIndex]?.slots[slot];
@@ -686,8 +858,122 @@ export const useStore = create<Store>()((set, get) => {
 				boxes[toBox].slots[toSlot] = a;
 				return { library: touch({ ...s.library, boxes }) };
 			}),
+
+		setDraftMode: (on) => {
+			if (on === get().draftMode) return;
+			if (!on) {
+				writeDraftMode(false);
+				return leaveDraft();
+			}
+			// With no draft yet, the setup dialog decides; Cancel leaves Draft Mode off.
+			if (!get().library.draft) return set({ dialog: 'draftSetup' });
+			writeDraftMode(true);
+			enterDraft();
+		},
+		confirmDraft: (league, settings) => {
+			const s = get();
+			const previous = s.draftMode ? { ...s.library.draft!, teams: s.library.teams, openTeamId: s.openTeamId } : s.library.draft;
+			const draft = startDraft(league, settings, previous);
+			set({ dialog: null, draftSync: { status: 'idle' } });
+			if (s.draftMode) {
+				// A new sheet for the draft on screen: the league and format change in place.
+				set((x) => ({ library: touch({ ...x.library, teams: draft.teams, draft }) }));
+				return;
+			}
+			set((x) => ({ library: touch({ ...x.library, draft }) }));
+			writeDraftMode(true);
+			enterDraft();
+		},
+		syncLeague: (league) => {
+			const draft = get().library.draft;
+			if (!draft) return;
+			// A sheet that hasn't changed leaves the library alone, so a sync with nothing new saves nothing.
+			const same = JSON.stringify({ ...draft.league, syncedAt: 0 }) === JSON.stringify({ ...league, syncedAt: 0 });
+			if (!same) updateDraft((d) => ({ ...d, league }));
+			set({ draftSync: { status: 'idle', at: league.syncedAt } });
+		},
+		setDraftSync: (draftSync) => set({ draftSync }),
+		draftPick: (species) => {
+			const draft = get().library.draft;
+			if (!draft) return false;
+			const state = pickState(draft, species);
+			if (!state.ok) {
+				set({ rejectedAt: Date.now() });
+				get().toast('error', state.message);
+				return false;
+			}
+			updateDraft((d) => ({ ...d, roster: [...d.roster, newRosterEntry(species)] }));
+			return true;
+		},
+		releasePick: (entryUid) => {
+			const s = get();
+			const entry = s.library.draft?.roster.find((r) => r.uid === entryUid);
+			if (!entry) return;
+			const used = s.library.teams.some((t) => t.members.some((m) => teamSpecies(entry.species) === m.species));
+			if (used) return set({ pendingRelease: entryUid, dialog: 'releasePick' });
+			dropPicks([entryUid]);
+		},
+		confirmRelease: () => {
+			const id = get().pendingRelease;
+			set({ pendingRelease: null, dialog: null });
+			if (id) dropPicks([id]);
+		},
+		setCaptain: (entryUid, captain) => {
+			const draft = get().library.draft;
+			const entry = draft?.roster.find((r) => r.uid === entryUid);
+			if (!draft || !entry || entry.captain === captain) return;
+			if (captain) {
+				const price = priceOf(draft.league, entry.species);
+				const b = balance(draft);
+				const why =
+					price?.tera == null
+						? `${entry.species} can't be a Tera Captain in this league`
+						: price.tera > b.teraLeft
+							? `${entry.species} needs ${price.tera} Tera Points and you have ${b.teraLeft} left`
+							: price.tera - costOf(draft.league, entry) > b.pointsLeft
+								? `As a Tera Captain ${entry.species} costs ${price.tera} pts, more than you have left`
+								: null;
+				if (why) {
+					get().toast('error', why);
+					return;
+				}
+			}
+			updateDraft((d) => ({ ...d, roster: d.roster.map((r) => (r.uid === entryUid ? { ...r, captain } : r)) }));
+		},
+		setCaptainType: (entryUid, teraType) =>
+			updateDraft((d) => ({ ...d, roster: d.roster.map((r) => (r.uid === entryUid ? { ...r, teraType } : r)) })),
+		acceptSuggestion: (suggestion) => {
+			const draft = get().library.draft;
+			if (!draft) return;
+			const entry = draft.roster.find((r) => r.species === suggestion.species);
+			if (suggestion.kind === 'add') {
+				// The sheet already counts this pick, so it joins even past the budget the app keeps.
+				updateDraft((d) => ({ ...d, roster: [...d.roster, newRosterEntry(suggestion.species, suggestion.value === 'T')] }));
+			} else if (suggestion.kind === 'release' && entry) get().releasePick(entry.uid);
+			else if (entry) updateDraft((d) => ({ ...d, roster: d.roster.map((r) => (r.uid === entry.uid ? { ...r, captain: suggestion.kind === 'captain' } : r)) }));
+		},
+		acceptAllSuggestions: (suggestions) => {
+			const draft = get().library.draft;
+			if (!draft) return;
+			const releases = suggestions.filter((x) => x.kind === 'release').map((x) => draft.roster.find((r) => r.species === x.species)?.uid).filter((x): x is string => !!x);
+			updateDraft((d) => {
+				let roster = d.roster;
+				for (const x of suggestions) {
+					if (x.kind === 'add' && !roster.some((r) => r.species === x.species)) roster = [...roster, newRosterEntry(x.species, x.value === 'T')];
+					if (x.kind === 'captain' || x.kind === 'uncaptain') roster = roster.map((r) => (r.species === x.species ? { ...r, captain: x.kind === 'captain' } : r));
+				}
+				return { ...d, roster };
+			});
+			if (releases.length) dropPicks(releases);
+		},
+		dismissSuggestion: (suggestion) => updateDraft((d) => ({ ...d, dismissed: { ...d.dismissed, [suggestion.key]: suggestion.value } })),
 	};
 });
+
+/** The draft on screen, with its live teams, or null outside Draft Mode. */
+export function useDraft(): Draft | null {
+	return useStore((s) => (s.draftMode ? (s.library.draft ?? null) : null));
+}
 
 /** The same set as another species. It keeps its ability when the species can have it; otherwise it takes the species' first. */
 function asSpecies(team: Team, set: PokemonSet, species: string): PokemonSet {

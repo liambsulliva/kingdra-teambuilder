@@ -1,0 +1,11 @@
+import { readFileSync } from 'node:fs';
+import { parseLeague } from '../src/lib/draft/league';
+const t0 = performance.now();
+const l = parseLeague(readFileSync('/tmp/live.xlsx'), { kind: 'file', name: 'x.xlsx' });
+console.log('ms', Math.round(performance.now() - t0));
+console.log('tiers', l.tiers.length, l.tiers.slice(0, 3), 'banned', l.banned, 'complex', l.complexBans);
+console.log('coaches', l.coaches.map((c) => `${c.name}:${c.picks.length}`).join(' '));
+console.log('budget', JSON.stringify(l.budget));
+console.log('rules', JSON.stringify(l.rules, null, 1));
+console.log('unmatched', l.unmatched);
+console.log(l.tiers.filter((t) => /Tauros|Hawlucha/.test(t.species)));

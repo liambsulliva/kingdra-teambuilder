@@ -8,6 +8,7 @@ import { formatsForGen } from '@/lib/dex';
 import { importSet, importTeams } from '@/lib/showdown';
 import type { Mode } from '@/lib/model';
 import { useOpenTeam, useSelectedMember, useStore } from '@/lib/store';
+import { DraftSetupDialog, ReleasePickDialog } from '@/components/draft/DraftDialogs';
 
 export function Dialog({
 	open,
@@ -100,7 +101,7 @@ export function formatOptions(gen: number) {
 	return formatsForGen(gen).map((f) => ({ value: f.id, label: f.name, group: f.group }));
 }
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+export function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
 	return (
 		<div className='flex min-w-0 flex-1 flex-col gap-2'>
 			<span className='text-xs font-medium'>{label}</span>
@@ -115,6 +116,8 @@ function NewTeamDialog() {
 	const setDialog = useStore((s) => s.setDialog);
 	const createTeam = useStore((s) => s.createTeam);
 	const count = useStore((s) => s.library.teams.length);
+	// A draft team is always competitive, in the league's format.
+	const draftMode = useStore((s) => s.draftMode);
 	const [name, setName] = useState('');
 	const [mode, setMode] = useState<Mode>('competitive');
 	const [gen, setGen] = useState(9);
@@ -156,28 +159,34 @@ function NewTeamDialog() {
 						className='h-9 rounded-md border border-line bg-bg px-3 text-base outline-none placeholder:text-muted focus:border-accent'
 					/>
 				</Field>
-				<Field label='Mode' hint='Competitive unlocks formats, EVs, IVs, natures and roles. Casual is a lighter party planner. You can switch later; nothing is lost.'>
-					<ModeToggle value={mode} onChange={setMode} />
-				</Field>
-				<div className='flex flex-col gap-4 sm:flex-row'>
-					<Field label='Generation'>
-						<Select
-							label='Generation'
-							value={String(gen)}
-							options={genOptions}
-							onChange={(v) => {
-								const g = Number(v);
-								setGen(g);
-								setFormat(formatsForGen(g).find((f) => f.name === 'OU')?.id ?? formatsForGen(g)[0].id);
-							}}
-						/>
-					</Field>
-					{mode === 'competitive' && (
-						<Field label='Format'>
-							<Select label='Format' value={format} options={formatOptions(gen)} onChange={setFormat} />
+				{draftMode ? (
+					<p className='text-xs text-muted'>Draft teams use the league&apos;s format. Only Pokémon on your roster can join.</p>
+				) : (
+					<>
+						<Field label='Mode' hint='Competitive unlocks formats, EVs, IVs, natures and roles. Casual is a lighter party planner. You can switch later; nothing is lost.'>
+							<ModeToggle value={mode} onChange={setMode} />
 						</Field>
-					)}
-				</div>
+						<div className='flex flex-col gap-4 sm:flex-row'>
+							<Field label='Generation'>
+								<Select
+									label='Generation'
+									value={String(gen)}
+									options={genOptions}
+									onChange={(v) => {
+										const g = Number(v);
+										setGen(g);
+										setFormat(formatsForGen(g).find((f) => f.name === 'OU')?.id ?? formatsForGen(g)[0].id);
+									}}
+								/>
+							</Field>
+							{mode === 'competitive' && (
+								<Field label='Format'>
+									<Select label='Format' value={format} options={formatOptions(gen)} onChange={setFormat} />
+								</Field>
+							)}
+						</div>
+					</>
+				)}
 				<button type='submit' hidden />
 			</form>
 		</Dialog>
@@ -327,6 +336,8 @@ export function Dialogs() {
 			<NewTeamDialog />
 			<ImportDialog kind='team' />
 			<ImportDialog kind='set' />
+			<DraftSetupDialog />
+			<ReleasePickDialog />
 		</>
 	);
 }

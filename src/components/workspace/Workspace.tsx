@@ -39,6 +39,7 @@ export function Workspace({ empty }: { empty?: React.ReactNode } = {}) {
 function EmptyState({ team, children }: { team: Team; children?: React.ReactNode }) {
 	const mobile = useIsMobile();
 	const issues = useStore((s) => s.validation[team.id]?.count ?? 0);
+	const draftMode = useStore((s) => s.draftMode);
 	return (
 		<div className='flex flex-col gap-2'>
 			<h2 className='font-head text-[32px] font-semibold leading-9 tracking-[-0.02em]'>{team.name}</h2>
@@ -47,9 +48,13 @@ function EmptyState({ team, children }: { team: Team; children?: React.ReactNode
 				{team.mode === 'competitive' && (issues ? <> - <span className='text-danger'>{issues} {issues === 1 ? 'Issue' : 'Issues'}</span></> : ' - No Issues')}
 			</p>
 			<p className='max-w-[360px] text-base text-muted'>
-				{team.members.length
-					? 'Pick a party member to put it on the card. Drag a suggestion onto the party to add it.'
-					: `Drag a suggestion onto the party, or ${mobile ? 'tap' : 'click'} one to add it.`}
+				{draftMode
+					? team.members.length
+						? 'Pick a party member to put it on the card. Drag a pick from your roster onto the party to add it.'
+						: `Draft Pokémon from the board, then drag a pick from your roster onto the party, or ${mobile ? 'tap' : 'click'} one to add it.`
+					: team.members.length
+						? 'Pick a party member to put it on the card. Drag a suggestion onto the party to add it.'
+						: `Drag a suggestion onto the party, or ${mobile ? 'tap' : 'click'} one to add it.`}
 			</p>
 			{children}
 		</div>

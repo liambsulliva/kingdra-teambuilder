@@ -10,6 +10,7 @@ import { MovesView } from './MovesView';
 import { AbilityView, DetailsView, ItemView, LevelView, NatureView, TeraView } from './Pickers';
 import { MatchupsView, TeamView } from './AnalysisViews';
 import { LocationsView, PokedexView } from './PokedexViews';
+import { DraftSyncView } from '@/components/draft/DraftSyncView';
 
 /**
  * Right panel. Views swap instantly by design: no transition here. In the merged
@@ -20,6 +21,7 @@ export function Inspector() {
 	const member = useSelectedMember();
 	const view = useStore((s) => s.inspector);
 	const merged = useStore((s) => s.merged);
+	const draftMode = useStore((s) => s.draftMode);
 	const setInspector = useStore((s) => s.setInspector);
 	const casual = team.mode === 'casual';
 	const fields = fieldsFor(team);
@@ -37,10 +39,11 @@ export function Inspector() {
 		? [['team', 'team', 'Team analysis'], ['pokedex', 'pokedex', 'Pokédex'], ['locations', 'locations', 'Locations'], ...shown, ['matchups', 'matchups', 'Matchups']]
 		: [['team', 'team', 'Team analysis'], ['stats', 'stats', 'Stats'], ...shown, ['matchups', 'matchups', 'Matchups'], ['details', 'details', 'Details']];
 	// Merged: the card comes first.
-	const tabs: [InspectorView, IconName, string][] = merged ? [['card', 'party', 'Party and card'], ...views] : views;
-	const needsMember = (v: InspectorView) => v !== 'team' && v !== 'card';
+	const withDraft: [InspectorView, IconName, string][] = draftMode ? [...views, ['draftSync', 'sync', 'Draft sync']] : views;
+	const tabs: [InspectorView, IconName, string][] = merged ? [['card', 'party', 'Party and card'], ...withDraft] : withDraft;
+	const needsMember = (v: InspectorView) => v !== 'team' && v !== 'card' && v !== 'draftSync';
 	const home: InspectorView = merged ? 'card' : 'team';
-	const current: InspectorView = view === 'card' && !merged ? 'team' : needsMember(view) && !member ? home : view;
+	const current: InspectorView = (view === 'card' && !merged) || (view === 'draftSync' && !draftMode) ? home : needsMember(view) && !member ? home : view;
 
 	const strip = (
 		<div className='flex min-h-[48px] shrink-0 flex-wrap items-center gap-0.5 border-b border-line px-4 py-1'>
@@ -67,6 +70,7 @@ export function Inspector() {
 
 	let body: React.ReactNode = null;
 	if (current === 'team') body = <TeamView team={team} />;
+	else if (current === 'draftSync') body = <DraftSyncView />;
 	else if (member) {
 		const props = { team, member };
 		body = {
@@ -81,7 +85,7 @@ export function Inspector() {
 			matchups: <MatchupsView {...props} />,
 			pokedex: <PokedexView {...props} />,
 			locations: <LocationsView {...props} />,
-		}[current as Exclude<InspectorView, 'team' | 'card'>];
+		}[current as Exclude<InspectorView, 'team' | 'card' | 'draftSync'>];
 	}
 
 	return (

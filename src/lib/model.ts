@@ -1,3 +1,6 @@
+import type { Draft } from './draft/types';
+import { normalizeDraft } from './draft/normalize';
+
 export type StatID = 'hp' | 'atk' | 'def' | 'spa' | 'spd' | 'spe';
 export type StatTable = Record<StatID, number>;
 export type Mode = 'competitive' | 'casual';
@@ -63,6 +66,8 @@ export interface Library {
 	teams: Team[];
 	boxes: Box[];
 	updatedAt: number;
+	/** Draft Mode's one draft, kept apart from the teams above. Absent until the user sets one up. */
+	draft?: Draft;
 }
 
 export const uid = () =>
@@ -167,10 +172,12 @@ export function normalizeLibrary(input: unknown): Library {
 		name: b.name || 'Box',
 		slots: Array.from({ length: BOX_SIZE }, (_, i) => (b.slots?.[i] ? normalizeSet(b.slots[i]!) : null)),
 	}));
+	const draft = lib.draft ? normalizeDraft(lib.draft) : null;
 	return {
 		version: 2,
 		teams: teams.length ? teams : [newTeam({ name: 'Team 1' })],
 		boxes,
 		updatedAt: Number(lib.updatedAt) || Date.now(),
+		...(draft ? { draft } : {}),
 	};
 }

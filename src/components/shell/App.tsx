@@ -16,6 +16,8 @@ import { Inspector } from '@/components/inspector/Inspector';
 import { BottomPanel } from '@/components/browse/BottomPanel';
 import { BoxDrawer } from '@/components/browse/BoxDrawer';
 import { MobileApp } from '@/components/mobile/MobileApp';
+import { DraftBoard } from '@/components/draft/DraftBoard';
+import { DraftSyncer } from '@/lib/draft/sync';
 
 // Performance barometers, read with performance.getEntriesByType('mark'):
 // boot (this module evaluated) -> hydrated (server shell hydrated) -> ready (app and library on screen).
@@ -41,6 +43,7 @@ function Workbench() {
 	const mobile = useIsMobile();
 	const merged = useIsMerged();
 	const setMerged = useStore((s) => s.setMerged);
+	const draftMode = useStore((s) => s.draftMode);
 	useEffect(() => setMerged(merged), [merged, setMerged]);
 	useEffect(() => {
 		if (!hydrated) return;
@@ -57,6 +60,7 @@ function Workbench() {
 	return (
 		<DragLayer>
 			<OpenTeamValidation />
+			<DraftSyncer />
 			{mobile ? (
 				<MobileApp />
 			) : (
@@ -81,8 +85,8 @@ function Workbench() {
 							</>
 						)}
 					</div>
-					<BottomPanel />
-					<BoxDrawer />
+					{draftMode ? <DraftBoard /> : <BottomPanel />}
+					{!draftMode && <BoxDrawer />}
 				</div>
 			)}
 			<Dialogs />

@@ -240,7 +240,7 @@ function ghostCard(tile: HTMLElement, box: DOMRect, deg: number) {
 
 /** Where a falling card lands: the top edge of the Suggestions panel, or the bottom of the window without one. */
 function floorY() {
-	const panel = document.querySelector('section[aria-label="Suggestions"]');
+	const panel = document.querySelector('section[aria-label="Suggestions"], section[aria-label="Draft board"]');
 	const top = panel?.getBoundingClientRect().top;
 	return top && top > 0 ? Math.min(top, window.innerHeight) : window.innerHeight;
 }

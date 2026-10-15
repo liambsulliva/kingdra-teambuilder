@@ -182,6 +182,13 @@ export function MotionToggle({ tooltip }: { tooltip?: 'below' | 'none' }) {
 	return <IconButton icon='shiny' label='Enable fancy animations' selected={fancy} onClick={() => setFancy(!fancy)} tooltip={tooltip} />;
 }
 
+/** Draft Mode on or off. Pressed while on. With no draft yet, turning it on opens the setup dialog instead. */
+export function DraftToggle({ tooltip }: { tooltip?: 'below' | 'none' }) {
+	const on = useStore((s) => s.draftMode);
+	const setDraftMode = useStore((s) => s.setDraftMode);
+	return <IconButton icon='draft' label='Draft mode (experimental)' selected={on} onClick={() => setDraftMode(!on)} tooltip={tooltip} />;
+}
+
 export function Account() {
 	return (
 		<>
@@ -215,6 +222,7 @@ export function Header() {
 			<span className='flex-1' />
 			<SaveStatus />
 			<SpriteToggle />
+			<DraftToggle />
 			<MotionToggle />
 			<IconButton icon={theme === 'dark' ? 'sun' : 'moon'} label={theme === 'dark' ? 'Light mode' : 'Dark mode'} onClick={toggle} />
 			<Account />

@@ -6,7 +6,7 @@ import { Icon } from '@/components/ui/Icon';
 import { SearchField } from '@/components/ui/controls';
 import { PokemonIcon } from '@/components/pokemon/PokemonIcon';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
-import { formatLabel, formatsForGen } from '@/lib/dex';
+import { formatInfo, formatLabel, formatsForGen } from '@/lib/dex';
 import { accepts, type DragData } from '@/lib/drag';
 import { exportTeam } from '@/lib/showdown';
 import { MAX_TEAM_SIZE, type PokemonSet, type Team } from '@/lib/model';
@@ -35,6 +35,7 @@ export function TeamLibrary() {
 	const setDialog = useStore((s) => s.setDialog);
 	const cards = useStore((s) => s.teamView === 'cards');
 	const setTeamView = useStore((s) => s.setTeamView);
+	const draftMode = useStore((s) => s.draftMode);
 	const [searching, setSearching] = useState(false);
 	const [query, setQuery] = useState('');
 	// A team matches on its name or on any Pokémon in it, so searching a species finds the team it is on.
@@ -48,7 +49,7 @@ export function TeamLibrary() {
 	return (
 		<aside aria-label='Teams' className='flex min-h-0 select-none flex-col'>
 			<div className='flex h-12 shrink-0 items-center pl-6 pr-3'>
-				<h2 className='text-md font-semibold'>Teams</h2>
+				<h2 className='text-md font-semibold'>{draftMode ? 'Draft teams' : 'Teams'}</h2>
 				<span className='ml-2 text-xs tabular-nums text-muted'>{teams.length}</span>
 				<span className='flex-1' />
 				<IconButton icon='cards' label='Card view' selected={cards} onClick={() => setTeamView(cards ? 'list' : 'cards')} />
@@ -258,6 +259,9 @@ const formatOptions = () =>
 
 function ModeButton({ team }: { team: Team }) {
 	const setTeamContext = useStore((s) => s.setTeamContext);
+	// Every draft team is competitive.
+	const draftMode = useStore((s) => s.draftMode);
+	if (draftMode) return null;
 	return (
 		<IconButton
 			size='sm'
@@ -280,8 +284,10 @@ function TeamControls({ team, withMode, compact }: { team: Team; withMode?: bool
 	const deleteTeam = useStore((s) => s.deleteTeam);
 	const toast = useStore((s) => s.toast);
 	const [confirming, setConfirming] = useState(false);
+	// The league sets a draft team's format, so it shows as a label, not a select.
+	const draftMode = useStore((s) => s.draftMode);
 	const value = team.mode === 'casual' ? `casual:${team.gen}` : team.format;
-	const label = team.mode === 'casual' ? `Gen ${team.gen}` : `Gen ${team.gen} ${formatsForGen(team.gen).find((f) => f.id === team.format)?.name ?? team.format}`;
+	const label = team.mode === 'casual' ? `Gen ${team.gen}` : `Gen ${team.gen} ${formatInfo(team.format, team.gen)?.name ?? team.format}`;
 	const copy = async () => {
 		if (!team.members.length) return toast('error', 'This team has no Pokémon to export');
 		try {
@@ -294,27 +300,33 @@ function TeamControls({ team, withMode, compact }: { team: Team; withMode?: bool
 	return (
 		<div className='flex h-[16px] items-center'>
 			{withMode && <ModeButton team={team} />}
-			{/* The select is invisible over its label, so a long format name truncates instead of pushing the buttons out. */}
-			<label
-				className={`relative flex h-[20px] min-w-0 flex-1 items-center gap-0.5 rounded-md hover:bg-hover has-[select:focus-visible]:outline has-[select:focus-visible]:outline-[1.5px] has-[select:focus-visible]:outline-accent max-md:h-7 ${withMode ? 'px-1' : 'pr-1'}`}
-			>
-				<span className='sr-only'>Generation and format</span>
-				<span aria-hidden='true' className={`truncate font-medium ${compact ? 'text-2xs max-md:text-xs' : 'text-xs'}`}>
-					{label}
-				</span>
-				{!compact && <Icon name='chevron-down' size={12} className='text-muted' />}
-				<select
-					value={value}
-					onChange={(e) => {
-						const v = e.target.value;
-						if (v.startsWith('casual:')) setTeamContext(team.id, { mode: 'casual', gen: Number(v.slice(7)) });
-						else setTeamContext(team.id, { mode: 'competitive', format: v, gen: Number(v.match(/^gen(\d)/)![1]) });
-					}}
-					className='absolute inset-0 size-full cursor-pointer appearance-none opacity-0'
-				>
-					{team.mode === 'casual' ? casualOptions() : formatOptions()}
-				</select>
-			</label>
+			{draftMode ? (
+				<span className={`min-w-0 flex-1 truncate font-medium ${compact ? 'text-2xs max-md:text-xs' : 'text-xs'}`}>{label}</span>
+			) : (
+				<>
+					{/* The select is invisible over its label, so a long format name truncates instead of pushing the buttons out. */}
+					<label
+						className={`relative flex h-[20px] min-w-0 flex-1 items-center gap-0.5 rounded-md hover:bg-hover has-[select:focus-visible]:outline has-[select:focus-visible]:outline-[1.5px] has-[select:focus-visible]:outline-accent max-md:h-7 ${withMode ? 'px-1' : 'pr-1'}`}
+					>
+						<span className='sr-only'>Generation and format</span>
+						<span aria-hidden='true' className={`truncate font-medium ${compact ? 'text-2xs max-md:text-xs' : 'text-xs'}`}>
+							{label}
+						</span>
+						{!compact && <Icon name='chevron-down' size={12} className='text-muted' />}
+						<select
+							value={value}
+							onChange={(e) => {
+								const v = e.target.value;
+								if (v.startsWith('casual:')) setTeamContext(team.id, { mode: 'casual', gen: Number(v.slice(7)) });
+								else setTeamContext(team.id, { mode: 'competitive', format: v, gen: Number(v.match(/^gen(\d)/)![1]) });
+							}}
+							className='absolute inset-0 size-full cursor-pointer appearance-none opacity-0'
+						>
+							{team.mode === 'casual' ? casualOptions() : formatOptions()}
+						</select>
+					</label>
+				</>
+			)}
 			<IconButton size='sm' icon='duplicate' label='Duplicate team' onClick={() => duplicateTeam(team.id)} />
 			<IconButton size='sm' icon='export' label='Copy as Showdown text' onClick={copy} />
 			{confirming ? (

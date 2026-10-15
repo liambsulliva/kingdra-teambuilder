@@ -136,8 +136,19 @@ export function formatsForGen(gen: number): FormatInfo[] {
 	return out;
 }
 
+/** Formats only Draft Mode offers. They stay out of formatsForGen, so the stock format select never lists them. */
+export const DRAFT_FORMATS: FormatInfo[] = [
+	{ id: 'gen9championsdraft', name: 'Champions Draft', group: 'Champions', tiers: ['All'], tierField: 'champions', level: 50 },
+	{ id: 'gen9championsou', name: 'Champions OU', group: 'Champions', tiers: ['OU', 'UU'], tierField: 'champions', level: 50 },
+	{ id: 'gen9championsnatdexdraft', name: 'Champions NatDex Draft', group: 'Champions', tiers: ['All'], tierField: 'champions', level: 50 },
+	{ id: 'gen9draft', name: 'Gen 9 Draft', group: 'Other', tiers: ['All'], tierField: 'all' },
+	{ id: 'gen9natdexdraft', name: 'Gen 9 NatDex Draft', group: 'Other', tiers: ['All'], tierField: 'all' },
+	{ id: 'gen9ou', name: 'Gen 9 OU', group: 'Smogon singles', tiers: ['OU'], tierField: 'tier' },
+	{ id: 'gen9nationaldex', name: 'Gen 9 National Dex', group: 'Other', tiers: ['All'], tierField: 'all' },
+];
+
 export function formatInfo(id: string, gen: number): FormatInfo | undefined {
-	return formatsForGen(gen).find((f) => f.id === id);
+	return formatsForGen(gen).find((f) => f.id === id) ?? (gen === 9 ? DRAFT_FORMATS.find((f) => f.id === id) : undefined);
 }
 
 export function formatLabel(team: Pick<Team, 'mode' | 'gen' | 'format'>) {
@@ -152,6 +163,7 @@ export function generationFor(
 	const wide =
 		team.mode === 'casual' ||
 		team.format.includes('nationaldex') ||
+		team.format.includes('natdex') ||
 		isChampions(team);
 	return (wide ? extended : standard).get(team.gen as GenerationNum);
 }

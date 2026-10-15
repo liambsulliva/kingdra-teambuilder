@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { emptyLibrary, normalizeLibrary, type Library, type Team } from './model';
-import { useOpenTeam, useStore, type Validation } from './store';
+import { savedLibrary, useOpenTeam, useStore, type Validation } from './store';
 import { MERGED_QUERY, MOBILE_QUERY } from './breakpoints';
 import { cachedMoveIndex, moveIndex } from './dex';
+import { draftIssues } from './draft/draft';
 
 const LOCAL_KEY = 'kingdra.library.v2';
 const GUEST_KEY = 'kingdra.guest-unsynced';
@@ -116,6 +117,11 @@ export function usePersistence() {
 				library = { ...library, teams: [...library.teams, ...extra] };
 				changed = true;
 			}
+			// A draft set up as a guest joins an account that has none.
+			if (!library.draft && local.draft) {
+				library = { ...library, draft: local.draft };
+				changed = true;
+			}
 		}
 		hydrate(library);
 		try {
@@ -131,8 +137,9 @@ export function usePersistence() {
 		storage.remove(LOCAL_KEY);
 		mode.current = 'account';
 		// Edits made while the merge was saving still need saving.
-		const latest = useStore.getState().library;
-		if (latest === library) setSave('saved');
+		// Resuming Draft Mode rebuilds the object but changes nothing saved; only an edit moves updatedAt.
+		const latest = savedLibrary(useStore.getState());
+		if (latest === library || latest.updatedAt === library.updatedAt) setSave('saved');
 		else
 			putCloud(latest)
 				.then(() => setSave('saved'))
@@ -190,7 +197,9 @@ export function usePersistence() {
 		};
 		const unsubscribe = useStore.subscribe((s, prev) => {
 			if (s.library === prev.library || !s.hydrated || !mode.current) return;
-			const library = s.library;
+			// Turning Draft Mode on or off swaps what is on screen without changing anything saved.
+			if (s.draftMode !== prev.draftMode && s.library.updatedAt === prev.library.updatedAt) return;
+			const library = savedLibrary(s);
 			clearTimeout(timer);
 			if (mode.current === 'guest') {
 				// Only guest libraries live on this device. An account's library is never mirrored here, so signing out cannot show it.
@@ -232,10 +241,26 @@ export const NO_VALIDATION: Validation = Object.freeze({ byMember: Object.freeze
 const validationCache = new Map<string, Validation>();
 const VALIDATION_CACHE_SIZE = 64;
 
-/** Debounced Showdown validation for competitive teams. */
+/** Adds the draft's own problems (roster, Mega Stones, Tera Captains) to Showdown's. */
+function withDraft(result: Validation, issues: Record<string, string[]> | null): Validation {
+	if (!issues || !Object.keys(issues).length) return result;
+	const byMember = { ...result.byMember };
+	let count = result.count;
+	for (const [id, problems] of Object.entries(issues)) {
+		byMember[id] = [...(byMember[id] ?? []), ...problems];
+		count += problems.length;
+	}
+	return { ...result, byMember, count };
+}
+
+/** Debounced Showdown validation for competitive teams. In Draft Mode it adds the league's rules and the draft's checks. */
 export function useValidation(team: Team) {
 	const setValidation = useStore((s) => s.setValidation);
-	const key = team.mode === 'competitive' && team.members.length ? JSON.stringify([team.format, team.members]) : '';
+	const draft = useStore((s) => (s.draftMode ? s.library.draft : undefined));
+	const rules = draft?.league.rules.custom;
+	const key = team.mode === 'competitive' && team.members.length ? JSON.stringify([team.format, team.members, rules ?? null]) : '';
+	const issues = draft && key ? draftIssues(draft, team) : null;
+	const issuesKey = issues ? JSON.stringify(issues) : '';
 	useEffect(() => {
 		const current = () => useStore.getState().validation[team.id];
 		if (!key) {
@@ -244,7 +269,8 @@ export function useValidation(team: Team) {
 		}
 		const cached = validationCache.get(key);
 		if (cached) {
-			if (current() !== cached) setValidation(team.id, cached);
+			const merged = withDraft(cached, issues);
+			if (current() !== merged) setValidation(team.id, merged);
 			return;
 		}
 		const controller = new AbortController();
@@ -253,7 +279,7 @@ export function useValidation(team: Team) {
 				const res = await fetch('/api/validate', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ format: team.format, members: team.members }),
+					body: JSON.stringify(rules ? { format: team.format, members: team.members, rules } : { format: team.format, members: team.members }),
 					signal: controller.signal,
 				});
 				if (!res.ok) return;
@@ -261,7 +287,7 @@ export function useValidation(team: Team) {
 				validationCache.delete(key);
 				validationCache.set(key, result);
 				if (validationCache.size > VALIDATION_CACHE_SIZE) validationCache.delete(validationCache.keys().next().value!);
-				setValidation(team.id, result);
+				setValidation(team.id, withDraft(result, issues));
 			} catch {
 				// Validation is advisory; a network failure leaves the last result.
 			}
@@ -271,7 +297,7 @@ export function useValidation(team: Team) {
 			controller.abort();
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [key, team.id, setValidation]);
+	}, [key, issuesKey, team.id, setValidation]);
 }
 
 /** Validates the open team. Its own leaf, so an edit re-renders this and not the app around it. */

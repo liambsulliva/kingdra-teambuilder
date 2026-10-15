@@ -15,6 +15,7 @@ import { NatureText } from '@/components/inspector/StatsView';
 import { hopAndSwap } from '@/components/motion/choreography';
 import { useIsMobile } from '@/lib/hooks';
 import { useStore, type InspectorView } from '@/lib/store';
+import { teamRefusal } from '@/lib/draft/draft';
 
 const NO_PROBLEMS: string[] = [];
 const problemsFor = (problems: string[], words: string[]) => problems.filter((p) => words.some((w) => w && p.toLowerCase().includes(w.toLowerCase())));
@@ -244,10 +245,13 @@ export function ExpandedCard({ team, member }: { team: Team; member: PokemonSet 
 function EvolutionStep({ team, member, name }: { team: Team; member: PokemonSet; name: string }) {
 	const changeSpecies = useStore((s) => s.changeSpecies);
 	const current = name === member.species;
+	// In Draft Mode a stage is only reachable when it is on the roster too.
+	const gated = useStore((s) => (!current && s.draftMode && s.library.draft ? teamRefusal(s.library.draft, name) : null));
 	// The stage the card is on drags too: it moves the Pokémon itself, as its party sprite does.
 	const { setNodeRef, listeners, attributes, isDragging } = useDraggable({
 		id: `evolution:${member.uid}:${name}`,
 		data: { kind: 'evolution', uid: member.uid, species: name, teamId: team.id },
+		disabled: !!gated,
 	});
 	return (
 		<button
@@ -257,11 +261,12 @@ function EvolutionStep({ team, member, name }: { team: Team; member: PokemonSet;
 			{...listeners}
 			// Keyboard keeps its click: the drag sensor would otherwise take Enter and Space.
 			onKeyDown={undefined}
-			onClick={current ? undefined : () => hopAndSwap(document.querySelector('[data-card-sprite]'), () => changeSpecies(member.uid, name))}
-			className={`bounce-host drag-source group flex flex-col items-center gap-1 ${current ? 'cursor-grab' : 'cursor-pointer'} ${isDragging ? 'opacity-40' : ''}`}
-			title={current ? `Drag onto another team to move ${member.name || name} there` : `Switch to ${name}. Drag onto another team to move it there as ${name}`}
+			aria-disabled={gated ? true : undefined}
+			onClick={current || gated ? undefined : () => hopAndSwap(document.querySelector('[data-card-sprite]'), () => changeSpecies(member.uid, name))}
+			className={`bounce-host drag-source group flex flex-col items-center gap-1 ${gated ? 'cursor-not-allowed' : current ? 'cursor-grab' : 'cursor-pointer'} ${isDragging ? 'opacity-40' : ''}`}
+			title={gated ?? (current ? `Drag onto another team to move ${member.name || name} there` : `Switch to ${name}. Drag onto another team to move it there as ${name}`)}
 		>
-			<PokemonIcon species={name} className='bounce-glyph' />
+			<PokemonIcon species={name} className={`bounce-glyph ${gated ? 'opacity-40 grayscale' : ''}`} />
 			<span className={`h-0.5 w-5 rounded-full ${current ? 'bg-accent' : 'bg-transparent'}`} />
 			<span className={`text-xs ${current ? 'text-fg' : 'text-muted group-hover:text-fg'}`}>{name}</span>
 		</button>

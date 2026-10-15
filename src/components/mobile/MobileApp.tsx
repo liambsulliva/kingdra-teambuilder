@@ -7,13 +7,15 @@ import { IconButton } from '@/components/ui/IconButton';
 import { SearchField, Select, Tab } from '@/components/ui/controls';
 import { TypeBadge } from '@/components/ui/TypeBadge';
 import { PokemonIcon } from '@/components/pokemon/PokemonIcon';
-import { Account, Logo, MotionToggle, SpriteToggle, useTheme } from '@/components/shell/Header';
+import { Account, DraftToggle, Logo, MotionToggle, SpriteToggle, useTheme } from '@/components/shell/Header';
 import { TeamLibrary } from '@/components/library/TeamLibrary';
 import { Workspace } from '@/components/workspace/Workspace';
 import { Inspector } from '@/components/inspector/Inspector';
 import { CandidateCard, emptyMessage, ROLE_OPTIONS, SEARCH_PLACEHOLDER, SUPPORT_OPTIONS, tierTabs, useCandidates } from '@/components/browse/BottomPanel';
 import { BoxCell } from '@/components/browse/BoxDrawer';
 import { PartyRow } from '@/components/workspace/PartyRow';
+import { MobileBoard } from '@/components/draft/DraftBoard';
+import { DraftSyncView } from '@/components/draft/DraftSyncView';
 import { formatLabel, getSpecies } from '@/lib/dex';
 import { useOpenTeam, useSelectedMember, useStore } from '@/lib/store';
 
@@ -57,6 +59,7 @@ function MemberActions() {
 	const team = useOpenTeam();
 	const member = team.members.find((m) => m.uid === uid);
 	const species = member ? getSpecies(team, member.species) : null;
+	const draftMode = useStore((x) => x.draftMode);
 	const s = useStore.getState();
 	const action = (icon: IconName, label: string, run: () => void, danger?: boolean) => (
 		<button type='button' onClick={() => { run(); close(); }} className={`flex h-12 w-full items-center gap-3 rounded-lg px-3 text-base font-medium hover:bg-hover ${danger ? 'text-danger' : ''}`}>
@@ -76,7 +79,7 @@ function MemberActions() {
 						</div>
 					</div>
 					{action('eye', 'Put on the card', () => s.selectMember(member.uid))}
-					{action('box', 'Move to Box', () => s.storeInBox(member.uid))}
+					{!draftMode && action('box', 'Move to Box', () => s.storeInBox(member.uid))}
 					{action('trash', 'Remove from team', () => s.removeMember(member.uid), true)}
 				</div>
 			)}
@@ -109,6 +112,17 @@ function BoxGrid() {
 
 /** Before the first add: the top four suggestions under the empty state, then a way into Browse. */
 function StarterSuggestions({ onSeeAll }: { onSeeAll: () => void }) {
+	const draftMode = useStore((s) => s.draftMode);
+	if (draftMode)
+		return (
+			<button type='button' onClick={onSeeAll} className='self-start pt-2 text-base font-medium text-accent'>
+				Open the draft board
+			</button>
+		);
+	return <StockStarters onSeeAll={onSeeAll} />;
+}
+
+function StockStarters({ onSeeAll }: { onSeeAll: () => void }) {
 	const { team, list, roles } = useCandidates();
 	return (
 		<div className='flex flex-col gap-3 pt-2'>
@@ -124,7 +138,28 @@ function StarterSuggestions({ onSeeAll }: { onSeeAll: () => void }) {
 	);
 }
 
-function Browse({ onParty }: { onParty: () => void }) {
+function Browse({ onParty, onChanges }: { onParty: () => void; onChanges: () => void }) {
+	if (useStore((s) => s.draftMode)) return <DraftBrowse onParty={onParty} onChanges={onChanges} />;
+	return <StockBrowse onParty={onParty} />;
+}
+
+/** Draft Mode's Browse: the party row, then the roster over the draft board. */
+function DraftBrowse({ onParty, onChanges }: { onParty: () => void; onChanges: () => void }) {
+	return (
+		<div className='flex min-h-0 flex-1 flex-col gap-3 pt-2'>
+			<PartyRow
+				className='px-4'
+				onTap={(m) => {
+					useStore.getState().selectMember(m.uid);
+					onParty();
+				}}
+			/>
+			<MobileBoard onChanges={onChanges} />
+		</div>
+	);
+}
+
+function StockBrowse({ onParty }: { onParty: () => void }) {
 	const { team, list, roles, loading, search: shownSearch } = useCandidates();
 	const tab = useStore((s) => s.carouselTab);
 	const role = useStore((s) => s.carouselRole);
@@ -185,6 +220,9 @@ export function MobileApp() {
 	const inspector = useStore((s) => s.inspector);
 	const slot = useStore((s) => s.activeMoveSlot);
 	const [sheet, setSheet] = useState(false);
+	// Draft sync opens only from its own button, never by itself.
+	const [syncSheet, setSyncSheet] = useState(false);
+	const draftMode = useStore((s) => s.draftMode);
 	const chosen = useStore((s) => s.chosen);
 	const setInspector = useStore((s) => s.setInspector);
 	const firstTeam = useRef(openTeamId);
@@ -226,6 +264,7 @@ export function MobileApp() {
 				<span className='font-head text-[20px] font-bold leading-6'>Kingdra</span>
 				<span className='flex-1' />
 				<SpriteToggle />
+				<DraftToggle tooltip='none' />
 				<MotionToggle tooltip='none' />
 				<IconButton icon={theme === 'dark' ? 'sun' : 'moon'} label={theme === 'dark' ? 'Light mode' : 'Dark mode'} onClick={toggle} tooltip='none' />
 				<Account />
@@ -242,7 +281,7 @@ export function MobileApp() {
 			<div className='flex min-h-0 flex-1 flex-col'>
 				{tab === 'teams' && <div className='min-h-0 flex-1 overflow-y-auto'><TeamLibrary /></div>}
 				{tab === 'party' && <Workspace empty={<StarterSuggestions onSeeAll={() => setTab('browse')} />} />}
-				{tab === 'browse' && <Browse onParty={() => setTab('party')} />}
+				{tab === 'browse' && <Browse onParty={() => setTab('party')} onChanges={() => setSyncSheet(true)} />}
 			</div>
 			<nav className='flex h-[72px] shrink-0 border-t border-line'>
 				{tabs.map(([id, icon, label]) => (
@@ -254,6 +293,11 @@ export function MobileApp() {
 			</nav>
 			<Sheet fixed open={sheet && !!member} onClose={closeEditor} onExited={resetEditor} label='Editor'>
 				<Inspector />
+			</Sheet>
+			<Sheet open={syncSheet && draftMode} onClose={() => setSyncSheet(false)} label='Draft sync'>
+				<div className='px-4 pb-8'>
+					<DraftSyncView />
+				</div>
 			</Sheet>
 			<MemberActions />
 		</div>
