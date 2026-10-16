@@ -2,9 +2,9 @@ import { Dex } from '@pkmn/dex';
 import { newTeam, uid, type PokemonSet, type Team } from '../model';
 import type { Draft, DraftSettings, League, RosterEntry, TierEntry } from './types';
 
-/** Draft Mode supports Pokémon Champions formats only for now; the other draft formats stay in the dex for later. */
-export const isSupported = (format: unknown): format is string => typeof format === 'string' && format.startsWith('gen9champions');
-export const DEFAULT_FORMAT = 'gen9championsdraft';
+/** Draft Mode supports Pokémon Champions OU only for now; the other draft formats stay in the dex for later. */
+export const DEFAULT_FORMAT = 'gen9championsou';
+export const isSupported = (format: unknown): format is string => format === DEFAULT_FORMAT;
 
 /** The first value the sheet gives for a figure, preferring cells over prose. */
 export const firstFound = (found: { value: number }[], fallback: number) => found[0]?.value ?? fallback;
@@ -12,7 +12,7 @@ export const firstFound = (found: { value: number }[], fallback: number) => foun
 /** The settings the dialog starts from for a freshly read league. */
 export function defaultSettings(league: League, previous?: DraftSettings): DraftSettings {
 	return {
-		format: [previous?.format, league.rules.format].find(isSupported) ?? DEFAULT_FORMAT,
+		format: DEFAULT_FORMAT,
 		points: firstFound(league.budget.points, 100),
 		picks: firstFound(league.budget.picks, 11),
 		coach: previous?.coach && league.coaches.some((c) => c.name === previous.coach) ? previous.coach : null,

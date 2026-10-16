@@ -27,7 +27,6 @@ export function prefetchPokeballs() {
 	}
 }
 
-const gen8 = data.gen8 as unknown as Record<string, [number, number, number, number]>;
 const sheet = data.sheet as unknown as Record<string, [number, number, number, number]>;
 const formIds = data.formIds as Record<string, number>;
 
@@ -62,17 +61,10 @@ export function pokeapiId(species: SpeciesRef): number {
 }
 
 /**
- * PokeAPI Gen VIII box icon, cropped to the Pokémon's own outline. Gen 9 and
- * alternate formes fall back to the matching cell of Showdown's icon sheet.
+ * The Pokémon's cell of Showdown's icon sheet, cropped to its outline. PokeAPI removed its Gen VIII box icons
+ * upstream on 2026-10-16, so every species now draws from this one sheet.
  */
 export function iconSprite(species: SpeciesRef): IconSprite | null {
-	if (!species.forme && gen8[species.num]) {
-		return {
-			url: `${POKEAPI}/versions/generation-viii/icons/${species.num}.png`,
-			size: [68, 56],
-			box: gen8[species.num],
-		};
-	}
 	const { left, top } = Icons.getPokemon(species.name);
 	const cell = sheet[`${-left},${-top}`];
 	if (!cell) return null;

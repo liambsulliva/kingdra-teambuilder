@@ -6,7 +6,7 @@ import type { Draft, League, RosterEntry } from './types';
 export function normalizeDraft(input: unknown): Draft | null {
 	const d = input as Partial<Draft> | null;
 	if (!d || typeof d !== 'object' || !d.league || !d.settings || !Array.isArray(d.league.tiers)) return null;
-	// Only Champions is supported; a draft saved under another format moves to Champions Draft.
+	// Only Champions OU is supported; a draft saved under another format moves to it.
 	const format = isSupported(d.settings.format) ? d.settings.format : DEFAULT_FORMAT;
 	const teams: Team[] = (Array.isArray(d.teams) ? d.teams : [])
 		.filter((t): t is Team => !!t && typeof t === 'object')

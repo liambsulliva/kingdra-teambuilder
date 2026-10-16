@@ -21,7 +21,7 @@ Reference for the affordances: the 2024 draft planner at commit `97b9fd3` (point
 | `Data` | `Total Points:` budget cells; team names by coach. |
 | `Rules` | Free text. The format line ("Champions OU format"), level, item rule, bans ("Baton Pass is Banned") and clauses (OHKO, Species, Sleep on/off, Evasion, Moody). The pick range comes from "You have N points to draft A-B Pokemon". |
 
-- **Pokémon Champions only (for now).** The setup dialog says so up front, and its format select lists only the Champions formats. A Rules tab naming another format is noted in the format hint ("…which Draft Mode doesn't support yet") and the format falls back to Champions Draft. A saved draft in another format is moved to Champions Draft on load.
+- **Pokémon Champions OU only (for now).** The setup dialog says so up front and has no format select: every draft is Champions OU, whatever the Rules tab names. A saved draft in another format is moved to Champions OU on load.
 - **No Tera Captains or Tera Points.** Champions can't Terastallize, so the sheet's Tera values, `T` marks and Tera budget are not read, and picks always cost their board points.
 - Names are resolved against the dex with aliases (`Tauros-Aqua` → `Tauros-Paldea-Aqua`, `Basculegion-F`) and a close-match fallback for typos (`Halwucha-Mega` → `Hawlucha-Mega`). Anything still unmatched is listed in the dialog and skipped.
 - Budgets that disagree (Rules says 85 points, Data/Drafts say 95) are all shown in the dialog, with the cells preferred over the prose, and every value can be edited before confirming.
@@ -30,7 +30,7 @@ Reference for the affordances: the 2024 draft planner at commit `97b9fd3` (point
 
 - **Header toggle** "Draft mode (experimental)", just left of Enable fancy animations, on desktop, tablet and phone. Pressed while on, saved per viewer.
 - **A separate app mode.** Turning it on swaps the whole workspace to the one draft: its roster and its battle teams. The normal teams library and Box are untouched and come back exactly as they were when it is turned off.
-- The first time (no sheet yet) the toggle opens the **Draft setup dialog**: link (or upload, with the static warning), then the parsed league: format (a Champions format, preselected from the Rules text when it names one), budget, pick range, coach ("which coach are you?"), unmatched names, and the rules that will and won't be enforced. Confirm enters Draft Mode; Cancel leaves the toggle off.
+- The first time (no sheet yet) the toggle opens the **Draft setup dialog**: link (or upload, with the static warning), then the parsed league: budget, pick range, coach ("which coach are you?"), unmatched names, and the rules that will and won't be enforced. Confirm enters Draft Mode; Cancel leaves the toggle off.
 - Later, the toggle resumes the saved draft at once. **Replace sheet** (Draft board toolbar) reopens the dialog. On confirm the roster is re-priced from the new sheet, and picks it no longer lists, that are now banned or over budget are flagged, not deleted.
 - **One draft per user**, saved with the library: guests in this browser, accounts in MongoDB (`library.draft`).
 
@@ -59,7 +59,7 @@ Reference for the affordances: the 2024 draft planner at commit `97b9fd3` (point
 |---|---|
 | Teams list | The draft's battle teams; the panel head shows the balance. No mode toggle or format select in the team controls (the league sets the format). |
 | Suggestions panel | **Draft board.** Tier tabs are point values ("17 pts", "1 pt"). Banned Pokémon are not on the board at all. Cards show price and Drafted / Taken by <coach> / Can't afford states; unavailable cards are disabled with the reason. Search, role and support filters work over the board. Click drafts a Pokémon; drag onto the party is refused for undrafted Pokémon ("Draft it first"). |
-| Box drawer and Box tab | **Roster row.** No drawer: the roster is one horizontally scrolling row of picks on the main screen, between the board's tabs and its cards, with the balance beside it. Each pick shows its price and release. The whole chip is the click and drag target; a pick already on the open team is tinted and keeps that tint on hover. Click or drag a pick onto the party to add it to the open team. |
+| Box drawer and Box tab | **Roster row.** No drawer: the roster is one horizontally scrolling row of picks on the main screen, between the board's tabs and its cards, with the balance beside it. Each pick shows its price and release. The whole chip is the click and drag target; a pick already on the open team is tinted and keeps that tint on hover. Hovering release darkens its icon only, with no gray fill on it or the chip. Click or drag a pick onto the party to add it to the open team. |
 | Inspector | Adds the **Draft sync** view. Item and evolution editors respect the roster and Mega rules. |
 | Phone Browse: Suggestions / Box | One view: party row, board filters, the roster row, then the board's cards. |
 

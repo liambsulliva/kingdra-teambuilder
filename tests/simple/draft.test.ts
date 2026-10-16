@@ -34,25 +34,25 @@ const draft = (over: Partial<Draft> = {}): Draft => ({
 	...over,
 });
 
-describe('draft mode supports Pokémon Champions only', () => {
-	it('recognises Champions formats and nothing else', () => {
-		expect(isSupported('gen9championsdraft')).toBe(true);
-		expect(isSupported('gen9championsnatdexdraft')).toBe(true);
+describe('draft mode supports Pokémon Champions OU only', () => {
+	it('recognises Champions OU and nothing else', () => {
+		expect(isSupported('gen9championsou')).toBe(true);
+		expect(isSupported('gen9championsdraft')).toBe(false);
 		expect(isSupported('gen9draft')).toBe(false);
 		expect(isSupported('gen9ou')).toBe(false);
 		expect(isSupported(undefined)).toBe(false);
 	});
 
-	it('takes the Rules tab format when it is Champions, else falls back to Champions Draft', () => {
+	it('always sets up Champions OU, whatever the Rules tab names', () => {
 		expect(defaultSettings(league()).format).toBe('gen9championsou');
-		expect(defaultSettings(league({ rules: { ...league().rules, format: 'gen9natdexdraft' } })).format).toBe('gen9championsdraft');
-		expect(defaultSettings(league({ rules: { ...league().rules, format: null } })).format).toBe('gen9championsdraft');
+		expect(defaultSettings(league({ rules: { ...league().rules, format: 'gen9natdexdraft' } })).format).toBe('gen9championsou');
+		expect(defaultSettings(league({ rules: { ...league().rules, format: null } })).format).toBe('gen9championsou');
 	});
 
-	it('moves a saved draft in another format onto Champions Draft', () => {
+	it('moves a saved draft in another format onto Champions OU', () => {
 		const saved = normalizeDraft({ ...draft(), settings: { ...draft().settings, format: 'gen9ou' }, teams: [{ id: 't', name: 'Week 1', members: [] }] });
-		expect(saved?.settings.format).toBe('gen9championsdraft');
-		expect(saved?.teams[0].format).toBe('gen9championsdraft');
+		expect(saved?.settings.format).toBe('gen9championsou');
+		expect(saved?.teams[0].format).toBe('gen9championsou');
 	});
 });
 
@@ -63,7 +63,7 @@ describe('draft mode has no Tera Captains or Tera Points', () => {
 			settings: { ...draft().settings, teraPoints: 30 },
 			roster: [{ uid: 'a', species: 'Kingdra', captain: true, teraType: 'Water' }],
 		});
-		expect(saved?.settings).toEqual({ format: 'gen9championsdraft', points: 95, picks: 11, coach: 'Me' });
+		expect(saved?.settings).toEqual({ format: 'gen9championsou', points: 95, picks: 11, coach: 'Me' });
 		expect(saved?.roster).toEqual([{ uid: 'a', species: 'Kingdra' }]);
 	});
 

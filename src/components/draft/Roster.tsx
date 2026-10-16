@@ -21,7 +21,8 @@ function pickProblem(draft: Draft, entry: RosterEntry, taken: Map<string, string
 
 /**
  * One pick: click or drag it onto the party. The whole chip is the hit area (the button's ::before covers it);
- * the release control sits above that. A pick already on the team keeps its background on hover.
+ * the release control sits above that. A pick already on the team keeps its background on hover. Only the hit
+ * area tints the chip, and the release icon darkens on hover with no gray fill.
  */
 function RosterChip({ entry, draft, taken }: { entry: RosterEntry; draft: Draft; taken: Map<string, string> }) {
 	const team = useOpenTeam();
@@ -38,7 +39,7 @@ function RosterChip({ entry, draft, taken }: { entry: RosterEntry; draft: Draft;
 	const problem = pickProblem(draft, entry, taken);
 	return (
 		<li
-			className={`relative flex h-11 shrink-0 items-center gap-0.5 rounded-lg border pr-1 ${problem ? 'border-danger' : onTeam ? 'border-accent' : 'border-line'} ${onTeam ? 'bg-accent-soft' : 'hover:bg-hover'}`}
+			className={`relative flex h-11 shrink-0 items-center gap-0.5 rounded-lg border pr-1 ${problem ? 'border-danger' : onTeam ? 'border-accent' : 'border-line'} ${onTeam ? 'bg-accent-soft' : 'has-[>button:hover]:bg-hover'}`}
 			title={problem ?? undefined}
 		>
 			<button
@@ -60,7 +61,7 @@ function RosterChip({ entry, draft, taken }: { entry: RosterEntry; draft: Draft;
 					<span className='whitespace-nowrap text-2xs tabular-nums text-muted'>{pts(costOf(draft.league, entry))}</span>
 				</span>
 			</button>
-			<IconButton size='sm' icon='close' label={`Release ${entry.species}`} onClick={() => releasePick(entry.uid)} tooltip='above' className='relative z-10' />
+			<IconButton size='sm' icon='close' label={`Release ${entry.species}`} onClick={() => releasePick(entry.uid)} tooltip='above' className='relative z-10 hover:!bg-transparent' />
 		</li>
 	);
 }

@@ -4,8 +4,7 @@ import { useRef, useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
 import { Button, NumberBox, Select } from '@/components/ui/controls';
 import { Dialog, Field } from '@/components/shell/Dialogs';
-import { DRAFT_FORMATS } from '@/lib/dex';
-import { costOf, defaultSettings, isSupported, teamSpecies } from '@/lib/draft/draft';
+import { costOf, defaultSettings, teamSpecies } from '@/lib/draft/draft';
 import { fetchLeague, uploadLeague } from '@/lib/draft/client';
 import type { DraftSettings, Found, League } from '@/lib/draft/types';
 import { useStore } from '@/lib/store';
@@ -13,14 +12,6 @@ import { useStore } from '@/lib/store';
 /** "A", "A and B", "A, B and C". */
 export const listOf = (names: string[]) => (names.length < 2 ? (names[0] ?? '') : `${names.slice(0, -1).join(', ')} and ${names.at(-1)}`);
 
-const FORMAT_OPTIONS = DRAFT_FORMATS.filter((f) => isSupported(f.id)).map((f) => ({ value: f.id, label: f.name, group: f.group }));
-
-/** What the format field says about the Rules tab's format, which may be one Draft Mode doesn't support yet. */
-function formatHint(named: string | null) {
-	if (!named) return 'The Rules tab names no format Kingdra knows.';
-	const label = DRAFT_FORMATS.find((f) => f.id === named)?.name ?? named;
-	return isSupported(named) ? `The Rules tab names ${label}.` : `The Rules tab names ${label}, which Draft Mode doesn't support yet.`;
-}
 
 /** Where the sheet states a figure, and whether its places disagree. */
 function sourceHint(found: Found[], value: number) {
@@ -83,7 +74,7 @@ function SetupForm() {
 		<div className='flex flex-col gap-5'>
 			<p role='note' className='flex items-start gap-1.5 rounded-md border border-line px-3 py-2 text-xs'>
 				<Icon name='about' className='mt-px shrink-0 text-accent' />
-				Draft Mode supports Pokémon Champions only for now. Other formats are coming later.
+				Draft Mode supports Pokémon Champions OU only for now. Other formats are coming later.
 			</p>
 			<form
 				className='flex flex-col gap-2'
@@ -146,9 +137,6 @@ function SetupForm() {
 						<p className='text-xs text-muted'>Your roster and teams stay. Kingdra prices your picks against this sheet and flags any that no longer fit.</p>
 					)}
 					<div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-						<Field label='Format' hint={formatHint(league.rules.format)}>
-							<Select label='Format' value={settings.format} options={FORMAT_OPTIONS} onChange={(format) => patch({ format })} />
-						</Field>
 						<Field label='Coach' hint={settings.coach ? "Other coaches' picks become unavailable. Your own picks on the sheet become suggestions." : 'Every Pokémon stays available, whoever has drafted it.'}>
 							<Select
 								label='Coach'
