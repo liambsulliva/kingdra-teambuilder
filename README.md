@@ -101,8 +101,7 @@ Kingdra is an installable PWA. [`src/app/manifest.ts`](src/app/manifest.ts) decl
 - **Chrome on Android:** open the menu and choose Install app.
 - **Safari on iPhone or iPad:** tap Share, then Add to Home Screen.
 
-> [!NOTE]
-> Kingdra has no service worker and doesn't work offline, so the installed app still loads from the server. An earlier cache-first worker served stale HTML to returning visitors. [`public/sw.js`](public/sw.js) now clears its caches and unregisters itself, and the root layout removes any registration that's left.
+Kingdra has no service worker and doesn't work offline, so the installed app still loads from the server. An earlier cache-first worker served stale HTML to returning visitors. [`public/sw.js`](public/sw.js) now clears its caches and unregisters itself, and the root layout removes any registration that's left.
 
 ## Pokémon Champions
 
