@@ -112,7 +112,7 @@ The `@pkmn` packages don't include the Champions mod yet. Validation uses upstre
 ## Draft mode
 
 > [!NOTE]
-> Draft mode is experimental.
+> Draft mode is experimental and may ship with bugs. Use at your own risk.
 
 Draft mode connects a team to your league's draft board in Google Sheets. Build the board from Smogon's [Draft League Planning Template](https://www.smogon.com/forums/threads/draft-league-resources.3716128/): make a copy, fill in your league's Pokémon and picks, then open Share and set General access to Anyone with the link. Paste the sheet's link into Kingdra.
 
