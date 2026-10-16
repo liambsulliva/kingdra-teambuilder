@@ -1,6 +1,6 @@
 # Tests
 
-Three Vitest projects, defined in `vitest.workspace.ts`:
+Three Vitest projects, defined in `vitest.config.ts` (`test.projects`):
 
 | Project | Where | What | Run |
 | --- | --- | --- | --- |
