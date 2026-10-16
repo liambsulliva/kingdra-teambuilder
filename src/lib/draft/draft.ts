@@ -141,8 +141,8 @@ export interface Suggestion {
 	message: string;
 }
 
-/** Where the user's roster differs from the sheet, as changes they can accept or dismiss. */
-export function suggestions(draft: Draft): Suggestion[] {
+/** Every way the user's roster differs from the sheet, dismissed or not. */
+export function allSuggestions(draft: Draft): Suggestion[] {
 	const out: Suggestion[] = [];
 	const taken = takenBy(draft);
 	const mine = draft.league.coaches.find((c) => c.name === draft.settings.coach);
@@ -154,7 +154,43 @@ export function suggestions(draft: Draft): Suggestion[] {
 		if (!draft.roster.some((r) => r.species === pick.species))
 			out.push({ key: `add:${pick.species}`, value: '', kind: 'add', species: pick.species, message: `The sheet has ${pick.species} on your team. Add it to your roster?` });
 	}
-	return out.filter((s) => draft.dismissed[s.key] !== s.value);
+	return out;
+}
+
+/** The changes still waiting: the ones the user hasn't dismissed. */
+export function suggestions(draft: Draft): Suggestion[] {
+	return allSuggestions(draft).filter((s) => draft.dismissed[s.key] !== s.value);
+}
+
+const pts = (n: number) => `${n} ${n === 1 ? 'pt' : 'pts'}`;
+
+/**
+ * Why a suggested add can't join the roster yet, or null when its points fit. The sheet already counts the pick,
+ * but the roster still stays within the budget, so the add waits until the points are there.
+ */
+export function addRefusal(draft: Pick<Draft, 'league' | 'settings' | 'roster'>, species: string): string | null {
+	const price = priceOf(draft.league, species);
+	const left = Math.max(0, balance(draft).pointsLeft);
+	if (!price || price.points <= left) return null;
+	return `${species} needs ${pts(price.points)}. You have ${pts(left)} left.`;
+}
+
+/** What Accept all takes: every release, which refunds its points first, then each add in order while its points still fit. */
+export function acceptable(draft: Pick<Draft, 'league' | 'settings' | 'roster'>, list: Suggestion[]): Suggestion[] {
+	const released = new Set(list.filter((s) => s.kind === 'release').map((s) => s.species));
+	let left = Math.max(0, balance({ ...draft, roster: draft.roster.filter((r) => !released.has(r.species)) }).pointsLeft);
+	const out: Suggestion[] = [];
+	for (const s of list) {
+		if (s.kind === 'release') {
+			out.push(s);
+			continue;
+		}
+		const cost = priceOf(draft.league, s.species)?.points ?? 0;
+		if (cost > left) continue;
+		left -= cost;
+		out.push(s);
+	}
+	return out;
 }
 
 /** The draft a confirmed setup starts, or the existing one re-read against a new sheet. Picks and teams are kept. */

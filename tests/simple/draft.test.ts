@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { balance, defaultSettings, isSupported, newRosterEntry, pickState, suggestions, teamRefusal } from '@/lib/draft/draft';
+import { acceptable, addRefusal, allSuggestions, balance, defaultSettings, isSupported, newRosterEntry, pickState, suggestions, teamRefusal } from '@/lib/draft/draft';
 import { normalizeDraft } from '@/lib/draft/normalize';
 import type { Draft, League } from '@/lib/draft/types';
+import { useStore } from '@/lib/store';
 
 const league = (over: Partial<League> = {}): League => ({
 	source: { kind: 'file', name: 'league.xlsx' },
@@ -92,5 +93,75 @@ describe('coach selection', () => {
 		expect(pickState(planner(), 'Garchomp')).toMatchObject({ ok: true });
 		expect(teamRefusal(planner({ roster: [newRosterEntry('Garchomp')] }), 'Garchomp')).toBeNull();
 		expect(suggestions(planner({ roster: [newRosterEntry('Garchomp')] }))).toEqual([]);
+	});
+});
+
+describe('suggested adds wait for the points', () => {
+	const roster = (...species: string[]) => species.map(newRosterEntry);
+	const withPoints = (points: number, over: Partial<Draft> = {}) => draft({ settings: { ...draft().settings, points }, ...over });
+
+	it('says what an add costs and what is left when the points do not cover it', () => {
+		expect(addRefusal(withPoints(12, { roster: roster('Pelipper') }), 'Kingdra')).toBe('Kingdra needs 9 pts. You have 7 pts left.');
+	});
+
+	it('lets an add through when its points exactly fit', () => {
+		expect(addRefusal(withPoints(9), 'Kingdra')).toBeNull();
+	});
+
+	it('does not block a species the board does not price', () => {
+		expect(addRefusal(withPoints(1), 'Unlisted')).toBeNull();
+	});
+
+	it('says 0 left, not a negative count, when the roster is already over budget', () => {
+		expect(addRefusal(withPoints(10, { roster: roster('Garchomp') }), 'Kingdra')).toBe('Kingdra needs 9 pts. You have 0 pts left.');
+	});
+
+	it('takes every release, which refunds its points, then the adds that still fit in order', () => {
+		// Garchomp is Rival's pick, so releasing it refunds 17 points before the adds are checked.
+		const d = withPoints(20, { roster: roster('Garchomp') });
+		expect(acceptable(d, suggestions(d)).map((s) => [s.kind, s.species])).toEqual([
+			['release', 'Garchomp'],
+			['add', 'Kingdra'],
+			['add', 'Pelipper'],
+		]);
+	});
+
+	it('skips an add that stops fitting once earlier adds take the points', () => {
+		const d = withPoints(13);
+		expect(acceptable(d, suggestions(d)).map((s) => [s.kind, s.species])).toEqual([['add', 'Kingdra']]);
+	});
+
+	it('accepts nothing when no add fits and nothing is released', () => {
+		const d = withPoints(4);
+		expect(acceptable(d, suggestions(d))).toEqual([]);
+	});
+
+	it('refuses an add in the store, with the reason as a toast, and leaves the roster alone', () => {
+		useStore.setState({ library: { ...useStore.getState().library, draft: withPoints(8) } });
+		useStore.getState().acceptSuggestion({ key: 'add:Kingdra', value: '', kind: 'add', species: 'Kingdra', message: '' });
+		expect(useStore.getState().library.draft?.roster).toEqual([]);
+		expect(useStore.getState().toasts.at(-1)?.message).toBe('Kingdra needs 9 pts. You have 8 pts left.');
+	});
+
+	it('accept all in the store adds only the picks that fit', () => {
+		const d = withPoints(13);
+		useStore.setState({ library: { ...useStore.getState().library, draft: d } });
+		useStore.getState().acceptAllSuggestions(suggestions(d));
+		expect(useStore.getState().library.draft?.roster.map((r) => r.species)).toEqual(['Kingdra']);
+	});
+});
+
+describe('dismissed changes', () => {
+	it('stay in every change but leave the waiting list', () => {
+		const d = draft({ dismissed: { 'add:Kingdra': '' } });
+		expect(allSuggestions(d).map((s) => s.key)).toEqual(['add:Kingdra', 'add:Pelipper']);
+		expect(suggestions(d).map((s) => s.key)).toEqual(['add:Pelipper']);
+	});
+
+	it('come back when the sheet changes the line again', () => {
+		const d = draft({ roster: [newRosterEntry('Garchomp')], dismissed: { 'release:Garchomp': 'Rival' } });
+		const reassigned = { ...d, dismissed: { 'release:Garchomp': 'Someone else' } };
+		expect(suggestions(d).map((s) => s.key)).not.toContain('release:Garchomp');
+		expect(suggestions(reassigned).map((s) => s.key)).toContain('release:Garchomp');
 	});
 });

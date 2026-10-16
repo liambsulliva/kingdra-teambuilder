@@ -17,7 +17,7 @@ import {
 	type Team,
 } from './model';
 import { abilitiesFor, canUseSpecies, defaultAbility, defaultLevel, formatLabel, formatsForGen, getSpecies } from './dex';
-import { entriesFor, newRosterEntry, pickState, rosterSet, startDraft, teamRefusal, teamSpecies, type Suggestion } from './draft/draft';
+import { acceptable, addRefusal, entriesFor, newRosterEntry, pickState, rosterSet, startDraft, teamRefusal, teamSpecies, type Suggestion } from './draft/draft';
 import type { Draft, DraftSettings, League } from './draft/types';
 
 export type InspectorView =
@@ -921,17 +921,22 @@ export const useStore = create<Store>()((set, get) => {
 			if (!draft) return;
 			const entry = draft.roster.find((r) => r.species === suggestion.species);
 			if (suggestion.kind === 'add') {
-				// The sheet already counts this pick, so it joins even past the budget the app keeps.
+				const refusal = addRefusal(draft, suggestion.species);
+				if (refusal) {
+					get().toast('error', refusal);
+					return;
+				}
 				updateDraft((d) => ({ ...d, roster: [...d.roster, newRosterEntry(suggestion.species)] }));
 			} else if (entry) get().releasePick(entry.uid);
 		},
 		acceptAllSuggestions: (suggestions) => {
 			const draft = get().library.draft;
 			if (!draft) return;
-			const releases = suggestions.filter((x) => x.kind === 'release').map((x) => draft.roster.find((r) => r.species === x.species)?.uid).filter((x): x is string => !!x);
+			const list = acceptable(draft, suggestions);
+			const releases = list.filter((x) => x.kind === 'release').map((x) => draft.roster.find((r) => r.species === x.species)?.uid).filter((x): x is string => !!x);
 			updateDraft((d) => {
 				let roster = d.roster;
-				for (const x of suggestions) {
+				for (const x of list) {
 					if (x.kind === 'add' && !roster.some((r) => r.species === x.species)) roster = [...roster, newRosterEntry(x.species)];
 				}
 				return { ...d, roster };

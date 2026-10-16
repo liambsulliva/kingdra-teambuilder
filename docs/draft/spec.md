@@ -51,6 +51,7 @@ Reference for the affordances: the 2024 draft planner at commit `97b9fd3` (point
   - a planned pick another coach has taken → release it;
   - a pick that was re-priced or newly banned → acknowledge (the price updates automatically; the suggestion explains the change).
 - Each suggestion has Accept and Dismiss, and the list has Accept all. A dismissed suggestion stays hidden until that line of the sheet changes again.
+- An add the points left can't cover waits. Its Accept is disabled, and a line under it gives the cost and the points left. Accept all takes every release, which refunds its points. It then takes the adds that still fit, in list order, and leaves the rest.
 - A count badge ("3 changes on the sheet") sits beside the Draft board's Sync button. It opens the **Draft sync** view in the right panel (desktop and tablet) or the editor sheet (phone). Nothing opens on its own and nothing toasts.
 
 ## 5. Where things live
