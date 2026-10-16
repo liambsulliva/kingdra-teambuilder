@@ -241,7 +241,7 @@ export const NO_VALIDATION: Validation = Object.freeze({ byMember: Object.freeze
 const validationCache = new Map<string, Validation>();
 const VALIDATION_CACHE_SIZE = 64;
 
-/** Adds the draft's own problems (roster, Mega Stones, Tera Captains) to Showdown's. */
+/** Adds the draft's own problems (roster, Mega Stones) to Showdown's. */
 function withDraft(result: Validation, issues: Record<string, string[]> | null): Validation {
 	if (!issues || !Object.keys(issues).length) return result;
 	const byMember = { ...result.byMember };

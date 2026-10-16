@@ -2,7 +2,9 @@ import { Dex } from '@pkmn/dex';
 import { newTeam, uid, type PokemonSet, type Team } from '../model';
 import type { Draft, DraftSettings, League, RosterEntry, TierEntry } from './types';
 
-export const canTera = (format: string) => !format.startsWith('gen9champions');
+/** Draft Mode supports Pokémon Champions formats only for now; the other draft formats stay in the dex for later. */
+export const isSupported = (format: unknown): format is string => typeof format === 'string' && format.startsWith('gen9champions');
+export const DEFAULT_FORMAT = 'gen9championsdraft';
 
 /** The first value the sheet gives for a figure, preferring cells over prose. */
 export const firstFound = (found: { value: number }[], fallback: number) => found[0]?.value ?? fallback;
@@ -10,9 +12,8 @@ export const firstFound = (found: { value: number }[], fallback: number) => foun
 /** The settings the dialog starts from for a freshly read league. */
 export function defaultSettings(league: League, previous?: DraftSettings): DraftSettings {
 	return {
-		format: previous?.format ?? league.rules.format ?? 'gen9championsdraft',
+		format: [previous?.format, league.rules.format].find(isSupported) ?? DEFAULT_FORMAT,
 		points: firstFound(league.budget.points, 100),
-		teraPoints: firstFound(league.budget.teraPoints, 0),
 		picks: firstFound(league.budget.picks, 11),
 		coach: previous?.coach && league.coaches.some((c) => c.name === previous.coach) ? previous.coach : null,
 	};
@@ -23,8 +24,10 @@ export const priceOf = (league: League, species: string): TierEntry | undefined 
 /**
  * Every Pokémon other coaches have drafted, with the coach. A sheet can list one Pokémon under two coaches;
  * when the user's own coach is one of them, the sheet says it is theirs, so it isn't taken.
+ * Someone who isn't a coach in the league is only planning, so nothing is taken for them.
  */
 export function takenBy(draft: Pick<Draft, 'league' | 'settings'>): Map<string, string> {
+	if (!draft.settings.coach) return new Map();
 	const mine = new Set(draft.league.coaches.find((c) => c.name === draft.settings.coach)?.picks.map((p) => p.species));
 	const out = new Map<string, string>();
 	for (const coach of draft.league.coaches) {
@@ -34,27 +37,14 @@ export function takenBy(draft: Pick<Draft, 'league' | 'settings'>): Map<string, 
 	return out;
 }
 
-export const hasTera = (league: League) => league.tiers.some((t) => t.tera !== null);
-
-/** What a pick costs: its Tera value while it is a Tera Captain (the sheet's own rule), else its points. */
-export function costOf(league: League, entry: Pick<RosterEntry, 'species' | 'captain'>) {
-	const price = priceOf(league, entry.species);
-	if (!price) return 0;
-	return entry.captain && price.tera !== null ? price.tera : price.points;
-}
+/** What a pick costs: its points on the board, or nothing once the board no longer lists it. */
+export const costOf = (league: League, entry: Pick<RosterEntry, 'species'>) => priceOf(league, entry.species)?.points ?? 0;
 
 export function balance(draft: Pick<Draft, 'league' | 'settings' | 'roster'>) {
-	let points = 0;
-	let tera = 0;
-	for (const entry of draft.roster) {
-		points += costOf(draft.league, entry);
-		if (entry.captain) tera += priceOf(draft.league, entry.species)?.tera ?? 0;
-	}
+	const points = draft.roster.reduce((sum, entry) => sum + costOf(draft.league, entry), 0);
 	return {
 		points,
 		pointsLeft: draft.settings.points - points,
-		tera,
-		teraLeft: draft.settings.teraPoints - tera,
 		picks: draft.roster.length,
 		picksLeft: draft.settings.picks - draft.roster.length,
 	};
@@ -106,21 +96,13 @@ export function teamRefusal(draft: Pick<Draft, 'league' | 'settings' | 'roster'>
 	return `${resolved} isn't on your roster. Draft it first`;
 }
 
-/**
- * A new member for a rostered species. A Mega pick (with no base-form pick) holds its stone; a Tera Captain
- * brings its Tera type when the format can Terastallize.
- */
+/** A new member for a rostered species. A Mega pick (with no base-form pick) holds its stone. */
 export function rosterSet(draft: Pick<Draft, 'league' | 'settings' | 'roster'>, set: PokemonSet): PokemonSet {
 	const entries = entriesFor(draft, set.species);
 	if (!entries.length) return set;
 	const base = entries.find((e) => !species(e.species).isMega);
 	const mega = entries.find((e) => species(e.species).isMega);
-	const captain = entries.find((e) => e.captain && e.teraType);
-	return {
-		...set,
-		item: !base && mega ? (megaStone(mega.species) ?? set.item) : set.item,
-		teraType: captain && canTera(draft.settings.format) ? captain.teraType : set.teraType,
-	};
+	return { ...set, item: !base && mega ? (megaStone(mega.species) ?? set.item) : set.item };
 }
 
 /** Draft rules Showdown can't check, as legality problems by member. */
@@ -145,8 +127,6 @@ export function draftIssues(draft: Pick<Draft, 'league' | 'settings' | 'roster'>
 		}
 		if (megaPick && !basePick && megaStone(megaPick.species) !== m.item)
 			add(m, `${name} was drafted as ${megaPick.species}, so it must hold ${megaStone(megaPick.species)}`);
-		if (canTera(draft.settings.format) && hasTera(draft.league) && m.teraType && !entries.some((e) => e.captain))
-			add(m, `${name} isn't a Tera Captain, so it can't Terastallize`);
 	}
 	return out;
 }
@@ -156,7 +136,7 @@ export interface Suggestion {
 	key: string;
 	/** The sheet's value for that line; a dismissal holds only while it matches. */
 	value: string;
-	kind: 'add' | 'release' | 'captain' | 'uncaptain';
+	kind: 'add' | 'release';
 	species: string;
 	message: string;
 }
@@ -171,19 +151,8 @@ export function suggestions(draft: Draft): Suggestion[] {
 		if (coach) out.push({ key: `release:${entry.species}`, value: coach, kind: 'release', species: entry.species, message: `${coach} drafted ${entry.species}. Release it from your roster?` });
 	}
 	for (const pick of mine?.picks ?? []) {
-		const entry = draft.roster.find((r) => r.species === pick.species);
-		if (!entry) {
-			out.push({ key: `add:${pick.species}`, value: pick.captain ? 'T' : '', kind: 'add', species: pick.species, message: `The sheet has ${pick.species} on your team. Add it to your roster?` });
-			continue;
-		}
-		if (pick.captain !== entry.captain)
-			out.push({
-				key: `captain:${pick.species}`,
-				value: pick.captain ? 'T' : '',
-				kind: pick.captain ? 'captain' : 'uncaptain',
-				species: pick.species,
-				message: pick.captain ? `The sheet marks ${pick.species} as a Tera Captain. Mark it here too?` : `The sheet doesn't mark ${pick.species} as a Tera Captain. Unmark it here too?`,
-			});
+		if (!draft.roster.some((r) => r.species === pick.species))
+			out.push({ key: `add:${pick.species}`, value: '', kind: 'add', species: pick.species, message: `The sheet has ${pick.species} on your team. Add it to your roster?` });
 	}
 	return out.filter((s) => draft.dismissed[s.key] !== s.value);
 }
@@ -204,4 +173,4 @@ export function startDraft(league: League, settings: DraftSettings, previous?: D
 	};
 }
 
-export const newRosterEntry = (species: string, captain = false): RosterEntry => ({ uid: uid(), species, captain, teraType: '' });
+export const newRosterEntry = (species: string): RosterEntry => ({ uid: uid(), species });

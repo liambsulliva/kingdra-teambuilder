@@ -70,7 +70,7 @@ interface TierBlocks {
 	unmatched: Set<string>;
 }
 
-/** Reads the Tiers tab: a row of tier labels (points, Banned, Complex Bans) over a row of "Pokemon" / "Tera" headers. */
+/** Reads the Tiers tab: a row of tier labels (points, Banned, Complex Bans) over a row of "Pokemon" headers. */
 function readTiers(sheet: Sheet): TierBlocks | null {
 	const h = headerRow(sheet, /^pok[eé]mon$/i);
 	if (!h) return null;
@@ -81,12 +81,10 @@ function readTiers(sheet: Sheet): TierBlocks | null {
 	starts.forEach((start, i) => {
 		const end = (starts[i + 1] ?? sheet.maxCol + 1) - 1;
 		const label = cellAt(sheet, h - 1, start);
-		const teraCol = [...header.entries()].find(([c, v]) => c > start && c <= end && /^tera$/i.test(text(v)))?.[0];
 		// The names sit in whichever column of the block holds the most Pokémon; a merged header can sit over a sprite column.
 		let nameCol = start;
 		let best = -1;
 		for (let c = start; c <= end; c++) {
-			if (c === teraCol) continue;
 			let n = 0;
 			for (let r = h + 1; r <= sheet.maxRow; r++) if (text(cellAt(sheet, r, c)) && resolveSpecies(text(cellAt(sheet, r, c)))) n++;
 			if (n > best) [best, nameCol] = [n, c];
@@ -108,21 +106,20 @@ function readTiers(sheet: Sheet): TierBlocks | null {
 				if (what) out.complexBans.push({ species, with: what.replace(/\b\w/g, (m) => m.toUpperCase()) });
 			} else if (!seen.has(species)) {
 				seen.add(species);
-				out.tiers.push({ species, points: points!, tera: teraCol ? num(cellAt(sheet, r, teraCol)) : null });
+				out.tiers.push({ species, points: points! });
 			}
 		}
 	});
 	return out;
 }
 
-/** Reads the Dex tab (Pokémon, Points, Tera columns; 99 points bans) when there is no usable Tiers tab. */
+/** Reads the Dex tab (Pokémon and Points columns; 99 points bans) when there is no usable Tiers tab. */
 function readDex(sheet: Sheet): TierBlocks | null {
 	for (const [r, row] of sheet.rows) {
 		const cols = new Map([...row.entries()].map(([c, v]) => [text(v).toLowerCase(), c]));
 		const nameCol = cols.get('pokémon') ?? cols.get('pokemon');
 		const pointsCol = cols.get('points');
 		if (!nameCol || !pointsCol) continue;
-		const teraCol = cols.get('tera');
 		const out: TierBlocks = { tiers: [], banned: [], complexBans: [], unmatched: new Set() };
 		for (let i = r + 1; i <= sheet.maxRow; i++) {
 			const raw = text(cellAt(sheet, i, nameCol));
@@ -131,14 +128,14 @@ function readDex(sheet: Sheet): TierBlocks | null {
 			const species = resolveSpecies(raw);
 			if (!species) out.unmatched.add(raw);
 			else if (points >= 99) out.banned.push(species);
-			else out.tiers.push({ species, points, tera: teraCol ? num(cellAt(sheet, i, teraCol)) : null });
+			else out.tiers.push({ species, points });
 		}
 		return out;
 	}
 	return null;
 }
 
-/** Reads each coach's picks from the Drafts tab: a "Coach Info" row of names over "Pick n" rows. A "T" in a pick's block marks a Tera Captain. */
+/** Reads each coach's picks from the Drafts tab: a "Coach Info" row of names over "Pick n" rows. */
 function readDrafts(sheet: Sheet, unmatched: Set<string>): { coaches: Coach[]; pickRows: number } {
 	const coaches = new Map<string, Coach>();
 	let pickRows = 0;
@@ -152,8 +149,7 @@ function readDrafts(sheet: Sheet, unmatched: Set<string>): { coaches: Coach[]; p
 		const rows: number[] = [];
 		for (let p = r + 1; p < next; p++) if (/^pick\s*\d+$/i.test(text(cellAt(sheet, p, labelCol)))) rows.push(p);
 		pickRows = Math.max(pickRows, rows.length);
-		names.forEach(([col, value], j) => {
-			const end = (names[j + 1]?.[0] ?? col + 8) - 1;
+		names.forEach(([col, value]) => {
 			const name = text(value);
 			const coach = coaches.get(name) ?? { name, picks: [] };
 			coaches.set(name, coach);
@@ -165,9 +161,7 @@ function readDrafts(sheet: Sheet, unmatched: Set<string>): { coaches: Coach[]; p
 					unmatched.add(raw);
 					continue;
 				}
-				let captain = false;
-				for (let c = col + 1; c <= end; c++) if (/^t$/i.test(text(cellAt(sheet, p, c)))) captain = true;
-				coach.picks.push({ species, captain });
+				coach.picks.push({ species });
 			}
 		});
 	});
@@ -302,7 +296,7 @@ export function parseLeague(buf: Buffer, source: LeagueSource, title = ''): Leag
 		banned: [...new Set(blocks.banned)],
 		complexBans: blocks.complexBans,
 		coaches: drafts.coaches,
-		budget: { points, teraPoints: cells(/^tera points:?$/i), picks },
+		budget: { points, picks },
 		rules: { ...rules, custom: [...new Set(rules.custom)] },
 		unmatched: [...blocks.unmatched],
 	};

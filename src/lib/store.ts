@@ -17,7 +17,7 @@ import {
 	type Team,
 } from './model';
 import { abilitiesFor, canUseSpecies, defaultAbility, defaultLevel, formatLabel, formatsForGen, getSpecies } from './dex';
-import { balance, costOf, entriesFor, newRosterEntry, pickState, priceOf, rosterSet, startDraft, teamRefusal, teamSpecies, type Suggestion } from './draft/draft';
+import { entriesFor, newRosterEntry, pickState, rosterSet, startDraft, teamRefusal, teamSpecies, type Suggestion } from './draft/draft';
 import type { Draft, DraftSettings, League } from './draft/types';
 
 export type InspectorView =
@@ -172,8 +172,6 @@ interface Actions {
 	draftPick(species: string): boolean;
 	releasePick(uid: string): void;
 	confirmRelease(): void;
-	setCaptain(uid: string, captain: boolean): void;
-	setCaptainType(uid: string, teraType: string): void;
 	acceptSuggestion(suggestion: Suggestion): void;
 	acceptAllSuggestions(suggestions: Suggestion[]): void;
 	dismissSuggestion(suggestion: Suggestion): void;
@@ -918,39 +916,14 @@ export const useStore = create<Store>()((set, get) => {
 			set({ pendingRelease: null, dialog: null });
 			if (id) dropPicks([id]);
 		},
-		setCaptain: (entryUid, captain) => {
-			const draft = get().library.draft;
-			const entry = draft?.roster.find((r) => r.uid === entryUid);
-			if (!draft || !entry || entry.captain === captain) return;
-			if (captain) {
-				const price = priceOf(draft.league, entry.species);
-				const b = balance(draft);
-				const why =
-					price?.tera == null
-						? `${entry.species} can't be a Tera Captain in this league`
-						: price.tera > b.teraLeft
-							? `${entry.species} needs ${price.tera} Tera Points and you have ${b.teraLeft} left`
-							: price.tera - costOf(draft.league, entry) > b.pointsLeft
-								? `As a Tera Captain ${entry.species} costs ${price.tera} pts, more than you have left`
-								: null;
-				if (why) {
-					get().toast('error', why);
-					return;
-				}
-			}
-			updateDraft((d) => ({ ...d, roster: d.roster.map((r) => (r.uid === entryUid ? { ...r, captain } : r)) }));
-		},
-		setCaptainType: (entryUid, teraType) =>
-			updateDraft((d) => ({ ...d, roster: d.roster.map((r) => (r.uid === entryUid ? { ...r, teraType } : r)) })),
 		acceptSuggestion: (suggestion) => {
 			const draft = get().library.draft;
 			if (!draft) return;
 			const entry = draft.roster.find((r) => r.species === suggestion.species);
 			if (suggestion.kind === 'add') {
 				// The sheet already counts this pick, so it joins even past the budget the app keeps.
-				updateDraft((d) => ({ ...d, roster: [...d.roster, newRosterEntry(suggestion.species, suggestion.value === 'T')] }));
-			} else if (suggestion.kind === 'release' && entry) get().releasePick(entry.uid);
-			else if (entry) updateDraft((d) => ({ ...d, roster: d.roster.map((r) => (r.uid === entry.uid ? { ...r, captain: suggestion.kind === 'captain' } : r)) }));
+				updateDraft((d) => ({ ...d, roster: [...d.roster, newRosterEntry(suggestion.species)] }));
+			} else if (entry) get().releasePick(entry.uid);
 		},
 		acceptAllSuggestions: (suggestions) => {
 			const draft = get().library.draft;
@@ -959,8 +932,7 @@ export const useStore = create<Store>()((set, get) => {
 			updateDraft((d) => {
 				let roster = d.roster;
 				for (const x of suggestions) {
-					if (x.kind === 'add' && !roster.some((r) => r.species === x.species)) roster = [...roster, newRosterEntry(x.species, x.value === 'T')];
-					if (x.kind === 'captain' || x.kind === 'uncaptain') roster = roster.map((r) => (r.species === x.species ? { ...r, captain: x.kind === 'captain' } : r));
+					if (x.kind === 'add' && !roster.some((r) => r.species === x.species)) roster = [...roster, newRosterEntry(x.species)];
 				}
 				return { ...d, roster };
 			});

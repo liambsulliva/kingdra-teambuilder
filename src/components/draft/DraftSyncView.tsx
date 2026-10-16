@@ -29,7 +29,7 @@ export function DraftSyncView() {
 			<p className='text-xs text-muted'>
 				{coach
 					? `Changes between your roster and ${coach}'s picks on the sheet. Your roster can differ from the sheet, so plan ahead as you like.`
-					: 'Other coaches you share a Pokémon with show here. Pick your coach in the league sheet settings to compare your own picks.'}
+					: "You aren't a coach in this league, so every Pokémon is open to you. Pick your coach in the league sheet settings to compare your own picks."}
 			</p>
 			{list.length ? (
 				<ul className='flex flex-col gap-2'>
@@ -42,7 +42,7 @@ export function DraftSyncView() {
 							<div className='flex justify-end gap-2'>
 								<Button onClick={() => dismiss(s)}>Dismiss</Button>
 								<Button variant={s.kind === 'release' ? 'secondary' : 'accent'} onClick={() => accept(s)}>
-									{s.kind === 'add' ? 'Add' : s.kind === 'release' ? 'Release' : s.kind === 'captain' ? 'Mark' : 'Unmark'}
+									{s.kind === 'add' ? 'Add' : 'Release'}
 								</Button>
 							</div>
 						</li>

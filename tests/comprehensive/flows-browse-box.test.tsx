@@ -254,7 +254,7 @@ describe('the PC Box', () => {
 		await click(button('Box', panel()));
 		expect(drawer()).toBeTruthy();
 	};
-	const count = () => drawer()!.textContent!.match(/(\d+) \/ 30/)![1];
+	const count = () => [...drawer()!.querySelectorAll('span')].map((x) => x.textContent!.match(/^(\d+) \/ 30$/)?.[1]).find(Boolean)!;
 
 	it('opens and closes from the Box button, the close button, Escape and the backdrop', async () => {
 		await openBox();

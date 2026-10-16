@@ -5,11 +5,10 @@ export type LeagueSource =
 	| { kind: 'google'; sheetId: string; url: string }
 	| { kind: 'file'; name: string };
 
-/** One draftable Pokémon: its price, and its Tera value when it can be a Tera Captain. */
+/** One draftable Pokémon and its price. */
 export interface TierEntry {
 	species: string;
 	points: number;
-	tera: number | null;
 }
 
 export interface ComplexBan {
@@ -20,7 +19,6 @@ export interface ComplexBan {
 
 export interface CoachPick {
 	species: string;
-	captain: boolean;
 }
 
 export interface Coach {
@@ -45,7 +43,6 @@ export interface League {
 	coaches: Coach[];
 	budget: {
 		points: Found[];
-		teraPoints: Found[];
 		picks: Found[];
 	};
 	rules: {
@@ -67,7 +64,6 @@ export interface League {
 export interface DraftSettings {
 	format: string;
 	points: number;
-	teraPoints: number;
 	picks: number;
 	/** The coach whose Drafts column is this user's. Null to ignore the Drafts tab for suggestions. */
 	coach: string | null;
@@ -76,8 +72,6 @@ export interface DraftSettings {
 export interface RosterEntry {
 	uid: string;
 	species: string;
-	captain: boolean;
-	teraType: string;
 }
 
 /** The one draft a user keeps: the league, their roster and the battle teams built from it. */

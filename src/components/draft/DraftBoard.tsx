@@ -13,7 +13,7 @@ import { addAndLand } from '@/components/motion/choreography';
 import { Dex } from '@pkmn/dex';
 import { getSpecies, moveIndex } from '@/lib/dex';
 import type { Team } from '@/lib/model';
-import { balance, hasTera, pickState, suggestions, takenBy, teamSpecies, type PickState } from '@/lib/draft/draft';
+import { balance, pickState, suggestions, takenBy, teamSpecies, type PickState } from '@/lib/draft/draft';
 import { lastSynced, syncDraft } from '@/lib/draft/sync';
 import { RosterRow } from './Roster';
 import type { TierEntry } from '@/lib/draft/types';
@@ -140,7 +140,6 @@ export const BoardCard = memo(function BoardCard({ item, wide }: { item: BoardIt
 			</span>
 			<span className='flex items-center gap-1.5 text-xs'>
 				<span className='font-semibold tabular-nums'>{pts(price.points)}</span>
-				{price.tera != null && <span className='tabular-nums text-muted'>Tera {price.tera}</span>}
 				{status && (
 					<span className={`ml-auto inline-flex min-w-0 items-center gap-1 truncate ${drafted ? 'font-medium text-accent' : 'text-muted'}`}>
 						{drafted && <Icon name='check' className='shrink-0' />}
@@ -166,7 +165,7 @@ function useAgo(at: number) {
 	return `${Math.floor(min / 60)} h ago`;
 }
 
-/** Points, picks and Tera Points left. Over budget turns red. */
+/** Points and picks left. Over budget turns red. */
 export function DraftBalance({ className = '' }: { className?: string }) {
 	const draft = useDraft()!;
 	const b = balance(draft);
@@ -183,7 +182,6 @@ export function DraftBalance({ className = '' }: { className?: string }) {
 		<span className={`inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-xs ${className}`}>
 			{stat(b.pointsLeft, draft.settings.points, 'pts')}
 			{stat(b.picksLeft, draft.settings.picks, 'picks')}
-			{hasTera(draft.league) && stat(b.teraLeft, draft.settings.teraPoints, 'Tera Points')}
 		</span>
 	);
 }
