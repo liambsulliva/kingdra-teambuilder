@@ -110,6 +110,15 @@ Gen 9 teams can use four Pokémon Champions formats: Champions OU, Champions UU,
 
 The `@pkmn` packages don't include the Champions mod yet. Validation uses upstream `pokemon-showdown` instead, and [`scripts/build-champions-data.mjs`](scripts/build-champions-data.mjs) copies its legal species, tiers, items (Mega Stones included) and learnsets into `src/lib/data`. Run it again after you update `pokemon-showdown`.
 
+## Draft mode
+
+> [!NOTE]
+> Draft mode is experimental.
+
+Draft mode connects a team to your league's draft board in Google Sheets. Build the board from Smogon's [Draft League Planning Template](https://www.smogon.com/forums/threads/draft-league-resources.3716128/): make a copy, fill in your league's Pokémon and picks, then open Share and set General access to Anyone with the link. Paste the sheet's link into Kingdra.
+
+Kingdra reads the sheet live. Suggestions follow the board, and a Pokémon another coach has taken can't be added to your team.
+
 ## Design
 
 The design lives in the [Kingdra Swiss redesign Figma file](https://www.figma.com/design/H8XygLsOxYDmwr881Cxct5). It holds the components, the desktop and phone screens in light and dark, and motion storyboards with timings.
